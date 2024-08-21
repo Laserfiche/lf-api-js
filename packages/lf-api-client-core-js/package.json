@@ -1,0 +1,54 @@
+{
+  "name": "@laserfiche/lf-api-client-core",
+  "version": "1.1.12",
+  "description": "",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.node.config.js",
+    "test:all": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.jsdom.config.js",
+    "test:Cloud": "node --experimental-vm-modules node_modules/jest/bin/jest.js --group=IntegrationTests/Cloud --group=UnitTests --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --group=IntegrationTests/Cloud --group=UnitTests --rootDir=lib --config jest.jsdom.config.js",
+    "test:SelfHosted": "node --experimental-vm-modules node_modules/jest/bin/jest.js --group=IntegrationTests/SelfHosted --group=UnitTests --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --group=IntegrationTests/SelfHosted --group=UnitTests --rootDir=lib --config jest.jsdom.config.js",
+    "example": "cd example && npm i && npm start",
+    "build": "npm run clean && tsc -b",
+    "build:watch": "tsc -b --watch",
+    "clean": "tsc -b --clean"
+  },
+  "keywords": [
+    "Laserfiche"
+  ],
+  "author": "Laserfiche",
+  "url": "https://www.laserfiche.com/",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Laserfiche/lf-api-client-core-js"
+  },
+  "devDependencies": {
+    "@types/isomorphic-fetch": "^0.0.35",
+    "@types/jest": "^28.1.8",
+    "@types/jsonwebtoken": "^8.5.6",
+    "@types/jsrsasign": "^10.5.12",
+    "@types/jwk-to-pem": "^2.0.1",
+    "@types/node": "^16.18.105",
+    "babel-jest": "^28.1.3",
+    "isomorphic-fetch": "^3.0.0",
+    "jest": "^28.1.3",
+    "jest-environment-jsdom": "^28.1.3",
+    "jest-junit": "^13.0.0",
+    "jest-runner-groups": "2.2.0",
+    "ts-jest": "^28.0.8",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "@laserfiche/lf-js-utils": "^4.0.2",
+    "dotenv": "^16.0.1",
+    "jsrsasign": "^11.0.0",
+    "jsrsasign-util": "^1.0.5"
+  }
+}

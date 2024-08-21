@@ -1,0 +1,34 @@
+{
+  "runtime": "Default",
+  "defaultVariables": null,
+  "documentGenerator": {
+    "fromDocument": {
+      "url": "swagger.json",
+      "output": null,
+      "newLineBehavior": "Auto"
+    }
+  },
+  "codeGenerators": {
+    "openApiToTypeScriptClient": {
+      "generateClientClasses": true,
+      "wrapDtoExceptions": true,
+      "generateClientInterfaces": true,
+      "className": "{controller}Client",
+      "configurationClass": null,
+      "extensionCode": "../ClientBase.ts",
+      "excludedTypeNames": [ "ApiException" ],
+      "extendedClasses": ["AttributesClient","EntriesClient","FieldDefinitionsClient","SearchesClient","TagDefinitionsClient", "TemplateDefinitionsClient", 
+                          "LinkDefinitionsClient", "ProblemDetails", "RepositoriesClient"],
+      "output": "../index.ts",
+      "useTransformOptionsMethod": false,
+      "useTransformResultMethod": false,
+      "generateOptionalParameters": true,
+      "markOptionalProperties": true,
+      "operationGenerationMode": "MultipleClientsFromFirstTagAndOperationId",
+      "templateDirectory": "nswag",
+      "wrapResponses": false,
+      "wrapResponseMethods": [],
+      "responseClass": "HttpResponseHead"
+    }
+  }
+}

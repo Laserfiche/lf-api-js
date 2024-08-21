@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="61" failures="61" errors="0" time="45.621">
+  <testsuite name="Template Definitions Integration Tests" errors="0" failures="8" skipped="0" timestamp="2024-08-21T16:52:34" time="6.608" tests="8">
+    <testcase classname="Template Definitions Integration Tests Get Template Definition" name="Template Definitions Integration Tests Get Template Definition" time="0.949">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Template Definitions Integration Tests Get Template Definition Fields" name="Template Definitions Integration Tests Get Template Definition Fields" time="0.579">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Template Definitions Integration Tests Get Template Definitions for each paging" name="Template Definitions Integration Tests Get Template Definitions for each paging" time="0.578">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Template Definitions Integration Tests Get Template Definition Fields Simple Paging" name="Template Definitions Integration Tests Get Template Definition Fields Simple Paging" time="0.591">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Template Definitions Integration Tests Get Template Definition Fields by Template Name" name="Template Definitions Integration Tests Get Template Definition Fields by Template Name" time="0.562">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Template Definitions Integration Tests Get Template Field Definition Fields Simple Paging" name="Template Definitions Integration Tests Get Template Field Definition Fields Simple Paging" time="0.561">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Template Definitions Integration Tests Get Template Definition Fields by Id" name="Template Definitions Integration Tests Get Template Definition Fields by Id" time="0.592">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Template Definitions Integration Tests Get Template Field Definition by Template Name Simple Paging" name="Template Definitions Integration Tests Get Template Field Definition by Template Name Simple Paging" time="0.578">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Set Entries Integration Tests" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:52:41" time="0.86" tests="1">
+    <testcase classname="Set Entries Integration Tests Set Links" name="Set Entries Integration Tests Set Links" time="0.588">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Task Integration Tests" errors="0" failures="2" skipped="0" timestamp="2024-08-21T16:52:42" time="1.357" tests="2">
+    <testcase classname="Task Integration Tests Cancel Operation" name="Task Integration Tests Cancel Operation" time="0.578">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Task Integration Tests Get Operation Status" name="Task Integration Tests Get Operation Status" time="0.582">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Tag Definitions Integration Tests" errors="0" failures="4" skipped="0" timestamp="2024-08-21T16:52:43" time="2.505" tests="4">
+    <testcase classname="Tag Definitions Integration Tests Get Tag Definitions" name="Tag Definitions Integration Tests Get Tag Definitions" time="0.591">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Tag Definitions Integration Tests Get Tag Definitions for each paging" name="Tag Definitions Integration Tests Get Tag Definitions for each paging" time="0.602">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Tag Definitions Integration Tests Get Tag Definitions Simple Paging" name="Tag Definitions Integration Tests Get Tag Definitions Simple Paging" time="0.549">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Tag Definitions Integration Tests Get Tag Definitions by Id" name="Tag Definitions Integration Tests Get Tag Definitions by Id" time="0.56">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="List Entries Integration Tests" errors="0" failures="8" skipped="0" timestamp="2024-08-21T16:52:46" time="4.749" tests="8">
+    <testcase classname="List Entries Integration Tests List Fields" name="List Entries Integration Tests List Fields" time="0.609">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="List Entries Integration Tests List Entries" name="List Entries Integration Tests List Entries" time="0.564">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="List Entries Integration Tests List Links" name="List Entries Integration Tests List Links" time="0.572">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="List Entries Integration Tests List Tags" name="List Entries Integration Tests List Tags" time="0.573">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="List Entries Integration Tests Get Entry Return Root Folder" name="List Entries Integration Tests Get Entry Return Root Folder" time="0.552">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="List Entries Integration Tests Get Entry by Full Path Returns Root Folder" name="List Entries Integration Tests Get Entry by Full Path Returns Root Folder" time="0.539">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="List Entries Integration Tests Get Entry by Full Path Returns Ancestor Root Folder" name="List Entries Integration Tests Get Entry by Full Path Returns Ancestor Root Folder" time="0.546">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="List Entries Integration Tests List Entry Throw Exception" name="List Entries Integration Tests List Entry Throw Exception" time="0.579">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 404
+Received: 401
+    at C:\src\lf-api-js\packages\lf-repository-api-client-js\test\Entries\ListEntries.test.ts:79:39
+    at Generator.throw (&lt;anonymous&gt;)
+    at rejected (C:\src\lf-api-js\packages\lf-repository-api-client-js\test\Entries\ListEntries.test.ts:5:65)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Update Entries Integration Tests" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:52:51" time="0.782" tests="1">
+    <testcase classname="Update Entries Integration Tests Rename Entry" name="Update Entries Integration Tests Rename Entry" time="0.589">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Start Copy Entry Test" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:52:51" time="0.818" tests="1">
+    <testcase classname="Start Copy Entry Test Start Copy Entry" name="Start Copy Entry Test Start Copy Entry" time="0.605">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Set Entries Integration Tests" errors="0" failures="3" skipped="0" timestamp="2024-08-21T16:52:52" time="2.071" tests="3">
+    <testcase classname="Set Entries Integration Tests Set fields" name="Set Entries Integration Tests Set fields" time="0.616">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Set Entries Integration Tests Set Tags" name="Set Entries Integration Tests Set Tags" time="0.614">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Set Entries Integration Tests Set Templates" name="Set Entries Integration Tests Set Templates" time="0.608">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Remove Entries Integration Tests" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:52:54" time="0.816" tests="1">
+    <testcase classname="Remove Entries Integration Tests Remove Template from Entry Return Entry" name="Remove Entries Integration Tests Remove Template from Entry Return Entry" time="0.595">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Get Entry Next Links Tests" errors="0" failures="4" skipped="0" timestamp="2024-08-21T16:52:55" time="2.501" tests="4">
+    <testcase classname="Get Entry Next Links Tests List Fields simple paging" name="Get Entry Next Links Tests List Fields simple paging" time="0.611">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Get Entry Next Links Tests List Links simple paging" name="Get Entry Next Links Tests List Links simple paging" time="0.569">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Get Entry Next Links Tests List Entries simple paging" name="Get Entry Next Links Tests List Entries simple paging" time="0.578">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Get Entry Next Links Tests List Tags simple paging" name="Get Entry Next Links Tests List Tags simple paging" time="0.549">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="List Entry Tests" errors="0" failures="4" skipped="0" timestamp="2024-08-21T16:52:58" time="2.776" tests="4">
+    <testcase classname="List Entry Tests List Entries ForEach" name="List Entry Tests List Entries ForEach" time="0.603">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="List Entry Tests List Fields ForEach" name="List Entry Tests List Fields ForEach" time="0.574">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="List Entry Tests List Links ForEach" name="List Entry Tests List Links ForEach" time="0.807">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="List Entry Tests List Tags ForEach" name="List Entry Tests List Tags ForEach" time="0.592">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Dynamic Fields Integration Tests" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:53:00" time="0.806" tests="1">
+    <testcase classname="Dynamic Fields Integration Tests Get Dynamic Fields Entry" name="Dynamic Fields Integration Tests Get Dynamic Fields Entry" time="0.601">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Import Document Integration Tests" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:53:01" time="0.776" tests="1">
+    <testcase classname="Import Document Integration Tests Import Document Throws Exception" name="Import Document Integration Tests Import Document Throws Exception" time="0.587">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 400
+Received: 401
+    at C:\src\lf-api-js\packages\lf-repository-api-client-js\test\Entries\ImportEntry.test.ts:35:45
+    at Generator.throw (&lt;anonymous&gt;)
+    at rejected (C:\src\lf-api-js\packages\lf-repository-api-client-js\test\Entries\ImportEntry.test.ts:5:65)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Delete Entries Integration Tests" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:53:02" time="0.804" tests="1">
+    <testcase classname="Delete Entries Integration Tests Delete Entry" name="Delete Entries Integration Tests Delete Entry" time="0.594">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Create Entry Tests" errors="0" failures="2" skipped="0" timestamp="2024-08-21T16:53:03" time="1.385" tests="2">
+    <testcase classname="Create Entry Tests Create Folder" name="Create Entry Tests Create Folder" time="0.616">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Create Entry Tests Create Shortcut" name="Create Entry Tests Create Shortcut" time="0.571">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Copy Entry Test" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:53:04" time="0.792" tests="1">
+    <testcase classname="Copy Entry Test Copy Shortcut" name="Copy Entry Test Copy Shortcut" time="0.613">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Field Definitions Integration Tests" errors="0" failures="4" skipped="0" timestamp="2024-08-21T16:53:05" time="2.495" tests="4">
+    <testcase classname="Field Definitions Integration Tests Get Field Definitions" name="Field Definitions Integration Tests Get Field Definitions" time="0.621">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Field Definitions Integration Tests Get Field Definitions simple paging" name="Field Definitions Integration Tests Get Field Definitions simple paging" time="0.555">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Field Definitions Integration Tests Get Field Definitions for each paging" name="Field Definitions Integration Tests Get Field Definitions for each paging" time="0.564">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Field Definitions Integration Tests Get Field Definitions by Id" name="Field Definitions Integration Tests Get Field Definitions by Id" time="0.559">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Simple Search Integration Tests" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:53:08" time="0.82" tests="1">
+    <testcase classname="Simple Search Integration Tests Create Simple Search" name="Simple Search Integration Tests Create Simple Search" time="0.626">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Search Integration Tests" errors="0" failures="4" skipped="0" timestamp="2024-08-21T16:53:09" time="2.552" tests="4">
+    <testcase classname="Search Integration Tests Get Search Context Hits" name="Search Integration Tests Get Search Context Hits" time="0.619">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Search Integration Tests Get Search Results for each Paging" name="Search Integration Tests Get Search Results for each Paging" time="0.572">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Search Integration Tests Get Search Context Hits for each Paging" name="Search Integration Tests Get Search Context Hits for each Paging" time="0.562">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Search Integration Tests Get Search Results" name="Search Integration Tests Get Search Results" time="0.577">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Link Definitions Integration Tests" errors="0" failures="3" skipped="0" timestamp="2024-08-21T16:53:11" time="1.981" tests="3">
+    <testcase classname="Link Definitions Integration Tests Get Link Definition" name="Link Definitions Integration Tests Get Link Definition" time="0.611">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Link Definitions Integration Tests Get Link Definitions for each paging" name="Link Definitions Integration Tests Get Link Definitions for each paging" time="0.573">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Link Definitions Integration Tests Get Link Definitions Simple Paging" name="Link Definitions Integration Tests Get Link Definitions Simple Paging" time="0.588">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Audit Reasons Integration Test" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:53:13" time="0.775" tests="1">
+    <testcase classname="Audit Reasons Integration Test Get the Audit Reasons" name="Audit Reasons Integration Test Get the Audit Reasons" time="0.599">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Attribute Key Integration Tests" errors="0" failures="4" skipped="0" timestamp="2024-08-21T16:53:14" time="2.496" tests="4">
+    <testcase classname="Attribute Key Integration Tests Get the attribute keys" name="Attribute Key Integration Tests Get the attribute keys" time="0.604">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Attribute Key Integration Tests Get the attribute keys simple paging" name="Attribute Key Integration Tests Get the attribute keys simple paging" time="0.579">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Attribute Key Integration Tests Get Attribute for each paging" name="Attribute Key Integration Tests Get Attribute for each paging" time="0.568">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Attribute Key Integration Tests Get the attribute value by Key" name="Attribute Key Integration Tests Get the attribute value by Key" time="0.555">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Repo List Integration Tests" errors="0" failures="1" skipped="0" timestamp="2024-08-21T16:53:16" time="0.85" tests="1">
+    <testcase classname="Repo List Integration Tests Get Repo Lists" name="Repo List Integration Tests Get Repo Lists" time="0.664">
+      <failure>Error: The specified application registration was not found.
+    at TokenClient.&lt;anonymous&gt; (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:179:28)
+    at Generator.next (&lt;anonymous&gt;)
+    at fulfilled (C:\src\lf-api-js\packages\lf-api-client-core-js\lib\OAuth\TokenClient.ts:4:58)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

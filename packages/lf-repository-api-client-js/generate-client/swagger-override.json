@@ -1,0 +1,118 @@
+{
+  "components": {
+    "schemas": {
+      "Entry": {
+        "type": "object",
+        "discriminator": {
+          "propertyName": "entry Type",
+          "mapping": {
+            "Document": "#/components/schemas/Document",
+            "Shortcut": "#/components/schemas/Shortcut",
+            "Folder": "#/components/schemas/Folder"
+          }
+        },
+        "required": [
+          "entry Type"
+        ],
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The ID of the entry.",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the entry.",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "integer",
+            "description": "The ID of the parent entry.",
+            "format": "int32",
+            "nullable": true
+          },
+          "fullPath": {
+            "type": "string",
+            "description": "The full path in the Laserfiche repository to the entry.",
+            "nullable": true
+          },
+          "folderPath": {
+            "type": "string",
+            "description": "The path in the Laserfiche repository to the parent folder.",
+            "nullable": true
+          },
+          "creator": {
+            "type": "string",
+            "description": "The name of the user that created this entry.",
+            "nullable": true
+          },
+          "creationTime": {
+            "type": "string",
+            "description": "The creation time of the entry.",
+            "format": "date-time"
+          },
+          "lastModifiedTime": {
+            "type": "string",
+            "description": "The last modification time of the entry.",
+            "format": "date-time"
+          },
+          "entryType": {
+            "description": "The type of the entry.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EntryType"
+              }
+            ]
+          },
+          "isContainer": {
+            "type": "boolean",
+            "description": "A boolean indicating if this entry is a container object; it can have other entries as children."
+          },
+          "isLeaf": {
+            "type": "boolean",
+            "description": "A boolean indicating if this entry is a leaf object; it cannot have other entries as children."
+          },
+          "templateName": {
+            "type": "string",
+            "description": "The name of the template assigned to this entry.",
+            "nullable": true
+          },
+          "templateId": {
+            "type": "integer",
+            "description": "The id of the template assigned to this entry.",
+            "format": "int32"
+          },
+          "templateFieldNames": {
+            "type": "array",
+            "description": "The names of the fields assigned to the template assigned to this entry.",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "volumeName": {
+            "type": "string",
+            "description": "The name of the volume that this entry is associated with.",
+            "nullable": true
+          },
+          "rowNumber": {
+            "type": "integer",
+            "description": "Row number assigned to this entry in the listing.",
+            "format": "int32",
+            "nullable": true
+          },
+          "fields": {
+            "type": "array",
+            "description": "The fields assigned to this entry.",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/Field"
+            }
+          }
+        }
+      }
+    }
+  }
+}

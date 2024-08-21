@@ -1,0 +1,51 @@
+name: veracode-scan
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * 6'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build solution
+      run: npm run build
+
+    - name: 'Create an empty ./veracode folder'
+      run: 'mkdir -p ./veracode'
+      
+    - name: 'Compress js repository client files'
+      run: tar -czvf ./veracode/lf-repository-api-client-js.tar.gz ./src
+
+    - name: Veracode Upload And Scan (Static Application Security Testing)
+      uses: veracode/veracode-uploadandscan-action@0.2.6
+      with:
+        appname: 'lf-repository-api-client-js'
+        createprofile: true
+        filepath: 'veracode'
+        vid: '${{ secrets.VERACODE_API_ID }}'
+        vkey: '${{ secrets.VERACODE_API_KEY }}'
+
+    - name: Run Veracode Software Composition Analysis (SCA)
+      env:
+        SRCCLR_API_TOKEN: ${{ secrets.SRCCLR_API_TOKEN }}
+      uses: veracode/veracode-sca@v2.1.6
+      with:
+        create-issues: false
+        allow-dirty: true
+        recursive: true
+
