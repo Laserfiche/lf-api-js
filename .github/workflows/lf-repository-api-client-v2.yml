@@ -45,8 +45,8 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: PNPM run build
-        run: pnpm run build --filter @laserfiche/lf-repository-api-client-v2
+      - name: PNPM run build-and-create-esm-js
+        run: pnpm run build-and-create-esm-js --filter @laserfiche/lf-repository-api-client-v2
 
       - name: Echo NPM package version
         run: echo ${{ env.NPM_VERSION }}
@@ -127,8 +127,8 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: PNPM run build
-        run: pnpm run build --filter @laserfiche/lf-repository-api-client-v2
+      - name: PNPM run build-and-create-esm-js
+        run: pnpm run build-and-create-esm-js --filter @laserfiche/lf-repository-api-client-v2
 
       - name: Install typedoc
         run: pnpm install typedoc
