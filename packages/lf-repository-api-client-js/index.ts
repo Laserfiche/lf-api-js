@@ -12060,7 +12060,7 @@ function throwException(message: string, status: number, response: string, heade
     throw new ApiException(message, status, response, headers, result);
 }
 
-// Copyright (c) Laserfiche.
+// Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 class ClientBase {}
 export interface IRepositoryApiClient {

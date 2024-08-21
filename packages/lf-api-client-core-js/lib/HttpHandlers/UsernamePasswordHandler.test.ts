@@ -1,4 +1,4 @@
-// Copyright (c) Laserfiche.
+// Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 import { username, password, repositoryId, baseUrl } from '../../testHelper.js';
 import { BeforeFetchResult } from './BeforeFetchResult.js';
