@@ -23,7 +23,7 @@ jobs:
         node-version: "20"
 
     - name: Install NSwag
-      run: pnpm ci
+      run: pnpm install
 
     - name: Setup environment variables
       run: |

@@ -39,8 +39,8 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
-      - name: PNPM ci
-        run: pnpm ci
+      - name: PNPM install
+        run: pnpm install
 
       - name: NPM run build
         run: npm run build
@@ -73,8 +73,8 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
-      - name: PNPM ci
-        run: pnpm ci
+      - name: PNPM install
+        run: pnpm install
 
       - name: NPM test on cloud (node environment)
         id: test-cloud-node
@@ -121,8 +121,8 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
-      - name: pNPM ci
-        run: pnpm ci
+      - name: PNPM install
+        run: pnpm install
 
       - name: PNPM run build
         run: pnpm run build --filter @laserfiche/lf-repository-api-client-v2
