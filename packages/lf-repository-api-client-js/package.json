@@ -28,7 +28,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Laserfiche/lf-repository-api-client-js"
+    "url": "https://github.com/Laserfiche/lf-api-js"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^26.0.1",

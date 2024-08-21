@@ -27,7 +27,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Laserfiche/lf-api-client-core-js"
+    "url": "https://github.com/Laserfiche/lf-api-js"
   },
   "devDependencies": {
     "@types/isomorphic-fetch": "^0.0.35",
