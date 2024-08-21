@@ -17,24 +17,24 @@ jobs:
     - name: Setup Node.js environment
       uses: actions/setup-node@v3
       with:
-        node-version: 16.x
+        node-version: 20.x
 
     - name: Install dependencies
       run: pnpm install
 
     - name: Build solution
-      run: npm run build
+      run: pnpm run build
 
     - name: 'Create an empty ./veracode folder'
       run: 'mkdir -p ./veracode'
       
     - name: 'Compress js repository client files'
-      run: tar -czvf ./veracode/lf-repository-api-client-js.tar.gz ./src
+      run: tar -czvf ./veracode/lf-api-js.tar.gz ./packages
 
     - name: Veracode Upload And Scan (Static Application Security Testing)
       uses: veracode/veracode-uploadandscan-action@0.2.6
       with:
-        appname: 'lf-repository-api-client-js'
+        appname: 'lf-api-js'
         createprofile: true
         filepath: 'veracode'
         vid: '${{ secrets.VERACODE_API_ID }}'
