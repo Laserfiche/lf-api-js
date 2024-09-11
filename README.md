@@ -10,6 +10,7 @@ It is the future replacement of repositories:
 ## One time setup
 
 - Run `npm install pnpm -g`
+- Run `pnpm install`
 
 ## To build
 
