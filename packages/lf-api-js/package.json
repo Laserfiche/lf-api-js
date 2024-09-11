@@ -1,0 +1,16 @@
+{
+  "name": "lf-api-js",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Add dev script here'",
+    "build": "tsc -b",
+    "test": "echo 'Add test script here'",
+    "lint": "echo 'Add lint script here'"
+  },
+  "dependencies": {
+    "@laserfiche/lf-api-client-core": "workspace:*",
+    "@laserfiche/lf-js-utils": "^4.0.8",
+    "@laserfiche/lf-repository-api-client-v2": "workspace:*"
+  }
+}
