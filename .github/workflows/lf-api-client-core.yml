@@ -102,7 +102,7 @@ jobs:
         if: success() || failure() # run this step even if previous step failed
         with:
           name: Jest Test Results
-          path: ./**.xml
+          path: ./packages/lf-api-client-core-js/*.xml
           reporter: jest-junit
           only-summary: "false"
           list-tests: "failed"
