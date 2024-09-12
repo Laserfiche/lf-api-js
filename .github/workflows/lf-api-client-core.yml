@@ -145,6 +145,9 @@ jobs:
           # A file, directory or wildcard pattern that describes what to upload
           path: ./packages/lf-api-client-core-js/docs_temp/${{ github.ref_name }}
 
+      - name: delete temporary directory
+        run: rm -r ./packages/lf-api-client-core-js/docs_temp
+
   publish-preview-package:
     runs-on: ubuntu-latest
     environment: preview
@@ -172,12 +175,15 @@ jobs:
         run: pnpm install
 
       - name: set NpmPackageVersion as preview version from downloaded artifact
+        working-directory: npm-publish-artifact
         run: echo "NpmPackageVersion=${{ env.NPM_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
       - name: pnpm version
+        working-directory: npm-publish-artifact
         run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
 
       - name: pnpm publish
+        working-directory: npm-publish-artifact
         run: pnpm publish  --access public  --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
