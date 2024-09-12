@@ -162,6 +162,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: npm-publish-artifact
+          path: npmArtifactPath
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -175,15 +176,15 @@ jobs:
         run: pnpm install
 
       - name: set NpmPackageVersion as preview version from downloaded artifact
-        working-directory: npm-publish-artifact
+        working-directory: npmArtifactPath
         run: echo "NpmPackageVersion=${{ env.NPM_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
       - name: pnpm version
-        working-directory: npm-publish-artifact
+        working-directory: npmArtifactPath
         run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
 
       - name: pnpm publish
-        working-directory: npm-publish-artifact
+        working-directory: npmArtifactPath
         run: pnpm publish  --access public  --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
