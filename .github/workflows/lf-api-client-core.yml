@@ -84,7 +84,7 @@ jobs:
         id: test-cloud
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
-          ACCESS_KEY_JSON: ${{ secrets.ACCESS_KEY_JSON }}
+          ACCESS_KEY_JSON: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY_JSON }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
         run: pnpm --filter @laserfiche/lf-api-client-core run test:Cloud
 
