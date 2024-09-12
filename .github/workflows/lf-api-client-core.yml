@@ -126,19 +126,20 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: Switch dir
-        run: cd ./packages/lf-api-client-core-js
-
       - name: Install typedoc
+        working-directory: ./packages/lf-api-client-core-js
         run: pnpm install typedoc
 
       - name: Create temporary directory
+        working-directory: ./packages/lf-api-client-core-js
         run: mkdir -p ./docs_temp/${{ github.ref_name }}
 
       - name: Generate typedoc docs
+        working-directory: ./packages/lf-api-client-core-js
         run: npx typedoc ./index.ts --out ./docs_temp/${{ github.ref_name }} --excludePrivate --includeVersion
 
       - name: Upload a Build Artifact
+        working-directory: ./packages/lf-api-client-core-js
         uses: actions/upload-artifact@v4
         with:
           name: documentation-artifact
