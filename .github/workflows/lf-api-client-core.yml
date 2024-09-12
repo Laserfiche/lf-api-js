@@ -126,24 +126,24 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
+      - name: Switch dir
+        run: cd ./packages/lf-api-client-core-js
+
       - name: Install typedoc
-        run: pnpm install typedoc -w
+        run: pnpm install typedoc
 
       - name: Create temporary directory
         run: mkdir -p ./docs_temp/${{ github.ref_name }}
 
       - name: Generate typedoc docs
-        run: npx typedoc ./packages/lf-api-client-core-js/index.ts --out ./docs_temp/${{ github.ref_name }} --excludePrivate --includeVersion
+        run: npx typedoc ./index.ts --out ./docs_temp/${{ github.ref_name }} --excludePrivate --includeVersion
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: documentation-artifact
           # A file, directory or wildcard pattern that describes what to upload
-          path: ${{ github.workspace }}/docs_temp/${{ github.ref_name }}
-
-      - name: delete temporary directory
-        run: rm -r ./docs_temp
+          path: ./docs_temp/${{ github.ref_name }}
 
   publish-preview-package:
     runs-on: ubuntu-latest
