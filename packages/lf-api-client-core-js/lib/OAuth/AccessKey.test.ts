@@ -6,7 +6,7 @@ import {
   AccessKey,
 } from './AccessKey';
 import { parseAccessToken } from '../utils/JwtUtils';
-import { testAccessKeyBase64Encoded, testAccessKeyFromJson, testServicePrincipalKey } from '../../testHelpers';
+import { testAccessKeyBase64Encoded, testAccessKeyFromJson, testServicePrincipalKey } from '../../unitTestHelpers';
 
 /**
  * Unit Tests

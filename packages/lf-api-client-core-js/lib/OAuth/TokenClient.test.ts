@@ -1,6 +1,6 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-import { accessKey, envServicePrincipalKey } from '../../testHelpers.js';
+import { accessKey, envServicePrincipalKey } from '../../cloudTestHelpers.js';
 import { GetAccessTokenResponse } from './GetAccessTokenResponse.js';
 import { TokenClient } from './TokenClient.js';
 import 'isomorphic-fetch';
