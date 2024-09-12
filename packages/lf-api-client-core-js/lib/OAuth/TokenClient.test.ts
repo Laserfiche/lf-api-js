@@ -1,6 +1,6 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-import { accessKey, testServicePrincipalKey } from '../../testHelper.js';
+import { accessKey, envServicePrincipalKey } from '../../testHelpers.js';
 import { GetAccessTokenResponse } from './GetAccessTokenResponse.js';
 import { TokenClient } from './TokenClient.js';
 import 'isomorphic-fetch';
@@ -18,7 +18,7 @@ describe('getAccessTokenFromServicePrincipal', () => {
     inst = new TokenClient(domain);
 
     expect(
-      async () => await inst.getAccessTokenFromServicePrincipal(testServicePrincipalKey, accessKey)
+      async () => await inst.getAccessTokenFromServicePrincipal(envServicePrincipalKey, accessKey)
     ).rejects.toThrow();
   });
 
@@ -27,7 +27,7 @@ describe('getAccessTokenFromServicePrincipal', () => {
     inst = new TokenClient(domain);
 
     expect(
-      async () => await inst.getAccessTokenFromServicePrincipal(testServicePrincipalKey, accessKey)
+      async () => await inst.getAccessTokenFromServicePrincipal(envServicePrincipalKey, accessKey)
     ).rejects.toThrow();
   });
 
@@ -36,7 +36,7 @@ describe('getAccessTokenFromServicePrincipal', () => {
     inst = new TokenClient(domain);
 
     let result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
-      testServicePrincipalKey,
+      envServicePrincipalKey,
       accessKey,
     );
     expect(result?.access_token).toBeTruthy();
@@ -48,7 +48,7 @@ describe('getAccessTokenFromServicePrincipal', () => {
     inst = new TokenClient(domain);
 
     let result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
-      testServicePrincipalKey,
+      envServicePrincipalKey,
       accessKey,
       "repository.Read"
     );
@@ -61,7 +61,7 @@ describe('getAccessTokenFromServicePrincipal', () => {
     inst = new TokenClient(domain);
 
     let result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
-      testServicePrincipalKey,
+      envServicePrincipalKey,
       accessKey,
       "repository.Read invalidScope"
     );
@@ -87,7 +87,7 @@ describe('getAccessTokenFromServicePrincipal', () => {
     inst = new TokenClient(domain);
 
     let result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
-      testServicePrincipalKey,
+      envServicePrincipalKey,
       accessKey
     );
     expect(result?.access_token).toBeTruthy();
