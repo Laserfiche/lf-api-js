@@ -1,6 +1,6 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-import { username, password, repositoryId, baseUrl } from '../../selfHostedTestHelpers.js';
+import { username, password, repositoryId, baseUrl } from '../../testHelpers/selfHostedTestHelpers.js';
 import { BeforeFetchResult } from './BeforeFetchResult.js';
 import { UsernamePasswordHandler } from './UsernamePasswordHandler.js';
 import 'isomorphic-fetch';

@@ -1,7 +1,7 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-import { AccessKey } from "./lib/OAuth/AccessKey";
+import { AccessKey } from "../lib/OAuth/AccessKey";
 
 // used as unit test constants - NOT valid application credentials
 

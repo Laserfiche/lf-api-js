@@ -3,7 +3,7 @@
 import {
   AccessKey,
   createFromBase64EncodedAccessKey,
-} from './lib/OAuth/AccessKey.js';
+} from '../lib/OAuth/AccessKey.js';
 
 // Used for Cloud Integration tests
 export const envServicePrincipalKey: string =
