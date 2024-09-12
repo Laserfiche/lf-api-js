@@ -127,7 +127,7 @@ jobs:
         run: pnpm install
 
       - name: Install typedoc
-        run: pnpm install typedoc
+        run: pnpm install typedoc -w
 
       - name: Create temporary directory
         run: mkdir -p ./docs_temp/${{ github.ref_name }}
