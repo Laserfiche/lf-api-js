@@ -187,6 +187,8 @@ jobs:
       - name: pnpm publish
         run: pnpm publish --filter @laserfiche/lf-api-client-core --access public  --tag next --no-git-checks
 
+      - uses: actions/checkout@v4
+      
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
