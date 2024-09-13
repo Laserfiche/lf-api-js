@@ -183,11 +183,15 @@ jobs:
         working-directory: npmArtifactPath
         run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
 
+      - name: Set publishing config
+        working-directory: npmArtifactPath
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
       - name: pnpm publish
         working-directory: npmArtifactPath
         run: pnpm publish  --access public  --tag next --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
