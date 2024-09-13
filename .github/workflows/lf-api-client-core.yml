@@ -154,10 +154,6 @@ jobs:
     if: ${{ github.run_attempt != 1 }}
     needs: [ build, test, build-documentation ] # wait for build to finish
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
@@ -171,9 +167,6 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm -g
-
-      - name: PNPM install
-        run: pnpm install
 
       - name: set NpmPackageVersion as preview version from downloaded artifact
         working-directory: npmArtifactPath
@@ -190,8 +183,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: pnpm publish
-        working-directory: npmArtifactPath
-        run: pnpm publish  --access public  --tag next --no-git-checks
+        run: pnpm publish --filter @laserfiche/lf-api-client-core --access public  --tag next --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
