@@ -163,6 +163,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+      
+      - name: ls
+        run: ls
 
       - name: Install pnpm
         run: npm install pnpm -g
