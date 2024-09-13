@@ -185,7 +185,7 @@ jobs:
 
       - name: pnpm publish
         working-directory: npmArtifactPath
-        run: pnpm publish  --access public  --tag next
+        run: pnpm publish  --access public  --tag next --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
