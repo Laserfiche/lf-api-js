@@ -54,10 +54,10 @@ jobs:
           name: npm-publish-artifact
           # A file, directory or wildcard pattern that describes what to upload
           path: |
-            ./packages/lf-api-client-core/dist
-            ./packages/lf-api-client-core/package.json
-            ./packages/lf-api-client-core/README.md
-            ./LICENSE
+            packages/lf-api-client-core/dist/
+            packages/lf-api-client-core/package.json
+            packages/lf-api-client-core/README.md
+            LICENSE
 
 
   test:
