@@ -62,7 +62,6 @@ jobs:
             ./packages/lf-api-client-core-js/README.md
             ./packages/lf-api-client-core-js/LICENSE
 
-
   test:
     runs-on: ubuntu-latest
     needs: [ build ]
