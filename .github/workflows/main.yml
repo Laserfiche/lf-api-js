@@ -245,7 +245,7 @@ jobs:
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
 
-  publish-api-client-v2-production-package:
+  publish-client-core-production-package:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
