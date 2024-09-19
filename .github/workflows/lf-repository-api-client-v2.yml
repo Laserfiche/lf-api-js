@@ -167,9 +167,6 @@ jobs:
           name: npm-publish-artifact
           path: ./packages/lf-repository-api-client-v2
 
-      - name: ls
-        run: ls -R
-
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
@@ -190,7 +187,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: PNPM publish
-        run: pnpm publish --filter @laserfiche/lf-repository-api-client-v2 --access public  --tag next --no-git-checks
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm publish --access public  --tag next --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
@@ -204,11 +202,14 @@ jobs:
     environment: production
     if: ${{ github.run_attempt != 1 }}
     needs: [build, test, build-documentation]
-    steps:
+    steps:    
+      - uses: actions/checkout@v4
+
       - name: Download a build artifact
         uses: actions/download-artifact@v4
         with:
           name: npm-publish-artifact
+          path: ./packages/lf-repository-api-client-v2
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -227,6 +228,7 @@ jobs:
         run: pnpm version ${{ env.NPM_VERSION }} --no-git-tag-version --allow-same-version
 
       - name: PNPM publish
+        working-directory: ./packages/lf-repository-api-client-v2
         run: pnpm publish  --access public  --tag latest
 
       - uses: actions/checkout@v4
