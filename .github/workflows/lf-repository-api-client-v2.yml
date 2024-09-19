@@ -163,6 +163,8 @@ jobs:
         with:
           name: npm-publish-artifact
 
+      - uses: actions/checkout@v4
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
@@ -184,8 +186,6 @@ jobs:
 
       - name: PNPM publish
         run: pnpm publish --filter @laserfiche/lf-repository-api-client-v2 --access public  --tag next
-
-      - uses: actions/checkout@v4
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
