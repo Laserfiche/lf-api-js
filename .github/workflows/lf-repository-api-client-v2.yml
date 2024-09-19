@@ -182,6 +182,7 @@ jobs:
         run: echo "NpmPackageVersion=${{ env.NPM_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
       - name: PNPM version
+        working-directory: ./packages/lf-repository-api-client-v2
         run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
 
       - name: Set publishing config
