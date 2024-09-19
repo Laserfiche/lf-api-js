@@ -175,6 +175,9 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
+      - name: PNPM install
+        run: pnpm install
+
       - name: Set NpmPackageVersion as preview version from downloaded artifact
         run: echo "NpmPackageVersion=${{ env.NPM_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
