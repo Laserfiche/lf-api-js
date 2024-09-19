@@ -191,7 +191,7 @@ jobs:
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: ${{ env.API_VERSION }}-${{ env.NpmPackageVersion }}
+          tag: lf-repository-api-client-v2-${{ env.NpmPackageVersion }}
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
@@ -230,7 +230,7 @@ jobs:
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: ${{ env.API_VERSION }}-${{ env.NPM_VERSION }}
+          tag: lf-repository-api-client-v2-${{ env.NPM_VERSION }}
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
