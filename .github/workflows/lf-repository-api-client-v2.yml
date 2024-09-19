@@ -140,7 +140,7 @@ jobs:
 
       - name: Generate typedoc docs
         working-directory: ./packages/lf-repository-api-client-v2
-        run: npx typedoc ./packages/lf-repository-api-client-v2/index.ts --out ./docs_temp --excludePrivate --includeVersion
+        run: npx typedoc ./index.ts --out ./docs_temp --excludePrivate --includeVersion
 
       - name: Upload a build artifact
         uses: actions/upload-artifact@v4
