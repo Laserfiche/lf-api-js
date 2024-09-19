@@ -185,7 +185,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: PNPM publish
-        run: pnpm publish --filter @laserfiche/lf-repository-api-client-v2 --access public  --tag next
+        run: pnpm publish --filter @laserfiche/lf-repository-api-client-v2 --access public  --tag next --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
