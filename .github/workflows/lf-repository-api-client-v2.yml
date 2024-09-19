@@ -130,9 +130,6 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: PNPM run build
-        run: pnpm run build --filter @laserfiche/lf-repository-api-client-v2
-
       - name: Install typedoc
         working-directory: ./packages/lf-repository-api-client-v2
         run: pnpm install typedoc
@@ -142,6 +139,7 @@ jobs:
         run: mkdir -p ./docs_temp
 
       - name: Generate typedoc docs
+        working-directory: ./packages/lf-repository-api-client-v2
         run: npx typedoc ./packages/lf-repository-api-client-v2/index.ts --out ./docs_temp --excludePrivate --includeVersion
 
       - name: Upload a build artifact
