@@ -250,7 +250,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_client_core, test_client_core, build_api_client_v2, test_api_client_v2, publish-client-core-preview-package ]
+    needs: [ build_client_core, test_client_core, build_api_client_v2, test_api_client_v2 ]
     steps:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
@@ -338,7 +338,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_client_core, test_client_core, build_api_client_v2, test_api_client_v2, publish-api-client-v2-preview-package ]
+    needs: [ build_client_core, test_client_core, build_api_client_v2, test_api_client_v2 ]
     steps:    
       - uses: actions/checkout@v4
 
