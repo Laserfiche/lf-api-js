@@ -2,7 +2,13 @@
 # Licensed under the MIT License. See LICENSE in the project root for license information.
 name: build-test-publish
 
-on:
+on:on:
+  push:
+    branches:
+      - alex/update-pipelines
+  pull_request:
+    branches:
+      - alex/update-pipelines
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
