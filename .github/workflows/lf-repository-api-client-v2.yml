@@ -158,13 +158,17 @@ jobs:
     environment: preview
     if: ${{ github.run_attempt != 1 }}
     needs: [build, test, build-documentation] # wait for build to finish
-    steps:
+    steps:    
+      - uses: actions/checkout@v4
+
       - name: Download a build artifact
         uses: actions/download-artifact@v4
         with:
           name: npm-publish-artifact
+          path: ./packages/lf-repository-api-client-v2
 
-      - uses: actions/checkout@v4
+      - name: ls
+        run: ls -R
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
