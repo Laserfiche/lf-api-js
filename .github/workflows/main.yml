@@ -75,7 +75,7 @@ jobs:
             ./packages/lf-repository-api-client-v2/README.md
             ./packages/lf-repository-api-client-v2/LICENSE
 
-  test_libaries:
+  test_libraries:
     runs-on: ubuntu-latest
     needs: [ build_libraries ]
     steps:
@@ -160,7 +160,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: preview
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libaries ]
+    needs: [ build_libraries, test_libraries ]
     steps:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
@@ -203,7 +203,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libaries ]
+    needs: [ build_libraries, test_libraries ]
     steps:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
@@ -243,7 +243,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: preview
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libaries ]
+    needs: [ build_libraries, test_libraries ]
     steps:    
       - uses: actions/checkout@v4
 
@@ -291,7 +291,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libaries ]
+    needs: [ build_libraries, test_libraries ]
     steps:    
       - uses: actions/checkout@v4
 
