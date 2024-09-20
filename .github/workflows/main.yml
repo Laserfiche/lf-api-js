@@ -75,7 +75,7 @@ jobs:
             ./packages/lf-repository-api-client-v2/README.md
             ./packages/lf-repository-api-client-v2/LICENSE
 
-  test_client_core:
+  test_libaries:
     runs-on: ubuntu-latest
     needs: [ build_libraries ]
     steps:
@@ -95,7 +95,7 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: Npm test on cloud
+      - name: Npm test lf-api-client-core on cloud
         id: test-cloud
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
@@ -103,7 +103,7 @@ jobs:
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
         run: pnpm --filter @laserfiche/lf-api-client-core run test:Cloud
 
-      - name: Npm test on self-hosted
+      - name: Npm test lf-api-client-core on self-hosted
         if: always() && (steps.test-cloud.outcome == 'success' || steps.test-cloud.outcome == 'failure')
         env:
           REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
@@ -123,25 +123,8 @@ jobs:
           list-tests: "failed"
           fail-on-error: "false"
 
-  test_api_client_v2:
-    runs-on: ubuntu-latest
-    needs: [build_libraries]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        run: npm install pnpm -g
-
-      - name: PNPM install
-        run: pnpm install
-
 # TODO remove unnecessary secrets
-      - name: NPM test on cloud (node environment)
+      - name: NPM test lf-repository-api-client-v2 on cloud (node environment)
         id: test-cloud-node
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
@@ -151,7 +134,7 @@ jobs:
           TEST_HEADER: ${{ secrets.TEST_HEADER }}
         run: pnpm --filter @laserfiche/lf-repository-api-client-v2 run test:node
 
-      - name: NPM test on cloud (browser environment)
+      - name: NPM test lf-repository-api-client-v2 on cloud (browser environment)
         id: test-cloud-browser
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
@@ -177,7 +160,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: preview
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_client_core, test_api_client_v2 ]
+    needs: [ build_libraries, test_libaries ]
     steps:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
@@ -220,7 +203,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_client_core, test_api_client_v2 ]
+    needs: [ build_libraries, test_libaries ]
     steps:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
@@ -260,7 +243,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: preview
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_client_core, test_api_client_v2 ]
+    needs: [ build_libraries, test_libaries ]
     steps:    
       - uses: actions/checkout@v4
 
@@ -308,7 +291,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_client_core, test_api_client_v2 ]
+    needs: [ build_libraries, test_libaries ]
     steps:    
       - uses: actions/checkout@v4
 
