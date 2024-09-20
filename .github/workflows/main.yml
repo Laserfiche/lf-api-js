@@ -356,15 +356,13 @@ jobs:
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
-
-# build and test client core
-# build and test api client
-# build documentation
-
-# publish preview client core
-   # publish production client core
-
-# publish preview api client
-   # publish production api client
-
-# publish documentation
+  publish_documentation:
+    runs-on: ubuntu-latest
+    if: ${{ github.run_attempt != 1 }}
+    needs: [ build_libraries, test_libraries, build_documentation ]
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: documentation-artifact
