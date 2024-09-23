@@ -1,12 +1,27 @@
 {
-  "name": "lf-api-js",
-  "version": "0.0.0",
-  "private": true,
+  "name": "@laserfiche/lf-api-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "Laserfiche"
+  ],
+  "author": "Laserfiche",
+  "url": "https://www.laserfiche.com/",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Laserfiche/lf-api-js"
+  },
   "scripts": {
-    "dev": "echo 'Add dev script here'",
-    "build": "tsc -b",
-    "test": "echo 'Add test script here'",
-    "lint": "echo 'Add lint script here'"
+    "build": "npm run clean && tsc -b",
+    "clean": "tsc -b --clean"
   },
   "dependencies": {
     "@laserfiche/lf-api-client-core": "workspace:*",
