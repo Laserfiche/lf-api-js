@@ -82,6 +82,18 @@ importers:
         specifier: ^4.5.4
         version: 4.9.5
 
+  packages/lf-api-js:
+    dependencies:
+      '@laserfiche/lf-api-client-core':
+        specifier: workspace:*
+        version: link:../lf-api-client-core-js
+      '@laserfiche/lf-js-utils':
+        specifier: ^4.0.8
+        version: 4.0.8
+      '@laserfiche/lf-repository-api-client-v2':
+        specifier: workspace:*
+        version: link:../lf-repository-api-client-v2
+
   packages/lf-repository-api-client-v2:
     dependencies:
       '@laserfiche/lf-api-client-core':
