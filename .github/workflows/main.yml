@@ -44,7 +44,6 @@ jobs:
 
       - name: PNPM run build
         run: pnpm run build
-=
 
       - name: Copy license
         run: cp ./LICENSE ./packages/lf-api-client-core-js/LICENSE
