@@ -106,6 +106,9 @@ importers:
       babel-jest:
         specifier: ^27.5.1
         version: 27.5.1(@babel/core@7.25.2)
+      dotenv:
+        specifier: ^16.0.1
+        version: 16.4.5
       isomorphic-fetch:
         specifier: ^3.0.0
         version: 3.0.0
