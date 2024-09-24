@@ -51,7 +51,7 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: npm-client-core-publish-artifact
+          name: pnpm-client-core-publish-artifact
           # A file, directory or wildcard pattern that describes what to upload
           path: |
             ./packages/lf-api-client-core-js/dist
@@ -65,7 +65,7 @@ jobs:
       - name: Upload a build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: npm-api-client-v1-publish-artifact
+          name: pnpm-api-client-v1-publish-artifact
           # A file, directory or wildcard pattern that describes what to upload
           path: |
             ./packages/lf-repository-api-client-v1/dist
@@ -79,7 +79,7 @@ jobs:
       - name: Upload a build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: npm-api-client-v2-publish-artifact
+          name: pnpm-api-client-v2-publish-artifact
           # A file, directory or wildcard pattern that describes what to upload
           path: |
             ./packages/lf-repository-api-client-v2/dist
@@ -107,7 +107,7 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: Npm test lf-api-client-core on cloud
+      - name: pnpm test lf-api-client-core on cloud
         id: test-cloud
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
@@ -115,7 +115,7 @@ jobs:
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
         run: pnpm --filter @laserfiche/lf-api-client-core run test:Cloud
 
-      - name: Npm test lf-api-client-core on self-hosted
+      - name: pnpm test lf-api-client-core on self-hosted
         if: always() && (steps.test-cloud.outcome == 'success' || steps.test-cloud.outcome == 'failure')
         env:
           REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
@@ -135,7 +135,19 @@ jobs:
           list-tests: "failed"
           fail-on-error: "false"
 
-      - name: NPM @laserfiche/lf-repository-api-client run all tests
+      - name: pnpm @laserfiche/lf-repository-api-client run all cloud tests
+        env:
+          ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
+          SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
+          REPOSITORY_ID:  ${{ secrets.APISERVER_REPOSITORY_ID }}
+          APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
+          APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
+          APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
+          AUTHORIZATION_TYPE: ${{ secrets.AUTHORIZATION_TYPE }}
+          TEST_HEADER: ${{ secrets.TEST_HEADER }}
+        run: pnpm --filter @laserfiche/lf-repository-api-client run test:all
+
+      - name: pnpm @laserfiche/lf-repository-api-client run all self-hosted tests
         env:
           ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
@@ -159,7 +171,7 @@ jobs:
           fail-on-error: "false"
 
 # TODO remove unnecessary secrets
-      - name: NPM test lf-repository-api-client-v2 on cloud (node environment)
+      - name: pnpm test lf-repository-api-client-v2 on cloud (node environment)
         id: test-cloud-node
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
@@ -169,7 +181,7 @@ jobs:
           TEST_HEADER: ${{ secrets.TEST_HEADER }}
         run: pnpm --filter @laserfiche/lf-repository-api-client-v2 run test:node
 
-      - name: NPM test lf-repository-api-client-v2 on cloud (browser environment)
+      - name: pnpm test lf-repository-api-client-v2 on cloud (browser environment)
         id: test-cloud-browser
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
@@ -226,7 +238,7 @@ jobs:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: npm-client-core-publish-artifact
+          name: pnpm-client-core-publish-artifact
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -269,7 +281,7 @@ jobs:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: npm-client-core-publish-artifact
+          name: pnpm-client-core-publish-artifact
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -309,7 +321,7 @@ jobs:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: npm-api-client-v1-publish-artifact
+          name: pnpm-api-client-v1-publish-artifact
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -352,7 +364,7 @@ jobs:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
-          name: npm-api-client-v1-publish-artifact
+          name: pnpm-api-client-v1-publish-artifact
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -394,7 +406,7 @@ jobs:
       - name: Download a build artifact
         uses: actions/download-artifact@v4
         with:
-          name: npm-api-client-v2-publish-artifact
+          name: pnpm-api-client-v2-publish-artifact
           path: ./packages/lf-repository-api-client-v2
 
       - name: Setup Node.js environment
@@ -442,7 +454,7 @@ jobs:
       - name: Download a build artifact
         uses: actions/download-artifact@v4
         with:
-          name: npm-publish-api-client-v2-artifact
+          name: pnpm-publish-api-client-v2-artifact
           path: ./packages/lf-repository-api-client-v2
 
       - name: Setup Node.js environment
