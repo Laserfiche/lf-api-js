@@ -145,7 +145,7 @@ jobs:
           APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
           AUTHORIZATION_TYPE: ${{ secrets.APISERVER_AUTHORIZATION_TYPE }}
           TEST_HEADER: ${{ secrets.TEST_HEADER }}
-        run: npm --filter @laserfiche/lf-repository-api-client run test:all
+        run: pnpm --filter @laserfiche/lf-repository-api-client run test:all
 
       - name: Test Report
         uses: dorny/test-reporter@v1
