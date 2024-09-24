@@ -82,7 +82,7 @@ importers:
         specifier: ^4.5.4
         version: 4.9.5
 
-  packages/lf-repository-api-client:
+  packages/lf-repository-api-client-v1:
     dependencies:
       '@laserfiche/lf-api-client-core':
         specifier: workspace:*
