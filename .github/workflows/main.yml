@@ -324,7 +324,7 @@ jobs:
         with:
           name: pnpm-api-client-v1-publish-artifact
           path: ./packages/lf-repository-api-client-v1
-      
+
       - name: Download a build artifact
         uses: actions/download-artifact@v4
         with:
@@ -350,7 +350,7 @@ jobs:
 
       - name: pnpm version
         run: pnpm --filter @laserfiche/lf-repository-api-client version ${{ env.NpmClientV1PackageVersion }} --no-git-tag-version
- 
+
       - name: set NpmClientV2PackageVersion as preview version from downloaded artifact
         run: echo "NpmClientV2PackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
@@ -373,7 +373,7 @@ jobs:
           tag: lf-api-client-core-${{ env.NpmClientCorePackageVersion }}
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-        
+
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
