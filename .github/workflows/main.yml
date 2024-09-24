@@ -34,7 +34,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -89,7 +89,7 @@ jobs:
 
   test_libraries:
     runs-on: ubuntu-latest
-    needs: [ build_libraries ]
+    needs: [build_libraries]
     steps:
       - uses: actions/checkout@v4
 
@@ -99,7 +99,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -119,9 +119,9 @@ jobs:
         if: always() && (steps.test-cloud.outcome == 'success' || steps.test-cloud.outcome == 'failure')
         env:
           REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
-          APISERVER_USERNAME:  ${{ secrets.APISERVER_USERNAME }}
-          APISERVER_PASSWORD:  ${{ secrets.APISERVER_PASSWORD }}
-          APISERVER_REPOSITORY_API_BASE_URL:  ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
+          APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
+          APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
+          APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
         run: pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted
 
       - name: Test Report
@@ -131,9 +131,9 @@ jobs:
           name: Client Core Jest Test Results
           path: ./packages/lf-api-client-core-js/*.xml
           reporter: jest-junit
-          only-summary: "false"
-          list-tests: "failed"
-          fail-on-error: "false"
+          only-summary: 'false'
+          list-tests: 'failed'
+          fail-on-error: 'false'
 
       - name: pnpm @laserfiche/lf-repository-api-client run all cloud tests
         env:
@@ -148,7 +148,7 @@ jobs:
         env:
           ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
-          REPOSITORY_ID:  ${{ secrets.APISERVER_REPOSITORY_ID }}
+          REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
           APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
           APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
           APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
@@ -163,11 +163,11 @@ jobs:
           name: Api Client v1 Jest Test Results
           path: ./packages/lf-repository-api-client-v1/*.xml
           reporter: jest-junit
-          only-summary: "false"
-          list-tests: "failed"
-          fail-on-error: "false"
+          only-summary: 'false'
+          list-tests: 'failed'
+          fail-on-error: 'false'
 
-# TODO remove unnecessary secrets
+      # TODO remove unnecessary secrets
       - name: pnpm test lf-repository-api-client-v2 on cloud (node environment)
         id: test-cloud-node
         env:
@@ -201,14 +201,14 @@ jobs:
 
   build_documentation:
     runs-on: ubuntu-latest
-    needs: [ build_libraries, test_libraries ]
+    needs: [build_libraries, test_libraries]
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -230,7 +230,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: preview
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libraries, build_documentation ]
+    needs: [build_libraries, test_libraries, build_documentation]
     steps:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
@@ -240,7 +240,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -268,12 +268,11 @@ jobs:
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
-
   publish-client-core-production-package:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libraries, build_documentation ]
+    needs: [build_libraries, test_libraries, build_documentation]
     steps:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
@@ -283,7 +282,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -308,12 +307,11 @@ jobs:
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
-
   publish-api-client-v1-preview-package:
     runs-on: ubuntu-latest
     environment: preview
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libraries, build_documentation ]
+    needs: [build_libraries, test_libraries, build_documentation]
     steps:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
@@ -323,7 +321,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -351,12 +349,11 @@ jobs:
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
-
   publish-api-client-v1-production-package:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libraries, build_documentation ]
+    needs: [build_libraries, test_libraries, build_documentation]
     steps:
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
@@ -366,7 +363,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -391,13 +388,12 @@ jobs:
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
-
   publish-api-client-v2-preview-package:
     runs-on: ubuntu-latest
     environment: preview
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libraries, build_documentation ]
-    steps:    
+    needs: [build_libraries, test_libraries, build_documentation]
+    steps:
       - uses: actions/checkout@v4
 
       - name: Download a build artifact
@@ -444,8 +440,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libraries, build_documentation ]
-    steps:    
+    needs: [build_libraries, test_libraries, build_documentation]
+    steps:
       - uses: actions/checkout@v4
 
       - name: Download a build artifact
@@ -458,7 +454,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
+
       - name: Install pnpm
         run: npm install pnpm -g
 
@@ -486,7 +482,7 @@ jobs:
   publish_documentation:
     runs-on: ubuntu-latest
     if: ${{ github.run_attempt != 1 }}
-    needs: [ build_libraries, test_libraries, build_documentation ]
+    needs: [build_libraries, test_libraries, build_documentation]
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
