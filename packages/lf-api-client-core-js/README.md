@@ -1,6 +1,6 @@
 # Laserfiche API Client Core Library
 
-Javascript Library containing the implementation of OAuth 2.0 credential handlers for the Laserfiche API  and additional utility functions.
+Javascript Library containing the implementation of OAuth 2.0 credential handlers for the Laserfiche API and additional utility functions.
 
 ## Documentation
 
