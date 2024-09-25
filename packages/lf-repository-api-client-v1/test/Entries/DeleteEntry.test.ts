@@ -6,7 +6,20 @@ import { DeleteEntryWithAuditReason } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 
-describe('Delete Entries Integration Tests', () => {
+let token: string | undefined = undefined;
+
+describe('Delete Entries Integration Tests', () => {  
+  beforeEach(async () => {
+    token = undefined;
+  });
+  afterEach(async () => {
+    if (token) {
+      await _RepositoryApiClient.tasksClient.cancelOperation({
+        repoId: repositoryId,
+        operationToken: token,
+      });
+    }
+  });
   test('Delete Entry', async () => {
     let deleteEntry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS DeleteFolder');
     let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
@@ -15,7 +28,7 @@ describe('Delete Entries Integration Tests', () => {
       entryId: deleteEntry.id ?? -1,
       request: body,
     });
-    let token: string = result.token ?? '';
+    token = result.token ?? '';
     expect(token).not.toBeNull();
     expect(token).not.toBe('');
   });
