@@ -35,10 +35,13 @@ describe('Create Copy Entry Test', () => {
       }
     }
     for (const token in tokens) {
-      await _RepositoryApiClient.tasksClient.cancelOperation({
-        repoId: repositoryId,
-        operationToken: token,
-      });
+      try {
+        await _RepositoryApiClient.tasksClient.cancelOperation({
+          repoId: repositoryId,
+          operationToken: token,
+        });
+      } catch { // don't do anything if task is already deleted
+      }
     }
     createdEntries = [];
   });

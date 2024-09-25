@@ -8,20 +8,27 @@ import 'isomorphic-fetch';
 
 let token: string | undefined = undefined;
 
-describe('Delete Entries Integration Tests', () => {  
+describe('Delete Entries Integration Tests', () => {
   beforeEach(async () => {
     token = undefined;
   });
   afterEach(async () => {
     if (token) {
-      await _RepositoryApiClient.tasksClient.cancelOperation({
-        repoId: repositoryId,
-        operationToken: token,
-      });
+      try {
+        await _RepositoryApiClient.tasksClient.cancelOperation({
+          repoId: repositoryId,
+          operationToken: token,
+        });
+      } catch {
+        // don't do anything if task is already deleted
+      }
     }
   });
   test('Delete Entry', async () => {
-    let deleteEntry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS DeleteFolder');
+    let deleteEntry = await CreateEntry(
+      _RepositoryApiClient,
+      'RepositoryApiClientIntegrationTest JS DeleteFolder'
+    );
     let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
     let result = await _RepositoryApiClient.entriesClient.deleteEntryInfo({
       repoId: repositoryId,
