@@ -8,12 +8,25 @@ import 'isomorphic-fetch';
 
 describe('Move Entries Integration Tests', () => {
   let createdEntries: Array<Entry> = new Array();
+  let tokens: string[] = [];
+
   afterEach(async () => {
     for (let i = 0; i < createdEntries.length; i++) {
       if (createdEntries[i]) {
         let body = new DeleteEntryWithAuditReason();
         let num = Number(createdEntries[i].id);
-        await _RepositoryApiClient.entriesClient.deleteEntryInfo({ repoId: repositoryId, entryId: num, request: body });
+        let deleteOp = await _RepositoryApiClient.entriesClient.deleteEntryInfo({ repoId: repositoryId, entryId: num, request: body });
+        if (deleteOp.token) tokens.push(deleteOp.token);
+      }
+    }
+    for (const token of tokens) {
+      try {
+        await _RepositoryApiClient.tasksClient.cancelOperation({
+          repoId: repositoryId,
+          operationToken: token,
+        });
+      } catch {
+        // don't do anything if task is already deleted
       }
     }
   });
