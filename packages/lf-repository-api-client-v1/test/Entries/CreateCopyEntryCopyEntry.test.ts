@@ -34,7 +34,7 @@ describe('Create Copy Entry Test', () => {
         });
       }
     }
-    for (const token in tokens) {
+    for (const token of tokens) {
       try {
         await _RepositoryApiClient.tasksClient.cancelOperation({
           repoId: repositoryId,
