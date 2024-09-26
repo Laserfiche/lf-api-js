@@ -360,6 +360,9 @@ jobs:
         working-directory: ./packages/lf-repository-api-client-v2
         run: pnpm version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
 
+      - name: PNPM install
+        run: pnpm install
+
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
         env:
