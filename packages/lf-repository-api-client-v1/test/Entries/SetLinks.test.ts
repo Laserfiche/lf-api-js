@@ -9,28 +9,16 @@ import 'isomorphic-fetch';
 
 describe('Set Entries Integration Tests', () => {
   let createdEntries: Array<Entry> = new Array();
-  let tokens: string[] = [];
 
   afterEach(async () => {
     for (let i = 0; i < createdEntries.length; i++) {
       if (createdEntries[i]) {
         let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
         let num: number = Number(createdEntries[i].id);
-        let deleteOp = await _RepositoryApiClient.entriesClient.deleteEntryInfo({ repoId: repositoryId, entryId: num, request: body });
-        if (deleteOp.token) tokens.push(deleteOp.token);
+        await _RepositoryApiClient.entriesClient.deleteEntryInfo({ repoId: repositoryId, entryId: num, request: body });
       }
     }
-    
-    for (const token of tokens) {
-      try {
-        await _RepositoryApiClient.tasksClient.cancelOperation({
-          repoId: repositoryId,
-          operationToken: token,
-        });
-      } catch {
-        // don't do anything if task is already deleted
-      }
-    }
+
     createdEntries = [];
     if (authorizationType === authorizationTypeEnum.CloudAccessKey) {
       _RepositoryApiClient.serverSessionClient.invalidateServerSession({ repoId: repositoryId });

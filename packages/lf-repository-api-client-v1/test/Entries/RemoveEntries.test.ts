@@ -16,21 +16,11 @@ describe('Remove Entries Integration Tests', () => {
     if (entry) {
       let body = new DeleteEntryWithAuditReason();
       let num = Number(entry.id);
-      let deleteOp = await _RepositoryApiClient.entriesClient.deleteEntryInfo({
+      await _RepositoryApiClient.entriesClient.deleteEntryInfo({
         repoId: repositoryId,
         entryId: num,
         request: body,
       });
-      if (deleteOp.token) {
-        try {
-          await _RepositoryApiClient.tasksClient.cancelOperation({
-            repoId: repositoryId,
-            operationToken: deleteOp.token,
-          });
-        } catch {
-          // don't do anything if task is already deleted
-        }
-      }
     }
   });
 

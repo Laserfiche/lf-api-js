@@ -27,12 +27,11 @@ describe('Create Copy Entry Test', () => {
       if (createdEntries[i]) {
         let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
         let num: number = Number(createdEntries[i].id);
-        let deleteToken = await _RepositoryApiClient.entriesClient.deleteEntryInfo({
+        await _RepositoryApiClient.entriesClient.deleteEntryInfo({
           repoId: repositoryId,
           entryId: num,
           request: body,
         });
-        if (deleteToken.token) tokens.push(deleteToken.token);
       }
     }
     for (const token of tokens) {
