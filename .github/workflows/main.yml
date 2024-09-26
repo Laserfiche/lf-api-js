@@ -313,6 +313,8 @@ jobs:
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
@@ -370,8 +372,6 @@ jobs:
 
       - name: pnpm publish
         run: pnpm publish --recursive --access public  --tag next --no-git-checks --force
-
-      - uses: actions/checkout@v4
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
