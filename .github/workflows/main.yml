@@ -309,7 +309,7 @@ jobs:
 
   publish-all-preview-packages:
     runs-on: ubuntu-latest
-    environment: production
+    environment: preview
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
     steps:
