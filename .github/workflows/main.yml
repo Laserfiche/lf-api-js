@@ -167,7 +167,6 @@ jobs:
           list-tests: 'failed'
           fail-on-error: 'false'
 
-      # TODO remove unnecessary secrets
       - name: pnpm test lf-repository-api-client-v2 on cloud (node environment)
         id: test-cloud-node
         env:

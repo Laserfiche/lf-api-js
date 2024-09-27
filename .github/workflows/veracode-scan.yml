@@ -34,7 +34,7 @@ jobs:
     - name: 'Create an empty ./veracode folder'
       run: 'mkdir -p ./veracode'
       
-    - name: 'Compress js repository client files'
+    - name: 'Compress js repository client v2 files'
       run: tar -czvf ./veracode/lf-repository-api-v2.tar.gz ./packages/lf-repository-api-client-v2/dist
 
     - name: 'Compress js api client core files'
