@@ -26,3 +26,12 @@ It is the future replacement of repositories:
 
 - Run `pnpm --filter ${project_name} run ${script_name}`
 - Example to run the "cloud" tests on `@laserfiche/lf-api-client-core` run `pnpm --filter @laserfiche/lf-api-client-core run test:Cloud`
+
+## To publish a new package
+
+1. Update the version in main.yml for the package that you want to update
+    - i.e. `NPM_API_CLIENT_V1_VERSION` for `@laserfiche/lf-repository-api-client`
+1. Update CHANGELOG  in the folder for the package you are updating (i.e. `packages/lf-repository-api-client-v1`)
+1. Run pipeline in Github and publish preview package
+1. Test preview package
+1. Run publish production package

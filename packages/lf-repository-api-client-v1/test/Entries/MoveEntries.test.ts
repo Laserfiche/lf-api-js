@@ -8,6 +8,7 @@ import 'isomorphic-fetch';
 
 describe('Move Entries Integration Tests', () => {
   let createdEntries: Array<Entry> = new Array();
+
   afterEach(async () => {
     for (let i = 0; i < createdEntries.length; i++) {
       if (createdEntries[i]) {

@@ -309,10 +309,12 @@ jobs:
 
   publish-all-preview-packages:
     runs-on: ubuntu-latest
-    environment: production
+    environment: preview
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
@@ -343,19 +345,25 @@ jobs:
         run: echo "NpmClientCorePackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
       - name: pnpm version
-        run: pnpm --filter @laserfiche/lf-api-client-core version ${{ env.NpmClientCorePackageVersion }} --no-git-tag-version --allow-same-version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NpmClientCorePackageVersion }} --no-git-tag-version
 
       - name: set NpmClientV1PackageVersion as preview version from downloaded artifact
         run: echo "NpmClientV1PackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
       - name: pnpm version
-        run: pnpm --filter @laserfiche/lf-repository-api-client version ${{ env.NpmClientV1PackageVersion }} --no-git-tag-version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NpmClientV1PackageVersion }} --no-git-tag-version
 
       - name: set NpmClientV2PackageVersion as preview version from downloaded artifact
         run: echo "NpmClientV2PackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
       - name: pnpm version
-        run: pnpm --filter @laserfiche/lf-repository-api-client-v2 version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
+
+      - name: PNPM install
+        run: pnpm install
 
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
@@ -364,8 +372,6 @@ jobs:
 
       - name: pnpm publish
         run: pnpm publish --recursive --access public  --tag next --no-git-checks --force
-
-      - uses: actions/checkout@v4
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1

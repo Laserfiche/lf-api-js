@@ -18,6 +18,7 @@ describe('Set Entries Integration Tests', () => {
         await _RepositoryApiClient.entriesClient.deleteEntryInfo({ repoId: repositoryId, entryId: num, request: body });
       }
     }
+
     createdEntries = [];
     if (authorizationType === authorizationTypeEnum.CloudAccessKey) {
       _RepositoryApiClient.serverSessionClient.invalidateServerSession({ repoId: repositoryId });
