@@ -22,6 +22,9 @@ jobs:
       with:
         node-version: 20.x
 
+    - name: Install pnpm
+      run: npm install pnpm -g
+
     - name: Install dependencies
       run: pnpm install
 
@@ -31,8 +34,14 @@ jobs:
     - name: 'Create an empty ./veracode folder'
       run: 'mkdir -p ./veracode'
       
-    - name: 'Compress js repository client files'
-      run: tar -czvf ./veracode/lf-api-js.tar.gz ./packages
+    - name: 'Compress js repository client v2 files'
+      run: tar -czvf ./veracode/lf-repository-api-v2.tar.gz ./packages/lf-repository-api-client-v2/dist
+
+    - name: 'Compress js api client core files'
+      run: tar -czvf ./veracode/lf-client-core.tar.gz ./packages/lf-api-client-core-js/dist
+      
+    - name: 'Compress js repository client v1 files'
+      run: tar -czvf ./veracode/lf-repository-api-v1.tar.gz ./packages/lf-repository-api-client-v1/dist
 
     - name: Veracode Upload And Scan (Static Application Security Testing)
       uses: veracode/veracode-uploadandscan-action@0.2.6
@@ -42,6 +51,7 @@ jobs:
         filepath: 'veracode'
         vid: '${{ secrets.VERACODE_API_ID }}'
         vkey: '${{ secrets.VERACODE_API_KEY }}'
+        teams: 'GitHub - Open Source'
 
     - name: Run Veracode Software Composition Analysis (SCA)
       env:

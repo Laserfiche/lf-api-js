@@ -1,6 +1,12 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-import { Entry, CreateEntryRequest, EntryType, FieldDefinition, CreateEntryRequestEntryType } from '../index.js';
+import {
+  Entry,
+  CreateEntryRequest,
+  EntryType,
+  FieldDefinition,
+  CreateEntryRequestEntryType,
+} from '../index.js';
 import {
   OAuthAccessKey,
   repositoryId,
@@ -27,7 +33,7 @@ export async function CreateEntry(
   var newEntry = await client.entriesClient.createEntry({
     repositoryId: repositoryId,
     entryId: parentEntryId,
-    request
+    request,
   });
   expect(newEntry).not.toBeNull();
   expect(newEntry.parentId).toBe(parentEntryId);
@@ -48,16 +54,31 @@ export function createClient(): IRepositoryApiClient {
   if (!_RepositoryApiClient) {
     if (authorizationType === authType.CloudAccessKey) {
       if (!testServicePrincipalKey || !OAuthAccessKey)
-        throw new Error(`testServicePrincipalKey or OAuthAccessKey is undefined`);
-      _RepositoryApiClient = RepositoryApiClient.createFromAccessKey(testServicePrincipalKey, OAuthAccessKey, "repository.ReadWrite");
+        throw new Error(
+          `testServicePrincipalKey or OAuthAccessKey is undefined`
+        );
+      _RepositoryApiClient = RepositoryApiClient.createFromAccessKey(
+        testServicePrincipalKey,
+        OAuthAccessKey,
+        'repository.ReadWrite'
+      );
     } else if (authorizationType === authType.APIServerUsernamePassword) {
       if (!repositoryId || !username || !password || !baseUrl)
-        throw new Error(`RepositoryId, Username, Password, or BaseURL is undefined`);
-      _RepositoryApiClient = RepositoryApiClient.createFromUsernamePassword(repositoryId, username, password, baseUrl);
+        throw new Error(
+          `RepositoryId, Username, Password, or BaseURL is undefined`
+        );
+      _RepositoryApiClient = RepositoryApiClient.createFromUsernamePassword(
+        repositoryId,
+        username,
+        password,
+        baseUrl
+      );
     } else {
-      throw new Error('Authorization type is undefined')
+      throw new Error('Authorization type is undefined');
     }
-    let defaultRequestHeaders: Record<string, string> = { 'X-LF-AppID': 'RepositoryApiClientIntegrationTest JS' };
+    let defaultRequestHeaders: Record<string, string> = {
+      'X-LF-AppID': 'RepositoryApiClientIntegrationTest JS',
+    };
     if (testHeader) {
       defaultRequestHeaders[testHeader] = 'true';
     }
