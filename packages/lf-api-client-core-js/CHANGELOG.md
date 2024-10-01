@@ -1,3 +1,9 @@
+## 1.1.13
+
+### Maintenance
+
+- Moved code to `lf-api-js` repository from `lf-api-client-core-js` repository
+
 ## 1.1.12
 
 ### Features
