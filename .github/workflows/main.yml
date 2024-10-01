@@ -135,7 +135,7 @@ jobs:
           list-tests: 'failed'
           fail-on-error: 'false'
 
-      - name: pnpm @laserfiche/lf-repository-api-client run all cloud tests
+      - name: pnpm test @laserfiche/lf-repository-api-client run all cloud tests
         env:
           ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
@@ -144,7 +144,7 @@ jobs:
           TEST_HEADER: ${{ secrets.TEST_HEADER }}
         run: pnpm --filter @laserfiche/lf-repository-api-client run test:all
 
-      - name: pnpm @laserfiche/lf-repository-api-client run all self-hosted tests
+      - name: pnpm test @laserfiche/lf-repository-api-client run all self-hosted tests
         env:
           ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
