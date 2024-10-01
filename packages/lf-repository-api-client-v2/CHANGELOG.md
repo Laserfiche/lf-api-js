@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.3
+
+### Maintenance
+
+- Moved code to `lf-api-js` repository from `lf-repository-api-client-js` repository
+
 ## 1.0.2
 
 ### Maintenance
