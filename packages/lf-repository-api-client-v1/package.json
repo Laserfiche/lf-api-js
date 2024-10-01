@@ -1,7 +1,7 @@
 {
   "name": "@laserfiche/lf-repository-api-client",
   "type": "module",
-  "version": "1.1.4",
+  "version": "1.0.0",
   "description": "The TypeScript Laserfiche Repository API Client library for accessing the v1 Laserfiche Repository APIs.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
