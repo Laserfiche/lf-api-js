@@ -571,7 +571,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
-    environment: production
+    environment: github-pages
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
