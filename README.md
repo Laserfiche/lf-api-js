@@ -2,10 +2,12 @@
 
 This repository contains relevant JS libraries to get started using the Laserfiche API.
 
-It is the future replacement of repositories:
+Contains the following packages:
 
-- [lf-api-client-core-js](https://github.com/Laserfiche/lf-api-client-core-js)
-- [lf-repository-api-client-js](https://github.com/Laserfiche/lf-repository-api-client-js)
+- `@laserfiche/lf-api-client-core`
+- `@laserfiche/lf-repository-api-client`
+- `@laserfiche/lf-repository-api-client-v2`
+- `@laserfiche/lf-api-js`
 
 ## One time setup
 
@@ -29,8 +31,10 @@ It is the future replacement of repositories:
 
 ## To publish a new package
 
-1. Update the version in main.yml for the package that you want to update
-    - i.e. `NPM_API_CLIENT_V1_VERSION` for `@laserfiche/lf-repository-api-client`
+1. Update the version in [main.yml](https://github.com/Laserfiche/lf-api-js/blob/main/.github/workflows/main.yml) for the package that you want to update
+    - `NPM_API_CLIENT_V1_VERSION` for `@laserfiche/lf-repository-api-client`
+    - `NPM_API_CLIENT_V2_VERSION` for `@laserfiche/lf-repository-api-client-v2`
+    - `NPM_CLIENT_CORE_VERSION` for `@laserfiche/lf-api-client-core`
 1. Update CHANGELOG  in the folder for the package you are updating (i.e. `packages/lf-repository-api-client-v1`)
 1. Run pipeline in Github and publish preview package
 1. Test preview package

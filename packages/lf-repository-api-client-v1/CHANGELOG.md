@@ -1,3 +1,9 @@
+## 1.1.5
+
+### Maintenance
+
+- Moved code to `lf-api-js` repository from `lf-repository-api-client-js` repository
+
 ## 1.1.4
 
 ### Features
