@@ -87,12 +87,12 @@ importers:
       '@laserfiche/lf-js-utils':
         specifier: ^4.0.8
         version: 4.0.8
+      '@laserfiche/lf-repository-api-client':
+        specifier: workspace:*
+        version: link:../lf-repository-api-client-v1
       '@laserfiche/lf-repository-api-client-v2':
         specifier: workspace:*
         version: link:../lf-repository-api-client-v2
-      '@types/node':
-        specifier: '20'
-        version: 20.16.6
 
   packages/lf-repository-api-client-v1:
     dependencies:

@@ -10,24 +10,30 @@ import {
 } from '@laserfiche/lf-api-client-core';
 import { StringUtils } from '@laserfiche/lf-js-utils';
 
-import {
-  IRepositoryApiClient,
-  RepositoryApiClient,
-} from '@laserfiche/lf-repository-api-client-v2';
+import * as LfRepositoryClientV1 from '@laserfiche/lf-repository-api-client';
+import * as LfRepositoryClientV2 from '@laserfiche/lf-repository-api-client-v2';
+
+export { LfRepositoryClientV1, LfRepositoryClientV2 };
 
 export interface ILfApiClient {
-  repositoryApiClient: IRepositoryApiClient;
+  repositoryApiClientV1: LfRepositoryClientV1.IRepositoryApiClient;
 }
 
 // @ts-ignore
-export class LfAPIClient implements ILfApiClient {
-  public repositoryApiClient: IRepositoryApiClient;
+export class LfApiClient implements ILfApiClient {
+  public repositoryApiClientV1: LfRepositoryClientV1.IRepositoryApiClient;
+  public repositoryApiClientV2: LfRepositoryClientV2.IRepositoryApiClient;
 
   private constructor(
     httpRequestHandler: HttpRequestHandler,
     baseUrlDebug?: string
   ) {
-    this.repositoryApiClient = RepositoryApiClient.createFromHttpRequestHandler(
+    this.repositoryApiClientV1 = LfRepositoryClientV1.RepositoryApiClient.createFromHttpRequestHandler(
+      httpRequestHandler,
+      baseUrlDebug
+    );
+    
+    this.repositoryApiClientV2 = LfRepositoryClientV2.RepositoryApiClient.createFromHttpRequestHandler(
       httpRequestHandler,
       baseUrlDebug
     );
@@ -44,7 +50,7 @@ export class LfAPIClient implements ILfApiClient {
   ): ILfApiClient | undefined {
     if (!httpRequestHandler)
       throw new Error('Argument cannot be null: httpRequestHandler');
-    const apiClient = new LfAPIClient(httpRequestHandler, baseUrlDebug);
+    const apiClient = new LfApiClient(httpRequestHandler, baseUrlDebug);
     return apiClient;
   }
   /**
@@ -59,7 +65,7 @@ export class LfAPIClient implements ILfApiClient {
     const handler = new OAuthClientCustomTokenCredentialsHandler(
       accessTokenFunc
     );
-    return LfAPIClient.createFromHttpRequestHandler(handler, baseUrlDebug);
+    return LfApiClient.createFromHttpRequestHandler(handler, baseUrlDebug);
   }
 
   /**
@@ -80,7 +86,7 @@ export class LfAPIClient implements ILfApiClient {
       accessKey,
       scope
     );
-    return LfAPIClient.createFromHttpRequestHandler(handler, baseUrlDebug);
+    return LfApiClient.createFromHttpRequestHandler(handler, baseUrlDebug);
   }
 
   /**
@@ -104,6 +110,6 @@ export class LfAPIClient implements ILfApiClient {
       baseUrlWithoutSlash,
       undefined
     );
-    return new LfAPIClient(handler, baseUrlWithoutSlash);
+    return new LfApiClient(handler, baseUrlWithoutSlash);
   }
 }
