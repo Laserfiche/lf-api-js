@@ -242,7 +242,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -285,7 +284,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -340,7 +338,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -413,7 +410,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -447,6 +443,8 @@ jobs:
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
@@ -456,10 +454,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install pnpm
         run: npm install pnpm -g
+
+      - name: PNPM install
+        run: pnpm install
 
       - name: pnpm version
         run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version --allow-same-version
@@ -471,8 +471,6 @@ jobs:
 
       - name: pnpm publish
         run: pnpm publish --filter @laserfiche/lf-repository-api-client --access public  --tag next --no-git-checks
-
-      - uses: actions/checkout@v4
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
@@ -499,7 +497,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install pnpm
         run: npm install pnpm -g
@@ -548,10 +545,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install pnpm
         run: npm install pnpm -g
+
+      - name: PNPM install
+        run: pnpm install
 
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
@@ -564,8 +563,6 @@ jobs:
       - name: PNPM publish
         working-directory: ./packages/lf-repository-api-client-v2
         run: pnpm publish  --access public  --tag latest
-
-      - uses: actions/checkout@v4
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
