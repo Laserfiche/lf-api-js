@@ -5,7 +5,7 @@ import {
   testServicePrincipalKey,
 } from '../../testHelpers/unitTestHelpers.js';
 import { BeforeFetchResult } from './BeforeFetchResult.js';
-import { OAuthClientCustomTokenCredentialsHandler } from './OauthClientCustomTokenCredentialsHandler.js';
+import { OAuthClientCustomTokenCredentialsHandler } from './OAuthClientCustomTokenCredentialsHandler.js';
 import { AccessKey } from '../OAuth/AccessKey.js';
 import 'isomorphic-fetch';
 import { GetAccessTokenResponse } from '../OAuth/GetAccessTokenResponse.js';
