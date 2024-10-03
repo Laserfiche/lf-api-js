@@ -400,7 +400,9 @@ jobs:
     environment: preview
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
-    steps:
+    steps:    
+      - uses: actions/checkout@v4
+
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
@@ -413,6 +415,9 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm -g
+
+      - name: PNPM install
+        run: pnpm install
 
       - name: set NpmPackageVersion as preview version from downloaded artifact
         run: echo "NpmPackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
@@ -427,8 +432,6 @@ jobs:
 
       - name: pnpm publish
         run: pnpm publish --filter @laserfiche/lf-repository-api-client --access public  --tag next --no-git-checks
-
-      - uses: actions/checkout@v4
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
