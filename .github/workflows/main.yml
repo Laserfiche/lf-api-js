@@ -401,10 +401,13 @@ jobs:
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
     steps:
-      - name: Download a Build Artifact
+      - uses: actions/checkout@v4
+
+      - name: Download a build artifact
         uses: actions/download-artifact@v4
         with:
           name: pnpm-api-client-v1-publish-artifact
+          path: ./packages/lf-repository-api-client-v1
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -414,10 +417,14 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
-      - name: set NpmPackageVersion as preview version from downloaded artifact
+      - name: PNPM install
+        run: pnpm install
+
+      - name: Set NpmPackageVersion as preview version from downloaded artifact
         run: echo "NpmPackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
-      - name: pnpm version
+      - name: PNPM version
+        working-directory: ./packages/lf-repository-api-client-v1
         run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
 
       - name: Set publishing config
@@ -425,10 +432,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
-      - name: pnpm publish
-        run: pnpm publish --filter @laserfiche/lf-repository-api-client --access public  --tag next --no-git-checks
-
-      - uses: actions/checkout@v4
+      - name: PNPM publish
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm publish --access public  --tag next --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
@@ -445,10 +451,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download a Build Artifact
+      - name: Download a build artifact
         uses: actions/download-artifact@v4
         with:
           name: pnpm-api-client-v1-publish-artifact
+          path: ./packages/lf-repository-api-client-v1
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -461,16 +468,18 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: pnpm version
-        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version --allow-same-version
+      - name: PNPM version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version
 
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
-      - name: pnpm publish
-        run: pnpm publish --filter @laserfiche/lf-repository-api-client --access public  --tag next --no-git-checks
+      - name: PNPM publish
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm publish --access public  --tag next --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
@@ -538,7 +547,7 @@ jobs:
       - name: Download a build artifact
         uses: actions/download-artifact@v4
         with:
-          name: pnpm-publish-api-client-v2-artifact
+          name: pnpm-api-client-v2-publish-artifact
           path: ./packages/lf-repository-api-client-v2
 
       - name: Setup Node.js environment
@@ -558,11 +567,12 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: PNPM version
-        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version --allow-same-version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version
 
       - name: PNPM publish
         working-directory: ./packages/lf-repository-api-client-v2
-        run: pnpm publish  --access public  --tag latest
+        run: pnpm publish --access public  --tag next --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
