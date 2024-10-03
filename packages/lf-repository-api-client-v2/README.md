@@ -8,7 +8,7 @@ Use the Laserfiche Repository API to access data in a Laserfiche repository. Imp
 
 ## Changelog
 
-See CHANGELOG [here](https://github.com/Laserfiche/lf-api-js/blob/HEAD/packages/lf-repository-api-client-js/CHANGELOG.md).
+See CHANGELOG [here](https://github.com/Laserfiche/lf-api-js/blob/HEAD/packages/lf-repository-api-client-v2/CHANGELOG.md).
 
 ## Installation
 
