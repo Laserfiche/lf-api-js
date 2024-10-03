@@ -47,9 +47,7 @@ export class OAuthClientCustomTokenCredentialsHandler
         ),
       };
     } else {
-      return {
-        regionalDomain: '',
-      };
+      throw Error("Unexpected, no access token.");
     }
   }
 
