@@ -657,10 +657,11 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: set NpmPackageVersion as preview version from downloaded artifact
-        run: echo "NpmPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+      - name: Set NpmPackageVersion as preview version from downloaded artifact
+        run: echo "NpmPackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
-      - name: pnpm version
+      - name: PNPM version
+        working-directory: ./packages/lf-api-js
         run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
 
       - name: Set publishing config
@@ -668,10 +669,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
-      - name: pnpm publish
-        run: pnpm publish --filter @laserfiche/lf-api-js --access public  --tag next --no-git-checks
-
-      - uses: actions/checkout@v4
+      - name: PNPM publish
+        working-directory: ./packages/lf-api-js
+        run: pnpm publish --access public  --tag next --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
