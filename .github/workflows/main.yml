@@ -658,7 +658,7 @@ jobs:
         run: pnpm install
 
       - name: Set NpmPackageVersion as preview version from downloaded artifact
-        run: echo "NpmPackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+        run: echo "NpmPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
       - name: PNPM version
         working-directory: ./packages/lf-api-js
