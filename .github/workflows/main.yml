@@ -427,7 +427,20 @@ jobs:
         run: npm install pnpm -g
 
       - name: pnpm version
-        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version --allow-same-version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version
 
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
@@ -467,6 +480,34 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm -g
+
+      - name: set NpmClientCorePackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientCorePackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NpmClientCorePackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV1PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV1PackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NpmClientV1PackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV2PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV2PackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
+
+      - name: set NpmAPIClientPackageVersion as preview version from downloaded artifact
+        run: echo "NpmAPIClientPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NpmAPIClientPackageVersion }} --no-git-tag-version
 
       - name: PNPM install
         run: pnpm install
@@ -516,6 +557,22 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version
+
       - name: PNPM install
         run: pnpm install
 
@@ -560,6 +617,34 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm -g
+
+      - name: set NpmClientCorePackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientCorePackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NpmClientCorePackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV1PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV1PackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NpmClientV1PackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV2PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV2PackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
+
+      - name: set NpmAPIClientPackageVersion as preview version from downloaded artifact
+        run: echo "NpmAPIClientPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NpmAPIClientPackageVersion }} --no-git-tag-version
 
       - name: PNPM install
         run: pnpm install
@@ -609,6 +694,22 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version
+
       - name: PNPM install
         run: pnpm install
 
@@ -653,6 +754,34 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm -g
+
+      - name: set NpmClientCorePackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientCorePackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NpmClientCorePackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV1PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV1PackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NpmClientV1PackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV2PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV2PackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
+
+      - name: set NpmAPIClientPackageVersion as preview version from downloaded artifact
+        run: echo "NpmAPIClientPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NpmAPIClientPackageVersion }} --no-git-tag-version
 
       - name: PNPM install
         run: pnpm install
