@@ -23,6 +23,9 @@
     "build": "npm run clean && tsc -b",
     "clean": "tsc -b --clean"
   },
+  "devDependencies": {
+    "@types/node": "^20.16.6"
+  },
   "dependencies": {
     "@laserfiche/lf-api-client-core": "workspace:*",
     "@laserfiche/lf-js-utils": "^4.0.8",

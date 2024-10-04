@@ -96,6 +96,10 @@ importers:
       '@laserfiche/lf-repository-api-client-v2':
         specifier: workspace:*
         version: link:../lf-repository-api-client-v2
+    devDependencies:
+      '@types/node':
+        specifier: ^20.16.6
+        version: 20.16.10
 
   packages/lf-repository-api-client-v1:
     dependencies:
