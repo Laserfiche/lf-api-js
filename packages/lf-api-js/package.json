@@ -27,9 +27,9 @@
     "@types/node": "^20.16.6"
   },
   "dependencies": {
-    "@laserfiche/lf-api-client-core": "workspace:*",
+    "@laserfiche/lf-api-client-core": "workspace:^",
     "@laserfiche/lf-js-utils": "^4.0.8",
-    "@laserfiche/lf-repository-api-client": "workspace:*",
-    "@laserfiche/lf-repository-api-client-v2": "workspace:*"
+    "@laserfiche/lf-repository-api-client": "workspace:^",
+    "@laserfiche/lf-repository-api-client-v2": "workspace:^"
   }
 }

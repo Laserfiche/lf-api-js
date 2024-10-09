@@ -85,16 +85,16 @@ importers:
   packages/lf-api-js:
     dependencies:
       '@laserfiche/lf-api-client-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../lf-api-client-core-js
       '@laserfiche/lf-js-utils':
         specifier: ^4.0.8
         version: 4.0.8
       '@laserfiche/lf-repository-api-client':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../lf-repository-api-client-v1
       '@laserfiche/lf-repository-api-client-v2':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../lf-repository-api-client-v2
     devDependencies:
       '@types/node':
@@ -104,7 +104,7 @@ importers:
   packages/lf-repository-api-client-v1:
     dependencies:
       '@laserfiche/lf-api-client-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../lf-api-client-core-js
       '@laserfiche/lf-js-utils':
         specifier: ^4.0.5
@@ -153,7 +153,7 @@ importers:
   packages/lf-repository-api-client-v2:
     dependencies:
       '@laserfiche/lf-api-client-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../lf-api-client-core-js
       '@laserfiche/lf-js-utils':
         specifier: ^4.0.5

@@ -62,9 +62,6 @@ jobs:
             ./packages/lf-api-client-core-js/README.md
             ./packages/lf-api-client-core-js/LICENSE
 
-      - name: Copy license
-        run: cp ./LICENSE ./packages/lf-repository-api-client-v1/LICENSE
-
       - name: Upload a build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -74,10 +71,6 @@ jobs:
             ./packages/lf-repository-api-client-v1/dist
             ./packages/lf-repository-api-client-v1/package.json
             ./packages/lf-repository-api-client-v1/README.md
-            ./packages/lf-repository-api-client-v1/LICENSE
-
-      - name: Copy license
-        run: cp ./LICENSE ./packages/lf-repository-api-client-v2/LICENSE
 
       - name: Upload a build artifact
         uses: actions/upload-artifact@v4
@@ -88,10 +81,6 @@ jobs:
             ./packages/lf-repository-api-client-v2/dist
             ./packages/lf-repository-api-client-v2/package.json
             ./packages/lf-repository-api-client-v2/README.md
-            ./packages/lf-repository-api-client-v2/LICENSE
-
-      - name: Copy license
-        run: cp ./LICENSE ./packages/lf-api-js/LICENSE
 
       - name: Upload a build artifact
         uses: actions/upload-artifact@v4
@@ -102,7 +91,6 @@ jobs:
             ./packages/lf-api-js/dist
             ./packages/lf-api-js/package.json
             ./packages/lf-api-js/README.md
-            ./packages/lf-api-js/LICENSE
 
   test_libraries:
     runs-on: ubuntu-latest
@@ -371,10 +359,13 @@ jobs:
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
           name: pnpm-client-core-publish-artifact
+          path: ./packages/lf-api-client-core-js
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -398,8 +389,6 @@ jobs:
       - name: pnpm publish
         run: pnpm publish --filter @laserfiche/lf-api-client-core --access public  --tag next --no-git-checks
 
-      - uses: actions/checkout@v4
-
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
@@ -412,11 +401,14 @@ jobs:
     environment: production
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
-    steps:
+    steps:    
+      - uses: actions/checkout@v4
+
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4
         with:
           name: pnpm-client-core-publish-artifact
+          path: ./packages/lf-api-client-core-js
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -448,9 +440,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: pnpm publish
-        run: pnpm publish --filter @laserfiche/lf-api-client-core --access public  --tag next --no-git-checks
-
-      - uses: actions/checkout@v4
+        run: pnpm publish --filter @laserfiche/lf-api-client-core --access public  --tag latest --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
@@ -587,7 +577,7 @@ jobs:
 
       - name: PNPM publish
         working-directory: ./packages/lf-repository-api-client-v1
-        run: pnpm publish --access public  --tag next --no-git-checks
+        run: pnpm publish --access public  --tag latest --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
@@ -724,7 +714,7 @@ jobs:
 
       - name: PNPM publish
         working-directory: ./packages/lf-repository-api-client-v2
-        run: pnpm publish --access public  --tag next --no-git-checks
+        run: pnpm publish --access public  --tag latest --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
