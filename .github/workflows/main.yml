@@ -440,6 +440,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: pnpm publish
+        working-directory: ./packages/lf-api-client-core-js
         run: pnpm publish --filter @laserfiche/lf-api-client-core --access public  --tag latest --no-git-checks
 
       - name: Tag commit
