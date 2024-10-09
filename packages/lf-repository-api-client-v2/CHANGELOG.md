@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.0.3
+## 1.0.4
+
+### Maintenance
+
+- Updated versioning on publish to for dependent libraries within this repository
+
+## [Deprecated] 1.0.3
 
 ### Maintenance
 
