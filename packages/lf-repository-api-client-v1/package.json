@@ -46,7 +46,7 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@laserfiche/lf-api-client-core": "workspace:*",
+    "@laserfiche/lf-api-client-core": "workspace:^",
     "@laserfiche/lf-js-utils": "^4.0.5"
   }
 }
