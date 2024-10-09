@@ -1,4 +1,10 @@
-## 1.1.13
+## 1.1.14
+
+### Maintenance
+
+- Updated versioning on publish to for dependent libraries within this repository
+
+## [Deprecated] 1.1.13
 
 ### Maintenance
 
