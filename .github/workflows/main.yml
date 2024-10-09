@@ -47,9 +47,6 @@ jobs:
       - name: PNPM run build
         run: pnpm run build
 
-      - name: Copy license
-        run: cp ./LICENSE ./packages/lf-api-client-core-js/LICENSE
-
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -59,7 +56,6 @@ jobs:
             ./packages/lf-api-client-core-js/dist
             ./packages/lf-api-client-core-js/package.json
             ./packages/lf-api-client-core-js/README.md
-            ./packages/lf-api-client-core-js/LICENSE
 
       - name: Upload a build artifact
         uses: actions/upload-artifact@v4
