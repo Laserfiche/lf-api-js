@@ -415,7 +415,7 @@ jobs:
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: lf-api-client-core-${{ env.NpmPackageVersion }}
+          tag: lf-api-client-core-${{ env.NpmClientCorePackageVersion }}
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
@@ -538,7 +538,7 @@ jobs:
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: lf-repository-api-client-v1-${{ env.NpmPackageVersion }}
+          tag: lf-repository-api-client-v1-${{ env.NpmClientV1PackageVersion }}
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
@@ -664,7 +664,7 @@ jobs:
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: lf-repository-api-client-v2-${{ env.NpmPackageVersion }}
+          tag: lf-repository-api-client-v2-${{ env.NpmClientV2PackageVersion }}
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
@@ -790,7 +790,7 @@ jobs:
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: lf-api-js-${{ env.NpmPackageVersion }}
+          tag: lf-api-js-${{ env.NpmAPIClientPackageVersion }}
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
