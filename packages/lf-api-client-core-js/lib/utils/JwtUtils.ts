@@ -46,6 +46,24 @@ export function getUsernameFromLfJWT(lfJwt: JWT): string {
 }
 
 /**
+ * Returns Laserfiche domain from Laserfiche jwt claims
+ * @param lfJwt
+ * @returns
+ * @example
+ * ```typescript
+ * const jwt : AccessTokenUtils.JWT = {
+ *  header: { 'typ': 'JWT'},
+ *  payload: {'aud' : 'test_aud'},
+ *  signature: '_signature'
+ * }
+ * getDomainFromLfJWT(jwt); // 'test_aud';
+ * ```
+ */
+export function getAudFromLfJWT(lfJwt: JWT): string {
+  return (<any>lfJwt).payload['aud'];
+}
+
+/**
  * Returns Laserfiche trustee id (user id) from Laserfiche jwt claims
  * @param lfJwt
  * @returns

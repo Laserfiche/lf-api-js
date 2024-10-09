@@ -16,6 +16,7 @@ env:
   NPM_API_CLIENT_V1_VERSION: '1.1.5'
   NPM_API_CLIENT_V2_VERSION: '1.0.3'
   NPM_CLIENT_CORE_VERSION: '1.1.13'
+  NPM_API_JS_CLIENT_VERSION: '1.0.0'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -61,9 +62,6 @@ jobs:
             ./packages/lf-api-client-core-js/README.md
             ./packages/lf-api-client-core-js/LICENSE
 
-      - name: Copy license
-        run: cp ./LICENSE ./packages/lf-repository-api-client-v1/LICENSE
-
       - name: Upload a build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -73,10 +71,6 @@ jobs:
             ./packages/lf-repository-api-client-v1/dist
             ./packages/lf-repository-api-client-v1/package.json
             ./packages/lf-repository-api-client-v1/README.md
-            ./packages/lf-repository-api-client-v1/LICENSE
-
-      - name: Copy license
-        run: cp ./LICENSE ./packages/lf-repository-api-client-v2/LICENSE
 
       - name: Upload a build artifact
         uses: actions/upload-artifact@v4
@@ -87,7 +81,16 @@ jobs:
             ./packages/lf-repository-api-client-v2/dist
             ./packages/lf-repository-api-client-v2/package.json
             ./packages/lf-repository-api-client-v2/README.md
-            ./packages/lf-repository-api-client-v2/LICENSE
+
+      - name: Upload a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-api-js-publish-artifact
+          # A file, directory or wildcard pattern that describes what to upload
+          path: |
+            ./packages/lf-api-js/dist
+            ./packages/lf-api-js/package.json
+            ./packages/lf-api-js/README.md
 
   test_libraries:
     runs-on: ubuntu-latest
@@ -199,7 +202,7 @@ jobs:
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
-
+  # TODO add tests for api-js
   build_documentation:
     runs-on: ubuntu-latest
     needs: [build_libraries, test_libraries]
@@ -214,6 +217,22 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version  --allow-same-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version  --allow-same-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version  --allow-same-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version  --allow-same-version
+
       - name: PNPM install
         run: pnpm install
 
@@ -226,87 +245,6 @@ jobs:
           name: github-pages
           # A file, directory or wildcard pattern that describes what to upload
           path: ./docs_temp/
-
-  publish-client-core-preview-package:
-    runs-on: ubuntu-latest
-    environment: preview
-    if: ${{ github.run_attempt != 1 }}
-    needs: [build_libraries, test_libraries, build_documentation]
-    steps:
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pnpm-client-core-publish-artifact
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        run: npm install pnpm -g
-
-      - name: set NpmPackageVersion as preview version from downloaded artifact
-        run: echo "NpmPackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
-
-      - name: pnpm version
-        run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
-
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-      - name: pnpm publish
-        run: pnpm publish --filter @laserfiche/lf-api-client-core --access public  --tag next --no-git-checks
-
-      - uses: actions/checkout@v4
-
-      - name: Tag commit
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-api-client-core-${{ env.NpmPackageVersion }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-
-  publish-client-core-production-package:
-    runs-on: ubuntu-latest
-    environment: production
-    if: ${{ github.run_attempt != 1 }}
-    needs: [build_libraries, test_libraries, build_documentation]
-    steps:
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pnpm-client-core-publish-artifact
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        run: npm install pnpm -g
-
-      - name: pnpm version
-        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version --allow-same-version
-
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-      - name: pnpm publish
-        run: pnpm publish --filter @laserfiche/lf-api-client-core --access public  --tag next --no-git-checks
-
-      - uses: actions/checkout@v4
-
-      - name: Tag commit
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-api-client-core-${{ env.NPM_CLIENT_CORE_VERSION }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
   publish-all-preview-packages:
     runs-on: ubuntu-latest
@@ -327,6 +265,347 @@ jobs:
         with:
           name: pnpm-api-client-v1-publish-artifact
           path: ./packages/lf-repository-api-client-v1
+
+      - name: Download a build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-api-client-v2-publish-artifact
+          path: ./packages/lf-repository-api-client-v2
+
+      - name: Download a build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-api-js-publish-artifact
+          path: ./packages/lf-api-js
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install pnpm -g
+
+      - name: set NpmClientCorePackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientCorePackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NpmClientCorePackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV1PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV1PackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NpmClientV1PackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV2PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV2PackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
+
+      - name: set NpmAPIClientPackageVersion as preview version from downloaded artifact
+        run: echo "NpmAPIClientPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NpmAPIClientPackageVersion }} --no-git-tag-version
+
+      - name: PNPM install
+        run: pnpm install
+
+      - name: Set publishing config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: pnpm publish
+        run: pnpm publish --recursive --access public  --tag next --no-git-checks --force
+
+      - name: Tag commit
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: lf-api-client-core-${{ env.NpmClientCorePackageVersion }}
+          commit_sha: ${{ github.sha }}
+          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
+      - name: Tag commit
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: lf-repository-api-client-v1-${{ env.NpmClientV1PackageVersion }}
+          commit_sha: ${{ github.sha }}
+          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
+      - name: Tag commit
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: lf-repository-api-client-v2-${{ env.NpmClientV2PackageVersion }}
+          commit_sha: ${{ github.sha }}
+          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
+      - name: Tag commit
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: lf-api-js-${{ env.NpmAPIClientPackageVersion }}
+          commit_sha: ${{ github.sha }}
+          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
+  publish-client-core-preview-package:
+    runs-on: ubuntu-latest
+    environment: preview
+    if: ${{ github.run_attempt != 1 }}
+    needs: [build_libraries, test_libraries, build_documentation]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-client-core-publish-artifact
+          path: ./packages/lf-api-client-core-js
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install pnpm -g
+
+      - name: set NpmClientCorePackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientCorePackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NpmClientCorePackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV1PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV1PackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NpmClientV1PackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV2PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV2PackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
+
+      - name: set NpmAPIClientPackageVersion as preview version from downloaded artifact
+        run: echo "NpmAPIClientPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NpmAPIClientPackageVersion }} --no-git-tag-version
+
+      - name: Set publishing config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: pnpm publish
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm publish --filter @laserfiche/lf-api-client-core --access public  --tag next --no-git-checks
+
+      - name: Tag commit
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: lf-api-client-core-${{ env.NpmClientCorePackageVersion }}
+          commit_sha: ${{ github.sha }}
+          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
+  publish-client-core-production-package:
+    runs-on: ubuntu-latest
+    environment: production
+    if: ${{ github.run_attempt != 1 }}
+    needs: [build_libraries, test_libraries, build_documentation]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-client-core-publish-artifact
+          path: ./packages/lf-api-client-core-js
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install pnpm -g
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version
+
+      - name: Set publishing config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: pnpm publish
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm publish --filter @laserfiche/lf-api-client-core --access public  --tag latest --no-git-checks
+
+      - name: Tag commit
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: lf-api-client-core-${{ env.NPM_CLIENT_CORE_VERSION }}
+          commit_sha: ${{ github.sha }}
+          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
+  publish-api-client-v1-preview-package:
+    runs-on: ubuntu-latest
+    environment: preview
+    if: ${{ github.run_attempt != 1 }}
+    needs: [build_libraries, test_libraries, build_documentation]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download a build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-api-client-v1-publish-artifact
+          path: ./packages/lf-repository-api-client-v1
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install pnpm -g
+
+      - name: set NpmClientCorePackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientCorePackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NpmClientCorePackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV1PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV1PackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NpmClientV1PackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV2PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV2PackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
+
+      - name: set NpmAPIClientPackageVersion as preview version from downloaded artifact
+        run: echo "NpmAPIClientPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NpmAPIClientPackageVersion }} --no-git-tag-version
+
+      - name: PNPM install
+        run: pnpm install
+
+      - name: Set publishing config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: PNPM publish
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm publish --access public  --tag next --no-git-checks
+
+      - name: Tag commit
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: lf-repository-api-client-v1-${{ env.NpmClientV1PackageVersion }}
+          commit_sha: ${{ github.sha }}
+          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
+  publish-api-client-v1-production-package:
+    runs-on: ubuntu-latest
+    environment: production
+    if: ${{ github.run_attempt != 1 }}
+    needs: [build_libraries, test_libraries, build_documentation]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download a build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-api-client-v1-publish-artifact
+          path: ./packages/lf-repository-api-client-v1
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install pnpm -g
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version
+
+      - name: PNPM install
+        run: pnpm install
+
+      - name: Set publishing config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: PNPM publish
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm publish --access public  --tag latest --no-git-checks
+
+      - name: Tag commit
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: lf-repository-api-client-v1-${{ env.NPM_API_CLIENT_V1_VERSION }}
+          commit_sha: ${{ github.sha }}
+          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
+  publish-api-client-v2-preview-package:
+    runs-on: ubuntu-latest
+    environment: preview
+    if: ${{ github.run_attempt != 1 }}
+    needs: [build_libraries, test_libraries, build_documentation]
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Download a build artifact
         uses: actions/download-artifact@v4
@@ -363,6 +642,13 @@ jobs:
         working-directory: ./packages/lf-repository-api-client-v2
         run: pnpm version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
 
+      - name: set NpmAPIClientPackageVersion as preview version from downloaded artifact
+        run: echo "NpmAPIClientPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NpmAPIClientPackageVersion }} --no-git-tag-version
+
       - name: PNPM install
         run: pnpm install
 
@@ -371,168 +657,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
-      - name: pnpm publish
-        run: pnpm publish --recursive --access public  --tag next --no-git-checks --force
-
-      - name: Tag commit
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-api-client-core-${{ env.NpmClientCorePackageVersion }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-
-      - name: Tag commit
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-repository-api-client-v1-${{ env.NpmClientV1PackageVersion }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+      - name: PNPM publish
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm publish --access public  --tag next --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
           tag: lf-repository-api-client-v2-${{ env.NpmClientV2PackageVersion }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-
-  publish-api-client-v1-preview-package:
-    runs-on: ubuntu-latest
-    environment: preview
-    if: ${{ github.run_attempt != 1 }}
-    needs: [build_libraries, test_libraries, build_documentation]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download a build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pnpm-api-client-v1-publish-artifact
-          path: ./packages/lf-repository-api-client-v1
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        run: npm install pnpm -g
-
-      - name: PNPM install
-        run: pnpm install
-
-      - name: Set NpmPackageVersion as preview version from downloaded artifact
-        run: echo "NpmPackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
-
-      - name: PNPM version
-        working-directory: ./packages/lf-repository-api-client-v1
-        run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
-
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-      - name: PNPM publish
-        working-directory: ./packages/lf-repository-api-client-v1
-        run: pnpm publish --access public  --tag next --no-git-checks
-
-      - name: Tag commit
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-repository-api-client-v1-${{ env.NpmPackageVersion }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-
-  publish-api-client-v1-production-package:
-    runs-on: ubuntu-latest
-    environment: production
-    if: ${{ github.run_attempt != 1 }}
-    needs: [build_libraries, test_libraries, build_documentation]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download a build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pnpm-api-client-v1-publish-artifact
-          path: ./packages/lf-repository-api-client-v1
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        run: npm install pnpm -g
-
-      - name: PNPM install
-        run: pnpm install
-
-      - name: PNPM version
-        working-directory: ./packages/lf-repository-api-client-v1
-        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version
-
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-      - name: PNPM publish
-        working-directory: ./packages/lf-repository-api-client-v1
-        run: pnpm publish --access public  --tag next --no-git-checks
-
-      - name: Tag commit
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-repository-api-client-v1-${{ env.NPM_API_CLIENT_V1_VERSION }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-
-  publish-api-client-v2-preview-package:
-    runs-on: ubuntu-latest
-    environment: preview
-    if: ${{ github.run_attempt != 1 }}
-    needs: [build_libraries, test_libraries, build_documentation]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download a build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pnpm-api-client-v2-publish-artifact
-          path: ./packages/lf-repository-api-client-v2
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        run: npm install pnpm -g
-
-      - name: PNPM install
-        run: pnpm install
-
-      - name: Set NpmPackageVersion as preview version from downloaded artifact
-        run: echo "NpmPackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
-
-      - name: PNPM version
-        working-directory: ./packages/lf-repository-api-client-v2
-        run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
-
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-      - name: PNPM publish
-        working-directory: ./packages/lf-repository-api-client-v2
-        run: pnpm publish --access public  --tag next --no-git-checks
-
-      - name: Tag commit
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-repository-api-client-v2-${{ env.NpmPackageVersion }}
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
@@ -558,6 +690,22 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version
+
       - name: PNPM install
         run: pnpm install
 
@@ -566,18 +714,83 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
-      - name: PNPM version
-        working-directory: ./packages/lf-repository-api-client-v2
-        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version
-
       - name: PNPM publish
         working-directory: ./packages/lf-repository-api-client-v2
-        run: pnpm publish --access public  --tag next --no-git-checks
+        run: pnpm publish --access public  --tag latest --no-git-checks
 
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
           tag: lf-repository-api-client-v2-${{ env.NPM_API_CLIENT_V2_VERSION }}
+          commit_sha: ${{ github.sha }}
+          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
+  publish-api-js-preview-package:
+    runs-on: ubuntu-latest
+    environment: preview
+    if: ${{ github.run_attempt != 1 }}
+    needs: [build_libraries, test_libraries, build_documentation]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download a build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-api-js-publish-artifact
+          path: ./packages/lf-api-js
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install pnpm -g
+
+      - name: set NpmClientCorePackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientCorePackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-client-core-js
+        run: pnpm version ${{ env.NpmClientCorePackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV1PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV1PackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: pnpm version ${{ env.NpmClientV1PackageVersion }} --no-git-tag-version
+
+      - name: set NpmClientV2PackageVersion as preview version from downloaded artifact
+        run: echo "NpmClientV2PackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-repository-api-client-v2
+        run: pnpm version ${{ env.NpmClientV2PackageVersion }} --no-git-tag-version
+
+      - name: set NpmAPIClientPackageVersion as preview version from downloaded artifact
+        run: echo "NpmAPIClientPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version
+        working-directory: ./packages/lf-api-js
+        run: pnpm version ${{ env.NpmAPIClientPackageVersion }} --no-git-tag-version
+
+      - name: PNPM install
+        run: pnpm install
+
+      - name: Set publishing config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: PNPM publish
+        working-directory: ./packages/lf-api-js
+        run: pnpm publish --access public  --tag next --no-git-checks
+
+      - name: Tag commit
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: lf-api-js-${{ env.NpmAPIClientPackageVersion }}
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
