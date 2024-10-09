@@ -503,13 +503,6 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: Set NpmPackageVersion as preview version from downloaded artifact
-        run: echo "NpmPackageVersion=${{ env.NPM_API_CLIENT_V1_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
-
-      - name: PNPM version
-        working-directory: ./packages/lf-repository-api-client-v1
-        run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
-
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
         env:
@@ -566,10 +559,6 @@ jobs:
 
       - name: PNPM install
         run: pnpm install
-
-      - name: PNPM version
-        working-directory: ./packages/lf-repository-api-client-v1
-        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version
 
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
@@ -640,13 +629,6 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: Set NpmPackageVersion as preview version from downloaded artifact
-        run: echo "NpmPackageVersion=${{ env.NPM_API_CLIENT_V2_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
-
-      - name: PNPM version
-        working-directory: ./packages/lf-repository-api-client-v2
-        run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
-
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
         env:
@@ -708,10 +690,6 @@ jobs:
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-      - name: PNPM version
-        working-directory: ./packages/lf-repository-api-client-v2
-        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version
 
       - name: PNPM publish
         working-directory: ./packages/lf-repository-api-client-v2
@@ -776,13 +754,6 @@ jobs:
 
       - name: PNPM install
         run: pnpm install
-
-      - name: Set NpmPackageVersion as preview version from downloaded artifact
-        run: echo "NpmPackageVersion=${{ env.NPM_API_JS_CLIENT_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
-
-      - name: PNPM version
-        working-directory: ./packages/lf-api-js
-        run: pnpm version ${{ env.NpmPackageVersion }} --no-git-tag-version
 
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
