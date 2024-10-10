@@ -17,6 +17,7 @@ export { LfRepositoryClientV1, LfRepositoryClientV2 };
 
 export interface ILfApiClient {
   repositoryApiClientV1: LfRepositoryClientV1.IRepositoryApiClient;
+  repositoryApiClientV2: LfRepositoryClientV2.IRepositoryApiClient;
 }
 
 // @ts-ignore
@@ -40,28 +41,28 @@ export class LfApiClient implements ILfApiClient {
   }
 
   /**
-   * Create a Laserfiche repository client.
-   * @param httpRequestHandler The http request handler for the Laserfiche repository client.
+   * Create a Laserfiche API client.
+   * @param httpRequestHandler The http request handler for the Laserfiche API client.
    * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
    */
   public static createFromHttpRequestHandler(
     httpRequestHandler: HttpRequestHandler,
     baseUrlDebug?: string
-  ): ILfApiClient | undefined {
+  ): ILfApiClient {
     if (!httpRequestHandler)
       throw new Error('Argument cannot be null: httpRequestHandler');
     const apiClient = new LfApiClient(httpRequestHandler, baseUrlDebug);
     return apiClient;
   }
   /**
-   * Create a Laserfiche repository client.
-   * @param httpRequestHandler The http request handler for the Laserfiche repository client.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * Create a Laserfiche API client.
+   * @param httpRequestHandler The http request handler for the Laserfiche API client.
+   * @param baseUrlDebug (optional) override for the Laserfiche API base url.
    */
   public static createFromGetAccessTokenFunc(
     accessTokenFunc: () => Promise<GetAccessTokenResponse>,
     baseUrlDebug?: string
-  ): ILfApiClient | undefined {
+  ): ILfApiClient {
     const handler = new OAuthClientCustomTokenCredentialsHandler(
       accessTokenFunc
     );
@@ -69,18 +70,18 @@ export class LfApiClient implements ILfApiClient {
   }
 
   /**
-   * Create a Laserfiche repository client that will use Laserfiche Cloud OAuth client credentials to get access tokens.
+   * Create a Laserfiche API client that will use Laserfiche Cloud OAuth client credentials to get access tokens.
    * @param servicePrincipalKey The service principal key created for the service principal from the Laserfiche Account Administration.
    * @param accessKey The access key exported from the Laserfiche Developer Console.
    * @param scope (optional) The requested space-delimited scopes for the access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param baseUrlDebug (optional) override for the Laserfiche API base url.
    */
   public static createFromAccessKey(
     servicePrincipalKey: string,
     accessKey: AccessKey,
     scope?: string,
     baseUrlDebug?: string
-  ): ILfApiClient | undefined {
+  ): ILfApiClient {
     const handler = new OAuthClientCredentialsHandler(
       servicePrincipalKey,
       accessKey,
@@ -90,7 +91,7 @@ export class LfApiClient implements ILfApiClient {
   }
 
   /**
-   * Create a Laserfiche repository client that will use username and password to get access tokens for Laserfiche API. Password credentials grant type is implemented by the Laserfiche Self-Hosted API server. Not available in cloud.
+   * Create a Laserfiche API client that will use username and password to get access tokens for Laserfiche API. Password credentials grant type is implemented by the Laserfiche Self-Hosted API server. Not available in cloud.
    * @param repositoryId The repository ID
    * @param username The username
    * @param password The password
@@ -101,7 +102,7 @@ export class LfApiClient implements ILfApiClient {
     username: string,
     password: string,
     baseUrl: string
-  ): ILfApiClient | undefined {
+  ): ILfApiClient {
     const baseUrlWithoutSlash: string = StringUtils.trimEnd(baseUrl, '/');
     const handler = new UsernamePasswordHandler(
       repositoryId,
