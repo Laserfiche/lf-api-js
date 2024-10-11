@@ -13,6 +13,7 @@ describe('Delete Entries Integration Tests', () => {
     token = undefined;
   });
   afterEach(async () => {
+    await new Promise((r) => setTimeout(r, 5000));
     if (token) {
       try {
         await _RepositoryApiClient.tasksClient.cancelOperation({

@@ -17,4 +17,4 @@ To install, [see here](https://www.npmjs.com/package/@laserfiche/lf-api-client-c
 
 ### Build, Test, and Package
 
-See the [.github/workflows/lf-api-client-core.yml](https://github.com/Laserfiche/lf-api-js/blob/HEAD/.github/workflows/lf-api-client-core.yml).
+See the [.github/workflows/main.yml](https://github.com/Laserfiche/lf-api-js/blob/HEAD/.github/workflows/main.yml).
