@@ -516,7 +516,7 @@ jobs:
         run: pnpm version ${{ env.NpmAPIClientPackageVersion }} --no-git-tag-version
 
       - name: PNPM install
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
