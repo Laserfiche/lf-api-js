@@ -483,6 +483,10 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
+      - name: Test replace workspace
+        working-directory: ./packages/lf-repository-api-client-v1
+        run: sed -i 's/workspace:^/workspace:*/g' package.json
+
       - name: set NpmClientCorePackageVersion as preview version from downloaded artifact
         run: echo "NpmClientCorePackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
 
