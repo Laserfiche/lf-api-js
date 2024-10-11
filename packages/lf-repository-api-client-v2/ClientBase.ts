@@ -5,10 +5,12 @@ import { UrlUtils, StringUtils } from '@laserfiche/lf-js-utils';
 import {
   UsernamePasswordHandler,
   OAuthClientCredentialsHandler,
+  OAuthClientCustomTokenCredentialsHandler,
   HttpRequestHandler,
   DomainUtils,
   AccessKey,
   ApiException as ApiExceptionCore,
+  GetAccessTokenResponse
 } from '@laserfiche/lf-api-client-core';
 class ClientBase {}
 export interface IRepositoryApiClient {
@@ -95,6 +97,19 @@ export class RepositoryApiClient implements IRepositoryApiClient {
     const repoClient = new RepositoryApiClient(httpRequestHandler, baseUrlDebug);
     return repoClient;
   }
+  /**
+   * Create a Laserfiche repository client.
+   * @param httpRequestHandler The http request handler for the Laserfiche repository client.
+   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   */
+  public static createFromGetAccessTokenFunc(
+    accessTokenFunc: () => Promise<GetAccessTokenResponse>,
+    baseUrlDebug?: string
+  ): RepositoryApiClient {
+    const handler = new OAuthClientCustomTokenCredentialsHandler(accessTokenFunc);
+    return RepositoryApiClient.createFromHttpRequestHandler(handler, baseUrlDebug);
+  }
+
 
   /**
    * Create a Laserfiche repository client that will use Laserfiche Cloud OAuth client credentials to get access tokens.

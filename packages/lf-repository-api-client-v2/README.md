@@ -16,4 +16,4 @@ To install, [see here](https://www.npmjs.com/package/@laserfiche/lf-repository-a
 
 ### Build, Test, and Package
 
-See the [.github/workflows/lf-repository-api-client-v2.yml](https://github.com/Laserfiche/lf-api-js/blob/HEAD/.github/workflows/lf-repository-api-client-v2.yml).
+See the [.github/workflows/main.yml](https://github.com/Laserfiche/lf-api-js/blob/HEAD/.github/workflows/main.yml).
