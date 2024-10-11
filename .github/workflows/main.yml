@@ -403,19 +403,19 @@ jobs:
 
       - name: pnpm version lf-api-client-core-js
         working-directory: ./packages/lf-api-client-core-js
-        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version
+        run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version --allow-same-version
 
       - name: pnpm version lf-repository-api-client-v1
         working-directory: ./packages/lf-repository-api-client-v1
-        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version
+        run: pnpm version ${{ env.NPM_API_CLIENT_V1_VERSION }} --no-git-tag-version --allow-same-version
 
       - name: pnpm version lf-repository-api-client-v2
         working-directory: ./packages/lf-repository-api-client-v2
-        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version
+        run: pnpm version ${{ env.NPM_API_CLIENT_V2_VERSION }} --no-git-tag-version --allow-same-version
 
       - name: pnpm version lf-api-js
         working-directory: ./packages/lf-api-js
-        run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version
+        run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version --allow-same-version
 
       - name: PNPM install
         run: pnpm install
