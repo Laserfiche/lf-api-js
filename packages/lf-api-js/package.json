@@ -21,15 +21,19 @@
   },
   "scripts": {
     "build": "npm run clean && tsc -b",
-    "clean": "tsc -b --clean"
+    "clean": "tsc -b --clean",
+    "build-and-create-esm-js": "npm run build && npx rollup -c"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/node": "^20.16.6"
   },
   "dependencies": {
     "@laserfiche/lf-api-client-core": "workspace:^",
     "@laserfiche/lf-js-utils": "^4.0.8",
     "@laserfiche/lf-repository-api-client": "workspace:^",
-    "@laserfiche/lf-repository-api-client-v2": "workspace:^"
+    "@laserfiche/lf-repository-api-client-v2": "workspace:^",
+    "@rollup/plugin-node-resolve": "^15.2.3"
   }
 }
