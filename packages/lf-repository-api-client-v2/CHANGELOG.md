@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.0.4
+## 1.0.5
+
+### Maintenance
+
+- Fix issues where it depends on unpublished `@laserfiche/lf-api-client-core`
+
+## [Deprecated] 1.0.4
 
 ### Maintenance
 
