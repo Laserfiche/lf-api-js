@@ -18,7 +18,7 @@
     "build": "npm run clean && tsc -b",
     "build:watch": "tsc -b --watch",
     "clean": "tsc -b --clean",
-    "postpublish": "echo client-core"
+    "postpublish": "git tag lf-api-client-core-v$npm_package_version && git push --tags"
   },
   "keywords": [
     "Laserfiche"
