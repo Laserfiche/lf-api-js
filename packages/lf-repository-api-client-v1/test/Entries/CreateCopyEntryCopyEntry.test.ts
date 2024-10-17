@@ -34,7 +34,6 @@ describe('Create Copy Entry Test', () => {
         });
       }
     }
-    await new Promise((r) => setTimeout(r, 5000));
     for (const token of tokens) {
       try {
         await _RepositoryApiClient.tasksClient.cancelOperation({

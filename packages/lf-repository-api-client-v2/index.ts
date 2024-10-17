@@ -12151,7 +12151,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
   }
   /**
    * Create a Laserfiche repository client.
-   * @param httpRequestHandler The http request handler for the Laserfiche repository client.
+   * @param accessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
    * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
    */
   public static createFromGetAccessTokenFunc(
