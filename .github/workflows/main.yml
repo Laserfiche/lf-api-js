@@ -305,27 +305,6 @@ jobs:
       - name: pnpm publish all preview packages
         run: pnpm publish --recursive --access public --tag next --no-git-checks --force
 
-      - name: Tag commit lf-api-client-core
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-api-client-core-${{ env.NpmClientCorePreviewPackageVersion }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-
-      - name: Tag commit lf-repository-api-client-v1
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-repository-api-client-v1-${{ env.NpmClientV1PreviewPackageVersion }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-
-      - name: Tag commit lf-repository-api-client-v2
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-repository-api-client-v2-${{ env.NpmClientV2PreviewPackageVersion }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-
   publish-updated-production-packages:
     runs-on: ubuntu-latest
     environment: production
@@ -382,27 +361,6 @@ jobs:
 
       - name: pnpm publish all packages that version changed
         run: pnpm publish --recursive --access public  --tag latest --no-git-checks
-
-      - name: Tag commit lf-api-client-core
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-api-client-core-${{ env.NPM_CLIENT_CORE_VERSION }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-
-      - name: Tag commit lf-repository-api-client-v1
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-repository-api-client-v1-${{ env.NPM_API_CLIENT_V1_VERSION }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
-
-      - name: Tag commit lf-repository-api-client-v2
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: lf-repository-api-client-v2-${{ env.NPM_API_CLIENT_V2_VERSION }}
-          commit_sha: ${{ github.sha }}
-          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
   publish_documentation:
     runs-on: ubuntu-latest
