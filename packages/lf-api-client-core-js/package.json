@@ -17,7 +17,8 @@
     "example": "cd example && npm i && npm start",
     "build": "npm run clean && tsc -b",
     "build:watch": "tsc -b --watch",
-    "clean": "tsc -b --clean"
+    "clean": "tsc -b --clean",
+    "postpublish": "git tag lf-api-client-core-v$npm_package_version && git push --tags"
   },
   "keywords": [
     "Laserfiche"

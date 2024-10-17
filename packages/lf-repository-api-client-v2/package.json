@@ -18,7 +18,8 @@
     "build": "npm run nswag && npm run clean && tsc -b",
     "build:watch": "npm run nswag && tsc -b --watch",
     "clean": "tsc -b --clean",
-    "nswag": "nswag run generate-client/nswag.json"
+    "nswag": "nswag run generate-client/nswag.json",
+    "postpublish": "git tag lf-repository-api-client-v2-v$npm_package_version && git push --tags"
   },
   "keywords": [
     "Laserfiche"
