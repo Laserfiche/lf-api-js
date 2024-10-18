@@ -16,6 +16,8 @@ import {
   DomainUtils,
   AccessKey,
   ApiException as ApiExceptionCore,
+  GetAccessTokenResponse,
+  OAuthClientCustomTokenCredentialsHandler,
 } from '@laserfiche/lf-api-client-core';
 
 export interface IEntriesClient {
@@ -12335,6 +12337,19 @@ export class RepositoryApiClient implements IRepositoryApiClient {
     if (!httpRequestHandler) throw new Error('Argument cannot be null: httpRequestHandler');
     const repoClient = new RepositoryApiClient(httpRequestHandler, baseUrlDebug);
     return repoClient;
+  }
+
+  /**
+   * Create a Laserfiche repository client.
+   * @param getAccessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
+   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   */
+  public static createFromGetAccessTokenFunc(
+    getAccessTokenFunc: () => Promise<GetAccessTokenResponse>,
+    baseUrlDebug?: string
+  ): RepositoryApiClient {
+    const handler = new OAuthClientCustomTokenCredentialsHandler(getAccessTokenFunc);
+    return new RepositoryApiClient(handler, baseUrlDebug);
   }
 
   /**
