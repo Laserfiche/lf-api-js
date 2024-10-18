@@ -6,7 +6,7 @@ import {
   GetAccessTokenResponse,
   OAuthClientCredentialsHandler,
 } from '@laserfiche/lf-api-client-core';
-import { LfApiClient } from '../index';
+import { LfApiClient } from '../index.js';
 
 describe('API JS Tests', () => {
   test('Create api js client from access key succeeds', () => {

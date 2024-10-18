@@ -108,6 +108,9 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
+      - name: PNPM run build
+        run: pnpm run build
+
       - name: pnpm test lf-api-client-core on cloud
         id: test-cloud
         env:
