@@ -1,7 +1,7 @@
 {
   "name": "@laserfiche/lf-api-js",
   "version": "1.0.0",
-  "description": "",
+  "description": "The TypeScript Laserfiche API Client library for accessing available Laserfiche APIs.",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "type": "module",

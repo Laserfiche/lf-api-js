@@ -56,7 +56,7 @@ export class LfApiClient implements ILfApiClient {
   }
   /**
    * Create a Laserfiche API client.
-   * @param httpRequestHandler The http request handler for the Laserfiche API client.
+   * @param accessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
    * @param baseUrlDebug (optional) override for the Laserfiche API base url.
    */
   public static createFromGetAccessTokenFunc(
