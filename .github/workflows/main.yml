@@ -48,7 +48,7 @@ jobs:
       - name: PNPM run build
         run: pnpm run build
 
-      - name: Upload a Build Artifact
+      - name: Upload Build Artifact pnpm-client-core-publish-artifact
         uses: actions/upload-artifact@v4
         with:
           name: pnpm-client-core-publish-artifact
@@ -58,7 +58,7 @@ jobs:
             ./packages/lf-api-client-core-js/package.json
             ./packages/lf-api-client-core-js/README.md
 
-      - name: Upload a build artifact
+      - name: Upload build artifact pnpm-api-client-v1-publish-artifact
         uses: actions/upload-artifact@v4
         with:
           name: pnpm-api-client-v1-publish-artifact
@@ -68,7 +68,7 @@ jobs:
             ./packages/lf-repository-api-client-v1/package.json
             ./packages/lf-repository-api-client-v1/README.md
 
-      - name: Upload a build artifact
+      - name: Upload build artifact pnpm-api-client-v2-publish-artifact
         uses: actions/upload-artifact@v4
         with:
           name: pnpm-api-client-v2-publish-artifact
@@ -78,7 +78,7 @@ jobs:
             ./packages/lf-repository-api-client-v2/package.json
             ./packages/lf-repository-api-client-v2/README.md
 
-      - name: Upload a build artifact
+      - name: Upload build artifact pnpm-api-js-publish-artifact
         uses: actions/upload-artifact@v4
         with:
           name: pnpm-api-js-publish-artifact
@@ -198,7 +198,21 @@ jobs:
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
-  # TODO add tests for api-js
+
+      - name: pnpm test @laserfiche/lf-api-js run all tests
+        run: pnpm --filter @laserfiche/lf-api-js run test
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure() # run this step even if previous step failed
+        with:
+          name: Api JS Jest Test Results
+          path: ./packages/lf-api-js/*.xml
+          reporter: jest-junit
+          only-summary: 'false'
+          list-tests: 'failed'
+          fail-on-error: 'false'
+          
   build_documentation:
     runs-on: ubuntu-latest
     needs: [build_libraries, test_libraries]

@@ -29,6 +29,9 @@ export class LfApiClient implements ILfApiClient {
     httpRequestHandler: HttpRequestHandler,
     baseUrlDebug?: string
   ) {
+    if (!httpRequestHandler)
+      throw new Error('Argument cannot be null: httpRequestHandler');
+
     this.repositoryApiClientV1 = LfRepositoryClientV1.RepositoryApiClient.createFromHttpRequestHandler(
       httpRequestHandler,
       baseUrlDebug
@@ -49,24 +52,22 @@ export class LfApiClient implements ILfApiClient {
     httpRequestHandler: HttpRequestHandler,
     baseUrlDebug?: string
   ): ILfApiClient {
-    if (!httpRequestHandler)
-      throw new Error('Argument cannot be null: httpRequestHandler');
     const apiClient = new LfApiClient(httpRequestHandler, baseUrlDebug);
     return apiClient;
   }
   /**
    * Create a Laserfiche API client.
-   * @param accessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
+   * @param getAccessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
    * @param baseUrlDebug (optional) override for the Laserfiche API base url.
    */
   public static createFromGetAccessTokenFunc(
-    accessTokenFunc: () => Promise<GetAccessTokenResponse>,
+    getAccessTokenFunc: () => Promise<GetAccessTokenResponse>,
     baseUrlDebug?: string
   ): ILfApiClient {
     const handler = new OAuthClientCustomTokenCredentialsHandler(
-      accessTokenFunc
+      getAccessTokenFunc
     );
-    return LfApiClient.createFromHttpRequestHandler(handler, baseUrlDebug);
+    return new LfApiClient(handler, baseUrlDebug);
   }
 
   /**
@@ -87,30 +88,6 @@ export class LfApiClient implements ILfApiClient {
       accessKey,
       scope
     );
-    return LfApiClient.createFromHttpRequestHandler(handler, baseUrlDebug);
-  }
-
-  /**
-   * Create a Laserfiche API client that will use username and password to get access tokens for Laserfiche API. Password credentials grant type is implemented by the Laserfiche Self-Hosted API server. Not available in cloud.
-   * @param repositoryId The repository ID
-   * @param username The username
-   * @param password The password
-   * @param baseUrl API server base URL e.g., https://{APIServerName}/LFRepositoryAPI
-   */
-  public static createFromUsernamePassword(
-    repositoryId: string,
-    username: string,
-    password: string,
-    baseUrl: string
-  ): ILfApiClient {
-    const baseUrlWithoutSlash: string = StringUtils.trimEnd(baseUrl, '/');
-    const handler = new UsernamePasswordHandler(
-      repositoryId,
-      username,
-      password,
-      baseUrlWithoutSlash,
-      undefined
-    );
-    return new LfApiClient(handler, baseUrlWithoutSlash);
+    return new LfApiClient(handler, baseUrlDebug);
   }
 }

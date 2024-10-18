@@ -1,7 +1,7 @@
 {
   "name": "@laserfiche/lf-api-js",
   "version": "1.0.0",
-  "description": "The TypeScript Laserfiche API Client library for accessing available Laserfiche APIs.",
+  "description": "The JavaScript Laserfiche API Client library for accessing available Laserfiche APIs.",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "type": "module",
@@ -22,10 +22,17 @@
   "scripts": {
     "build": "npm run clean && tsc -b",
     "clean": "tsc -b --clean",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=test --config jest.node.config.js --runInBand",
     "postpublish": "git tag lf-api-js-v$npm_package_version && git push --tags"
   },
   "devDependencies": {
-    "@types/node": "^20.16.6"
+    "@types/jest": "^29.5.13",
+    "@types/node": "^20.16.6",
+    "babel-jest": "^29.7.0",
+    "ts-node": "^10.4.0",
+    "jest": "^29.7.0",
+    "jest-junit": "^13.0.0",
+    "ts-jest": "^29.2.5"
   },
   "dependencies": {
     "@laserfiche/lf-api-client-core": "workspace:^",
