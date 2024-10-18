@@ -29,15 +29,17 @@ export class LfApiClient implements ILfApiClient {
     httpRequestHandler: HttpRequestHandler,
     baseUrlDebug?: string
   ) {
-    this.repositoryApiClientV1 = LfRepositoryClientV1.RepositoryApiClient.createFromHttpRequestHandler(
-      httpRequestHandler,
-      baseUrlDebug
-    );
-    
-    this.repositoryApiClientV2 = LfRepositoryClientV2.RepositoryApiClient.createFromHttpRequestHandler(
-      httpRequestHandler,
-      baseUrlDebug
-    );
+    this.repositoryApiClientV1 =
+      LfRepositoryClientV1.RepositoryApiClient.createFromHttpRequestHandler(
+        httpRequestHandler,
+        baseUrlDebug
+      );
+
+    this.repositoryApiClientV2 =
+      LfRepositoryClientV2.RepositoryApiClient.createFromHttpRequestHandler(
+        httpRequestHandler,
+        baseUrlDebug
+      );
   }
 
   /**

@@ -3,7 +3,7 @@
 import { HttpRequestHandler } from './HttpRequestHandler.js';
 import { BeforeFetchResult } from './BeforeFetchResult.js';
 import { GetAccessTokenResponse } from '../OAuth/GetAccessTokenResponse.js';
-import { JwtUtils } from '../../index.js';
+import * as JwtUtils from '../utils/JwtUtils.js';
 
 export class OAuthClientCustomTokenCredentialsHandler
   implements HttpRequestHandler
