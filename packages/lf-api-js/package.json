@@ -21,7 +21,8 @@
   },
   "scripts": {
     "build": "npm run clean && tsc -b",
-    "clean": "tsc -b --clean"
+    "clean": "tsc -b --clean",
+    "postpublish": "git tag lf-api-js-v$npm_package_version && git push --tags"
   },
   "devDependencies": {
     "@types/node": "^20.16.6"
