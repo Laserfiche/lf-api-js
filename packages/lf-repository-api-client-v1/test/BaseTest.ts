@@ -1,6 +1,6 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-import { Entry, PostEntryChildrenRequest, EntryType, WFieldInfo, PostEntryChildrenEntryType } from '..';
+import { Entry, PostEntryChildrenRequest, EntryType, WFieldInfo, PostEntryChildrenEntryType } from '../index.js';
 import {
   OAuthAccessKey,
   repositoryId,

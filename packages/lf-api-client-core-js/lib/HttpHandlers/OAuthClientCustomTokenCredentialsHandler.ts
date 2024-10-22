@@ -1,15 +1,15 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 import { HttpRequestHandler } from './HttpRequestHandler.js';
-import { TokenClient } from '../OAuth/TokenClient.js';
-import { AccessKey } from '../OAuth/AccessKey.js';
 import { BeforeFetchResult } from './BeforeFetchResult.js';
 import { GetAccessTokenResponse } from '../OAuth/GetAccessTokenResponse.js';
+import { JwtUtils } from '../../index.js';
 
-export class OAuthClientCustomTokenCredentialsHandler implements HttpRequestHandler {
-
+export class OAuthClientCustomTokenCredentialsHandler
+  implements HttpRequestHandler
+{
   private _getAccessTokenAsyncFunc: () => Promise<GetAccessTokenResponse>;
-  private _accessToken: string | undefined;
+  private _accessTokenInfo?: { accessToken: string; regionalDomain: string };
 
   /**
    * Constructor
@@ -17,9 +17,10 @@ export class OAuthClientCustomTokenCredentialsHandler implements HttpRequestHand
    * @param accessKey The access key exported from the Laserfiche Developer Console.
    * @param scope Specifies the requested scopes for the authorization request. Scopes are case-sensitive and space-delimited.
    */
-  public constructor(getAccessTokenAsync: () => Promise<GetAccessTokenResponse>) {
+  public constructor(
+    getAccessTokenAsync: () => Promise<GetAccessTokenResponse>
+  ) {
     this._getAccessTokenAsyncFunc = getAccessTokenAsync;
-
   }
 
   /**
@@ -27,18 +28,38 @@ export class OAuthClientCustomTokenCredentialsHandler implements HttpRequestHand
    * @param url The HTTP url
    * @param request The HTTP request
    */
-  async beforeFetchRequestAsync(url: string, request: RequestInit): Promise<BeforeFetchResult> {
-    if (!this._accessToken) {
-      let resp = await this._getAccessTokenAsyncFunc();
-      if (resp?.access_token) this._accessToken = resp.access_token;
-      else console.warn(`getAccessToken did not return a token. ${resp}`);
+  async beforeFetchRequestAsync(
+    url: string,
+    request: RequestInit
+  ): Promise<BeforeFetchResult> {
+    if (!this._accessTokenInfo) {
+      try {
+        let resp = await this._getAccessTokenAsyncFunc();
+        if (resp?.access_token) {
+          const jwt = JwtUtils.parseAccessToken(resp.access_token);
+          const regionalDomain = JwtUtils.getAudFromLfJWT(jwt);
+          this._accessTokenInfo = {
+            accessToken: resp.access_token,
+            regionalDomain,
+          };
+        } else {
+          throw Error(`${resp}`);
+        }
+      }
+      catch (err: any) {
+        throw Error(`Invalid or missing access token: ${err.message}`);
+      }
     }
 
-    if (this._accessToken) (<any>request.headers)['Authorization'] = 'Bearer ' + this._accessToken;
+    if (this._accessTokenInfo) {
+      (<any>request.headers)['Authorization'] = 'Bearer ' + this._accessTokenInfo.accessToken;
 
-    return {
-      regionalDomain: "" // get from access token (add to JWTUtils)
-    };
+      return {
+        regionalDomain: this._accessTokenInfo.regionalDomain,
+      };
+    } else {
+      throw Error('Missing access token');
+    }
   }
 
   /**
@@ -48,9 +69,13 @@ export class OAuthClientCustomTokenCredentialsHandler implements HttpRequestHand
    * @param request The HTTP request
    * @returns true if the request should be retried.
    */
-  async afterFetchResponseAsync(url: string, response: Response, request: RequestInit): Promise<boolean> {
+  async afterFetchResponseAsync(
+    url: string,
+    response: Response,
+    request: RequestInit
+  ): Promise<boolean> {
     if (response.status === 401) {
-      this._accessToken = undefined;
+      this._accessTokenInfo = undefined;
       return true;
     }
     return false;
