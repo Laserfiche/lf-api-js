@@ -12149,17 +12149,18 @@ export class RepositoryApiClient implements IRepositoryApiClient {
     const repoClient = new RepositoryApiClient(httpRequestHandler, baseUrlDebug);
     return repoClient;
   }
+
   /**
    * Create a Laserfiche repository client.
-   * @param accessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
+   * @param getAccessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
    * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
    */
   public static createFromGetAccessTokenFunc(
-    accessTokenFunc: () => Promise<GetAccessTokenResponse>,
+    getAccessTokenFunc: () => Promise<GetAccessTokenResponse>,
     baseUrlDebug?: string
   ): RepositoryApiClient {
-    const handler = new OAuthClientCustomTokenCredentialsHandler(accessTokenFunc);
-    return RepositoryApiClient.createFromHttpRequestHandler(handler, baseUrlDebug);
+    const handler = new OAuthClientCustomTokenCredentialsHandler(getAccessTokenFunc);
+    return new RepositoryApiClient(handler, baseUrlDebug);
   }
 
   /**

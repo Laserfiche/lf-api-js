@@ -9,7 +9,7 @@ export class OAuthClientCustomTokenCredentialsHandler
   implements HttpRequestHandler
 {
   private _getAccessTokenAsyncFunc: () => Promise<GetAccessTokenResponse>;
-  private _accessToken: string | undefined;
+  private _accessTokenInfo?: { accessToken: string; regionalDomain: string };
 
   /**
    * Constructor
@@ -32,22 +32,33 @@ export class OAuthClientCustomTokenCredentialsHandler
     url: string,
     request: RequestInit
   ): Promise<BeforeFetchResult> {
-    if (!this._accessToken) {
-      let resp = await this._getAccessTokenAsyncFunc();
-      if (resp?.access_token) this._accessToken = resp.access_token;
-      else console.warn(`getAccessToken did not return a token. ${resp}`);
+    if (!this._accessTokenInfo) {
+      try {
+        let resp = await this._getAccessTokenAsyncFunc();
+        if (resp?.access_token) {
+          const jwt = JwtUtils.parseAccessToken(resp.access_token);
+          const regionalDomain = JwtUtils.getAudFromLfJWT(jwt);
+          this._accessTokenInfo = {
+            accessToken: resp.access_token,
+            regionalDomain,
+          };
+        } else {
+          throw Error(`${resp}`);
+        }
+      }
+      catch (err: any) {
+        throw Error(`Invalid or missing access token: ${err.message}`);
+      }
     }
 
-    if (this._accessToken) {
-      (<any>request.headers)['Authorization'] = 'Bearer ' + this._accessToken;
+    if (this._accessTokenInfo) {
+      (<any>request.headers)['Authorization'] = 'Bearer ' + this._accessTokenInfo.accessToken;
 
       return {
-        regionalDomain: JwtUtils.getAudFromLfJWT(
-          JwtUtils.parseAccessToken(this._accessToken)
-        ),
+        regionalDomain: this._accessTokenInfo.regionalDomain,
       };
     } else {
-      throw Error("Unexpected, no access token.");
+      throw Error('Missing access token');
     }
   }
 
@@ -64,7 +75,7 @@ export class OAuthClientCustomTokenCredentialsHandler
     request: RequestInit
   ): Promise<boolean> {
     if (response.status === 401) {
-      this._accessToken = undefined;
+      this._accessTokenInfo = undefined;
       return true;
     }
     return false;
