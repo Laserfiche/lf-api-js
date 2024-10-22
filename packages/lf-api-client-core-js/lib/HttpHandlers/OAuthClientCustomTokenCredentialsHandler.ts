@@ -43,7 +43,7 @@ export class OAuthClientCustomTokenCredentialsHandler
             regionalDomain,
           };
         } else {
-          throw Error(`Invalid or missing access token, returned: ${resp}`);
+          throw Error(`${resp}`);
         }
       }
       catch (err: any) {
