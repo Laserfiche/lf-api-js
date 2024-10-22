@@ -8,6 +8,7 @@
   "files": [
     "cdn",
     "dist",
+    "!dist/rollup.*",
     "README.md"
   ],
   "keywords": [
