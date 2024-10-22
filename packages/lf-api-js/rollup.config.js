@@ -4,7 +4,6 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
-import dts from 'rollup-plugin-dts';
 
 export default [
   {
@@ -18,14 +17,8 @@ export default [
       resolve(),
       commonjs(),
       typescript({
-        sourceMap: true,
-        inlineSources: true,
+        declaration: false
       }),
     ],
-  },
-  {
-    input: './dist/index.d.ts',
-    output: [{ file: 'dist/types/bundle.d.ts', format: 'es' }],
-    plugins: [dts({ rollupTypes: true, respectExternal: true })],
   },
 ];
