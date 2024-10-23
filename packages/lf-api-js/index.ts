@@ -1,19 +1,11 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-import {
-  UsernamePasswordHandler,
-  OAuthClientCredentialsHandler,
-  OAuthClientCustomTokenCredentialsHandler,
-  HttpRequestHandler,
-  AccessKey,
-  GetAccessTokenResponse,
-} from '@laserfiche/lf-api-client-core';
-import { StringUtils } from '@laserfiche/lf-js-utils';
 
+import * as LfApiClientCore from '@laserfiche/lf-api-client-core';
 import * as LfRepositoryClientV1 from '@laserfiche/lf-repository-api-client';
 import * as LfRepositoryClientV2 from '@laserfiche/lf-repository-api-client-v2';
 
-export { LfRepositoryClientV1, LfRepositoryClientV2 };
+export { LfRepositoryClientV1, LfRepositoryClientV2, LfApiClientCore };
 
 export interface ILfApiClient {
   repositoryApiClientV1: LfRepositoryClientV1.IRepositoryApiClient;
@@ -26,30 +18,32 @@ export class LfApiClient implements ILfApiClient {
   public repositoryApiClientV2: LfRepositoryClientV2.IRepositoryApiClient;
 
   private constructor(
-    httpRequestHandler: HttpRequestHandler,
+    httpRequestHandler: LfApiClientCore.HttpRequestHandler,
     baseUrlDebug?: string
   ) {
     if (!httpRequestHandler)
       throw new Error('Argument cannot be null: httpRequestHandler');
 
-    this.repositoryApiClientV1 = LfRepositoryClientV1.RepositoryApiClient.createFromHttpRequestHandler(
-      httpRequestHandler,
-      baseUrlDebug
-    );
-    
-    this.repositoryApiClientV2 = LfRepositoryClientV2.RepositoryApiClient.createFromHttpRequestHandler(
-      httpRequestHandler,
-      baseUrlDebug
-    );
+    this.repositoryApiClientV1 =
+      LfRepositoryClientV1.RepositoryApiClient.createFromHttpRequestHandler(
+        httpRequestHandler,
+        baseUrlDebug
+      );
+
+    this.repositoryApiClientV2 =
+      LfRepositoryClientV2.RepositoryApiClient.createFromHttpRequestHandler(
+        httpRequestHandler,
+        baseUrlDebug
+      );
   }
 
   /**
    * Create a Laserfiche API client.
-   * @param httpRequestHandler The http request handler for the Laserfiche API client.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param httpRequestHandler - The http request handler for the Laserfiche API client.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromHttpRequestHandler(
-    httpRequestHandler: HttpRequestHandler,
+    httpRequestHandler: LfApiClientCore.HttpRequestHandler,
     baseUrlDebug?: string
   ): ILfApiClient {
     const apiClient = new LfApiClient(httpRequestHandler, baseUrlDebug);
@@ -57,33 +51,34 @@ export class LfApiClient implements ILfApiClient {
   }
   /**
    * Create a Laserfiche API client.
-   * @param getAccessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche API base url.
+   * @param getAccessTokenFunc - A function that will be used to retrieve the current Laserfiche API access token.
+   * @param baseUrlDebug - (optional) override for the Laserfiche API base url.
    */
   public static createFromGetAccessTokenFunc(
-    getAccessTokenFunc: () => Promise<GetAccessTokenResponse>,
+    getAccessTokenFunc: () => Promise<LfApiClientCore.GetAccessTokenResponse>,
     baseUrlDebug?: string
   ): ILfApiClient {
-    const handler = new OAuthClientCustomTokenCredentialsHandler(
-      getAccessTokenFunc
-    );
+    const handler =
+      new LfApiClientCore.OAuthClientCustomTokenCredentialsHandler(
+        getAccessTokenFunc
+      );
     return new LfApiClient(handler, baseUrlDebug);
   }
 
   /**
    * Create a Laserfiche API client that will use Laserfiche Cloud OAuth client credentials to get access tokens.
-   * @param servicePrincipalKey The service principal key created for the service principal from the Laserfiche Account Administration.
-   * @param accessKey The access key exported from the Laserfiche Developer Console.
-   * @param scope (optional) The requested space-delimited scopes for the access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche API base url.
+   * @param servicePrincipalKey - The service principal key created for the service principal from the Laserfiche Account Administration.
+   * @param accessKey - The access key exported from the Laserfiche Developer Console.
+   * @param scope - (optional) The requested space-delimited scopes for the access token.
+   * @param baseUrlDebug - (optional) override for the Laserfiche API base url.
    */
   public static createFromAccessKey(
     servicePrincipalKey: string,
-    accessKey: AccessKey,
+    accessKey: LfApiClientCore.AccessKey,
     scope?: string,
     baseUrlDebug?: string
   ): ILfApiClient {
-    const handler = new OAuthClientCredentialsHandler(
+    const handler = new LfApiClientCore.OAuthClientCredentialsHandler(
       servicePrincipalKey,
       accessKey,
       scope

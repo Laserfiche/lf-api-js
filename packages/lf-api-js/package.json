@@ -6,7 +6,9 @@
   "typings": "dist/index.d.ts",
   "type": "module",
   "files": [
+    "cdn",
     "dist",
+    "!dist/rollup.*",
     "README.md"
   ],
   "keywords": [
@@ -20,17 +22,25 @@
     "url": "https://github.com/Laserfiche/lf-api-js"
   },
   "scripts": {
-    "build": "npm run clean && tsc -b",
+    "build": "npm run clean && tsc -b && npm run generate-esm-module && npm run generate-types",
     "clean": "tsc -b --clean",
+    "generate-esm-module": "npx rollup -c",
+    "generate-types": "api-extractor run --local",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=test --config jest.node.config.js --runInBand",
     "postpublish": "git tag lf-api-js-v$npm_package_version && git push --tags"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.47.11",
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/jest": "^28.1.8",
     "@types/node": "^20.16.6",
     "babel-jest": "^28.1.3",
     "jest": "^28.1.3",
     "jest-junit": "^13.0.0",
+    "rollup": "^4.24.0",
     "ts-jest": "^28.0.8",
     "typescript": "^4.5.4"
   },

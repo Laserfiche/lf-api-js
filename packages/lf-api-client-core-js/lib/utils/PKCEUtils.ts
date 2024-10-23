@@ -19,7 +19,7 @@ export function generateCodeVerifier(): string {
 
 /**
  * Generates a PKCE code challenge given the code verifier
- * @param code_verifier
+ * @param code_verifier - code verifier
  * @returns The PKCE code challenge
  */
 export async function generateCodeChallengeAsync(code_verifier: string): Promise<string> {

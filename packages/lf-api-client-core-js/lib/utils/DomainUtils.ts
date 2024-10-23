@@ -12,7 +12,7 @@
 
 /**
  * Returns region-specific Laserfiche Cloud endpoints
- * @param regionalDomain regional specific host, such as 'laserfiche.com', or 'eu.laserfiche.com'
+ * @param regionalDomain - regional specific host, such as 'laserfiche.com', or 'eu.laserfiche.com'
  * @returns
  * @example
  * ```typescript
@@ -45,7 +45,7 @@
 
 /**
  * Creates the Laserfiche repository API base address
- * @param regionDomain Laserfiche Cloud Regional Domain
+ * @param regionDomain - Laserfiche Cloud Regional Domain
  * @returns Laserfiche repository API base address
  * @example
  * ```typescript
@@ -59,7 +59,7 @@ export function getRepositoryEndpoint(regionDomain: string): string {
 
 /**
  * Creates the Laserfiche Oauth Token endpoint
- * @param regionDomain Laserfiche Cloud Regional Domain
+ * @param regionDomain - Laserfiche Cloud Regional Domain
  * @returns Laserfiche Oauth Token endpoint
  * @example
  * ```typescript
