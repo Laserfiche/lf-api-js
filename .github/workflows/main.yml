@@ -287,6 +287,9 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
+      - name: PNPM run build
+        run: pnpm run build
+
       - name: Generate typedoc docs
         run: pnpm run generate-docs
 
