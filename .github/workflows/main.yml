@@ -264,6 +264,12 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
+      - name: PNPM install
+        run: pnpm install
+
+      - name: PNPM run build
+        run: pnpm run build
+
       - name: pnpm version
         working-directory: ./packages/lf-js-utils
         run: pnpm version ${{ env.NPM_JS_UTILS_VERSION }} --no-git-tag-version  --allow-same-version
@@ -283,12 +289,6 @@ jobs:
       - name: pnpm version
         working-directory: ./packages/lf-api-js
         run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version  --allow-same-version
-
-      - name: PNPM install
-        run: pnpm install
-
-      - name: PNPM run build
-        run: pnpm run build
 
       - name: Generate typedoc docs
         run: pnpm run generate-docs
