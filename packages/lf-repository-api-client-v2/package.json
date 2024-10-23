@@ -52,6 +52,6 @@
   },
   "dependencies": {
     "@laserfiche/lf-api-client-core": "workspace:^",
-    "@laserfiche/lf-js-utils": "^4.0.5"
+    "@laserfiche/lf-js-utils": "workspace:^"
   }
 }

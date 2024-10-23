@@ -1,0 +1,38 @@
+{
+  "name": "@laserfiche/lf-js-utils",
+  "version": "4.0.0",
+  "description": "A library containing utility functions for use with Laserfiche",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "jest",
+    "test:ci": "npm run test -- --watchAll=false --reporters=default --reporters=jest-junit",
+    "lint": "eslint . --ext .ts",
+    "build": "tsc",
+    "postpublish": "git tag lf-js-utils-v$npm_package_version && git push --tags"
+  },
+  "author": ":aserfiche",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Laserfiche/lf-api-js"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.3",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "eslint": "^8.13.0",
+    "isomorphic-fetch": "^3.0.0",
+    "jest": "^27.4.5",
+    "jest-junit": "^13.0.0",
+    "ts-jest": "^27.1.2",
+    "ts-node": "^10.4.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.4"
+  }
+}
