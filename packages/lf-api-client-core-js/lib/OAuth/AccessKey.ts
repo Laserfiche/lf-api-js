@@ -42,7 +42,7 @@ interface jwtPayload {
 
 /**
  * Creates an AccessKey given a base-64 encoded access key.
- * @param base64EncodedAccessKey The base-64 encoded access key exported from the Laserfiche Developer Console.
+ * @param base64EncodedAccessKey - The base-64 encoded access key exported from the Laserfiche Developer Console.
  */
 export function createFromBase64EncodedAccessKey(base64EncodedAccessKey: string): AccessKey {
   const accessKeyStr: string = StringUtils.base64toString(base64EncodedAccessKey);

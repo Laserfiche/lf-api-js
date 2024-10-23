@@ -11,7 +11,7 @@ export interface JWT {
 
 /**
  * Returns Laserfiche account id (customer id) from Laserfiche jwt claims
- * @param lfJwt
+ * @param lfJwt - Laserfiche JWT
  * @returns
  * @example
  * ```typescript
@@ -29,7 +29,7 @@ export function getAccountIdFromLfJWT(lfJwt: JWT): string {
 
 /**
  * Returns Laserfiche username from Laserfiche jwt claims
- * @param lfJwt
+ * @param lfJwt - Laserfiche JWT
  * @returns
  * @example
  * ```typescript
@@ -47,7 +47,7 @@ export function getUsernameFromLfJWT(lfJwt: JWT): string {
 
 /**
  * Returns Laserfiche domain from Laserfiche jwt claims
- * @param lfJwt
+ * @param lfJwt - Laserfiche JWT
  * @returns
  * @example
  * ```typescript
@@ -65,7 +65,7 @@ export function getAudFromLfJWT(lfJwt: JWT): string {
 
 /**
  * Returns Laserfiche trustee id (user id) from Laserfiche jwt claims
- * @param lfJwt
+ * @param lfJwt - Laserfiche JWT
  * @returns
  * @example
  * ```typescript
@@ -83,7 +83,7 @@ export function getTrusteeIdFromLfJWT(lfJwt: JWT): string {
 
 /**
  * Parses a base64-encoded jwt
- * @param jwt
+ * @param jwt - JWT encoded as base64 string
  * @returns
  * @example
  * ```typescript
@@ -137,7 +137,7 @@ export function isBrowser(): boolean {
 
 /**
  * Decodes a string of data encoded using Base64 encoding
- * @param base64String
+ * @param base64String - Base64 encoded string
  * @returns
  * @example
  * ```typescript

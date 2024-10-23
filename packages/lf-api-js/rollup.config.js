@@ -9,7 +9,7 @@ export default [
   {
     input: './index.ts',
     output: {
-      file: 'cdn/lf-api-js.esm.js',
+      file: 'cdn/lf-api-js.mjs',
       format: 'esm',
       sourcemap: true,
     },
