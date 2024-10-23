@@ -9,9 +9,9 @@ import { ApiException } from '../ApiException.js';
 export interface ITokenClient {
   /**
    * Gets the Laserfiche Self-Hosted access token
-   * @param repositoryId Repository name
-   * @param body   Request body that contains username, password and grant type
-   * @return Create an access token successfully.
+   * @param repositoryId - Repository name
+   * @param body -   Request body that contains username, password and grant type
+   * @returns Create an access token successfully.
    */
   createAccessToken(repositoryId: string, body: CreateConnectionRequest): Promise<SessionKeyInfo>;
 }
@@ -22,7 +22,7 @@ export class TokenClient implements ITokenClient{
 
   /**
    * Constructor for a TokenClient used to interact with the Laserfiche Self-Hosted token endpoint.
-   * @param baseUrl APIServer Base Url e.g. https://{APIServerName}/LFRepositoryAPI
+   * @param baseUrl - APIServer Base Url e.g. https://\{APIServerName\}/LFRepositoryAPI
    */
   constructor(baseUrl: string) {
     if (!baseUrl) throw new Error('baseUrl is undefined.');

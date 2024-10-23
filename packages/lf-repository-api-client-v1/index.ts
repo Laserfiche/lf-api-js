@@ -35,7 +35,7 @@ export interface IEntriesClient {
                 The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.electronicDocument (optional) 
      * @param args.request (optional) 
-     * @return Document creation is success.
+     * @returns Document creation is success.
      */
     importDocument(args: { repoId: string, parentEntryId: number, fileName: string, autoRename?: boolean | undefined, culture?: string | null | undefined, electronicDocument?: FileParameter | undefined, request?: PostEntryWithEdocMetadataRequest | undefined }): Promise<CreateEntryResult>;
 
@@ -46,7 +46,7 @@ export interface IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return Get entry successfully.
+     * @returns Get entry successfully.
      */
     getEntry(args: { repoId: string, entryId: number, select?: string | null | undefined }): Promise<Entry>;
 
@@ -57,7 +57,7 @@ export interface IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request (optional) The submitted audit reason.
-     * @return Delete entry operation start successfully.
+     * @returns Delete entry operation start successfully.
      */
     deleteEntryInfo(args: { repoId: string, entryId: number, request?: DeleteEntryWithAuditReason | undefined }): Promise<AcceptedOperation>;
 
@@ -73,7 +73,7 @@ export interface IEntriesClient {
                 renamed if another entry already exists with the same name in the folder. The default value is false.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used.
                 The value should be a standard language tag.
-     * @return Moves and/or renames an entry successfully.
+     * @returns Moves and/or renames an entry successfully.
      */
     moveOrRenameEntry(args: { repoId: string, entryId: number, request?: PatchEntryRequest | undefined, autoRename?: boolean | undefined, culture?: string | null | undefined }): Promise<Entry>;
 
@@ -83,7 +83,7 @@ export interface IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.fullPath The requested entry path.
      * @param args.fallbackToClosestAncestor (optional) An optional query parameter used to indicate whether or not the closest ancestor in the path should be returned if the initial entry path is not found. The default value is false.
-     * @return Get entry successfully.
+     * @returns Get entry successfully.
      */
     getEntryByPath(args: { repoId: string, fullPath: string | null, fallbackToClosestAncestor?: boolean | undefined }): Promise<FindEntryResult>;
 
@@ -108,7 +108,7 @@ export interface IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get the children entries of a Folder successfully.
+     * @returns Get the children entries of a Folder successfully.
      */
     getEntryListing(args: { repoId: string, entryId: number, groupByEntryType?: boolean | undefined, fields?: string[] | null | undefined, formatFields?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfEntry>;
 
@@ -123,7 +123,7 @@ export interface IEntriesClient {
                 renamed if an entry already exists with the given name in the folder. The default value is false.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used.
                 The value should be a standard language tag.
-     * @return Created a new child entry successfully.
+     * @returns Created a new child entry successfully.
      */
     createOrCopyEntry(args: { repoId: string, entryId: number, request?: PostEntryChildrenRequest | undefined, autoRename?: boolean | undefined, culture?: string | null | undefined }): Promise<Entry>;
 
@@ -144,7 +144,7 @@ export interface IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get field values successfully.
+     * @returns Get field values successfully.
      */
     getFieldValues(args: { repoId: string, entryId: number, prefer?: string | null | undefined, formatValue?: boolean | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfFieldValue>;
 
@@ -157,7 +157,7 @@ export interface IEntriesClient {
      * @param args.fieldsToUpdate (optional) 
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used.
                 The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @return Update field values successfully.
+     * @returns Update field values successfully.
      */
     assignFieldValues(args: { repoId: string, entryId: number, fieldsToUpdate?: { [key: string]: FieldToUpdate; } | undefined, culture?: string | null | undefined }): Promise<ODataValueOfIListOfFieldValue>;
 
@@ -173,7 +173,7 @@ export interface IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get entry tags successfully.
+     * @returns Get entry tags successfully.
      */
     getTagsAssignedToEntry(args: { repoId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfWTagInfo>;
 
@@ -184,7 +184,7 @@ export interface IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.tagsToAdd (optional) The tags to add.
-     * @return Assign tags to an entry successfully.
+     * @returns Assign tags to an entry successfully.
      */
     assignTags(args: { repoId: string, entryId: number, tagsToAdd?: PutTagRequest | undefined }): Promise<ODataValueOfIListOfWTagInfo>;
 
@@ -195,7 +195,7 @@ export interface IEntriesClient {
      * @param args.repoId The request repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.linksToAdd (optional) 
-     * @return Assign links to an entry successfully.
+     * @returns Assign links to an entry successfully.
      */
     assignEntryLinks(args: { repoId: string, entryId: number, linksToAdd?: PutLinksRequest[] | undefined }): Promise<ODataValueOfIListOfWEntryLinkInfo>;
 
@@ -211,7 +211,7 @@ export interface IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get links successfully.
+     * @returns Get links successfully.
      */
     getLinkValuesFromEntry(args: { repoId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfWEntryLinkInfo>;
 
@@ -228,7 +228,7 @@ export interface IEntriesClient {
                 renamed if an entry already exists with the given name in the folder. The default value is false.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used.
                 The value should be a standard language tag.
-     * @return Copy entry operation is started successfully.
+     * @returns Copy entry operation is started successfully.
      */
     copyEntry(args: { repoId: string, entryId: number, request?: CopyAsyncRequest | undefined, autoRename?: boolean | undefined, culture?: string | null | undefined }): Promise<AcceptedOperation>;
 
@@ -236,7 +236,7 @@ export interface IEntriesClient {
      * - Delete the edoc associated with the provided entry ID.
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @return Deleted edoc successfully.
+     * @returns Deleted edoc successfully.
      */
     deleteDocument(args: { repoId: string, entryId: number }): Promise<ODataValueOfBoolean>;
 
@@ -247,7 +247,7 @@ export interface IEntriesClient {
     - If an error occurs, the error message can be found in the X-APIServer-Error HTTP response header.
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @return Get edoc info successfully.
+     * @returns Get edoc info successfully.
      */
     getDocumentContentType(args: { repoId: string, entryId: number }): Promise<HttpResponseHead<void>>;
 
@@ -259,7 +259,7 @@ export interface IEntriesClient {
      * @param args.entryId The requested document ID.
      * @param args.range (optional) An optional header used to retrieve partial content of the edoc. Only supports single
                 range with byte unit.
-     * @return Get edoc successfully.
+     * @returns Get edoc successfully.
      */
     exportDocument(args: { repoId: string, entryId: number, range?: string | null | undefined }): Promise<FileResponse>;
 
@@ -269,7 +269,7 @@ export interface IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageRange (optional) The pages to be deleted.
-     * @return Deleted pages successfully.
+     * @returns Deleted pages successfully.
      */
     deletePages(args: { repoId: string, entryId: number, pageRange?: string | null | undefined }): Promise<ODataValueOfBoolean>;
 
@@ -282,7 +282,7 @@ export interface IEntriesClient {
      * @param args.request (optional) 
      * @param args.range (optional) An optional header used to retrieve partial content of the edoc. Only supports single
                 range with byte unit.
-     * @return Get edoc successfully.
+     * @returns Get edoc successfully.
      */
     exportDocumentWithAuditReason(args: { repoId: string, entryId: number, request?: GetEdocWithAuditReasonRequest | undefined, range?: string | null | undefined }): Promise<FileResponse>;
 
@@ -293,7 +293,7 @@ export interface IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request (optional) 
-     * @return Get dynamic field logic values successfully.
+     * @returns Get dynamic field logic values successfully.
      */
     getDynamicFieldValues(args: { repoId: string, entryId: number, request?: GetDynamicFieldLogicValueRequest | undefined }): Promise<{ [key: string]: string[]; }>;
 
@@ -303,7 +303,7 @@ export interface IEntriesClient {
     - If the entry does not have a template assigned, no change will be made.
      * @param args.repoId The requested repository ID.
      * @param args.entryId The ID of the entry that will have its template removed.
-     * @return Remove the currently assigned template successfully.
+     * @returns Remove the currently assigned template successfully.
      */
     deleteAssignedTemplate(args: { repoId: string, entryId: number }): Promise<Entry>;
 
@@ -316,7 +316,7 @@ export interface IEntriesClient {
      * @param args.request (optional) The template and template fields that will be assigned to the entry.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used.
                 The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @return Assign a template successfully.
+     * @returns Assign a template successfully.
      */
     writeTemplateValueToEntry(args: { repoId: string, entryId: number, request?: PutTemplateRequest | undefined, culture?: string | null | undefined }): Promise<Entry>;
 }
@@ -567,7 +567,7 @@ export class EntriesClient implements IEntriesClient {
    * Returns the children entries of a folder in the repository using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of entry listings allowed per API response schema
-   * @return Get the children entries of a Folder with the next link successfully
+   * @returns Get the children entries of a Folder with the next link successfully
    */
   async getEntryListingNextLink(args: {
     nextLink: string;
@@ -586,7 +586,7 @@ export class EntriesClient implements IEntriesClient {
    * Returns the fields assigned to an entry using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field values allowed per API response schema
-   * @return Get field values with the next link successfully
+   * @returns Get field values with the next link successfully
    */
   async getFieldValuesNextLink(args: {
     nextLink: string;
@@ -605,7 +605,7 @@ export class EntriesClient implements IEntriesClient {
    * Returns the links assigned to an entry using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link values from entry allowed per API response schema
-   * @return Get links with the next link successfully
+   * @returns Get links with the next link successfully
    */
   async getLinkValuesFromEntryNextLink(args: {
     nextLink: string;
@@ -624,7 +624,7 @@ export class EntriesClient implements IEntriesClient {
    * Returns the entry tags assigned to an entry using a link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tags assigned to entry allowed per API response schema
-   * @return Get entry tags with the next link successfully
+   * @returns Get entry tags with the next link successfully
    */
   async getTagsAssignedToEntryNextLink(args: {
     nextLink: string;
@@ -653,7 +653,7 @@ export class EntriesClient implements IEntriesClient {
                 The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.electronicDocument (optional) 
      * @param args.request (optional) 
-     * @return Document creation is success.
+     * @returns Document creation is success.
      */
     importDocument(args: { repoId: string, parentEntryId: number, fileName: string, autoRename?: boolean | undefined, culture?: string | null | undefined, electronicDocument?: FileParameter | undefined, request?: PostEntryWithEdocMetadataRequest | undefined }): Promise<CreateEntryResult> {
         let { repoId, parentEntryId, fileName, autoRename, culture, electronicDocument, request } = args;
@@ -779,7 +779,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return Get entry successfully.
+     * @returns Get entry successfully.
      */
     getEntry(args: { repoId: string, entryId: number, select?: string | null | undefined }): Promise<Entry> {
         let { repoId, entryId, select } = args;
@@ -866,7 +866,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request (optional) The submitted audit reason.
-     * @return Delete entry operation start successfully.
+     * @returns Delete entry operation start successfully.
      */
     deleteEntryInfo(args: { repoId: string, entryId: number, request?: DeleteEntryWithAuditReason | undefined }): Promise<AcceptedOperation> {
         let { repoId, entryId, request } = args;
@@ -967,7 +967,7 @@ export class EntriesClient implements IEntriesClient {
                 renamed if another entry already exists with the same name in the folder. The default value is false.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used.
                 The value should be a standard language tag.
-     * @return Moves and/or renames an entry successfully.
+     * @returns Moves and/or renames an entry successfully.
      */
     moveOrRenameEntry(args: { repoId: string, entryId: number, request?: PatchEntryRequest | undefined, autoRename?: boolean | undefined, culture?: string | null | undefined }): Promise<Entry> {
         let { repoId, entryId, request, autoRename, culture } = args;
@@ -1082,7 +1082,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.fullPath The requested entry path.
      * @param args.fallbackToClosestAncestor (optional) An optional query parameter used to indicate whether or not the closest ancestor in the path should be returned if the initial entry path is not found. The default value is false.
-     * @return Get entry successfully.
+     * @returns Get entry successfully.
      */
     getEntryByPath(args: { repoId: string, fullPath: string | null, fallbackToClosestAncestor?: boolean | undefined }): Promise<FindEntryResult> {
         let { repoId, fullPath, fallbackToClosestAncestor } = args;
@@ -1186,7 +1186,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get the children entries of a Folder successfully.
+     * @returns Get the children entries of a Folder successfully.
      */
     getEntryListing(args: { repoId: string, entryId: number, groupByEntryType?: boolean | undefined, fields?: string[] | null | undefined, formatFields?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfEntry> {
         let { repoId, entryId, groupByEntryType, fields, formatFields, prefer, culture, select, orderby, top, skip, count } = args;
@@ -1306,7 +1306,7 @@ export class EntriesClient implements IEntriesClient {
                 renamed if an entry already exists with the given name in the folder. The default value is false.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used.
                 The value should be a standard language tag.
-     * @return Created a new child entry successfully.
+     * @returns Created a new child entry successfully.
      */
     createOrCopyEntry(args: { repoId: string, entryId: number, request?: PostEntryChildrenRequest | undefined, autoRename?: boolean | undefined, culture?: string | null | undefined }): Promise<Entry> {
         let { repoId, entryId, request, autoRename, culture } = args;
@@ -1425,7 +1425,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get field values successfully.
+     * @returns Get field values successfully.
      */
     getFieldValues(args: { repoId: string, entryId: number, prefer?: string | null | undefined, formatValue?: boolean | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfFieldValue> {
         let { repoId, entryId, prefer, formatValue, culture, select, orderby, top, skip, count } = args;
@@ -1537,7 +1537,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.fieldsToUpdate (optional) 
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used.
                 The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @return Update field values successfully.
+     * @returns Update field values successfully.
      */
     assignFieldValues(args: { repoId: string, entryId: number, fieldsToUpdate?: { [key: string]: FieldToUpdate; } | undefined, culture?: string | null | undefined }): Promise<ODataValueOfIListOfFieldValue> {
         let { repoId, entryId, fieldsToUpdate, culture } = args;
@@ -1647,7 +1647,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get entry tags successfully.
+     * @returns Get entry tags successfully.
      */
     getTagsAssignedToEntry(args: { repoId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfWTagInfo> {
         let { repoId, entryId, prefer, select, orderby, top, skip, count } = args;
@@ -1751,7 +1751,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.tagsToAdd (optional) The tags to add.
-     * @return Assign tags to an entry successfully.
+     * @returns Assign tags to an entry successfully.
      */
     assignTags(args: { repoId: string, entryId: number, tagsToAdd?: PutTagRequest | undefined }): Promise<ODataValueOfIListOfWTagInfo> {
         let { repoId, entryId, tagsToAdd } = args;
@@ -1854,7 +1854,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repoId The request repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.linksToAdd (optional) 
-     * @return Assign links to an entry successfully.
+     * @returns Assign links to an entry successfully.
      */
     assignEntryLinks(args: { repoId: string, entryId: number, linksToAdd?: PutLinksRequest[] | undefined }): Promise<ODataValueOfIListOfWEntryLinkInfo> {
         let { repoId, entryId, linksToAdd } = args;
@@ -1962,7 +1962,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get links successfully.
+     * @returns Get links successfully.
      */
     getLinkValuesFromEntry(args: { repoId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfWEntryLinkInfo> {
         let { repoId, entryId, prefer, select, orderby, top, skip, count } = args;
@@ -2072,7 +2072,7 @@ export class EntriesClient implements IEntriesClient {
                 renamed if an entry already exists with the given name in the folder. The default value is false.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used.
                 The value should be a standard language tag.
-     * @return Copy entry operation is started successfully.
+     * @returns Copy entry operation is started successfully.
      */
     copyEntry(args: { repoId: string, entryId: number, request?: CopyAsyncRequest | undefined, autoRename?: boolean | undefined, culture?: string | null | undefined }): Promise<AcceptedOperation> {
         let { repoId, entryId, request, autoRename, culture } = args;
@@ -2171,7 +2171,7 @@ export class EntriesClient implements IEntriesClient {
      * - Delete the edoc associated with the provided entry ID.
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @return Deleted edoc successfully.
+     * @returns Deleted edoc successfully.
      */
     deleteDocument(args: { repoId: string, entryId: number }): Promise<ODataValueOfBoolean> {
         let { repoId, entryId } = args;
@@ -2263,7 +2263,7 @@ export class EntriesClient implements IEntriesClient {
     - If an error occurs, the error message can be found in the X-APIServer-Error HTTP response header.
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @return Get edoc info successfully.
+     * @returns Get edoc info successfully.
      */
     getDocumentContentType(args: { repoId: string, entryId: number }): Promise<HttpResponseHead<void>> {
         let { repoId, entryId } = args;
@@ -2334,7 +2334,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The requested document ID.
      * @param args.range (optional) An optional header used to retrieve partial content of the edoc. Only supports single
                 range with byte unit.
-     * @return Get edoc successfully.
+     * @returns Get edoc successfully.
      */
     exportDocument(args: { repoId: string, entryId: number, range?: string | null | undefined }): Promise<FileResponse> {
         let { repoId, entryId, range } = args;
@@ -2443,7 +2443,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageRange (optional) The pages to be deleted.
-     * @return Deleted pages successfully.
+     * @returns Deleted pages successfully.
      */
     deletePages(args: { repoId: string, entryId: number, pageRange?: string | null | undefined }): Promise<ODataValueOfBoolean> {
         let { repoId, entryId, pageRange } = args;
@@ -2539,7 +2539,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.request (optional) 
      * @param args.range (optional) An optional header used to retrieve partial content of the edoc. Only supports single
                 range with byte unit.
-     * @return Get edoc successfully.
+     * @returns Get edoc successfully.
      */
     exportDocumentWithAuditReason(args: { repoId: string, entryId: number, request?: GetEdocWithAuditReasonRequest | undefined, range?: string | null | undefined }): Promise<FileResponse> {
         let { repoId, entryId, request, range } = args;
@@ -2660,7 +2660,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repoId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request (optional) 
-     * @return Get dynamic field logic values successfully.
+     * @returns Get dynamic field logic values successfully.
      */
     getDynamicFieldValues(args: { repoId: string, entryId: number, request?: GetDynamicFieldLogicValueRequest | undefined }): Promise<{ [key: string]: string[]; }> {
         let { repoId, entryId, request } = args;
@@ -2764,7 +2764,7 @@ export class EntriesClient implements IEntriesClient {
     - If the entry does not have a template assigned, no change will be made.
      * @param args.repoId The requested repository ID.
      * @param args.entryId The ID of the entry that will have its template removed.
-     * @return Remove the currently assigned template successfully.
+     * @returns Remove the currently assigned template successfully.
      */
     deleteAssignedTemplate(args: { repoId: string, entryId: number }): Promise<Entry> {
         let { repoId, entryId } = args;
@@ -2858,7 +2858,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.request (optional) The template and template fields that will be assigned to the entry.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used.
                 The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @return Assign a template successfully.
+     * @returns Assign a template successfully.
      */
     writeTemplateValueToEntry(args: { repoId: string, entryId: number, request?: PutTemplateRequest | undefined, culture?: string | null | undefined }): Promise<Entry> {
         let { repoId, entryId, request, culture } = args;
@@ -2971,7 +2971,7 @@ export interface IAttributesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get trustee attribute key value pairs successfully.
+     * @returns Get trustee attribute key value pairs successfully.
      */
     getTrusteeAttributeKeyValuePairs(args: { repoId: string, everyone?: boolean | undefined, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfListOfAttribute>;
 
@@ -2981,7 +2981,7 @@ export interface IAttributesClient {
      * @param args.repoId The requested repository ID.
      * @param args.attributeKey The requested attribute key.
      * @param args.everyone (optional) Boolean value that indicates whether to return attributes associated with everyone or the currently authenticated user.
-     * @return Get trustee attribute value successfully.
+     * @returns Get trustee attribute value successfully.
      */
     getTrusteeAttributeValueByKey(args: { repoId: string, attributeKey: string, everyone?: boolean | undefined }): Promise<Attribute>;
 }
@@ -3047,7 +3047,7 @@ export class AttributesClient implements IAttributesClient {
    * Returns the attribute key value pairs using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection.
    * @param args.maxPageSize (optional) the maximum page size or number of attribute keys allowed per API response schema.
-   * @return Get trustee attribute keys with the next link successfully
+   * @returns Get trustee attribute keys with the next link successfully
    */
   async getTrusteeAttributeKeyValuePairsNextLink(args: {
     nextLink: string;
@@ -3075,7 +3075,7 @@ export class AttributesClient implements IAttributesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get trustee attribute key value pairs successfully.
+     * @returns Get trustee attribute key value pairs successfully.
      */
     getTrusteeAttributeKeyValuePairs(args: { repoId: string, everyone?: boolean | undefined, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfListOfAttribute> {
         let { repoId, everyone, prefer, select, orderby, top, skip, count } = args;
@@ -3179,7 +3179,7 @@ export class AttributesClient implements IAttributesClient {
      * @param args.repoId The requested repository ID.
      * @param args.attributeKey The requested attribute key.
      * @param args.everyone (optional) Boolean value that indicates whether to return attributes associated with everyone or the currently authenticated user.
-     * @return Get trustee attribute value successfully.
+     * @returns Get trustee attribute value successfully.
      */
     getTrusteeAttributeValueByKey(args: { repoId: string, attributeKey: string, everyone?: boolean | undefined }): Promise<Attribute> {
         let { repoId, attributeKey, everyone } = args;
@@ -3273,7 +3273,7 @@ export interface IFieldDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting.
                 The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return Get field definition successfully.
+     * @returns Get field definition successfully.
      */
     getFieldDefinitionById(args: { repoId: string, fieldDefinitionId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<WFieldInfo>;
 
@@ -3290,7 +3290,7 @@ export interface IFieldDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get field definitions successfully.
+     * @returns Get field definitions successfully.
      */
     getFieldDefinitions(args: { repoId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfWFieldInfo>;
 }
@@ -3360,7 +3360,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
    * Returns a paged listing of field definitions available in the specified repository using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field definitions allowed per API response schema
-   * @return Get field definitions with the next link successfully
+   * @returns Get field definitions with the next link successfully
    */
   async getFieldDefinitionsNextLink(args: {
     nextLink: string;
@@ -3385,7 +3385,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting.
                 The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return Get field definition successfully.
+     * @returns Get field definition successfully.
      */
     getFieldDefinitionById(args: { repoId: string, fieldDefinitionId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<WFieldInfo> {
         let { repoId, fieldDefinitionId, culture, select } = args;
@@ -3480,7 +3480,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get field definitions successfully.
+     * @returns Get field definitions successfully.
      */
     getFieldDefinitions(args: { repoId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfWFieldInfo> {
         let { repoId, prefer, culture, select, orderby, top, skip, count } = args;
@@ -3590,7 +3590,7 @@ export interface ILinkDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get link definitions successfully.
+     * @returns Get link definitions successfully.
      */
     getLinkDefinitions(args: { repoId: string, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfEntryLinkTypeInfo>;
 
@@ -3601,7 +3601,7 @@ export interface ILinkDefinitionsClient {
      * @param args.repoId The requested repository ID.
      * @param args.linkTypeId The requested link type ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return Get link definition successfully.
+     * @returns Get link definition successfully.
      */
     getLinkDefinitionById(args: { repoId: string, linkTypeId: number, select?: string | null | undefined }): Promise<EntryLinkTypeInfo>;
 }
@@ -3667,7 +3667,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
    * Returns all link definitions in the repository using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link definitions allowed per API response schema
-   * @return Get link definitions with the next link successfully
+   * @returns Get link definitions with the next link successfully
    */
   async getLinkDefinitionsNextLink(args: {
     nextLink: string;
@@ -3694,7 +3694,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get link definitions successfully.
+     * @returns Get link definitions successfully.
      */
     getLinkDefinitions(args: { repoId: string, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfEntryLinkTypeInfo> {
         let { repoId, prefer, select, orderby, top, skip, count } = args;
@@ -3795,7 +3795,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
      * @param args.repoId The requested repository ID.
      * @param args.linkTypeId The requested link type ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return Get link definition successfully.
+     * @returns Get link definition successfully.
      */
     getLinkDefinitionById(args: { repoId: string, linkTypeId: number, select?: string | null | undefined }): Promise<EntryLinkTypeInfo> {
         let { repoId, linkTypeId, select } = args;
@@ -3880,7 +3880,7 @@ export interface IRepositoriesClient {
 
     /**
      * - Returns the repository resource list that current user has access to.
-     * @return Get the respository resource list successfully.
+     * @returns Get the respository resource list successfully.
      */
     getRepositoryList(args: {  }): Promise<RepositoryInfo[]>;
 }
@@ -3912,7 +3912,7 @@ export class RepositoriesClient implements IRepositoriesClient {
 
     /**
      * - Returns the repository resource list that current user has access to.
-     * @return Get the respository resource list successfully.
+     * @returns Get the respository resource list successfully.
      */
     getRepositoryList(args: {  }): Promise<RepositoryInfo[]> {
         let {  } = args;
@@ -3992,7 +3992,7 @@ export interface IAuditReasonsClient {
     - Only includes audit reasons associated with available API functionalities, like delete entry and export document.
     - If the authenticated user does not have the appropriate Laserfiche feature right, the audit reasons associated with that feature right will not be included.
      * @param args.repoId The requested repository ID.
-     * @return Get audit reasons successfully.
+     * @returns Get audit reasons successfully.
      */
     getAuditReasons(args: { repoId: string }): Promise<AuditReasons>;
 }
@@ -4012,7 +4012,7 @@ export class AuditReasonsClient implements IAuditReasonsClient {
     - Only includes audit reasons associated with available API functionalities, like delete entry and export document.
     - If the authenticated user does not have the appropriate Laserfiche feature right, the audit reasons associated with that feature right will not be included.
      * @param args.repoId The requested repository ID.
-     * @return Get audit reasons successfully.
+     * @returns Get audit reasons successfully.
      */
     getAuditReasons(args: { repoId: string }): Promise<AuditReasons> {
         let { repoId } = args;
@@ -4095,7 +4095,7 @@ export interface ISearchesClient {
     - Optional body parameters: FuzzyType: (default none), which can be used to determine what is considered a match by number of letters or percentage. FuzzyFactor: integer value that determines the degree to which a search will be considered a match (integer value for NumberOfLetters, or int value representing a percentage). The status for search operations must be checked via the Search specific status checking route.
      * @param args.repoId The requested repository ID.
      * @param args.request (optional) The Laserfiche search command to run, optionally include fuzzy search settings.
-     * @return Search operation start successfully.
+     * @returns Search operation start successfully.
      */
     createSearchOperation(args: { repoId: string, request?: AdvancedSearchRequest | undefined }): Promise<AcceptedOperation>;
 
@@ -4105,7 +4105,7 @@ export interface ISearchesClient {
     - OperationStatus can be one of the following : NotStarted, InProgress, Completed, Failed, or Canceled.
      * @param args.repoId The requested repository ID.
      * @param args.searchToken The requested searchToken.
-     * @return Search has failed. Check the errors property to find out why.
+     * @returns Search has failed. Check the errors property to find out why.
      */
     getSearchStatus(args: { repoId: string, searchToken: string }): Promise<OperationProgress>;
 
@@ -4114,7 +4114,7 @@ export interface ISearchesClient {
     - Closes a completed search.
      * @param args.repoId The requested repository ID.
      * @param args.searchToken The requested searchToken.
-     * @return Cancel or closed search successfully.
+     * @returns Cancel or closed search successfully.
      */
     cancelOrCloseSearch(args: { repoId: string, searchToken: string }): Promise<ODataValueOfBoolean>;
 
@@ -4141,7 +4141,7 @@ export interface ISearchesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get search result successfully.
+     * @returns Get search result successfully.
      */
     getSearchResults(args: { repoId: string, searchToken: string, groupByEntryType?: boolean | undefined, refresh?: boolean | undefined, fields?: string[] | null | undefined, formatFields?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfEntry>;
 
@@ -4158,7 +4158,7 @@ export interface ISearchesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get search context hits successfully.
+     * @returns Get search context hits successfully.
      */
     getSearchContextHits(args: { repoId: string, searchToken: string, rowNumber: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfContextHit>;
 }
@@ -4310,7 +4310,7 @@ export class SearchesClient implements ISearchesClient {
    * Returns a search result listing if the search is completed using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search results allowed per API response schema
-   * @return Get search result with the next link successfully
+   * @returns Get search result with the next link successfully
    */
   async getSearchResultsNextLink(args: {
     nextLink: string;
@@ -4329,7 +4329,7 @@ export class SearchesClient implements ISearchesClient {
    * Returns the context hits associated with a search result entry using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search context hits allowed per API response schema
-   * @return Get search context hits with the next link successfully
+   * @returns Get search context hits with the next link successfully
    */
   async getSearchContextHitsNextLink(args: {
     nextLink: string;
@@ -4350,7 +4350,7 @@ export class SearchesClient implements ISearchesClient {
     - Optional body parameters: FuzzyType: (default none), which can be used to determine what is considered a match by number of letters or percentage. FuzzyFactor: integer value that determines the degree to which a search will be considered a match (integer value for NumberOfLetters, or int value representing a percentage). The status for search operations must be checked via the Search specific status checking route.
      * @param args.repoId The requested repository ID.
      * @param args.request (optional) The Laserfiche search command to run, optionally include fuzzy search settings.
-     * @return Search operation start successfully.
+     * @returns Search operation start successfully.
      */
     createSearchOperation(args: { repoId: string, request?: AdvancedSearchRequest | undefined }): Promise<AcceptedOperation> {
         let { repoId, request } = args;
@@ -4442,7 +4442,7 @@ export class SearchesClient implements ISearchesClient {
     - OperationStatus can be one of the following : NotStarted, InProgress, Completed, Failed, or Canceled.
      * @param args.repoId The requested repository ID.
      * @param args.searchToken The requested searchToken.
-     * @return Search has failed. Check the errors property to find out why.
+     * @returns Search has failed. Check the errors property to find out why.
      */
     getSearchStatus(args: { repoId: string, searchToken: string }): Promise<OperationProgress> {
         let { repoId, searchToken } = args;
@@ -4539,7 +4539,7 @@ export class SearchesClient implements ISearchesClient {
     - Closes a completed search.
      * @param args.repoId The requested repository ID.
      * @param args.searchToken The requested searchToken.
-     * @return Cancel or closed search successfully.
+     * @returns Cancel or closed search successfully.
      */
     cancelOrCloseSearch(args: { repoId: string, searchToken: string }): Promise<ODataValueOfBoolean> {
         let { repoId, searchToken } = args;
@@ -4640,7 +4640,7 @@ export class SearchesClient implements ISearchesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get search result successfully.
+     * @returns Get search result successfully.
      */
     getSearchResults(args: { repoId: string, searchToken: string, groupByEntryType?: boolean | undefined, refresh?: boolean | undefined, fields?: string[] | null | undefined, formatFields?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfEntry> {
         let { repoId, searchToken, groupByEntryType, refresh, fields, formatFields, prefer, culture, select, orderby, top, skip, count } = args;
@@ -4766,7 +4766,7 @@ export class SearchesClient implements ISearchesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get search context hits successfully.
+     * @returns Get search context hits successfully.
      */
     getSearchContextHits(args: { repoId: string, searchToken: string, rowNumber: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfContextHit> {
         let { repoId, searchToken, rowNumber, prefer, select, orderby, top, skip, count } = args;
@@ -4886,7 +4886,7 @@ export interface ISimpleSearchesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting.
                 The value should be a standard language tag. The formatFields query parameter must be set to true, otherwise
                 culture will not be used for formatting.
-     * @return Simple search run successfully.
+     * @returns Simple search run successfully.
      */
     createSimpleSearchOperation(args: { repoId: string, select?: string | undefined, orderby?: string | undefined, count?: boolean | undefined, fields?: string[] | null | undefined, formatFields?: boolean | undefined, request?: SimpleSearchRequest | undefined, culture?: string | null | undefined }): Promise<ODataValueContextOfIListOfEntry>;
 }
@@ -4918,7 +4918,7 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting.
                 The value should be a standard language tag. The formatFields query parameter must be set to true, otherwise
                 culture will not be used for formatting.
-     * @return Simple search run successfully.
+     * @returns Simple search run successfully.
      */
     createSimpleSearchOperation(args: { repoId: string, select?: string | undefined, orderby?: string | undefined, count?: boolean | undefined, fields?: string[] | null | undefined, formatFields?: boolean | undefined, request?: SimpleSearchRequest | undefined, culture?: string | null | undefined }): Promise<ODataValueContextOfIListOfEntry> {
         let { repoId, select, orderby, count, fields, formatFields, request, culture } = args;
@@ -5051,7 +5051,7 @@ export interface ITagDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get tag definitions successfully.
+     * @returns Get tag definitions successfully.
      */
     getTagDefinitions(args: { repoId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfWTagInfo>;
 
@@ -5064,7 +5064,7 @@ export interface ITagDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting.
                 The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return Get tag definition successfully.
+     * @returns Get tag definition successfully.
      */
     getTagDefinitionById(args: { repoId: string, tagId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<WTagInfo>;
 }
@@ -5134,7 +5134,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
    * Returns all tag definitions in the repository using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tag definitions allowed per API response schema
-   * @return Get tag definitions with the next link successfully
+   * @returns Get tag definitions with the next link successfully
    */
   async getTagDefinitionsNextLink(args: {
     nextLink: string;
@@ -5163,7 +5163,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get tag definitions successfully.
+     * @returns Get tag definitions successfully.
      */
     getTagDefinitions(args: { repoId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfWTagInfo> {
         let { repoId, prefer, culture, select, orderby, top, skip, count } = args;
@@ -5268,7 +5268,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting.
                 The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return Get tag definition successfully.
+     * @returns Get tag definition successfully.
      */
     getTagDefinitionById(args: { repoId: string, tagId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<WTagInfo> {
         let { repoId, tagId, culture, select } = args;
@@ -5359,7 +5359,7 @@ export interface ITasksClient {
     - OperationStatus can be one of the following values: NotStarted, InProgress, Completed, or Failed.
      * @param args.repoId The requested repository ID
      * @param args.operationToken The operation token
-     * @return Get completed or failed operation status with no result successfully.
+     * @returns Get completed or failed operation status with no result successfully.
      */
     getOperationStatusAndProgress(args: { repoId: string, operationToken: string }): Promise<OperationProgress>;
 
@@ -5369,7 +5369,7 @@ export interface ITasksClient {
     - Rollbacks must be done manually. For example, if a copy operation is started and is halfway complete when canceled, the client application is responsible for cleaning up the files that were successfully copied before the operation was canceled.
      * @param args.repoId The requested repository ID
      * @param args.operationToken The operation token
-     * @return Cancel operation successfully.
+     * @returns Cancel operation successfully.
      */
     cancelOperation(args: { repoId: string, operationToken: string }): Promise<void>;
 }
@@ -5390,7 +5390,7 @@ export class TasksClient implements ITasksClient {
     - OperationStatus can be one of the following values: NotStarted, InProgress, Completed, or Failed.
      * @param args.repoId The requested repository ID
      * @param args.operationToken The operation token
-     * @return Get completed or failed operation status with no result successfully.
+     * @returns Get completed or failed operation status with no result successfully.
      */
     getOperationStatusAndProgress(args: { repoId: string, operationToken: string }): Promise<OperationProgress> {
         let { repoId, operationToken } = args;
@@ -5488,7 +5488,7 @@ export class TasksClient implements ITasksClient {
     - Rollbacks must be done manually. For example, if a copy operation is started and is halfway complete when canceled, the client application is responsible for cleaning up the files that were successfully copied before the operation was canceled.
      * @param args.repoId The requested repository ID
      * @param args.operationToken The operation token
-     * @return Cancel operation successfully.
+     * @returns Cancel operation successfully.
      */
     cancelOperation(args: { repoId: string, operationToken: string }): Promise<void> {
         let { repoId, operationToken } = args;
@@ -5579,7 +5579,7 @@ export interface ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get template definitions successfully.
+     * @returns Get template definitions successfully.
      */
     getTemplateDefinitions(args: { repoId: string, templateName?: string | null | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfWTemplateInfo>;
 
@@ -5592,7 +5592,7 @@ export interface ITemplateDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting.
                 The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return Get template definition successfully.
+     * @returns Get template definition successfully.
      */
     getTemplateDefinitionById(args: { repoId: string, templateId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<WTemplateInfo>;
 
@@ -5610,7 +5610,7 @@ export interface ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get template field definitions successfully.
+     * @returns Get template field definitions successfully.
      */
     getTemplateFieldDefinitions(args: { repoId: string, templateId: number, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfTemplateFieldInfo>;
 
@@ -5628,7 +5628,7 @@ export interface ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get template field definitions successfully.
+     * @returns Get template field definitions successfully.
      */
     getTemplateFieldDefinitionsByTemplateName(args: { repoId: string, templateName: string | null, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfTemplateFieldInfo>;
 }
@@ -5807,7 +5807,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
    * Returns all template definitions (including field definitions) in the repository using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template definitions allowed per API response schema
-   * @return Get template definitions with the next link successfully
+   * @returns Get template definitions with the next link successfully
    */
   async getTemplateDefinitionsNextLink(args: {
     nextLink: string;
@@ -5826,7 +5826,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
    * Returns the field definitions assigned to a template definition using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions allowed per API response schema
-   * @return Get field definitions with the next link successfully
+   * @returns Get field definitions with the next link successfully
    */
   async getTemplateFieldDefinitionsNextLink(args: {
     nextLink: string;
@@ -5845,7 +5845,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
    * Returns the field definitions assigned to a template definition by template name using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions by template name allowed per API response schema
-   * @return Get field definitions by template name with the next link successfully
+   * @returns Get field definitions by template name with the next link successfully
    */
   async getTemplateFieldDefinitionsByTemplateNameNextLink(args: {
     nextLink: string;
@@ -5875,7 +5875,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get template definitions successfully.
+     * @returns Get template definitions successfully.
      */
     getTemplateDefinitions(args: { repoId: string, templateName?: string | null | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfWTemplateInfo> {
         let { repoId, templateName, prefer, culture, select, orderby, top, skip, count } = args;
@@ -5982,7 +5982,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting.
                 The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return Get template definition successfully.
+     * @returns Get template definition successfully.
      */
     getTemplateDefinitionById(args: { repoId: string, templateId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<WTemplateInfo> {
         let { repoId, templateId, culture, select } = args;
@@ -6078,7 +6078,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get template field definitions successfully.
+     * @returns Get template field definitions successfully.
      */
     getTemplateFieldDefinitions(args: { repoId: string, templateId: number, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfTemplateFieldInfo> {
         let { repoId, templateId, prefer, culture, select, orderby, top, skip, count } = args;
@@ -6191,7 +6191,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return Get template field definitions successfully.
+     * @returns Get template field definitions successfully.
      */
     getTemplateFieldDefinitionsByTemplateName(args: { repoId: string, templateName: string | null, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<ODataValueContextOfIListOfTemplateFieldInfo> {
         let { repoId, templateName, prefer, culture, select, orderby, top, skip, count } = args;
@@ -6300,7 +6300,7 @@ export interface IServerSessionClient {
     - Acts as a "logout" operation, and invalidates the session associated with the provided access token. This method should be used when the client wants to clean up the current session.
     - Only available in Laserfiche Cloud.
      * @param args.repoId The requested repository ID.
-     * @return Invalidate the server session successfully.
+     * @returns Invalidate the server session successfully.
      * @deprecated
      */
     invalidateServerSession(args: { repoId: string }): Promise<ODataValueOfBoolean>;
@@ -6311,7 +6311,7 @@ export interface IServerSessionClient {
     - When a client application wants to keep a session alive that has been idle for an hour, this route can be used to refresh the expiration timer associated with the access token.
     - Only available in Laserfiche Cloud.
      * @param args.repoId The requested repository ID.
-     * @return Refresh the session successfully.
+     * @returns Refresh the session successfully.
      * @deprecated
      */
     refreshServerSession(args: { repoId: string }): Promise<ODataValueOfDateTime>;
@@ -6320,7 +6320,7 @@ export interface IServerSessionClient {
      * - Deprecated. This function is a no-op, always returns 200.
     - Only available in Laserfiche Cloud.
      * @param args.repoId The requested repository ID.
-     * @return Create the session successfully.
+     * @returns Create the session successfully.
      * @deprecated
      */
     createServerSession(args: { repoId: string }): Promise<ODataValueOfBoolean>;
@@ -6342,7 +6342,7 @@ export class ServerSessionClient implements IServerSessionClient {
     - Acts as a "logout" operation, and invalidates the session associated with the provided access token. This method should be used when the client wants to clean up the current session.
     - Only available in Laserfiche Cloud.
      * @param args.repoId The requested repository ID.
-     * @return Invalidate the server session successfully.
+     * @returns Invalidate the server session successfully.
      * @deprecated
      */
     invalidateServerSession(args: { repoId: string }): Promise<ODataValueOfBoolean> {
@@ -6424,7 +6424,7 @@ export class ServerSessionClient implements IServerSessionClient {
     - When a client application wants to keep a session alive that has been idle for an hour, this route can be used to refresh the expiration timer associated with the access token.
     - Only available in Laserfiche Cloud.
      * @param args.repoId The requested repository ID.
-     * @return Refresh the session successfully.
+     * @returns Refresh the session successfully.
      * @deprecated
      */
     refreshServerSession(args: { repoId: string }): Promise<ODataValueOfDateTime> {
@@ -6504,7 +6504,7 @@ export class ServerSessionClient implements IServerSessionClient {
      * - Deprecated. This function is a no-op, always returns 200.
     - Only available in Laserfiche Cloud.
      * @param args.repoId The requested repository ID.
-     * @return Create the session successfully.
+     * @returns Create the session successfully.
      * @deprecated
      */
     createServerSession(args: { repoId: string }): Promise<ODataValueOfBoolean> {
@@ -12327,8 +12327,8 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client.
-   * @param httpRequestHandler The http request handler for the Laserfiche repository client.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param httpRequestHandler - The http request handler for the Laserfiche repository client.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromHttpRequestHandler(
     httpRequestHandler: HttpRequestHandler,
@@ -12341,8 +12341,8 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client.
-   * @param getAccessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param getAccessTokenFunc - A function that will be used to retrieve the current Laserfiche API access token.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromGetAccessTokenFunc(
     getAccessTokenFunc: () => Promise<GetAccessTokenResponse>,
@@ -12354,10 +12354,10 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client that will use Laserfiche Cloud OAuth client credentials to get access tokens.
-   * @param servicePrincipalKey The service principal key created for the service principal from the Laserfiche Account Administration.
-   * @param accessKey The access key exported from the Laserfiche Developer Console.
-   * @param scope (optional) The requested space-delimited scopes for the access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param servicePrincipalKey - The service principal key created for the service principal from the Laserfiche Account Administration.
+   * @param accessKey - The access key exported from the Laserfiche Developer Console.
+   * @param scope - (optional) The requested space-delimited scopes for the access token.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromAccessKey(
     servicePrincipalKey: string,
@@ -12371,10 +12371,10 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client that will use username and password to get access tokens for Laserfiche API. Password credentials grant type is implemented by the Laserfiche Self-Hosted API server. Not available in cloud.
-   * @param repositoryId The repository ID
-   * @param username The username
-   * @param password The password
-   * @param baseUrl API server base URL e.g., https://{APIServerName}/LFRepositoryAPI
+   * @param repositoryId - The repository ID
+   * @param username - The username
+   * @param password - The password
+   * @param baseUrl - API server base URL e.g., https://{APIServerName}/LFRepositoryAPI
    */
   public static createFromUsernamePassword(
     repositoryId: string,
@@ -12507,7 +12507,7 @@ export interface IAttributesClient {
    * Returns the attribute key value pairs using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of attribute keys allowed per API response schema
-   * @return Get trustee attribute keys with the next link successfully
+   * @returns Get trustee attribute keys with the next link successfully
    */
   getTrusteeAttributeKeyValuePairsNextLink(args: {
     nextLink: string;
@@ -12637,7 +12637,7 @@ export interface IEntriesClient {
    * Returns the children entries of a folder in the repository using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of entry listings allowed per API response schema
-   * @return Get the children entries of a Folder with the next link successfully
+   * @returns Get the children entries of a Folder with the next link successfully
    */
   getEntryListingNextLink(args: {
     nextLink: string;
@@ -12647,7 +12647,7 @@ export interface IEntriesClient {
    * Returns the fields assigned to an entry using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field values allowed per API response schema
-   * @return Get field values with the next link successfully
+   * @returns Get field values with the next link successfully
    */
   getFieldValuesNextLink(args: {
     nextLink: string;
@@ -12657,7 +12657,7 @@ export interface IEntriesClient {
    * Get the links assigned to an entry using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link values from entry allowed per API response schema
-   * @return Get links with the next link successfully
+   * @returns Get links with the next link successfully
    */
   getLinkValuesFromEntryNextLink(args: {
     nextLink: string;
@@ -12667,7 +12667,7 @@ export interface IEntriesClient {
    * Get the tags assigned to an entry using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tags assigned to entry allowed per API response schema
-   * @return Get entry tags with the next link successfully
+   * @returns Get entry tags with the next link successfully
    */
   getTagsAssignedToEntryNextLink(args: {
     nextLink: string;
@@ -12707,7 +12707,7 @@ export interface IFieldDefinitionsClient {
    * Returns a paged listing of field definitions available in the specified repository using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field definitions allowed per API response schema
-   * @return Get field definitions with the next link successfully
+   * @returns Get field definitions with the next link successfully
    */
   getFieldDefinitionsNextLink(args: {
     nextLink: string;
@@ -12784,7 +12784,7 @@ export interface ISearchesClient {
    * Returns a search result listing if the search is completed using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search results allowed per API response schema
-   * @return Get search result with the next link successfully
+   * @returns Get search result with the next link successfully
    */
   getSearchResultsNextLink(args: {
     nextLink: string;
@@ -12794,7 +12794,7 @@ export interface ISearchesClient {
    * Returns the context hits associated with a search result entry using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search context hits allowed per API response schema
-   * @return Get search context hits with the next link successfully
+   * @returns Get search context hits with the next link successfully
    */
   getSearchContextHitsNextLink(args: {
     nextLink: string;
@@ -12834,7 +12834,7 @@ export interface ITagDefinitionsClient {
    * Returns all tag definitions in the repository using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tag definitions allowed per API response schema
-   * @return Get tag definitions with the next link successfully
+   * @returns Get tag definitions with the next link successfully
    */
   getTagDefinitionsNextLink(args: {
     nextLink: string;
@@ -12934,7 +12934,7 @@ export interface ITemplateDefinitionsClient {
    * Returns all template definitions (including field definitions) in the repository using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template definitions allowed per API response schema
-   * @return Get template definitions with the next link successfully
+   * @returns Get template definitions with the next link successfully
    */
   getTemplateDefinitionsNextLink(args: {
     nextLink: string;
@@ -12944,7 +12944,7 @@ export interface ITemplateDefinitionsClient {
    * Returns the field definitions assigned to a template definition using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions allowed per API response schema
-   * @return Get field definitions with the next link successfully
+   * @returns Get field definitions with the next link successfully
    */
   getTemplateFieldDefinitionsNextLink(args: {
     nextLink: string;
@@ -12954,7 +12954,7 @@ export interface ITemplateDefinitionsClient {
    * Returns the field definitions assigned to a template definition by template name using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions by template name allowed per API response schema
-   * @return Get field definitions by template name with the next link successfully
+   * @returns Get field definitions by template name with the next link successfully
    */
   getTemplateFieldDefinitionsByTemplateNameNextLink(args: {
     nextLink: string;
@@ -12991,7 +12991,7 @@ export interface ILinkDefinitionsClient {
    * Returns all link definitions in the repository using a next link
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link definitions allowed per API response schema
-   * @return Get link definitions with the next link successfully
+   * @returns Get link definitions with the next link successfully
    */
   getLinkDefinitionsNextLink(args: {
     nextLink: string;

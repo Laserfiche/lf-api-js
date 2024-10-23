@@ -22,9 +22,10 @@
     "url": "https://github.com/Laserfiche/lf-api-js"
   },
   "scripts": {
-    "build": "npm run clean && tsc -b && npx rollup -c",
+    "build": "npm run clean && tsc -b && npm run generate-esm-module && npm run generate-types",
     "clean": "tsc -b --clean",
-    "generatetypes": "api-extractor run --local",
+    "generate-esm-module": "npx rollup -c",
+    "generate-types": "api-extractor run --local",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=test --config jest.node.config.js --runInBand",
     "postpublish": "git tag lf-api-js-v$npm_package_version && git push --tags"
   },

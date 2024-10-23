@@ -16,9 +16,9 @@ const CONTENT_TYPE_WWW_FORM_URLENCODED = 'application/x-www-form-urlencoded';
 export interface ITokenClient {
   /**
    * Gets an OAuth access token given a Laserfiche cloud service principal key and an OAuth service application access key.
-   * @param servicePrincipalKey Laserfiche cloud service principal key
-   * @param accessKey OAuth service application access key
-   * @param scope OPTIONAL The requested space-delimited scopes for the access token.
+   * @param servicePrincipalKey - Laserfiche cloud service principal key
+   * @param accessKey - OAuth service application access key
+   * @param scope - OPTIONAL The requested space-delimited scopes for the access token.
    */
   getAccessTokenFromServicePrincipal(
     servicePrincipalKey: string,
@@ -28,12 +28,12 @@ export interface ITokenClient {
 
   /**
    * Gets an OAuth access token given an OAuth code
-   * @param code Authorization code
-   * @param redirect_uri Authorization endpoint redirect uri
-   * @param client_id OAuth application client id
-   * @param client_secret OPTIONAL OAuth application client secret. Required for web apps.
-   * @param code_verifier OPTIONAL PKCE code verifier. Required for SPA apps.
-   * @param scope OPTIONAL The requested space-delimited scopes for the access token.
+   * @param code - Authorization code
+   * @param redirect_uri - Authorization endpoint redirect uri
+   * @param client_id - OAuth application client id
+   * @param client_secret - OPTIONAL OAuth application client secret. Required for web apps.
+   * @param code_verifier - OPTIONAL PKCE code verifier. Required for SPA apps.
+   * @param scope - OPTIONAL The requested space-delimited scopes for the access token.
    */
   getAccessTokenFromCode(
     code: string,
@@ -46,9 +46,9 @@ export interface ITokenClient {
 
   /**
    * Gets a refreshed access token given a refresh token
-   * @param refresh_token Refresh token
-   * @param client_id OAuth application client id
-   * @param client_secret OPTIONAL OAuth application client secret. Required for web apps.
+   * @param refresh_token - Refresh token
+   * @param client_id - OAuth application client id
+   * @param client_secret - OPTIONAL OAuth application client secret. Required for web apps.
    */
   refreshAccessToken(refresh_token: string, client_id: string, client_secret?: string): Promise<GetAccessTokenResponse>;
 }
@@ -64,7 +64,7 @@ export class TokenClient implements ITokenClient {
 
   /**
    * Constructor for a TokenClient used to interact with the Laserfiche Cloud OAuth 2.0 token endpoint.
-   * @param regionalDomain regional specific host, such as 'laserfiche.com', or 'eu.laserfiche.com'
+   * @param regionalDomain - regional specific host, such as 'laserfiche.com', or 'eu.laserfiche.com'
    */
   constructor(regionalDomain: string) {
     this._baseUrl = getOauthTokenUrl(regionalDomain);
@@ -72,9 +72,9 @@ export class TokenClient implements ITokenClient {
 
   /**
    * Gets a refreshed access token given a refresh token
-   * @param refresh_token Refresh token
-   * @param client_id OAuth application client id
-   * @param client_secret OPTIONAL OAuth application client secret. Required for web apps.
+   * @param refresh_token - Refresh token
+   * @param client_id - OAuth application client id
+   * @param client_secret - OPTIONAL OAuth application client secret. Required for web apps.
    */
   async refreshAccessToken(
     refresh_token: string,
@@ -100,12 +100,12 @@ export class TokenClient implements ITokenClient {
 
   /**
    * Gets an OAuth access token given an OAuth code
-   * @param code Authorization code
-   * @param redirect_uri Authorization endpoint redirect uri
-   * @param client_id OAuth application client id
-   * @param client_secret OPTIONAL OAuth application client secret. Required for web apps.
-   * @param code_verifier OPTIONAL PKCE code verifier. Required for SPA apps.
-   * @param scope OPTIONAL The requested space-delimited scopes for the access token.
+   * @param code - Authorization code
+   * @param redirect_uri - Authorization endpoint redirect uri
+   * @param client_id - OAuth application client id
+   * @param client_secret - OPTIONAL OAuth application client secret. Required for web apps.
+   * @param code_verifier - OPTIONAL PKCE code verifier. Required for SPA apps.
+   * @param scope - OPTIONAL The requested space-delimited scopes for the access token.
    */
   async getAccessTokenFromCode(
     code: string,
@@ -141,9 +141,9 @@ export class TokenClient implements ITokenClient {
 
   /**
    * Gets an OAuth access token given a Laserfiche cloud service principal key and an OAuth service application access key.
-   * @param servicePrincipalKey Laserfiche cloud service principal key
-   * @param accessKey OAuth service application access key
-   * @param scope OPTIONAL The requested space-delimited scopes for the access token.
+   * @param servicePrincipalKey - Laserfiche cloud service principal key
+   * @param accessKey - OAuth service application access key
+   * @param scope - OPTIONAL The requested space-delimited scopes for the access token.
    */
   async getAccessTokenFromServicePrincipal(
     servicePrincipalKey: string,
