@@ -371,7 +371,7 @@ jobs:
 
       - name: pnpm publish @laserfiche/types-lf-api-js
         working-directory: ./packages/lf-api-js/types-npm-publish
-        run: pnpm publish --access public --tag next
+        run: pnpm publish --access public --tag next --no-git-checks
 
   publish-updated-production-packages:
     runs-on: ubuntu-latest
@@ -452,7 +452,7 @@ jobs:
 
       - name: pnpm publish @laserfiche/types-lf-api-js
         working-directory: ./packages/lf-api-js/types-npm-publish
-        run: pnpm publish --access public --tag latest
+        run: pnpm publish --access public --tag latest --no-git-checks
 
   publish_documentation:
     runs-on: ubuntu-latest
