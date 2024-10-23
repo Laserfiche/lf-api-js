@@ -86,8 +86,8 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client.
-   * @param httpRequestHandler The http request handler for the Laserfiche repository client.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param httpRequestHandler - The http request handler for the Laserfiche repository client.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromHttpRequestHandler(
     httpRequestHandler: HttpRequestHandler,
@@ -100,8 +100,8 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client.
-   * @param getAccessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param getAccessTokenFunc - A function that will be used to retrieve the current Laserfiche API access token.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromGetAccessTokenFunc(
     getAccessTokenFunc: () => Promise<GetAccessTokenResponse>,
@@ -113,10 +113,10 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client that will use Laserfiche Cloud OAuth client credentials to get access tokens.
-   * @param servicePrincipalKey The service principal key created for the service principal from the Laserfiche Account Administration.
-   * @param accessKey The access key exported from the Laserfiche Developer Console.
-   * @param scope (optional) The requested space-delimited scopes for the access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param servicePrincipalKey - The service principal key created for the service principal from the Laserfiche Account Administration.
+   * @param accessKey - The access key exported from the Laserfiche Developer Console.
+   * @param scope - (optional) The requested space-delimited scopes for the access token.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromAccessKey(
     servicePrincipalKey: string,
@@ -130,10 +130,10 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client that will use username and password to get access tokens for Laserfiche API. Password credentials grant type is implemented by the Laserfiche Self-Hosted API server. Not available in cloud.
-   * @param repositoryId The repository ID
-   * @param username The username
-   * @param password The password
-   * @param baseUrl API server base URL e.g., https://{APIServerName}/LFRepositoryAPI
+   * @param repositoryId - The repository ID
+   * @param username - The username
+   * @param password - The password
+   * @param baseUrl - API server base URL e.g., https://{APIServerName}/LFRepositoryAPI
    */
   public static createFromUsernamePassword(
     repositoryId: string,
@@ -268,7 +268,7 @@ export interface IAttributesClient {
    * - Related: {@link generated.IAttributesClient.listAttributes listAttributes}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of attribute keys allowed per API response schema
-   * @return A collection of attributes associated with the authenticated user.
+   * @returns A collection of attributes associated with the authenticated user.
    */
   listAttributesNextLink(args: {
     nextLink: string;
@@ -329,7 +329,7 @@ export class AttributesClient extends generated.AttributesClient implements IAtt
    * - Related: {@link generated.IAttributesClient.listAttributes listAttributes}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection.
    * @param args.maxPageSize (optional) the maximum page size or number of attribute keys allowed per API response schema.
-   * @return A collection of attributes associated with the authenticated user.
+   * @returns A collection of attributes associated with the authenticated user.
    */
   async listAttributesNextLink(args: {
     nextLink: string;
@@ -473,7 +473,7 @@ export interface IEntriesClient {
    * - Related: {@link generated.IEntriesClient.listEntries listEntries}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of entry listings allowed per API response schema
-   * @return A collection of children entries of a folder.
+   * @returns A collection of children entries of a folder.
    */
   listEntriesNextLink(args: {
     nextLink: string;
@@ -484,7 +484,7 @@ export interface IEntriesClient {
    * - Related: {@link generated.IEntriesClient.listFields listFields}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field values allowed per API response schema
-   * @return A collection of fields assigned to the entry.
+   * @returns A collection of fields assigned to the entry.
    */
   listFieldsNextLink(args: {
     nextLink: string;
@@ -495,7 +495,7 @@ export interface IEntriesClient {
    * - Related: {@link generated.IEntriesClient.listLinks listLinks}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link values from entry allowed per API response schema
-   * @return A collection of links assigned to the entry.
+   * @returns A collection of links assigned to the entry.
    */
   listLinksNextLink(args: {
     nextLink: string;
@@ -506,7 +506,7 @@ export interface IEntriesClient {
    * - Related: {@link generated.IEntriesClient.listTags listTags}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tags assigned to entry allowed per API response schema
-   * @return A collection of tags assigned to the entry.
+   * @returns A collection of tags assigned to the entry.
    */
   listTagsNextLink(args: {
     nextLink: string;
@@ -754,7 +754,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
    * - Related: {@link generated.IEntriesClient.listEntries listEntries}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of entry listings allowed per API response schema
-   * @return A collection of children entries of a folder.
+   * @returns A collection of children entries of a folder.
    */
   async listEntriesNextLink(args: {
     nextLink: string;
@@ -774,7 +774,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
    * - Related: {@link generated.IEntriesClient.listFields listFields}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field values allowed per API response schema
-   * @return A collection of fields assigned to the entry.
+   * @returns A collection of fields assigned to the entry.
    */
   async listFieldsNextLink(args: {
     nextLink: string;
@@ -794,7 +794,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
    * - Related: {@link generated.IEntriesClient.listLinks listLinks}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link values from entry allowed per API response schema
-   * @return A collection of links assigned to the entry.
+   * @returns A collection of links assigned to the entry.
    */
   async listLinksNextLink(args: {
     nextLink: string;
@@ -814,7 +814,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
    * - Related: {@link generated.IEntriesClient.listTags listTags}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tags assigned to entry allowed per API response schema
-   * @return A collection of tags assigned to the entry.
+   * @returns A collection of tags assigned to the entry.
    */
   async listTagsNextLink(args: {
     nextLink: string;
@@ -865,7 +865,7 @@ export interface IFieldDefinitionsClient {
    * - Related: {@link generated.IFieldDefinitionsClient.listFieldDefinitions listFieldDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field definitions allowed per API response schema
-   * @return A collection of field definitions.
+   * @returns A collection of field definitions.
    */
   listFieldDefinitionsNextLink(args: {
     nextLink: string;
@@ -930,7 +930,7 @@ export class FieldDefinitionsClient extends generated.FieldDefinitionsClient imp
    * - Related: {@link generated.IFieldDefinitionsClient.listFieldDefinitions listFieldDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field definitions allowed per API response schema
-   * @return A collection of field definitions.
+   * @returns A collection of field definitions.
    */
   async listFieldDefinitionsNextLink(args: {
     nextLink: string;
@@ -1019,7 +1019,7 @@ export interface ISearchesClient {
    * - Related: {@link generated.ISearchesClient.listSearchResults listSearchResults}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search results allowed per API response schema
-   * @return A collection of entry search results.
+   * @returns A collection of entry search results.
    */
   listSearchResultsNextLink(args: {
     nextLink: string;
@@ -1030,7 +1030,7 @@ export interface ISearchesClient {
    * - Related: {@link generated.ISearchesClient.listSearchContextHits listSearchContextHits}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search context hits allowed per API response schema
-   * @return A collection of context hits for a search result.
+   * @returns A collection of context hits for a search result.
    */
   listSearchContextHitsNextLink(args: {
     nextLink: string;
@@ -1178,7 +1178,7 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
    * - Related: {@link generated.ISearchesClient.listSearchResults listSearchResults}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search results allowed per API response schema
-   * @return A collection of entry search results.
+   * @returns A collection of entry search results.
    */
   async listSearchResultsNextLink(args: {
     nextLink: string;
@@ -1198,7 +1198,7 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
    * - Related: {@link generated.ISearchesClient.listSearchContextHits listSearchContextHits}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search context hits allowed per API response schema
-   * @return A collection of context hits for a search result.
+   * @returns A collection of context hits for a search result.
    */
   async listSearchContextHitsNextLink(args: {
     nextLink: string;
@@ -1249,7 +1249,7 @@ export interface ITagDefinitionsClient {
    * - Related: {@link generated.ITagDefinitionsClient.listTagDefinitions listTagDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tag definitions allowed per API response schema
-   * @return A collection of tag definitions.
+   * @returns A collection of tag definitions.
    */
   listTagDefinitionsNextLink(args: {
     nextLink: string;
@@ -1314,7 +1314,7 @@ export class TagDefinitionsClient extends generated.TagDefinitionsClient impleme
    * - Related: {@link generated.ITagDefinitionsClient.listTagDefinitions listTagDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tag definitions allowed per API response schema
-   * @return A collection of tag definitions.
+   * @returns A collection of tag definitions.
    */
   async listTagDefinitionsNextLink(args: {
     nextLink: string;
@@ -1427,7 +1427,7 @@ export interface ITemplateDefinitionsClient {
    * - Related: {@link generated.ITemplateDefinitionsClient.listTemplateDefinitions listTemplateDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template definitions allowed per API response schema
-   * @return A collection of template definitions.
+   * @returns A collection of template definitions.
    */
   listTemplateDefinitionsNextLink(args: {
     nextLink: string;
@@ -1438,7 +1438,7 @@ export interface ITemplateDefinitionsClient {
    * - Related: {@link generated.ITemplateDefinitionsClient.listTemplateFieldDefinitionsByTemplateId listTemplateFieldDefinitionsByTemplateId}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions allowed per API response schema
-   * @return A collection of template field definitions.
+   * @returns A collection of template field definitions.
    */
   listTemplateFieldDefinitionsByTemplateIdNextLink(args: {
     nextLink: string;
@@ -1449,7 +1449,7 @@ export interface ITemplateDefinitionsClient {
    * - Related: {@link generated.ITemplateDefinitionsClient.listTemplateFieldDefinitionsByTemplateName listTemplateFieldDefinitionsByTemplateName}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions by template name allowed per API response schema
-   * @return A collection of template field definitions.
+   * @returns A collection of template field definitions.
    */
   listTemplateFieldDefinitionsByTemplateNameNextLink(args: {
     nextLink: string;
@@ -1628,7 +1628,7 @@ export class TemplateDefinitionsClient
    * - Related: {@link generated.ITemplateDefinitionsClient.listTemplateDefinitions listTemplateDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template definitions allowed per API response schema
-   * @return A collection of template definitions.
+   * @returns A collection of template definitions.
    */
   async listTemplateDefinitionsNextLink(args: {
     nextLink: string;
@@ -1648,7 +1648,7 @@ export class TemplateDefinitionsClient
    * - Related: {@link generated.ITemplateDefinitionsClient.listTemplateFieldDefinitionsByTemplateId listTemplateFieldDefinitionsByTemplateId}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions allowed per API response schema
-   * @return A collection of template field definitions.
+   * @returns A collection of template field definitions.
    */
   async listTemplateFieldDefinitionsByTemplateIdNextLink(args: {
     nextLink: string;
@@ -1668,7 +1668,7 @@ export class TemplateDefinitionsClient
    * - Related: {@link generated.ITemplateDefinitionsClient.listTemplateFieldDefinitionsByTemplateName listTemplateFieldDefinitionsByTemplateName}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions by template name allowed per API response schema
-   * @return A collection of template field definitions.
+   * @returns A collection of template field definitions.
    */
   async listTemplateFieldDefinitionsByTemplateNameNextLink(args: {
     nextLink: string;
@@ -1716,7 +1716,7 @@ export interface ILinkDefinitionsClient {
    * - Related: {@link generated.ILinkDefinitionsClient.listLinkDefinitions listLinkDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link definitions allowed per API response schema
-   * @return A collection of link definitions.
+   * @returns A collection of link definitions.
    */
   listLinkDefinitionsNextLink(args: {
     nextLink: string;
@@ -1777,7 +1777,7 @@ export class LinkDefinitionsClient extends generated.LinkDefinitionsClient imple
    * - Related: {@link generated.ILinkDefinitionsClient.listLinkDefinitions listLinkDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link definitions allowed per API response schema
-   * @return A collection of link definitions.
+   * @returns A collection of link definitions.
    */
   async listLinkDefinitionsNextLink(args: {
     nextLink: string;
