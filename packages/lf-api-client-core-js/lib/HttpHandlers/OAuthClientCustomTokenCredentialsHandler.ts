@@ -3,7 +3,7 @@
 import { HttpRequestHandler } from './HttpRequestHandler.js';
 import { BeforeFetchResult } from './BeforeFetchResult.js';
 import { GetAccessTokenResponse } from '../OAuth/GetAccessTokenResponse.js';
-import { JwtUtils } from '../../index.js';
+import * as JwtUtils from '../utils/JwtUtils.js';
 
 export class OAuthClientCustomTokenCredentialsHandler
   implements HttpRequestHandler
@@ -13,9 +13,9 @@ export class OAuthClientCustomTokenCredentialsHandler
 
   /**
    * Constructor
-   * @param servicePrincipalKey The service principal key created for the service principal from the Laserfiche Account Administration.
-   * @param accessKey The access key exported from the Laserfiche Developer Console.
-   * @param scope Specifies the requested scopes for the authorization request. Scopes are case-sensitive and space-delimited.
+   * @param servicePrincipalKey - The service principal key created for the service principal from the Laserfiche Account Administration.
+   * @param accessKey - The access key exported from the Laserfiche Developer Console.
+   * @param scope - Specifies the requested scopes for the authorization request. Scopes are case-sensitive and space-delimited.
    */
   public constructor(
     getAccessTokenAsync: () => Promise<GetAccessTokenResponse>
@@ -25,8 +25,8 @@ export class OAuthClientCustomTokenCredentialsHandler
 
   /**
    * Called to prepare the request to the API service.
-   * @param url The HTTP url
-   * @param request The HTTP request
+   * @param url - The HTTP url
+   * @param request - The HTTP request
    */
   async beforeFetchRequestAsync(
     url: string,
@@ -64,9 +64,9 @@ export class OAuthClientCustomTokenCredentialsHandler
 
   /**
    * Called to handle the response from the API service.
-   * @param url The HTTP url
-   * @param response The HTTP response
-   * @param request The HTTP request
+   * @param url - The HTTP url
+   * @param response - The HTTP response
+   * @param request - The HTTP request
    * @returns true if the request should be retried.
    */
   async afterFetchResponseAsync(

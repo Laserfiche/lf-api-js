@@ -11,8 +11,8 @@ export const HTTPError_NAME = 'HTTPError';
 export class HTTPError extends Error {
   /**
    * Constructor
-   * @param message The error message
-   * @param status The HTTP status code
+   * @param message - The error message
+   * @param status - The HTTP status code
    */
   constructor(message: string, public status: number) {
     super(`[HTTP ${status}] ${message}`);

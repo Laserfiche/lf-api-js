@@ -1,0 +1,85 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+
+  "mainEntryPointFilePath": "./dist/index.d.ts",
+
+  "bundledPackages": ["@laserfiche/*"],
+
+  "apiReport": {
+    "enabled": false
+  },
+  "docModel": { "enabled": false },
+  "dtsRollup": {
+    "enabled": true,
+    "publicTrimmedFilePath": "./types/index.d.ts",
+
+    "omitTrimmingComments": true
+  },
+  "tsdocMetadata": {
+    "enabled": false
+  },
+
+  "messages": {
+    "compilerMessageReporting": {
+      "default": {
+        "logLevel": "warning",
+
+        "addToApiReportFile": false
+      },
+
+      "TS2551": {
+        "logLevel": "warning",
+        "addToApiReportFile": true
+      }
+    },
+
+    "extractorMessageReporting": {
+      "default": {
+        "logLevel": "warning",
+        "addToApiReportFile": false
+      },
+
+      "ae-wrong-input-file-type": {
+        "logLevel": "none"
+      },
+
+      "ae-extra-release-tag": {
+        "logLevel": "warning",
+        "addToApiReportFile": true
+      },
+      "ae-missing-release-tag": {
+        "logLevel": "none"
+      },
+      "ae-setter-with-docs": {
+        "logLevel": "none"
+      }
+    },
+
+    "tsdocMessageReporting": {
+      "default": {
+        "logLevel": "warning",
+        "addToApiReportFile": false
+      },
+
+      "tsdoc-link-tag-unescaped-text": {
+        "logLevel": "warning",
+        "addToApiReportFile": true
+      },
+      "tsdoc-param-tag-with-invalid-name": {
+        "logLevel": "none"
+      },
+      "tsdoc-missing-deprecation-message": {
+        "logLevel": "none"
+      },
+      "tsdoc-reference-missing-dot": {
+        "logLevel": "none"
+      },
+      "tsdoc-escape-right-brace": {
+        "logLevel": "none"
+      },
+      "tsdoc-malformed-inline-tag": {
+        "logLevel": "none"
+      }
+    }
+  }
+}

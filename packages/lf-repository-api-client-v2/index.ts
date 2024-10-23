@@ -36,7 +36,7 @@ export interface IAttributesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of attributes associated with the authenticated user.
+     * @returns A collection of attributes associated with the authenticated user.
      */
     listAttributes(args: { repositoryId: string, everyone?: boolean | undefined, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<AttributeCollectionResponse>;
 
@@ -47,7 +47,7 @@ export interface IAttributesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.attributeKey The requested attribute key.
      * @param args.everyone (optional) Indicates if attributes associated with the "Everyone" group or the currently authenticated user is returned. The default value is false.
-     * @return A single attribute associated with the authenticated user.
+     * @returns A single attribute associated with the authenticated user.
      */
     getAttribute(args: { repositoryId: string, attributeKey: string, everyone?: boolean | undefined }): Promise<Attribute>;
 }
@@ -115,7 +115,7 @@ export class AttributesClient implements IAttributesClient {
    * - Related: {@link IAttributesClient.listAttributes listAttributes}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection.
    * @param args.maxPageSize (optional) the maximum page size or number of attribute keys allowed per API response schema.
-   * @return A collection of attributes associated with the authenticated user.
+   * @returns A collection of attributes associated with the authenticated user.
    */
   async listAttributesNextLink(args: {
     nextLink: string;
@@ -145,7 +145,7 @@ export class AttributesClient implements IAttributesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of attributes associated with the authenticated user.
+     * @returns A collection of attributes associated with the authenticated user.
      */
     listAttributes(args: { repositoryId: string, everyone?: boolean | undefined, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<AttributeCollectionResponse> {
         let { repositoryId, everyone, prefer, select, orderby, top, skip, count } = args;
@@ -250,7 +250,7 @@ export class AttributesClient implements IAttributesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.attributeKey The requested attribute key.
      * @param args.everyone (optional) Indicates if attributes associated with the "Everyone" group or the currently authenticated user is returned. The default value is false.
-     * @return A single attribute associated with the authenticated user.
+     * @returns A single attribute associated with the authenticated user.
      */
     getAttribute(args: { repositoryId: string, attributeKey: string, everyone?: boolean | undefined }): Promise<Attribute> {
         let { repositoryId, attributeKey, everyone } = args;
@@ -347,7 +347,7 @@ export interface IAuditReasonsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of audit reasons.
+     * @returns A collection of audit reasons.
      */
     listAuditReasons(args: { repositoryId: string, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<AuditReasonCollectionResponse>;
 }
@@ -374,7 +374,7 @@ export class AuditReasonsClient implements IAuditReasonsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of audit reasons.
+     * @returns A collection of audit reasons.
      */
     listAuditReasons(args: { repositoryId: string, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<AuditReasonCollectionResponse> {
         let { repositoryId, prefer, select, orderby, top, skip, count } = args;
@@ -480,7 +480,7 @@ export interface IFieldDefinitionsClient {
      * @param args.fieldId The requested field definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return A single field definition.
+     * @returns A single field definition.
      */
     getFieldDefinition(args: { repositoryId: string, fieldId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<FieldDefinition>;
 
@@ -497,7 +497,7 @@ export interface IFieldDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of field definitions.
+     * @returns A collection of field definitions.
      */
     listFieldDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<FieldDefinitionCollectionResponse>;
 }
@@ -569,7 +569,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
    * - Related: {@link IFieldDefinitionsClient.listFieldDefinitions listFieldDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field definitions allowed per API response schema
-   * @return A collection of field definitions.
+   * @returns A collection of field definitions.
    */
   async listFieldDefinitionsNextLink(args: {
     nextLink: string;
@@ -594,7 +594,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
      * @param args.fieldId The requested field definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return A single field definition.
+     * @returns A single field definition.
      */
     getFieldDefinition(args: { repositoryId: string, fieldId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<FieldDefinition> {
         let { repositoryId, fieldId, culture, select } = args;
@@ -689,7 +689,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of field definitions.
+     * @returns A collection of field definitions.
      */
     listFieldDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<FieldDefinitionCollectionResponse> {
         let { repositoryId, prefer, culture, select, orderby, top, skip, count } = args;
@@ -800,7 +800,7 @@ export interface ILinkDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of link definitions.
+     * @returns A collection of link definitions.
      */
     listLinkDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<LinkDefinitionCollectionResponse>;
 
@@ -812,7 +812,7 @@ export interface ILinkDefinitionsClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.linkDefinitionId The requested link definition ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return A single link definition.
+     * @returns A single link definition.
      */
     getLinkDefinition(args: { repositoryId: string, linkDefinitionId: number, select?: string | null | undefined }): Promise<LinkDefinition>;
 }
@@ -880,7 +880,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
    * - Related: {@link ILinkDefinitionsClient.listLinkDefinitions listLinkDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link definitions allowed per API response schema
-   * @return A collection of link definitions.
+   * @returns A collection of link definitions.
    */
   async listLinkDefinitionsNextLink(args: {
     nextLink: string;
@@ -908,7 +908,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of link definitions.
+     * @returns A collection of link definitions.
      */
     listLinkDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<LinkDefinitionCollectionResponse> {
         let { repositoryId, prefer, select, orderby, top, skip, count } = args;
@@ -1010,7 +1010,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.linkDefinitionId The requested link definition ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return A single link definition.
+     * @returns A single link definition.
      */
     getLinkDefinition(args: { repositoryId: string, linkDefinitionId: number, select?: string | null | undefined }): Promise<LinkDefinition> {
         let { repositoryId, linkDefinitionId, select } = args;
@@ -1105,7 +1105,7 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.request The request body.
-     * @return A response containing an upload id and an array of upload URLs.
+     * @returns A response containing an upload id and an array of upload URLs.
      */
     createMultipartUploadUrls(args: { repositoryId: string, request: CreateMultipartUploadUrlsRequest }): Promise<CreateMultipartUploadUrlsResponse>;
 
@@ -1117,7 +1117,7 @@ export interface IEntriesClient {
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.request (optional) The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @return A long operation task id.
+     * @returns A long operation task id.
      */
     startImportUploadedParts(args: { repositoryId: string, entryId: number, request?: StartImportUploadedPartsRequest | undefined, culture?: string | null | undefined }): Promise<StartTaskResponse>;
 
@@ -1129,7 +1129,7 @@ export interface IEntriesClient {
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
      * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when part=Edoc.
-     * @return A long operation task id.
+     * @returns A long operation task id.
      */
     startExportEntry(args: { repositoryId: string, entryId: number, request: StartExportEntryRequest, pageRange?: string | null | undefined }): Promise<StartTaskResponse>;
 
@@ -1143,7 +1143,7 @@ export interface IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @return A long operation task id.
+     * @returns A long operation task id.
      */
     startCopyEntry(args: { repositoryId: string, entryId: number, request: StartCopyEntryRequest, culture?: string | null | undefined }): Promise<StartTaskResponse>;
 
@@ -1155,7 +1155,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request (optional) The submitted audit reason.
-     * @return A long operation task id.
+     * @returns A long operation task id.
      */
     startDeleteEntry(args: { repositoryId: string, entryId: number, request?: StartDeleteEntryRequest | undefined }): Promise<StartTaskResponse>;
 
@@ -1168,7 +1168,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return A single entry.
+     * @returns A single entry.
      */
     getEntry(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<Entry>;
 
@@ -1181,7 +1181,7 @@ export interface IEntriesClient {
      * @param args.entryId The requested entry ID.
      * @param args.request The request containing the folder ID that the entry will be moved to and the new name the entry will be renamed to.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @return The updated entry.
+     * @returns The updated entry.
      */
     updateEntry(args: { repositoryId: string, entryId: number, request: UpdateEntryRequest, culture?: string | null | undefined }): Promise<Entry>;
 
@@ -1194,7 +1194,7 @@ export interface IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) 
      * @param args.request (optional) 
-     * @return The created entry.
+     * @returns The created entry.
      */
     importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined }): Promise<Entry>;
 
@@ -1206,7 +1206,7 @@ export interface IEntriesClient {
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
      * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when exporting as Edoc.
-     * @return A link to download the exported entry.
+     * @returns A link to download the exported entry.
      */
     exportEntry(args: { repositoryId: string, entryId: number, request: ExportEntryRequest, pageRange?: string | null | undefined }): Promise<ExportEntryResponse>;
 
@@ -1217,7 +1217,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.fullPath The requested entry path.
      * @param args.fallbackToClosestAncestor (optional) An optional query parameter used to indicate whether or not the closest ancestor in the path should be returned if the initial entry path is not found. The default value is false.
-     * @return The found entry or ancestor entry.
+     * @returns The found entry or ancestor entry.
      */
     getEntryByPath(args: { repositoryId: string, fullPath: string, fallbackToClosestAncestor?: boolean | undefined }): Promise<GetEntryByPathResponse>;
 
@@ -1241,7 +1241,7 @@ export interface IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of children entries of a folder.
+     * @returns A collection of children entries of a folder.
      */
     listEntries(args: { repositoryId: string, entryId: number, groupByEntryType?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<EntryCollectionResponse>;
 
@@ -1253,7 +1253,7 @@ export interface IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @return The created entry.
+     * @returns The created entry.
      */
     createEntry(args: { repositoryId: string, entryId: number, request: CreateEntryRequest, culture?: string | null | undefined }): Promise<Entry>;
 
@@ -1272,7 +1272,7 @@ export interface IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of fields assigned to the entry.
+     * @returns A collection of fields assigned to the entry.
      */
     listFields(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, formatFieldValues?: boolean | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<FieldCollectionResponse>;
 
@@ -1285,7 +1285,7 @@ export interface IEntriesClient {
      * @param args.entryId The entry ID of the entry that will have its fields updated.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @return A collection of fields assigned to the entry.
+     * @returns A collection of fields assigned to the entry.
      */
     setFields(args: { repositoryId: string, entryId: number, request: SetFieldsRequest, culture?: string | null | undefined }): Promise<FieldCollectionResponse>;
 
@@ -1302,7 +1302,7 @@ export interface IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of tags assigned to the entry.
+     * @returns A collection of tags assigned to the entry.
      */
     listTags(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TagCollectionResponse>;
 
@@ -1314,7 +1314,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The tags to add.
-     * @return A collection of tags assigned to the entry.
+     * @returns A collection of tags assigned to the entry.
      */
     setTags(args: { repositoryId: string, entryId: number, request: SetTagsRequest }): Promise<TagCollectionResponse>;
 
@@ -1326,7 +1326,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The request repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The request body.
-     * @return A collection of links assigned to the entry.
+     * @returns A collection of links assigned to the entry.
      */
     setLinks(args: { repositoryId: string, entryId: number, request: SetLinksRequest }): Promise<LinkCollectionResponse>;
 
@@ -1343,7 +1343,7 @@ export interface IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of links assigned to the entry.
+     * @returns A collection of links assigned to the entry.
      */
     listLinks(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<LinkCollectionResponse>;
 
@@ -1355,7 +1355,7 @@ export interface IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @return The copied entry.
+     * @returns The copied entry.
      */
     copyEntry(args: { repositoryId: string, entryId: number, request: CopyEntryRequest, culture?: string | null | undefined }): Promise<Entry>;
 
@@ -1364,7 +1364,7 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @return The updated entry.
+     * @returns The updated entry.
      */
     deleteElectronicDocument(args: { repositoryId: string, entryId: number }): Promise<Entry>;
 
@@ -1375,7 +1375,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageRange (optional) The pages to be deleted.
-     * @return The updated entry.
+     * @returns The updated entry.
      */
     deletePages(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined }): Promise<Entry>;
 
@@ -1387,7 +1387,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The request body.
-     * @return A collection of dynamic field values.
+     * @returns A collection of dynamic field values.
      */
     listDynamicFieldValues(args: { repositoryId: string, entryId: number, request: ListDynamicFieldValuesRequest }): Promise<{ [key: string]: string[]; }>;
 
@@ -1398,7 +1398,7 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of the entry that will have its template removed.
-     * @return The updated entry.
+     * @returns The updated entry.
      */
     removeTemplate(args: { repositoryId: string, entryId: number }): Promise<Entry>;
 
@@ -1411,7 +1411,7 @@ export interface IEntriesClient {
      * @param args.entryId The ID of entry that will have its template updated.
      * @param args.request The template and template fields that will be assigned to the entry.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @return The updated entry.
+     * @returns The updated entry.
      */
     setTemplate(args: { repositoryId: string, entryId: number, request: SetTemplateRequest, culture?: string | null | undefined }): Promise<Entry>;
 }
@@ -1667,7 +1667,7 @@ export class EntriesClient implements IEntriesClient {
    * - Related: {@link IEntriesClient.listEntries listEntries}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of entry listings allowed per API response schema
-   * @return A collection of children entries of a folder.
+   * @returns A collection of children entries of a folder.
    */
   async listEntriesNextLink(args: {
     nextLink: string;
@@ -1687,7 +1687,7 @@ export class EntriesClient implements IEntriesClient {
    * - Related: {@link IEntriesClient.listFields listFields}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field values allowed per API response schema
-   * @return A collection of fields assigned to the entry.
+   * @returns A collection of fields assigned to the entry.
    */
   async listFieldsNextLink(args: {
     nextLink: string;
@@ -1707,7 +1707,7 @@ export class EntriesClient implements IEntriesClient {
    * - Related: {@link IEntriesClient.listLinks listLinks}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link values from entry allowed per API response schema
-   * @return A collection of links assigned to the entry.
+   * @returns A collection of links assigned to the entry.
    */
   async listLinksNextLink(args: {
     nextLink: string;
@@ -1727,7 +1727,7 @@ export class EntriesClient implements IEntriesClient {
    * - Related: {@link IEntriesClient.listTags listTags}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tags assigned to entry allowed per API response schema
-   * @return A collection of tags assigned to the entry.
+   * @returns A collection of tags assigned to the entry.
    */
   async listTagsNextLink(args: {
     nextLink: string;
@@ -1755,7 +1755,7 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.request The request body.
-     * @return A response containing an upload id and an array of upload URLs.
+     * @returns A response containing an upload id and an array of upload URLs.
      */
     createMultipartUploadUrls(args: { repositoryId: string, request: CreateMultipartUploadUrlsRequest }): Promise<CreateMultipartUploadUrlsResponse> {
         let { repositoryId, request } = args;
@@ -1849,7 +1849,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.request (optional) The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @return A long operation task id.
+     * @returns A long operation task id.
      */
     startImportUploadedParts(args: { repositoryId: string, entryId: number, request?: StartImportUploadedPartsRequest | undefined, culture?: string | null | undefined }): Promise<StartTaskResponse> {
         let { repositoryId, entryId, request, culture } = args;
@@ -1955,7 +1955,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
      * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when part=Edoc.
-     * @return A long operation task id.
+     * @returns A long operation task id.
      */
     startExportEntry(args: { repositoryId: string, entryId: number, request: StartExportEntryRequest, pageRange?: string | null | undefined }): Promise<StartTaskResponse> {
         let { repositoryId, entryId, request, pageRange } = args;
@@ -2063,7 +2063,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @return A long operation task id.
+     * @returns A long operation task id.
      */
     startCopyEntry(args: { repositoryId: string, entryId: number, request: StartCopyEntryRequest, culture?: string | null | undefined }): Promise<StartTaskResponse> {
         let { repositoryId, entryId, request, culture } = args;
@@ -2162,7 +2162,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request (optional) The submitted audit reason.
-     * @return A long operation task id.
+     * @returns A long operation task id.
      */
     startDeleteEntry(args: { repositoryId: string, entryId: number, request?: StartDeleteEntryRequest | undefined }): Promise<StartTaskResponse> {
         let { repositoryId, entryId, request } = args;
@@ -2260,7 +2260,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return A single entry.
+     * @returns A single entry.
      */
     getEntry(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, select } = args;
@@ -2349,7 +2349,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The requested entry ID.
      * @param args.request The request containing the folder ID that the entry will be moved to and the new name the entry will be renamed to.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @return The updated entry.
+     * @returns The updated entry.
      */
     updateEntry(args: { repositoryId: string, entryId: number, request: UpdateEntryRequest, culture?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, request, culture } = args;
@@ -2463,7 +2463,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) 
      * @param args.request (optional) 
-     * @return The created entry.
+     * @returns The created entry.
      */
     importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined }): Promise<Entry> {
         let { repositoryId, entryId, culture, file, request } = args;
@@ -2576,7 +2576,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
      * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when exporting as Edoc.
-     * @return A link to download the exported entry.
+     * @returns A link to download the exported entry.
      */
     exportEntry(args: { repositoryId: string, entryId: number, request: ExportEntryRequest, pageRange?: string | null | undefined }): Promise<ExportEntryResponse> {
         let { repositoryId, entryId, request, pageRange } = args;
@@ -2688,7 +2688,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.fullPath The requested entry path.
      * @param args.fallbackToClosestAncestor (optional) An optional query parameter used to indicate whether or not the closest ancestor in the path should be returned if the initial entry path is not found. The default value is false.
-     * @return The found entry or ancestor entry.
+     * @returns The found entry or ancestor entry.
      */
     getEntryByPath(args: { repositoryId: string, fullPath: string, fallbackToClosestAncestor?: boolean | undefined }): Promise<GetEntryByPathResponse> {
         let { repositoryId, fullPath, fallbackToClosestAncestor } = args;
@@ -2791,7 +2791,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of children entries of a folder.
+     * @returns A collection of children entries of a folder.
      */
     listEntries(args: { repositoryId: string, entryId: number, groupByEntryType?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<EntryCollectionResponse> {
         let { repositoryId, entryId, groupByEntryType, fields, formatFieldValues, prefer, culture, select, orderby, top, skip, count } = args;
@@ -2908,7 +2908,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @return The created entry.
+     * @returns The created entry.
      */
     createEntry(args: { repositoryId: string, entryId: number, request: CreateEntryRequest, culture?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, request, culture } = args;
@@ -3021,7 +3021,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of fields assigned to the entry.
+     * @returns A collection of fields assigned to the entry.
      */
     listFields(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, formatFieldValues?: boolean | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<FieldCollectionResponse> {
         let { repositoryId, entryId, prefer, formatFieldValues, culture, select, orderby, top, skip, count } = args;
@@ -3133,7 +3133,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The entry ID of the entry that will have its fields updated.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @return A collection of fields assigned to the entry.
+     * @returns A collection of fields assigned to the entry.
      */
     setFields(args: { repositoryId: string, entryId: number, request: SetFieldsRequest, culture?: string | null | undefined }): Promise<FieldCollectionResponse> {
         let { repositoryId, entryId, request, culture } = args;
@@ -3244,7 +3244,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of tags assigned to the entry.
+     * @returns A collection of tags assigned to the entry.
      */
     listTags(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TagCollectionResponse> {
         let { repositoryId, entryId, prefer, select, orderby, top, skip, count } = args;
@@ -3349,7 +3349,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The tags to add.
-     * @return A collection of tags assigned to the entry.
+     * @returns A collection of tags assigned to the entry.
      */
     setTags(args: { repositoryId: string, entryId: number, request: SetTagsRequest }): Promise<TagCollectionResponse> {
         let { repositoryId, entryId, request } = args;
@@ -3453,7 +3453,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The request repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The request body.
-     * @return A collection of links assigned to the entry.
+     * @returns A collection of links assigned to the entry.
      */
     setLinks(args: { repositoryId: string, entryId: number, request: SetLinksRequest }): Promise<LinkCollectionResponse> {
         let { repositoryId, entryId, request } = args;
@@ -3562,7 +3562,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of links assigned to the entry.
+     * @returns A collection of links assigned to the entry.
      */
     listLinks(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<LinkCollectionResponse> {
         let { repositoryId, entryId, prefer, select, orderby, top, skip, count } = args;
@@ -3667,7 +3667,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @return The copied entry.
+     * @returns The copied entry.
      */
     copyEntry(args: { repositoryId: string, entryId: number, request: CopyEntryRequest, culture?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, request, culture } = args;
@@ -3770,7 +3770,7 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @return The updated entry.
+     * @returns The updated entry.
      */
     deleteElectronicDocument(args: { repositoryId: string, entryId: number }): Promise<Entry> {
         let { repositoryId, entryId } = args;
@@ -3862,7 +3862,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageRange (optional) The pages to be deleted.
-     * @return The updated entry.
+     * @returns The updated entry.
      */
     deletePages(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, pageRange } = args;
@@ -3957,7 +3957,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The request body.
-     * @return A collection of dynamic field values.
+     * @returns A collection of dynamic field values.
      */
     listDynamicFieldValues(args: { repositoryId: string, entryId: number, request: ListDynamicFieldValuesRequest }): Promise<{ [key: string]: string[]; }> {
         let { repositoryId, entryId, request } = args;
@@ -4062,7 +4062,7 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of the entry that will have its template removed.
-     * @return The updated entry.
+     * @returns The updated entry.
      */
     removeTemplate(args: { repositoryId: string, entryId: number }): Promise<Entry> {
         let { repositoryId, entryId } = args;
@@ -4156,7 +4156,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The ID of entry that will have its template updated.
      * @param args.request The template and template fields that will be assigned to the entry.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @return The updated entry.
+     * @returns The updated entry.
      */
     setTemplate(args: { repositoryId: string, entryId: number, request: SetTemplateRequest, culture?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, request, culture } = args;
@@ -4260,7 +4260,7 @@ export interface IRepositoriesClient {
     /**
      * - Returns the repository resource list that current user has access to.
     - Required OAuth scope: repository.Read
-     * @return A collection of respositories.
+     * @returns A collection of respositories.
      */
     listRepositories(args: {  }): Promise<RepositoryCollectionResponse>;
 }
@@ -4294,7 +4294,7 @@ export class RepositoriesClient implements IRepositoriesClient {
     /**
      * - Returns the repository resource list that current user has access to.
     - Required OAuth scope: repository.Read
-     * @return A collection of respositories.
+     * @returns A collection of respositories.
      */
     listRepositories(args: {  }): Promise<RepositoryCollectionResponse> {
         let {  } = args;
@@ -4369,7 +4369,7 @@ export interface ISearchesClient {
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.request The Laserfiche search command to run, optionally include fuzzy search settings.
-     * @return A long operation task id.
+     * @returns A long operation task id.
      */
     startSearchEntry(args: { repositoryId: string, request: StartSearchEntryRequest }): Promise<StartTaskResponse>;
 
@@ -4394,7 +4394,7 @@ export interface ISearchesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of entry search results.
+     * @returns A collection of entry search results.
      */
     listSearchResults(args: { repositoryId: string, taskId: string, groupByEntryType?: boolean | undefined, refresh?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<EntryCollectionResponse>;
 
@@ -4412,7 +4412,7 @@ export interface ISearchesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of context hits for a search result.
+     * @returns A collection of context hits for a search result.
      */
     listSearchContextHits(args: { repositoryId: string, taskId: string, rowNumber: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<SearchContextHitCollectionResponse>;
 }
@@ -4567,7 +4567,7 @@ export class SearchesClient implements ISearchesClient {
    * - Related: {@link ISearchesClient.listSearchResults listSearchResults}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search results allowed per API response schema
-   * @return A collection of entry search results.
+   * @returns A collection of entry search results.
    */
   async listSearchResultsNextLink(args: {
     nextLink: string;
@@ -4587,7 +4587,7 @@ export class SearchesClient implements ISearchesClient {
    * - Related: {@link ISearchesClient.listSearchContextHits listSearchContextHits}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search context hits allowed per API response schema
-   * @return A collection of context hits for a search result.
+   * @returns A collection of context hits for a search result.
    */
   async listSearchContextHitsNextLink(args: {
     nextLink: string;
@@ -4610,7 +4610,7 @@ export class SearchesClient implements ISearchesClient {
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.request The Laserfiche search command to run, optionally include fuzzy search settings.
-     * @return A long operation task id.
+     * @returns A long operation task id.
      */
     startSearchEntry(args: { repositoryId: string, request: StartSearchEntryRequest }): Promise<StartTaskResponse> {
         let { repositoryId, request } = args;
@@ -4717,7 +4717,7 @@ export class SearchesClient implements ISearchesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of entry search results.
+     * @returns A collection of entry search results.
      */
     listSearchResults(args: { repositoryId: string, taskId: string, groupByEntryType?: boolean | undefined, refresh?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<EntryCollectionResponse> {
         let { repositoryId, taskId, groupByEntryType, refresh, fields, formatFieldValues, prefer, culture, select, orderby, top, skip, count } = args;
@@ -4844,7 +4844,7 @@ export class SearchesClient implements ISearchesClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of context hits for a search result.
+     * @returns A collection of context hits for a search result.
      */
     listSearchContextHits(args: { repositoryId: string, taskId: string, rowNumber: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<SearchContextHitCollectionResponse> {
         let { repositoryId, taskId, rowNumber, prefer, select, orderby, top, skip, count } = args;
@@ -4961,7 +4961,7 @@ export interface ISimpleSearchesClient {
      * @param args.fields (optional) Optional array of field names. Field values corresponding to the given field names will be returned for each search result.
      * @param args.formatFieldValues (optional) Indicates if field values should be formatted. Only applicable if Fields are specified. The default value is false.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag. The formatFieldValues query parameter must be set to true, otherwise culture will not be used for formatting.
-     * @return A collection of entry search results.
+     * @returns A collection of entry search results.
      */
     searchEntry(args: { repositoryId: string, request: SearchEntryRequest, select?: string | undefined, orderby?: string | undefined, count?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, culture?: string | null | undefined }): Promise<EntryCollectionResponse>;
 }
@@ -4990,7 +4990,7 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
      * @param args.fields (optional) Optional array of field names. Field values corresponding to the given field names will be returned for each search result.
      * @param args.formatFieldValues (optional) Indicates if field values should be formatted. Only applicable if Fields are specified. The default value is false.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag. The formatFieldValues query parameter must be set to true, otherwise culture will not be used for formatting.
-     * @return A collection of entry search results.
+     * @returns A collection of entry search results.
      */
     searchEntry(args: { repositoryId: string, request: SearchEntryRequest, select?: string | undefined, orderby?: string | undefined, count?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, culture?: string | null | undefined }): Promise<EntryCollectionResponse> {
         let { repositoryId, request, select, orderby, count, fields, formatFieldValues, culture } = args;
@@ -5119,7 +5119,7 @@ export interface ITagDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of tag definitions.
+     * @returns A collection of tag definitions.
      */
     listTagDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TagDefinitionCollectionResponse>;
 
@@ -5132,7 +5132,7 @@ export interface ITagDefinitionsClient {
      * @param args.tagId The requested tag definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return A single tag definition.
+     * @returns A single tag definition.
      */
     getTagDefinition(args: { repositoryId: string, tagId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<TagDefinition>;
 }
@@ -5204,7 +5204,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
    * - Related: {@link ITagDefinitionsClient.listTagDefinitions listTagDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tag definitions allowed per API response schema
-   * @return A collection of tag definitions.
+   * @returns A collection of tag definitions.
    */
   async listTagDefinitionsNextLink(args: {
     nextLink: string;
@@ -5233,7 +5233,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of tag definitions.
+     * @returns A collection of tag definitions.
      */
     listTagDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TagDefinitionCollectionResponse> {
         let { repositoryId, prefer, culture, select, orderby, top, skip, count } = args;
@@ -5338,7 +5338,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
      * @param args.tagId The requested tag definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return A single tag definition.
+     * @returns A single tag definition.
      */
     getTagDefinition(args: { repositoryId: string, tagId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<TagDefinition> {
         let { repositoryId, tagId, culture, select } = args;
@@ -5432,7 +5432,7 @@ export interface ITasksClient {
     - Required OAuth scope: None
      * @param args.repositoryId The requested repository ID
      * @param args.taskIds (optional) An array of task IDs. Leave this parameter empty to get the list of all the tasks associated with the current access token.
-     * @return A collection of task progresses.
+     * @returns A collection of task progresses.
      */
     listTasks(args: { repositoryId: string, taskIds?: string[] | null | undefined }): Promise<TaskCollectionResponse>;
 
@@ -5445,7 +5445,7 @@ export interface ITasksClient {
     - Required OAuth scope: None
      * @param args.repositoryId The requested repository ID
      * @param args.taskIds (optional) An array of task IDs. Leave this parameter empty to cancel the list of all the tasks associated with the current access token.
-     * @return A collection of task cancellation results.
+     * @returns A collection of task cancellation results.
      */
     cancelTasks(args: { repositoryId: string, taskIds?: string[] | null | undefined }): Promise<CancelTasksResponse>;
 }
@@ -5469,7 +5469,7 @@ export class TasksClient implements ITasksClient {
     - Required OAuth scope: None
      * @param args.repositoryId The requested repository ID
      * @param args.taskIds (optional) An array of task IDs. Leave this parameter empty to get the list of all the tasks associated with the current access token.
-     * @return A collection of task progresses.
+     * @returns A collection of task progresses.
      */
     listTasks(args: { repositoryId: string, taskIds?: string[] | null | undefined }): Promise<TaskCollectionResponse> {
         let { repositoryId, taskIds } = args;
@@ -5555,7 +5555,7 @@ export class TasksClient implements ITasksClient {
     - Required OAuth scope: None
      * @param args.repositoryId The requested repository ID
      * @param args.taskIds (optional) An array of task IDs. Leave this parameter empty to cancel the list of all the tasks associated with the current access token.
-     * @return A collection of task cancellation results.
+     * @returns A collection of task cancellation results.
      */
     cancelTasks(args: { repositoryId: string, taskIds?: string[] | null | undefined }): Promise<CancelTasksResponse> {
         let { repositoryId, taskIds } = args;
@@ -5649,7 +5649,7 @@ export interface ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of template definitions.
+     * @returns A collection of template definitions.
      */
     listTemplateDefinitions(args: { repositoryId: string, templateName?: string | null | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateDefinitionCollectionResponse>;
 
@@ -5662,7 +5662,7 @@ export interface ITemplateDefinitionsClient {
      * @param args.templateId The requested template definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return A single template definition.
+     * @returns A single template definition.
      */
     getTemplateDefinition(args: { repositoryId: string, templateId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<TemplateDefinition>;
 
@@ -5680,7 +5680,7 @@ export interface ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of template field definitions.
+     * @returns A collection of template field definitions.
      */
     listTemplateFieldDefinitionsByTemplateId(args: { repositoryId: string, templateId: number, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateFieldDefinitionCollectionResponse>;
 
@@ -5698,7 +5698,7 @@ export interface ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of template field definitions.
+     * @returns A collection of template field definitions.
      */
     listTemplateFieldDefinitionsByTemplateName(args: { repositoryId: string, templateName: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateFieldDefinitionCollectionResponse>;
 }
@@ -5881,7 +5881,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
    * - Related: {@link ITemplateDefinitionsClient.listTemplateDefinitions listTemplateDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template definitions allowed per API response schema
-   * @return A collection of template definitions.
+   * @returns A collection of template definitions.
    */
   async listTemplateDefinitionsNextLink(args: {
     nextLink: string;
@@ -5901,7 +5901,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
    * - Related: {@link ITemplateDefinitionsClient.listTemplateFieldDefinitionsByTemplateId listTemplateFieldDefinitionsByTemplateId}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions allowed per API response schema
-   * @return A collection of template field definitions.
+   * @returns A collection of template field definitions.
    */
   async listTemplateFieldDefinitionsByTemplateIdNextLink(args: {
     nextLink: string;
@@ -5921,7 +5921,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
    * - Related: {@link ITemplateDefinitionsClient.listTemplateFieldDefinitionsByTemplateName listTemplateFieldDefinitionsByTemplateName}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions by template name allowed per API response schema
-   * @return A collection of template field definitions.
+   * @returns A collection of template field definitions.
    */
   async listTemplateFieldDefinitionsByTemplateNameNextLink(args: {
     nextLink: string;
@@ -5951,7 +5951,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of template definitions.
+     * @returns A collection of template definitions.
      */
     listTemplateDefinitions(args: { repositoryId: string, templateName?: string | null | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateDefinitionCollectionResponse> {
         let { repositoryId, templateName, prefer, culture, select, orderby, top, skip, count } = args;
@@ -6058,7 +6058,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.templateId The requested template definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @return A single template definition.
+     * @returns A single template definition.
      */
     getTemplateDefinition(args: { repositoryId: string, templateId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<TemplateDefinition> {
         let { repositoryId, templateId, culture, select } = args;
@@ -6154,7 +6154,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of template field definitions.
+     * @returns A collection of template field definitions.
      */
     listTemplateFieldDefinitionsByTemplateId(args: { repositoryId: string, templateId: number, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateFieldDefinitionCollectionResponse> {
         let { repositoryId, templateId, prefer, culture, select, orderby, top, skip, count } = args;
@@ -6267,7 +6267,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.top (optional) Limits the number of items returned from a collection.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @return A collection of template field definitions.
+     * @returns A collection of template field definitions.
      */
     listTemplateFieldDefinitionsByTemplateName(args: { repositoryId: string, templateName: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateFieldDefinitionCollectionResponse> {
         let { repositoryId, templateName, prefer, culture, select, orderby, top, skip, count } = args;
@@ -12138,8 +12138,8 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client.
-   * @param httpRequestHandler The http request handler for the Laserfiche repository client.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param httpRequestHandler - The http request handler for the Laserfiche repository client.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromHttpRequestHandler(
     httpRequestHandler: HttpRequestHandler,
@@ -12152,8 +12152,8 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client.
-   * @param getAccessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param getAccessTokenFunc - A function that will be used to retrieve the current Laserfiche API access token.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromGetAccessTokenFunc(
     getAccessTokenFunc: () => Promise<GetAccessTokenResponse>,
@@ -12165,10 +12165,10 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client that will use Laserfiche Cloud OAuth client credentials to get access tokens.
-   * @param servicePrincipalKey The service principal key created for the service principal from the Laserfiche Account Administration.
-   * @param accessKey The access key exported from the Laserfiche Developer Console.
-   * @param scope (optional) The requested space-delimited scopes for the access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param servicePrincipalKey - The service principal key created for the service principal from the Laserfiche Account Administration.
+   * @param accessKey - The access key exported from the Laserfiche Developer Console.
+   * @param scope - (optional) The requested space-delimited scopes for the access token.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromAccessKey(
     servicePrincipalKey: string,
@@ -12182,10 +12182,10 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   /**
    * Create a Laserfiche repository client that will use username and password to get access tokens for Laserfiche API. Password credentials grant type is implemented by the Laserfiche Self-Hosted API server. Not available in cloud.
-   * @param repositoryId The repository ID
-   * @param username The username
-   * @param password The password
-   * @param baseUrl API server base URL e.g., https://{APIServerName}/LFRepositoryAPI
+   * @param repositoryId - The repository ID
+   * @param username - The username
+   * @param password - The password
+   * @param baseUrl - API server base URL e.g., https://{APIServerName}/LFRepositoryAPI
    */
   public static createFromUsernamePassword(
     repositoryId: string,
@@ -12320,7 +12320,7 @@ export interface IAttributesClient {
    * - Related: {@link IAttributesClient.listAttributes listAttributes}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of attribute keys allowed per API response schema
-   * @return A collection of attributes associated with the authenticated user.
+   * @returns A collection of attributes associated with the authenticated user.
    */
   listAttributesNextLink(args: {
     nextLink: string;
@@ -12455,7 +12455,7 @@ export interface IEntriesClient {
    * - Related: {@link IEntriesClient.listEntries listEntries}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of entry listings allowed per API response schema
-   * @return A collection of children entries of a folder.
+   * @returns A collection of children entries of a folder.
    */
   listEntriesNextLink(args: {
     nextLink: string;
@@ -12466,7 +12466,7 @@ export interface IEntriesClient {
    * - Related: {@link IEntriesClient.listFields listFields}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field values allowed per API response schema
-   * @return A collection of fields assigned to the entry.
+   * @returns A collection of fields assigned to the entry.
    */
   listFieldsNextLink(args: {
     nextLink: string;
@@ -12477,7 +12477,7 @@ export interface IEntriesClient {
    * - Related: {@link IEntriesClient.listLinks listLinks}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link values from entry allowed per API response schema
-   * @return A collection of links assigned to the entry.
+   * @returns A collection of links assigned to the entry.
    */
   listLinksNextLink(args: {
     nextLink: string;
@@ -12488,7 +12488,7 @@ export interface IEntriesClient {
    * - Related: {@link IEntriesClient.listTags listTags}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tags assigned to entry allowed per API response schema
-   * @return A collection of tags assigned to the entry.
+   * @returns A collection of tags assigned to the entry.
    */
   listTagsNextLink(args: {
     nextLink: string;
@@ -12530,7 +12530,7 @@ export interface IFieldDefinitionsClient {
    * - Related: {@link IFieldDefinitionsClient.listFieldDefinitions listFieldDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of field definitions allowed per API response schema
-   * @return A collection of field definitions.
+   * @returns A collection of field definitions.
    */
   listFieldDefinitionsNextLink(args: {
     nextLink: string;
@@ -12610,7 +12610,7 @@ export interface ISearchesClient {
    * - Related: {@link ISearchesClient.listSearchResults listSearchResults}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search results allowed per API response schema
-   * @return A collection of entry search results.
+   * @returns A collection of entry search results.
    */
   listSearchResultsNextLink(args: {
     nextLink: string;
@@ -12621,7 +12621,7 @@ export interface ISearchesClient {
    * - Related: {@link ISearchesClient.listSearchContextHits listSearchContextHits}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of search context hits allowed per API response schema
-   * @return A collection of context hits for a search result.
+   * @returns A collection of context hits for a search result.
    */
   listSearchContextHitsNextLink(args: {
     nextLink: string;
@@ -12663,7 +12663,7 @@ export interface ITagDefinitionsClient {
    * - Related: {@link ITagDefinitionsClient.listTagDefinitions listTagDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of tag definitions allowed per API response schema
-   * @return A collection of tag definitions.
+   * @returns A collection of tag definitions.
    */
   listTagDefinitionsNextLink(args: {
     nextLink: string;
@@ -12767,7 +12767,7 @@ export interface ITemplateDefinitionsClient {
    * - Related: {@link ITemplateDefinitionsClient.listTemplateDefinitions listTemplateDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template definitions allowed per API response schema
-   * @return A collection of template definitions.
+   * @returns A collection of template definitions.
    */
   listTemplateDefinitionsNextLink(args: {
     nextLink: string;
@@ -12778,7 +12778,7 @@ export interface ITemplateDefinitionsClient {
    * - Related: {@link ITemplateDefinitionsClient.listTemplateFieldDefinitionsByTemplateId listTemplateFieldDefinitionsByTemplateId}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions allowed per API response schema
-   * @return A collection of template field definitions.
+   * @returns A collection of template field definitions.
    */
   listTemplateFieldDefinitionsByTemplateIdNextLink(args: {
     nextLink: string;
@@ -12789,7 +12789,7 @@ export interface ITemplateDefinitionsClient {
    * - Related: {@link ITemplateDefinitionsClient.listTemplateFieldDefinitionsByTemplateName listTemplateFieldDefinitionsByTemplateName}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of template field definitions by template name allowed per API response schema
-   * @return A collection of template field definitions.
+   * @returns A collection of template field definitions.
    */
   listTemplateFieldDefinitionsByTemplateNameNextLink(args: {
     nextLink: string;
@@ -12828,7 +12828,7 @@ export interface ILinkDefinitionsClient {
    * - Related: {@link ILinkDefinitionsClient.listLinkDefinitions listLinkDefinitions}
    * @param args.nextLink a url that allows retrieving the next subset of the requested collection
    * @param args.maxPageSize (optional) the maximum page size or number of link definitions allowed per API response schema
-   * @return A collection of link definitions.
+   * @returns A collection of link definitions.
    */
   listLinkDefinitionsNextLink(args: {
     nextLink: string;
