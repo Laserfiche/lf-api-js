@@ -42,7 +42,7 @@ interface jwtPayload {
 
 /**
  * Creates an AccessKey given a base-64 encoded access key.
- * @param base64EncodedAccessKey The base-64 encoded access key exported from the Laserfiche Developer Console.
+ * @param base64EncodedAccessKey - The base-64 encoded access key exported from the Laserfiche Developer Console.
  */
 export function createFromBase64EncodedAccessKey(base64EncodedAccessKey: string): AccessKey {
   const accessKeyStr: string = StringUtils.base64toString(base64EncodedAccessKey);
@@ -55,10 +55,10 @@ export function createFromBase64EncodedAccessKey(base64EncodedAccessKey: string)
 
 /**
  * Create OAuth 2.0 client_credentials Authorization JWT that can be used with Laserfiche Cloud Token endpoint to request an Access Token.
- * @param servicePrincipalKey The service principal key created for the service principal from the Laserfiche Account Administration.
- * @param accessKey AccessKey JSON object or base-64 encoded AccessKey exported from the Laserfiche Developer Console.
- * @param expireInSeconds The expiration time in seconds for the authorization JWT with a default value of 3600 seconds. Set it to 0 if the JWT never expires.
- * @param scope (optional) The requested scopes. Applies only when the generated key is used as a HTTP Basic Authorization password. Scopes are case-sensitive and space-delimited. (Ex/ 'repository.Read repository.Write')
+ * @param servicePrincipalKey - The service principal key created for the service principal from the Laserfiche Account Administration.
+ * @param accessKey - AccessKey JSON object or base-64 encoded AccessKey exported from the Laserfiche Developer Console.
+ * @param expireInSeconds - The expiration time in seconds for the authorization JWT with a default value of 3600 seconds. Set it to 0 if the JWT never expires.
+ * @param scope - (optional) The requested scopes. Applies only when the generated key is used as a HTTP Basic Authorization password. Scopes are case-sensitive and space-delimited. (Ex/ 'repository.Read repository.Write')
  * @returns Authorization JWT.
  */
 export function createClientCredentialsAuthorizationJwt(
