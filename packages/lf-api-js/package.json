@@ -30,8 +30,10 @@
     "postpublish": "git tag lf-api-js-v$npm_package_version && git push --tags"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.47.11",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/jest": "^28.1.8",
     "@types/node": "^20.16.6",
@@ -46,7 +48,6 @@
     "@laserfiche/lf-api-client-core": "workspace:^",
     "@laserfiche/lf-js-utils": "^4.0.8",
     "@laserfiche/lf-repository-api-client": "workspace:^",
-    "@laserfiche/lf-repository-api-client-v2": "workspace:^",
-    "@microsoft/api-extractor": "^7.47.11"
+    "@laserfiche/lf-repository-api-client-v2": "workspace:^"
   }
 }
