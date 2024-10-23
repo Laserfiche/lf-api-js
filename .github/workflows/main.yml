@@ -85,8 +85,17 @@ jobs:
           # A file, directory or wildcard pattern that describes what to upload
           path: |
             ./packages/lf-api-js/dist
+            ./packages/lf-api-js/cdn
             ./packages/lf-api-js/package.json
             ./packages/lf-api-js/README.md
+
+      - name: Upload build artifact pnpm-api-js-types-publish-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-api-js-types-publish-artifact
+          # A file, directory or wildcard pattern that describes what to upload
+          path: |
+            ./packages/lf-api-js/types
 
   test_libraries:
     runs-on: ubuntu-latest
@@ -291,6 +300,12 @@ jobs:
           name: pnpm-api-js-publish-artifact
           path: ./packages/lf-api-js
 
+      - name: Download build artifact pnpm-api-js-types-publish-artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-api-js-types-publish-artifact
+          path: ./packages/lf-api-js/types-npm-publish
+
       - name: Setup Node.js v20 environment
         uses: actions/setup-node@v4
         with:
@@ -338,6 +353,10 @@ jobs:
       - name: pnpm version NpmAPIClientPreviewPackageVersion
         working-directory: ./packages/lf-api-js
         run: pnpm version ${{ env.NpmAPIClientPreviewPackageVersion }} --no-git-tag-version
+        
+      - name: pnpm version NpmAPIClientPreviewPackageVersion for types
+        working-directory: ./packages/lf-api-js/types-npm-publish
+        run: pnpm version ${{ env.NpmAPIClientPreviewPackageVersion }} --no-git-tag-version
 
       - name: PNPM install
         run: pnpm install --no-frozen-lockfile
@@ -349,6 +368,10 @@ jobs:
 
       - name: pnpm publish all preview packages
         run: pnpm publish --recursive --access public --tag next --no-git-checks --force
+
+      - name: pnpm publish @laserfiche/types-lf-api-js
+        working-directory: ./packages/lf-api-js/types-npm-publish
+        run: pnpm publish --access public --tag next
 
   publish-updated-production-packages:
     runs-on: ubuntu-latest
@@ -382,6 +405,12 @@ jobs:
           name: pnpm-api-js-publish-artifact
           path: ./packages/lf-api-js
 
+      - name: Download build artifact pnpm-api-js-types-publish-artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-api-js-types-publish-artifact
+          path: ./packages/lf-api-js/types-npm-publish
+
       - name: Setup Node.js v20 environment
         uses: actions/setup-node@v4
         with:
@@ -406,6 +435,10 @@ jobs:
         working-directory: ./packages/lf-api-js
         run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version --allow-same-version
 
+      - name: pnpm version types-lf-api-js
+        working-directory: ./packages/lf-api-js/types-npm-publish
+        run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version --allow-same-version
+
       - name: PNPM install
         run: pnpm install
 
@@ -416,6 +449,10 @@ jobs:
 
       - name: pnpm publish all packages that version changed
         run: pnpm publish --recursive --access public  --tag latest --no-git-checks
+
+      - name: pnpm publish @laserfiche/types-lf-api-js
+        working-directory: ./packages/lf-api-js/types-npm-publish
+        run: pnpm publish --access public --tag latest
 
   publish_documentation:
     runs-on: ubuntu-latest

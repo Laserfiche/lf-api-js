@@ -45,8 +45,8 @@ export class LfApiClient implements ILfApiClient {
 
   /**
    * Create a Laserfiche API client.
-   * @param httpRequestHandler The http request handler for the Laserfiche API client.
-   * @param baseUrlDebug (optional) override for the Laserfiche repository API base url.
+   * @param httpRequestHandler - The http request handler for the Laserfiche API client.
+   * @param baseUrlDebug - (optional) override for the Laserfiche repository API base url.
    */
   public static createFromHttpRequestHandler(
     httpRequestHandler: HttpRequestHandler,
@@ -57,8 +57,8 @@ export class LfApiClient implements ILfApiClient {
   }
   /**
    * Create a Laserfiche API client.
-   * @param getAccessTokenFunc A function that will be used to retrieve the current Laserfiche API access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche API base url.
+   * @param getAccessTokenFunc - A function that will be used to retrieve the current Laserfiche API access token.
+   * @param baseUrlDebug - (optional) override for the Laserfiche API base url.
    */
   public static createFromGetAccessTokenFunc(
     getAccessTokenFunc: () => Promise<GetAccessTokenResponse>,
@@ -72,10 +72,10 @@ export class LfApiClient implements ILfApiClient {
 
   /**
    * Create a Laserfiche API client that will use Laserfiche Cloud OAuth client credentials to get access tokens.
-   * @param servicePrincipalKey The service principal key created for the service principal from the Laserfiche Account Administration.
-   * @param accessKey The access key exported from the Laserfiche Developer Console.
-   * @param scope (optional) The requested space-delimited scopes for the access token.
-   * @param baseUrlDebug (optional) override for the Laserfiche API base url.
+   * @param servicePrincipalKey - The service principal key created for the service principal from the Laserfiche Account Administration.
+   * @param accessKey - The access key exported from the Laserfiche Developer Console.
+   * @param scope - (optional) The requested space-delimited scopes for the access token.
+   * @param baseUrlDebug - (optional) override for the Laserfiche API base url.
    */
   public static createFromAccessKey(
     servicePrincipalKey: string,
