@@ -1,6 +1,10 @@
 <!--Copyright (c) Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
+## 4.0.9
+### Chore & Maintenance
+- Move code to new `lf-api-js` repository
+
 ## 4.0.8
 ### Features
 - `LfMetadataValidationUtils`: add `isNullOrEmpty` to test if an string is consisted of white-space character
