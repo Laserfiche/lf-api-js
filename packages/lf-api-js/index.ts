@@ -2,10 +2,11 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 import * as LfApiClientCore from '@laserfiche/lf-api-client-core';
+import * as LfJsUtils from '@laserfiche/lf-js-utils';
 import * as LfRepositoryClientV1 from '@laserfiche/lf-repository-api-client';
 import * as LfRepositoryClientV2 from '@laserfiche/lf-repository-api-client-v2';
 
-export { LfRepositoryClientV1, LfRepositoryClientV2, LfApiClientCore };
+export { LfRepositoryClientV1, LfRepositoryClientV2, LfApiClientCore, LfJsUtils };
 
 export interface ILfApiClient {
   repositoryApiClientV1: LfRepositoryClientV1.IRepositoryApiClient;
