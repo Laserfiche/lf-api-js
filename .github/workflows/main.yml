@@ -16,6 +16,7 @@ env:
   NPM_API_CLIENT_V1_VERSION: '1.1.6'
   NPM_API_CLIENT_V2_VERSION: '1.0.5'
   NPM_CLIENT_CORE_VERSION: '1.1.14'
+  NPM_JS_UTILS_VERSION: '4.0.8'
   NPM_API_JS_CLIENT_VERSION: '1.0.0'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -47,6 +48,16 @@ jobs:
 
       - name: PNPM run build
         run: pnpm run build
+
+      - name: Upload Build Artifact pnpm-js-utils-publish-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-js-utils-publish-artifact
+          # A file, directory or wildcard pattern that describes what to upload
+          path: |
+            ./packages/lf-js-utils/dist
+            ./packages/lf-js-utils/package.json
+            ./packages/lf-js-utils/README.md
 
       - name: Upload Build Artifact pnpm-client-core-publish-artifact
         uses: actions/upload-artifact@v4
@@ -119,6 +130,20 @@ jobs:
 
       - name: PNPM run build
         run: pnpm run build
+
+      - name: pnpm test lf-js-utils
+        run: pnpm --filter @laserfiche/lf-js-utils run test:ci
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure() # run this step even if previous step failed
+        with:
+          name: JS Utils Jest Test Results
+          path: ./packages/lf-js-utils/*.xml
+          reporter: jest-junit
+          only-summary: 'false'
+          list-tests: 'failed'
+          fail-on-error: 'false'
 
       - name: pnpm test lf-api-client-core on cloud
         id: test-cloud
@@ -239,6 +264,16 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
 
+      - name: PNPM install
+        run: pnpm install
+
+      - name: PNPM run build
+        run: pnpm run build
+
+      - name: pnpm version
+        working-directory: ./packages/lf-js-utils
+        run: pnpm version ${{ env.NPM_JS_UTILS_VERSION }} --no-git-tag-version  --allow-same-version
+
       - name: pnpm version
         working-directory: ./packages/lf-api-client-core-js
         run: pnpm version ${{ env.NPM_CLIENT_CORE_VERSION }} --no-git-tag-version  --allow-same-version
@@ -254,9 +289,6 @@ jobs:
       - name: pnpm version
         working-directory: ./packages/lf-api-js
         run: pnpm version ${{ env.NPM_API_JS_CLIENT_VERSION }} --no-git-tag-version  --allow-same-version
-
-      - name: PNPM install
-        run: pnpm install
 
       - name: Generate typedoc docs
         run: pnpm run generate-docs
@@ -314,6 +346,10 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm -g
         
+      - name: Replace workspace^ with workspace* in lf-api-client-core-js
+        working-directory: ./packages/lf-api-client-core-js
+        run: sed -i 's/workspace:^/workspace:*/g' package.json
+
       - name: Replace workspace^ with workspace* in lf-repository-api-client-v1
         working-directory: ./packages/lf-repository-api-client-v1
         run: sed -i 's/workspace:^/workspace:*/g' package.json
@@ -325,6 +361,13 @@ jobs:
       - name: Replace workspace^ with workspace* in lf-api-js
         working-directory: ./packages/lf-api-js
         run: sed -i 's/workspace:^/workspace:*/g' package.json
+
+      - name: set  as preview version from downloaded artifact
+        run: echo "NpmJsUtilsPreviewPackageVersion=${{ env.NPM_JS_UTILS_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: pnpm version NpmJsUtilsPreviewPackageVersion
+        working-directory: ./packages/lf-js-utils
+        run: pnpm version ${{ env.NpmJsUtilsPreviewPackageVersion }} --no-git-tag-version
 
       - name: set  as preview version from downloaded artifact
         run: echo "NpmClientCorePreviewPackageVersion=${{ env.NPM_CLIENT_CORE_VERSION }}--preview-${{ github.run_id }}" >> $GITHUB_ENV
@@ -387,6 +430,12 @@ jobs:
           name: pnpm-client-core-publish-artifact
           path: ./packages/lf-api-client-core-js
 
+      - name: Download Build Artifact pnpm-client-core-publish-artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-client-core-publish-artifact
+          path: ./packages/lf-api-client-core-js
+
       - name: Download Build Artifact pnpm-api-client-v1-publish-artifact
         uses: actions/download-artifact@v4
         with:
@@ -418,6 +467,10 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm -g
+
+      - name: pnpm version lf-js-utils
+        working-directory: ./packages/lf-js-utils
+        run: pnpm version ${{ env.NPM_JS_UTILS_VERSION }} --no-git-tag-version --allow-same-version
 
       - name: pnpm version lf-api-client-core-js
         working-directory: ./packages/lf-api-client-core-js
