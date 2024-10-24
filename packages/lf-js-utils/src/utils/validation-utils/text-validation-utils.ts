@@ -74,7 +74,7 @@ function replaceCharacterClasses(constraint: string): string {
 
 /**
  * Given a string representing a laserfiche text constraint, returns the corresponding regex as string
- * @param textConstraint // e.g. '\[\[:alnum:\]\]\[\[:alnum:\]\]\[\[:alnum:\]\]'. Please reference the laserfiche documentation
+ * @param textConstraint - // e.g. '\[\[:alnum:\]\]\[\[:alnum:\]\]\[\[:alnum:\]\]'. Please reference the laserfiche documentation
  * for more information:
  * https://www.laserfiche.com/support/webhelp/Laserfiche/10/en-US/administration/#../Subsystems/LFAdmin/Content/Restricting_Field_Data_to_a_Specific_Format.htm?Highlight=constraintformat
  * @returns the corresponding regex
@@ -96,7 +96,7 @@ export function formatTextConstraint(textConstraint: string): string {
 
 /**
  *
- * @param str Function to check if an input is empty
+ * @param str - Function to check if an input is empty
  * @returns true if the input is null, undefined, or consisted only of whitespace characters, false otherwise
  * @example
  * ```typescript

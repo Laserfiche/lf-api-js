@@ -33,8 +33,8 @@ interface LFToken {
 /**
  * Given a string representing a Laserfiche numeric field, and a check constraint, 
  * determines if the numeric field satisfies the constraint
- * @param value a number represented in string
- * @param numericConstraint e.g. '>=100 and <=999'. Please reference the laserfiche documentation
+ * @param value - a number represented in string
+ * @param numericConstraint - e.g. '\>=100 and \<=999'. Please reference the laserfiche documentation
  * for more information:
  * https://www.laserfiche.com/support/webhelp/Laserfiche/10/en-US/administration/#../Subsystems/
  * LFAdmin/Content/Restricting_Field_Data_to_a_Specific_Format.htm?Highlight=constraintformat

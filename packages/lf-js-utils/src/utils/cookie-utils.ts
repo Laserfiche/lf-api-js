@@ -13,7 +13,7 @@ const UIC_COOKIE_PREFIX = 'uic=';
 /**
  * Function to get UI Culture (uic) and Regional Settings (c) from `Language` cookie, if exists in expected format.
  * If multiple valid language cookies, it will return the first instance.
- * @param cookie cookies, separated by `;`
+ * @param cookie - cookies, separated by `;`
  * @returns LfLanguageCookie, parsed from input
  * @example
  * ```typescript

@@ -2,12 +2,12 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 /**
- * Returns the url to an svg icon from https://lfxstatic.com/npm/@laserfiche/lf-resource-library@4/resources/icons/document-icons.svg.
- * @param iconId e.g. edoc-code-20
+ * Returns the url to an svg icon from https://lfxstatic.com/npm/\@laserfiche/lf-resource-library\@4/resources/icons/document-icons.svg.
+ * @param iconId - e.g. edoc-code-20
  * @returns the url
  * @example
  * ```typescript
- * getDocumentIconUrlFromIconId('edoc-code-20'); // 'https://lfxstatic.com/npm/@laserfiche/lf-resource-library@4/resources/icons/document-icons.svg#edoc-code-20'
+ * getDocumentIconUrlFromIconId('edoc-code-20'); // 'https://lfxstatic.com/npm/\@laserfiche/lf-resource-library\@4/resources/icons/document-icons.svg#edoc-code-20'
  * ```
  */
  export function getDocumentIconUrlFromIconId(iconId: string): string {
@@ -15,8 +15,8 @@
 }
 
 /**
- * Returns the icon id given a file extension from https://lfxstatic.com/@laserfiche/lf-resource-library@4/resources/icons/document-icons.svg.
- * @param ext
+ * Returns the icon id given a file extension from https://lfxstatic.com/\@laserfiche/lf-resource-library\@4/resources/icons/document-icons.svg.
+ * @param ext - file extension
  * @returns icon id
  * @example
  * ```typescript

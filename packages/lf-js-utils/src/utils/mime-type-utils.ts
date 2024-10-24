@@ -578,7 +578,7 @@ const extensionToMIMETypeDict: Record<string, string> = {
 /**
  * Determines the file extension's corresponding MIME type
  * or 'application/unknown' if none match
- * @param extension a file extension
+ * @param extension - a file extension
  * @returns the corresponding MIME type or 'application/unknown'
  * @example
  * ```typescript

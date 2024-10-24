@@ -9,9 +9,9 @@
  /**
   * Creates a URL by concatenating baseURL, relativeURL, queryStringParams
   *
-  * @param baseURL Base URL
-  * @param relativeURL Relative URL to append
-  * @param queryStringParams  Query string parameters
+  * @param baseURL - Base URL
+  * @param relativeURL - Relative URL to append
+  * @param queryStringParams -  Query string parameters
   * @example
   * ```typescript
   * combineURLs('a/', 'b'); // 'a/b'

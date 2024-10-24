@@ -76,7 +76,7 @@ describe('DatetimeUtils', () => {
 
 /**
  *
- * @param originalDateString
+ * @param originalDateString - Original date as string
  * @returns timestamp with the offset based on the current timezone
  * example: in PDT, timezone offset is -7 h
  * mockDateTimeOffset(2021-03-25T00:00:00) -> 2021-03-25T01:00:00-07:00

@@ -7,8 +7,8 @@ import { isBrowser } from './core-utils.js';
  * Returns the formatted string.
  * It will replace parameters of the format {x}, where x is a number and will be used as
  * the index to find the value in the array of params
- * @param stringToFormat The string to format
- * @param params The params to replace
+ * @param stringToFormat - The string to format
+ * @param params - The params to replace
  * @returns String with the params replaced. Will throw if the number of replacement parameters do not mat
  * @example
  * ```typescript
@@ -39,7 +39,7 @@ export function formatString(stringToFormat: string, params?: string[]): string 
 
 /**
  * Decodes a string of data encoded using Base64 encoding
- * @param base64String Base64 encoded string
+ * @param base64String - Base64 encoded string
  * @returns Ascii encoded string
  * @example
  * ```typescript
@@ -56,7 +56,7 @@ export function base64toString(base64String: string): string {
 
 /**
  * Encodes a string of data using Base64 encoding
- * @param asciiString Ascii encoded string
+ * @param asciiString - Ascii encoded string
  * @returns Base64 encoded string
  * @example
  * ```typescript
@@ -73,7 +73,7 @@ export function stringToBase64(asciiString: string): string {
 
 /**
  * Converts an ArrayBuffer to a base64 string
- * @param buffer
+ * @param buffer - ArrayBuffer to encode into base64
  * @returns Base64 encoded string
  * @example
  * ```typescript
@@ -93,7 +93,7 @@ export function arrayBufferToBase64(buffer: ArrayBuffer) {
 
 /**
  * Convert a decimal number to hexadecimal number
- * @param dec Number in base 10
+ * @param dec - Number in base 10
  * @returns Hexadecimal string
  * @example
  * ```typescript
@@ -106,9 +106,9 @@ export function base10ToBase16(dec: number): string {
 
 /**
  * Removes all the trailing occurrences of a character from a string.
- * @param value
- * @param endValue String to remove
- * @return Trimmed string
+ * @param value - String to trim
+ * @param endValue - String to remove
+ * @returns Trimmed string
  */
 export function trimEnd(value: string, endValue: string): string {
   return value.endsWith(endValue) ? value.substring(0, value.length - endValue.length) : value;
@@ -116,8 +116,8 @@ export function trimEnd(value: string, endValue: string): string {
 
 /**
  * Function to convert bytes to an abbreviated format
- * @param bytes Number of bytes
- * @param numOfFractionalDigits Number of digits after the decimal place
+ * @param bytes - Number of bytes
+ * @param numOfFractionalDigits - Number of digits after the decimal place
  * @returns String representing the bytes in abbreviated form (KB, MB, GB, etc.)
  * @example
  * ```typescript

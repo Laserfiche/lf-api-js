@@ -85,7 +85,7 @@ export class LfLocalizationService implements ILocalizationService {
    * the closest selected language
    * (e.g.: if selected language is fr-CA, and fr-CA doesn't exists but fr exists, it loads fr)
    *
-   * @param url the url to the language file's folder
+   * @param url - the url to the language file's folder
    * @example
    * ```typescript
    * const localizationService = new LfLocalizationService();
@@ -106,7 +106,7 @@ export class LfLocalizationService implements ILocalizationService {
    * Loads the selected language resource given the url pointing to the folder of the resource,
    * if HTTP receives 403 or 404 error, loads the non-region-specific language resource,
    * throws error otherwise
-   * @param url
+   * @param url - url pointing to folder of the resource
    */
   private async getSelectedLanguageResourceAsync(url: string) {
     try {
@@ -142,7 +142,7 @@ export class LfLocalizationService implements ILocalizationService {
   /**
    * Loads the default langauge resource given the url pointing to the folder of the resource,
    * throws error if resource not found
-   * @param url
+   * @param url - url pointing to the folder of the resource
    */
   private async getDefaultLanguageResourceAsync(url: string) {
     try {
@@ -204,8 +204,8 @@ export class LfLocalizationService implements ILocalizationService {
    * Returns the translated formatted string if exists,
    * falls back to default resource if translated string doesn't exist in current resource
    * throws an error if current resource does not exist
-   * @param key the string to translate
-   * @param params the tokens to replace in translated string if exist
+   * @param key - the string to translate
+   * @param params - the tokens to replace in translated string if exist
    * @returns the translated string with tokens
    * @example
    * ```typescript
@@ -249,8 +249,8 @@ export class LfLocalizationService implements ILocalizationService {
 
   /**
    * Fetchs the remote json file and add it to this._resources
-   * @param url the remote url to the resource file
-   * @param code format languagecode2-country/regioncode2
+   * @param url - the remote url to the resource file
+   * @param code - format languagecode2-country/regioncode2
    */
   private async addResourceFromUrlAsync(url: string, code: string): Promise<object> {
     const response = await fetch(url);
@@ -269,7 +269,7 @@ export class LfLocalizationService implements ILocalizationService {
    * Sets _currentResource based on given language, if language exists in _resource,
    * else if language does not exist in _resource, set to the language without dash if exists in _resource,
    * else if language without dash doesn't exist, set to default language which is guaranteed to exist.
-   * @param language
+   * @param language - language abbreviation
    * @returns
    */
   private setResourceWithFallBack(language: string): void {
@@ -294,7 +294,7 @@ export class LfLocalizationService implements ILocalizationService {
 
   /**
    * Sets _currentResource based on given language
-   * @param language
+   * @param language - language abbreviation
    * @returns true if _currentResource is set, false if language doesn't exist in _resource
    */
   private setLanguageResource(language: string): boolean {
@@ -341,7 +341,7 @@ export class LfLocalizationService implements ILocalizationService {
 
   /**
    * Ensures the url ends with '/'
-   * @param url
+   * @param url - url to process
    * @returns path with '/'
    */
   private terminateUrlWithSlash(url: string) {

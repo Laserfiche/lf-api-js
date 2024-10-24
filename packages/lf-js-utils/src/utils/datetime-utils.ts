@@ -4,7 +4,7 @@
 /**
  * Given a string that represents a date object with no timezone offset,
  * adds the offset based on the client's current timezone, and returns it as a string
- * @param date e.g. 2021-03-25, PDT timezone
+ * @param date - e.g. 2021-03-25, PDT timezone
  * @returns the date with an added offset of the current time "2021-03-25T07:00:00.000Z"
  * @example
  * ```typescript
@@ -40,7 +40,7 @@ export function deserializeDateValue(date: string | undefined): string {
 
 /**
  * Given a date object, returns a corresponding ISO8601 representating the localtime without offset
- * @param date 
+ * @param date - date value to serialize
  * @returns a corresponding ISO8601 string representating the localtime without offset 
  * @example
  * ```typescript
@@ -79,7 +79,7 @@ export function serializeDateValue(date: Date | undefined): string | undefined {
 
 /**
  * Returns true if the date object contains a valid value
- * @param date 
+ * @param date - date to validate
  * @returns 
  * @example
  * ```typescript
@@ -98,8 +98,8 @@ export function isValidDate(date: Date): boolean {
 
 /**
  * Compares two string formated dates/times
-  * @param first 
-  * @param second 
+  * @param first - first date as string
+  * @param second - second date as string
   * @returns true if the string formated dates/times represent the same date/time
   * @example
   * ```typescript

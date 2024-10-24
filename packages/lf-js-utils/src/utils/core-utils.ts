@@ -3,7 +3,7 @@
 
 /**
  * Creates a Promise that completes after the specified number of miliseconds
- * @param timeMs 
+ * @param timeMs - time to sleep in milliseconds
  * @returns 
  * @example
  * ```typescript
@@ -19,9 +19,9 @@ export function sleepAsync(timeMs: number): Promise<void> {
 
 /**
  * Returns a Promise that completes when the test function returns true, or after the timeout has elapsed
- * @param func a function that returns true when the test condition is met
- * @param timeoutFunc the function called after a timeout
- * @param timeoutMs miliseconds to wait for the test function to return true before timing out
+ * @param func - a function that returns true when the test condition is met
+ * @param timeoutFunc - the function called after a timeout
+ * @param timeoutMs - miliseconds to wait for the test function to return true before timing out
  * @returns 
  * @example
  * ```typescript
@@ -64,9 +64,9 @@ export async function waitForConditionAsync(func: () => boolean, timeoutFunc: ()
 /**
  * If value is undefined, it returns the defaultValue, or throws an exception.
  * Else returns the not-undefined value.
- * @param value 
- * @param paramName the parameter name used in the error message
- * @param defaultValue default value when undefined value is passed in
+ * @param value - value to assert if defined
+ * @param paramName - the parameter name used in the error message
+ * @param defaultValue - default value when undefined value is passed in
  * @returns defined value
  * @example
  * ```typescript

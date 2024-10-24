@@ -3,7 +3,7 @@
 
 /**
  * Returns the last past segment for a '\' delimited string
- * @param path to a folder or a file
+ * @param path - to a folder or a file
  * @returns the last segment
  * @example
  * ```typescript
@@ -23,7 +23,7 @@ export function getLastPathSegment(path: string): string {
 
 /**
  * Replaces '\' with '_' or 'File Name' if empty
- * @param fileName
+ * @param fileName - file name to sanitize
  * @returns sanitized file name supported by laserfiche repository
  * @example
  * ```typescript
@@ -43,7 +43,7 @@ export function sanitizeFileName(fileName: string): string {
 
 /**
  * Removes the file extension if exists
- * @param fileName
+ * @param fileName - file name to remove extension from
  * @returns file name without extension
  * @example
  * ```typescript
@@ -64,7 +64,7 @@ export function removeFileExtension(fileName: string): string {
 
 /**
  * Returns the file extension of a file, or undefined
- * @param fileName
+ * @param fileName - file name to get extension of
  * @returns the file extension, or undefined
  * @example
  * ```typescript
@@ -83,8 +83,8 @@ export function getFileExtension(fileName: string): string | undefined {
 
 /**
  * Concatenates two paths, using '\' character
- * @param path1
- * @param path2
+ * @param path1 - path to place first
+ * @param path2 - path to combine to path1
  * @returns the concatenated file path
  * @example
  * ```typescript
@@ -106,7 +106,7 @@ export function combinePaths(path1: string, path2: string): string {
 
 /**
  * Prepends a dot to file extension if dot doesn't exist
- * @param extension
+ * @param extension - raw extension
  * @returns file extension with a dot
  * @example
  * ```typescript
@@ -127,7 +127,7 @@ export function getCleanedExtension(extension: string | undefined): string | und
 
 /**
  * Returns the path segments as an array
- * @param path
+ * @param path - path to get folders from
  * @returns the path segments
  * @example
  * ```typescript
@@ -147,7 +147,7 @@ export function getListOfFolderNames(path: string): string[] {
 
 /**
  * Ensures the path starts and ends with '\'
- * @param path
+ * @param path - path to create display path from
  * @returns path with '\'
  * @example
  * ```typescript
