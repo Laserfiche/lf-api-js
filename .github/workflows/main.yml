@@ -410,9 +410,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: pnpm publish all preview packages
+        id: publish-preview-npm
         run: pnpm publish --recursive --access public --tag next --no-git-checks --force
 
       - name: pnpm publish @laserfiche/types-lf-api-js
+        if: always() && (steps.publish-preview-npm.outcome == 'success' || steps.publish-preview-npm.outcome == 'failure')
         working-directory: ./packages/lf-api-js/types-npm-publish
         run: pnpm publish --access public --tag next --no-git-checks
 
@@ -501,9 +503,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: pnpm publish all packages that version changed
+        id: publish-prod-npm
         run: pnpm publish --recursive --access public  --tag latest --no-git-checks
 
       - name: pnpm publish @laserfiche/types-lf-api-js
+        if: always() && (steps.publish-prod-npm.outcome == 'success' || steps.publish-prod-npm.outcome == 'failure')
         working-directory: ./packages/lf-api-js/types-npm-publish
         run: pnpm publish --access public --tag latest --no-git-checks
 
