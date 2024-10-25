@@ -1,3 +1,9 @@
+## 1.1.7
+
+### Maintenance
+
+- Updated version of lf-js-utils dependency
+
 ## 1.1.6
 
 ### Maintenance
