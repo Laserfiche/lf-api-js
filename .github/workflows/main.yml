@@ -308,6 +308,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download Build Artifact pnpm-js-utils-publish-artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-js-utils-publish-artifact
+          path: ./packages/lf-js-utils
+
       - name: Download Build Artifact pnpm-client-core-publish-artifact
         uses: actions/download-artifact@v4
         with:
@@ -426,11 +432,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download Build Artifact pnpm-client-core-publish-artifact
+      - name: Download Build Artifact pnpm-js-utils-publish-artifact
         uses: actions/download-artifact@v4
         with:
-          name: pnpm-client-core-publish-artifact
-          path: ./packages/lf-api-client-core-js
+          name: pnpm-js-utils-publish-artifact
+          path: ./packages/lf-js-utils
 
       - name: Download Build Artifact pnpm-client-core-publish-artifact
         uses: actions/download-artifact@v4
