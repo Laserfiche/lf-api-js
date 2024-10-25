@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.6
+
+### Maintenance
+
+- Updated version of lf-js-utils dependency
+
 ## 1.0.5
 
 ### Maintenance

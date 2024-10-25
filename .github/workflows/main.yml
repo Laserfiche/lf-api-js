@@ -13,11 +13,11 @@ on:
   workflow_dispatch:
 
 env:
-  NPM_API_CLIENT_V1_VERSION: '1.1.6'
-  NPM_API_CLIENT_V2_VERSION: '1.0.5'
-  NPM_CLIENT_CORE_VERSION: '1.1.14'
-  NPM_JS_UTILS_VERSION: '4.0.9'
-  NPM_API_JS_CLIENT_VERSION: '1.0.1'
+  NPM_API_CLIENT_V1_VERSION: '1.1.7'
+  NPM_API_CLIENT_V2_VERSION: '1.0.6'
+  NPM_CLIENT_CORE_VERSION: '1.1.15'
+  NPM_JS_UTILS_VERSION: '4.0.10'
+  NPM_API_JS_CLIENT_VERSION: '1.0.2'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -308,6 +308,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download Build Artifact pnpm-js-utils-publish-artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-js-utils-publish-artifact
+          path: ./packages/lf-js-utils
+
       - name: Download Build Artifact pnpm-client-core-publish-artifact
         uses: actions/download-artifact@v4
         with:
@@ -426,11 +432,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download Build Artifact pnpm-client-core-publish-artifact
+      - name: Download Build Artifact pnpm-js-utils-publish-artifact
         uses: actions/download-artifact@v4
         with:
-          name: pnpm-client-core-publish-artifact
-          path: ./packages/lf-api-client-core-js
+          name: pnpm-js-utils-publish-artifact
+          path: ./packages/lf-js-utils
 
       - name: Download Build Artifact pnpm-client-core-publish-artifact
         uses: actions/download-artifact@v4

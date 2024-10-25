@@ -1,7 +1,11 @@
 <!--Copyright (c) Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
-## 4.0.9
+## 4.0.10
+### Chore & Maintenance
+- Fix invalid package deployment
+
+## [Deprecated] 4.0.9
 ### Chore & Maintenance
 - Move code to new `lf-api-js` repository
 
