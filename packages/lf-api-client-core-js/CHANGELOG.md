@@ -1,3 +1,13 @@
+## 1.1.15
+
+### Features
+
+- Added new HttpHandler `OAuthClientCustomTokenCredentialsHandler`. Allows creating a handler to use with the API by passing in a function to get an access token.
+
+### Maintenance
+
+- Updated version of lf-js-utils dependency
+
 ## 1.1.14
 
 ### Maintenance
