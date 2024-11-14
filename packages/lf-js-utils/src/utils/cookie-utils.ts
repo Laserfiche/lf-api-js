@@ -49,6 +49,9 @@ export function getLfLanguageCookie(
 function parseLanguageCookie(value: string): LfLanguageCookie | undefined {
   let langCode: string | undefined;
   let uiCode: string | undefined;
+  if (value && !value.includes('=')) {
+    value = decodeURIComponent(value);
+  }
   const cultures = value?.split('|');
   cultures.forEach((code) => {
     if (code.startsWith(C_COOKIE_PREFIX)) {
@@ -57,19 +60,6 @@ function parseLanguageCookie(value: string): LfLanguageCookie | undefined {
       uiCode = code.replace(UIC_COOKIE_PREFIX, '');
     }
   });
-  if (!langCode && !uiCode) {
-    const urlDecoded = decodeURIComponent(value);
-
-    const decodedCultures = urlDecoded?.split('|');
-
-    decodedCultures.forEach((code) => {
-      if (code.startsWith(C_COOKIE_PREFIX)) {
-        langCode = code.replace(C_COOKIE_PREFIX, '');
-      } else if (code.startsWith(UIC_COOKIE_PREFIX)) {
-        uiCode = code.replace(UIC_COOKIE_PREFIX, '');
-      }
-    });
-  }
   if (langCode || uiCode) {
     return {
       c: langCode,
