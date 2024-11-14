@@ -23,12 +23,17 @@ const UIC_COOKIE_PREFIX = 'uic=';
  * getLfLanguageCookie('test=hi;Language=c=en-US|uic=en-US;moretest=cookie;Language=c=es-419|uic=en-US;'); // '{uic: 'en-US', c: 'en-US'}'
  * ```
  */
-export function getLfLanguageCookie(cookie: string): LfLanguageCookie | undefined {
+export function getLfLanguageCookie(
+  cookie: string
+): LfLanguageCookie | undefined {
   const cookiesKeyValue = cookie.split(';');
-  for(const kv of cookiesKeyValue) {
+  for (const kv of cookiesKeyValue) {
     const trimmedCookieValue = kv?.trim();
     if (trimmedCookieValue.startsWith(LANGUAGE_COOKIE_PREFIX)) {
-      const value: string | undefined = trimmedCookieValue.replace(LANGUAGE_COOKIE_PREFIX, '');
+      const value: string | undefined = trimmedCookieValue.replace(
+        LANGUAGE_COOKIE_PREFIX,
+        ''
+      );
       const parsedCult = parseLanguageCookie(value);
       if (parsedCult) {
         return parsedCult;
@@ -44,6 +49,9 @@ export function getLfLanguageCookie(cookie: string): LfLanguageCookie | undefine
 function parseLanguageCookie(value: string): LfLanguageCookie | undefined {
   let langCode: string | undefined;
   let uiCode: string | undefined;
+  if (value && !value.includes('=')) {
+    value = decodeURIComponent(value);
+  }
   const cultures = value?.split('|');
   cultures.forEach((code) => {
     if (code.startsWith(C_COOKIE_PREFIX)) {
