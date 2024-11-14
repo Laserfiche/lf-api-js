@@ -43,4 +43,28 @@ describe('CookieUtils', () => {
 
     expect(parsedLfCookie).toEqual({ uic: 'en-US', c: undefined });
   });
+
+  it('getLfLanguageCookie should return cookie if url encoded', async () => {
+    const cookiesFromBrowser = 'test=hi;Language=uic=en-US;moretest=cookie';
+
+    const parsedLfCookie: LfLanguageCookie | undefined = getLfLanguageCookie(cookiesFromBrowser);
+
+    expect(parsedLfCookie).toEqual({ uic: 'en-US', c: undefined });
+  });
+
+  it('getLfLanguageCookie should return cookie if url encoded', async () => {
+    const cookiesFromBrowser = 'test=hi;Language=c%3den-US%7cuic%3den-US;moretest=cookie';
+
+    const parsedLfCookie: LfLanguageCookie | undefined = getLfLanguageCookie(cookiesFromBrowser);
+
+    expect(parsedLfCookie).toEqual({ uic: 'en-US', c: 'en-US' });
+  });
+
+  it('getLfLanguageCookie should return cookie if url encoded just one', async () => {
+    const cookiesFromBrowser = 'test=hi;Language=c%3den-US;moretest=cookie';
+
+    const parsedLfCookie: LfLanguageCookie | undefined = getLfLanguageCookie(cookiesFromBrowser);
+
+    expect(parsedLfCookie).toEqual({ uic: undefined, c: 'en-US' });
+  });
 });

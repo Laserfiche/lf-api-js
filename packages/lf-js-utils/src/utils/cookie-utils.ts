@@ -23,12 +23,17 @@ const UIC_COOKIE_PREFIX = 'uic=';
  * getLfLanguageCookie('test=hi;Language=c=en-US|uic=en-US;moretest=cookie;Language=c=es-419|uic=en-US;'); // '{uic: 'en-US', c: 'en-US'}'
  * ```
  */
-export function getLfLanguageCookie(cookie: string): LfLanguageCookie | undefined {
+export function getLfLanguageCookie(
+  cookie: string
+): LfLanguageCookie | undefined {
   const cookiesKeyValue = cookie.split(';');
-  for(const kv of cookiesKeyValue) {
+  for (const kv of cookiesKeyValue) {
     const trimmedCookieValue = kv?.trim();
     if (trimmedCookieValue.startsWith(LANGUAGE_COOKIE_PREFIX)) {
-      const value: string | undefined = trimmedCookieValue.replace(LANGUAGE_COOKIE_PREFIX, '');
+      const value: string | undefined = trimmedCookieValue.replace(
+        LANGUAGE_COOKIE_PREFIX,
+        ''
+      );
       const parsedCult = parseLanguageCookie(value);
       if (parsedCult) {
         return parsedCult;
@@ -52,6 +57,19 @@ function parseLanguageCookie(value: string): LfLanguageCookie | undefined {
       uiCode = code.replace(UIC_COOKIE_PREFIX, '');
     }
   });
+  if (!langCode && !uiCode) {
+    const urlDecoded = decodeURIComponent(value);
+
+    const decodedCultures = urlDecoded?.split('|');
+
+    decodedCultures.forEach((code) => {
+      if (code.startsWith(C_COOKIE_PREFIX)) {
+        langCode = code.replace(C_COOKIE_PREFIX, '');
+      } else if (code.startsWith(UIC_COOKIE_PREFIX)) {
+        uiCode = code.replace(UIC_COOKIE_PREFIX, '');
+      }
+    });
+  }
   if (langCode || uiCode) {
     return {
       c: langCode,
