@@ -8,9 +8,9 @@ import 'isomorphic-fetch';
 import { accessKey, envServicePrincipalKey } from '../../testHelpers/cloudTestHelpers.js';
 
 /**
- * UnitTests Tests
+ * Cloud Integration Tests
  *
- * @group UnitTests
+ * @group IntegrationTests/Cloud
  */
 
 describe('OAuthClientCredentialsHandler', () => {
