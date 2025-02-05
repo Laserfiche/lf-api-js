@@ -1,3 +1,9 @@
+## 1.1.17
+
+### Maintenance
+
+- Update minor versions of dependencies
+
 ## 1.1.16
 
 ### Maintenance
