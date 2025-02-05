@@ -7,7 +7,7 @@ require('isomorphic-fetch');
 describe('LfLocalizationService', () => {
   let lfLocalizationService: LfLocalizationService;
 
-  const resourcesFolder = 'https://lfxstatic.com/npm/@laserfiche/lf-resource-library@4/resources/laserfiche-base';
+  const resourcesFolder = 'https://lfxstatic.com/npm/@laserfiche/lf-resource-library@5/resources/laserfiche-base';
 
   it('currentResource is undefined if language file does not exist in constructor and is not provided with initResourcesFromUrlAsync', () => {
     lfLocalizationService = new LfLocalizationService();
@@ -301,7 +301,7 @@ describe('LfLocalizationService', () => {
     lfLocalizationService.debugMode = true;
     await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-    expect(lfLocalizationService.getString('DO_YOU_WANT_TO_YOUR_APPLY_FIELD_CHANGES')).toEqual(
+    expect(lfLocalizationService.getString('DO_YOU_WANT_TO_APPLY_YOUR_FIELD_CHANGES')).toEqual(
       '_Ḓǿ ẏǿŭ ẇȧƞŧ ŧǿ ȧƥƥŀẏ ẏǿŭř ƒīḗŀḓ ƈħȧƞɠḗş?_'
     );
   });
@@ -313,7 +313,7 @@ describe('LfLocalizationService', () => {
 
     await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-    expect(lfLocalizationService.getString('DO_YOU_WANT_TO_YOUR_APPLY_FIELD_CHANGES')).toEqual(
+    expect(lfLocalizationService.getString('DO_YOU_WANT_TO_APPLY_YOUR_FIELD_CHANGES')).toEqual(
       '_¿Ḓḗşḗȧ ȧƥŀīƈȧř şŭş ƈȧḿƀīǿş ḓḗ ƈȧḿƥǿ?_'
     );
   });

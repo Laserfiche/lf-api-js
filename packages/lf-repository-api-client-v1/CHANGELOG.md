@@ -1,3 +1,9 @@
+## 1.1.9
+
+### Maintenance
+
+- Update minor versions of dependencies
+
 ## 1.1.8
 
 ### Maintenance
