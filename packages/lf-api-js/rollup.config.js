@@ -6,7 +6,8 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import terser from '@rollup/plugin-terser';
 
-export default [
+/** @type {import('rollup').RollupOptions} */
+const config = [
   {
     input: './index.ts',
     output: {
@@ -18,9 +19,11 @@ export default [
       resolve(),
       commonjs(),
       typescript({
-        declaration: false
+        declaration: false,
       }),
-      terser()
+      terser(),
     ],
   },
 ];
+
+export default config;

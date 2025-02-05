@@ -5,11 +5,12 @@ import { BeforeFetchResult } from './BeforeFetchResult.js';
 import { OAuthClientCredentialsHandler } from './OAuthClientCredentialsHandler.js';
 import { AccessKey } from '../OAuth/AccessKey.js';
 import 'isomorphic-fetch';
+import { accessKey, envServicePrincipalKey } from '../../testHelpers/cloudTestHelpers.js';
 
 /**
- * UnitTests Tests
+ * Cloud Integration Tests
  *
- * @group UnitTests
+ * @group IntegrationTests/Cloud
  */
 
 describe('OAuthClientCredentialsHandler', () => {
@@ -35,8 +36,8 @@ describe('OAuthClientCredentialsHandler', () => {
 
   test('Correct config beforeFetchRequestAsync returns regional domain', async () => {
     let httpRequestHandler = new OAuthClientCredentialsHandler(
-      testServicePrincipalKey,
-      testAccessKeyFromJson
+      envServicePrincipalKey,
+      accessKey
     );
     const url = 'https://laserfiche.com/repository/';
     let request: RequestInit = {
