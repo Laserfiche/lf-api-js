@@ -1,26 +1,44 @@
 <!--Copyright (c) Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
-## 4.0.11
+
+## 4.0.12
+
 ### Features
+
+- Update `IconUtils` and `LfLocalizationService` to use `lf-resource-library@5`
+
+## 4.0.11
+
+### Features
+
 - Add support in `LfLocalizationService` for Language cookie to be url-encoded
 
 ## 4.0.10
+
 ### Chore & Maintenance
+
 - Fix invalid package deployment
 
 ## [Deprecated] 4.0.9
+
 ### Chore & Maintenance
+
 - Move code to new `lf-api-js` repository
 
 ## 4.0.8
+
 ### Features
+
 - `LfMetadataValidationUtils`: add `isNullOrEmpty` to test if an string is consisted of white-space character
+
 ### Fixes
 
 ### Chore & Maintenance
 
 ## 4.0.7
+
 ### Features
+
 - `LfLocalizationService`: If Language cookie exists in expected LF format, language will default to that UI culture
 - Add `convertBytesToString` in `StringUtils` to convert a raw number of bytes to an abbreviated string (MB, GB, etc.)
 
@@ -29,14 +47,17 @@ Licensed under the MIT License. See LICENSE in the project root for license info
 ### Chore & Maintenance
 
 ## 4.0.6
+
 ### Features
 
 ### Fixes
 
 ### Chore & Maintenance
+
 - Update build pipeline to use Node 16
 
 ## 4.0.5
+
 ### Features
 
 - `StringUtils` now contains `trimEnd` function remove all the trailing occurrences of a character from a string.
@@ -46,6 +67,7 @@ Licensed under the MIT License. See LICENSE in the project root for license info
 ### Chore & Maintenance
 
 ## 4.0.4
+
 ### Features
 
 - `IconUtils` references icon url from `lfxstatic` instead of `jsdelivr`.
@@ -55,13 +77,14 @@ Licensed under the MIT License. See LICENSE in the project root for license info
 
 ### Chore & Maintenance
 
-
 ## 4.0.3
 
 ### Features
 
 - `localizationService` Change default language to be `en-US`.
-  - example: 
+
+  - example:
+
     ```ts
     // this will throw an error "Required language resource en-US is not found in provided map."
     const resources = new Map([['en', { TEST_STRING: 'test string' }]]);
@@ -71,8 +94,11 @@ Licensed under the MIT License. See LICENSE in the project root for license info
     const resources = new Map([['en-US', { TEST_STRING: 'test string' }]]);
     let lfLocalizationService = new LfLocalizationService(resources);
     ```
+
 - Requested language without culture will default to the closes language with culture.
+
   - example:
+
     ```ts
       let lfLocalizationService = new LfLocalizationService();
       lfLocalizationService.setLanguage('fr');
@@ -86,11 +112,13 @@ Licensed under the MIT License. See LICENSE in the project root for license info
 - `localizationService` Fix switching language from es to unavailable language resource does not default to en ([51](https://github.com/Laserfiche/lf-js-utils/issues/51)).
 
 ### Chore & Maintenance
+
 - Compatible with `@laserfiche/resource-library@4`.
 
 ## 4.0.2
 
 ### Features
+
 - Refactor utils and add general purpose `CoreUtils`.
 
 ### Fixes
@@ -110,5 +138,3 @@ Licensed under the MIT License. See LICENSE in the project root for license info
 ### Chore & Maintenance
 
 - First stable release to NPM.
-
-

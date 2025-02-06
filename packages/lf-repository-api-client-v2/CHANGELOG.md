@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.8
+
+### Maintenance
+
+- Update minor versions of dependencies
+
 ## 1.0.7
 
 ### Maintenance
