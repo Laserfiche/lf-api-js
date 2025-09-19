@@ -327,13 +327,37 @@ export class LfLocalizationService implements ILocalizationService {
       case 'es':
         return 'es-MX';
       case 'fr':
-        return 'fr-FR';
+        return 'fr-CA';
       case 'it':
         return 'it-IT';
       case 'pt':
         return 'pt-BR';
       case 'th':
         return 'th-TH';
+      case 'cs':
+        return 'cs-CZ';
+      case 'de':
+        return 'de-DE';
+      case 'el':
+        return 'el-GR';  
+      case 'id':
+        return 'id-ID';
+      case 'ja':
+        return 'ja-JP';    
+      case 'ko':
+        return 'ko-KR';      
+      case 'ms':
+        return 'ms-MY';    
+      case 'nl':
+        return 'nl-NL';
+      case 'ro':
+        return 'ro-RO';
+      case 'sr-Latn':
+        return 'sr-Latn';
+      case 'tr':
+        return 'tr-TR';
+      case 'vi':
+        return 'vi-VN'; 
       default:
         return originalLanguage;
     }
