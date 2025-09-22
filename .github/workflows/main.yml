@@ -41,7 +41,7 @@ jobs:
           node-version: '20'
 
       - name: Install pnpm
-        run: npm install pnpm@9 -g
+        run: npm install pnpm -g
 
       - name: pnpm Version
         run: pnpm -v
@@ -127,7 +127,8 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm -g
-
+      - name: pnpm Version
+        run: pnpm -v
       - name: PNPM install
         run: pnpm install
 
@@ -266,6 +267,8 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm -g
+      - name: pnpm Version
+        run: pnpm -v
 
       - name: PNPM install
         run: pnpm install
@@ -354,7 +357,9 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm -g
-        
+      
+      - name: pnpm Version
+        run: pnpm -v
       - name: Replace workspace^ with workspace* in lf-api-client-core-js
         working-directory: ./packages/lf-api-client-core-js
         run: sed -i 's/workspace:^/workspace:*/g' package.json
@@ -478,7 +483,8 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm -g
-
+      - name: pnpm Version
+        run: pnpm -v
       - name: pnpm version lf-js-utils
         working-directory: ./packages/lf-js-utils
         run: pnpm version ${{ env.NPM_JS_UTILS_VERSION }} --no-git-tag-version --allow-same-version
