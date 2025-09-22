@@ -196,42 +196,42 @@ export class AttributesClient implements IAttributesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = AttributeCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -285,42 +285,42 @@ export class AttributesClient implements IAttributesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Attribute.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested attribute key not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -421,42 +421,42 @@ export class AuditReasonsClient implements IAuditReasonsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = AuditReasonCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -629,42 +629,42 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = FieldDefinition.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested field definition id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -738,42 +738,42 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = FieldDefinitionCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -955,42 +955,42 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = LinkDefinitionCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -1043,42 +1043,42 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = LinkDefinition.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested link definition ID not found", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -1787,49 +1787,49 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CreateMultipartUploadUrlsResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested repository not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -1886,56 +1886,56 @@ export class EntriesClient implements IEntriesClient {
         if (status === 202) {
             return response.text().then((_responseText) => {
             let result202: any = null;
-            let resultData202 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData202 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result202 = StartTaskResponse.fromJS(resultData202);
             return result202;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested repository not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
         } else if (status === 500) {
             return response.text().then((_responseText) => {
             let result500: any = null;
-            let resultData500 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Import operation failed due to an internal server error.", status, _responseText, _headers, result500);
             });
@@ -1992,56 +1992,56 @@ export class EntriesClient implements IEntriesClient {
         if (status === 202) {
             return response.text().then((_responseText) => {
             let result202: any = null;
-            let resultData202 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData202 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result202 = StartTaskResponse.fromJS(resultData202);
             return result202;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested repository not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
         } else if (status === 500) {
             return response.text().then((_responseText) => {
             let result500: any = null;
-            let resultData500 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Export operation failed due to an internal server error.", status, _responseText, _headers, result500);
             });
@@ -2100,49 +2100,49 @@ export class EntriesClient implements IEntriesClient {
         if (status === 202) {
             return response.text().then((_responseText) => {
             let result202: any = null;
-            let resultData202 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData202 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result202 = StartTaskResponse.fromJS(resultData202);
             return result202;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested repository not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Operation limit or request limit reached.", status, _responseText, _headers, result429);
             });
@@ -2197,49 +2197,49 @@ export class EntriesClient implements IEntriesClient {
         if (status === 202) {
             return response.text().then((_responseText) => {
             let result202: any = null;
-            let resultData202 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData202 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result202 = StartTaskResponse.fromJS(resultData202);
             return result202;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested repository not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Operation limit or request limit reached.", status, _responseText, _headers, result429);
             });
@@ -2293,42 +2293,42 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -2386,63 +2386,63 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 409) {
             return response.text().then((_responseText) => {
             let result409: any = null;
-            let resultData409 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result409 = ProblemDetails.fromJS(resultData409);
             return throwException("Entry name conflicts.", status, _responseText, _headers, result409);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
-            let resultData423 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
             return throwException("Entry is locked.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -2507,56 +2507,56 @@ export class EntriesClient implements IEntriesClient {
         if (status === 201) {
             return response.text().then((_responseText) => {
             let result201: any = null;
-            let resultData201 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result201 = Entry.fromJS(resultData201);
             return result201;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
         } else if (status === 500) {
             return response.text().then((_responseText) => {
             let result500: any = null;
-            let resultData500 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Document creation is completely failed.", status, _responseText, _headers, result500);
             });
@@ -2613,63 +2613,63 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = ExportEntryResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
-            let resultData423 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
             return throwException("Entry is locked.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
         } else if (status === 500) {
             return response.text().then((_responseText) => {
             let result500: any = null;
-            let resultData500 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Export operation failed due to an internal server error.", status, _responseText, _headers, result500);
             });
@@ -2724,42 +2724,42 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = GetEntryByPathResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested entry path not found", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -2853,42 +2853,42 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = EntryCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -2945,56 +2945,56 @@ export class EntriesClient implements IEntriesClient {
         if (status === 201) {
             return response.text().then((_responseText) => {
             let result201: any = null;
-            let resultData201 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result201 = Entry.fromJS(resultData201);
             return result201;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 409) {
             return response.text().then((_responseText) => {
             let result409: any = null;
-            let resultData409 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result409 = ProblemDetails.fromJS(resultData409);
             return throwException("Entry name conflicts.", status, _responseText, _headers, result409);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -3077,42 +3077,42 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = FieldCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -3170,56 +3170,56 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = FieldCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
-            let resultData423 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
             return throwException("Entry is locked.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -3294,42 +3294,42 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = TagCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -3384,56 +3384,56 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = TagCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
-            let resultData423 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
             return throwException("Entry is locked.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -3488,56 +3488,56 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = LinkCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
-            let resultData423 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
             return throwException("Entry is locked.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -3612,42 +3612,42 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = LinkCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -3704,56 +3704,56 @@ export class EntriesClient implements IEntriesClient {
         if (status === 201) {
             return response.text().then((_responseText) => {
             let result201: any = null;
-            let resultData201 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result201 = Entry.fromJS(resultData201);
             return result201;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry ID not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 409) {
             return response.text().then((_responseText) => {
             let result409: any = null;
-            let resultData409 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result409 = ProblemDetails.fromJS(resultData409);
             return throwException("Entry name conflicts.", status, _responseText, _headers, result409);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -3801,49 +3801,49 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
-            let resultData423 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
             return throwException("Entry is locked.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -3895,49 +3895,49 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
-            let resultData423 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
             return throwException("Entry is locked.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -3992,7 +3992,7 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             if (resultData200) {
                 result200 = {} as any;
                 for (let key in resultData200) {
@@ -4008,42 +4008,42 @@ export class EntriesClient implements IEntriesClient {
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -4093,49 +4093,49 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
-            let resultData423 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
             return throwException("Entry is locked.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -4193,56 +4193,56 @@ export class EntriesClient implements IEntriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request entry id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
-            let resultData423 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
             return throwException("Entry is locked.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -4319,35 +4319,35 @@ export class RepositoriesClient implements IRepositoriesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = RepositoryCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -4642,49 +4642,49 @@ export class SearchesClient implements ISearchesClient {
         if (status === 202) {
             return response.text().then((_responseText) => {
             let result202: any = null;
-            let resultData202 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData202 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result202 = StartTaskResponse.fromJS(resultData202);
             return result202;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Requested repository not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Operation limit or request limit reached.", status, _responseText, _headers, result429);
             });
@@ -4783,42 +4783,42 @@ export class SearchesClient implements ISearchesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = EntryCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request taskId not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -4897,42 +4897,42 @@ export class SearchesClient implements ISearchesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = SearchContextHitCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request taskId not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -5042,56 +5042,56 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = EntryCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 206) {
             return response.text().then((_responseText) => {
             let result206: any = null;
-            let resultData206 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData206 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result206 = EntryCollectionResponse.fromJS(resultData206);
             return result206;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
             let result413: any = null;
-            let resultData413 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result413 = ProblemDetails.fromJS(resultData413);
             return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Operation limit or request limit reached.", status, _responseText, _headers, result429);
             });
@@ -5282,42 +5282,42 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = TagDefinitionCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -5373,42 +5373,42 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = TagDefinition.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request tag definition id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -5499,42 +5499,42 @@ export class TasksClient implements ITasksClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = TaskCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Repository is not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -5585,42 +5585,42 @@ export class TasksClient implements ITasksClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CancelTasksResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Repository is not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -6002,42 +6002,42 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = TemplateDefinitionCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request template name not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -6093,42 +6093,42 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = TemplateDefinition.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request template id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -6206,42 +6206,42 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = TemplateFieldDefinitionCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request template id not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
@@ -6320,42 +6320,42 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            let resultData200 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = TemplateFieldDefinitionCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
-            let resultData400 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
             let result401: any = null;
-            let resultData401 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
             });
         } else if (status === 403) {
             return response.text().then((_responseText) => {
             let result403: any = null;
-            let resultData403 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
-            let resultData404 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Request template name not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
-            let resultData429 = _responseText === "" ? null : this.jsonParseReviver ? JSON.parse(_responseText, this.jsonParseReviver) : JSON.parse(_responseText);
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
