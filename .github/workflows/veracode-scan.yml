@@ -22,7 +22,7 @@ jobs:
           node-version: 20.x
 
       - name: Install pnpm
-        run: npm install pnpm -g
+        run: npm install pnpm@latest-9 -g
 
       - name: Install dependencies
         run: pnpm install

@@ -41,7 +41,7 @@ jobs:
           node-version: '20'
 
       - name: Install pnpm
-        run: npm install pnpm@10 -g
+        run: npm install pnpm@9 -g
 
       - name: pnpm Version
         run: pnpm -v
@@ -266,7 +266,7 @@ jobs:
           node-version: '20'
 
       - name: Install pnpm
-        run: npm install pnpm -g
+        run: npm install pnpm@latest-9 -g
       - name: pnpm Version
         run: pnpm -v
 
@@ -356,7 +356,7 @@ jobs:
           node-version: '20'
 
       - name: Install pnpm
-        run: npm install pnpm -g
+        run: npm install pnpm@latest-9 -g
       
       - name: pnpm Version
         run: pnpm -v
@@ -482,7 +482,7 @@ jobs:
           node-version: '20'
 
       - name: Install pnpm
-        run: npm install pnpm -g
+        run: npm install pnpm@latest-9 -g
       - name: pnpm Version
         run: pnpm -v
       - name: pnpm version lf-js-utils
