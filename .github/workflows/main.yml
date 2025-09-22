@@ -265,7 +265,7 @@ jobs:
         run: npm install pnpm@9 -g
 
       - name: pnpm Version
-        run: pnpm -v
+        run: echo (pnpm -v)
       - name: PNPM install
         run: pnpm install
 
