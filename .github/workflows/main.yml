@@ -126,7 +126,7 @@ jobs:
           node-version: '20'
 
       - name: Install pnpm
-        run: npm install pnpm -g
+        run: npm install pnpm@latest -g
       - name: pnpm Version
         run: pnpm -v
       - name: PNPM install
