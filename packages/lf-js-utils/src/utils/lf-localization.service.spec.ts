@@ -57,7 +57,7 @@ describe('LfLocalizationService', () => {
     expect(lfLocalizationService.currentResource?.language).toEqual('en-US');
   });
 
-  fit('setLanguage assigns language without area code if specified does not exist, but language without area code exists', async () => {
+  it('setLanguage assigns language without area code if specified does not exist, but language without area code exists', async () => {
     lfLocalizationService = new LfLocalizationService();
     lfLocalizationService.setLanguage('fr-FR');
     await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
@@ -246,7 +246,7 @@ describe('LfLocalizationService', () => {
     expect(localizedString).toEqual('test res');
   });
 
-  fit('should be able to set custom json, fr-FR will default to fr if fr-FR does not exist', () => {
+  it('should be able to set custom json, fr-FR will default to fr if fr-FR does not exist', () => {
     const resources: Map<string, object> = new Map([
       ['en-US', { TEST_STRING: 'test res' }],
       ['fr-CA', { TEST_STRING: 'french test' }],
