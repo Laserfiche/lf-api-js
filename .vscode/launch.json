@@ -1,0 +1,14 @@
+
+{
+    "type": "node",
+    "request": "launch",
+    "name": "Debug Jest Tests",
+    "program": "../packages/lf-js-utils/node_modules/jest/bin/jest.js",
+    "args": [
+      "--runInBand"
+    ],
+    "console": "integratedTerminal",
+    "internalConsoleOptions": "neverOpen",
+    "disableOptimisticBPs": true
+  }
+  

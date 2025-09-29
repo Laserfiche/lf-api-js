@@ -11,7 +11,7 @@ Contains the following packages:
 
 ## One time setup
 
-- Run `npm install pnpm -g`
+- Run `npm install pnpm@latest-9 -g`
 - Run `pnpm install`
 
 ## To build
