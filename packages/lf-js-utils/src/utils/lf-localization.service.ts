@@ -352,7 +352,7 @@ export class LfLocalizationService implements ILocalizationService {
         return 'nl-NL';
       case 'ro':
         return 'ro-RO';
-      case 'sr-Latn':
+      case 'sr':
         return 'sr-Latn';
       case 'tr':
         return 'tr-TR';
