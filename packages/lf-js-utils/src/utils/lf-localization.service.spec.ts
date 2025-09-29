@@ -57,9 +57,9 @@ describe('LfLocalizationService', () => {
     expect(lfLocalizationService.currentResource?.language).toEqual('en-US');
   });
 
-  it('setLanguage assigns language without area code if specified does not exist, but language without area code exists', async () => {
+  fit('setLanguage assigns language without area code if specified does not exist, but language without area code exists', async () => {
     lfLocalizationService = new LfLocalizationService();
-    lfLocalizationService.setLanguage('fr-CA');
+    lfLocalizationService.setLanguage('fr-FR');
     await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
     expect(lfLocalizationService.currentResource?.language).toEqual('fr-FR');
@@ -246,17 +246,17 @@ describe('LfLocalizationService', () => {
     expect(localizedString).toEqual('test res');
   });
 
-  fit('should be able to set custom json, fr-CA will default to fr if fr-CA does not exist', () => {
+  fit('should be able to set custom json, fr-FR will default to fr if fr-FR does not exist', () => {
     const resources: Map<string, object> = new Map([
       ['en-US', { TEST_STRING: 'test res' }],
-      ['fr-FR', { TEST_STRING: 'french test' }],
+      ['fr-CA', { TEST_STRING: 'french test' }],
     ]);
     lfLocalizationService = new LfLocalizationService(resources);
 
     let localizedString = lfLocalizationService.getString('TEST_STRING');
     expect(localizedString).toEqual('test res');
 
-    lfLocalizationService.setLanguage('fr-CA');
+    lfLocalizationService.setLanguage('fr-FR');
     localizedString = lfLocalizationService.getString('TEST_STRING');
     expect(localizedString).toEqual('french test');
   });
@@ -388,214 +388,214 @@ describe('LfLocalizationService', () => {
     expect(lfLocalizationService.currentResource?.language).toEqual('fr-CA');
   });
 
-  // it(`when requested language is ar, current language is set to ar-EG`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+  it(`when requested language is ar, current language is set to ar-EG`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('ar');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('ar');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('ar-EG');
-  // });
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('ar-EG');
+  });
 
-  // it(`when requested language is en, current language is set to en-US`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+  it(`when requested language is en, current language is set to en-US`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('en-US');
-  // });
-  // it(`when requested language is es, current language is set to es-MX`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('en-US');
+  });
+  it(`when requested language is es, current language is set to es-MX`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('es');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('es');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('es-MX');
-  // });
-  // it(`when requested language is it, current language is set to it-IT`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('es-MX');
+  });
+  it(`when requested language is it, current language is set to it-IT`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('it');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('it');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('it-IT');
-  // });
-  // it(`when requested language is pt, current language is set to pt-BR`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('it-IT');
+  });
+  it(`when requested language is pt, current language is set to pt-BR`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('pt');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('pt');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('pt-BR');
-  // });  
-  // it(`when requested language is th, current language is set to th-TH`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('pt-BR');
+  });  
+  it(`when requested language is th, current language is set to th-TH`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('th');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('th');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('th-TH');
-  // });  
-  // it(`when requested language is cs, current language is set to cs-CZ`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('th-TH');
+  });  
+  it(`when requested language is cs, current language is set to cs-CZ`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('cs');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('cs');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('cs-CZ');
-  // });  
-  // it(`when requested language is de, current language is set to de-DE`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('cs-CZ');
+  });  
+  it(`when requested language is de, current language is set to de-DE`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('de');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('de');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('de-DE');
-  // });
-  // it(`when requested language is el, current language is set to el-GR`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('de-DE');
+  });
+  it(`when requested language is el, current language is set to el-GR`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('el');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('el');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('el-GR');
-  // });  
-  // it(`when requested language is de, current language is set to de-DE`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('el-GR');
+  });  
+  it(`when requested language is de, current language is set to de-DE`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('de');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('de');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('de-DE');
-  // });
-  // it(`when requested language is id, current language is set to id-ID`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('de-DE');
+  });
+  it(`when requested language is id, current language is set to id-ID`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('id');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('id');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('id-ID');
-  // });
-  // it(`when requested language is ja, current language is set to ja-JP`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('id-ID');
+  });
+  it(`when requested language is ja, current language is set to ja-JP`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('ja');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('ja');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('ja-JP');
-  // });
-  // it(`when requested language is ko, current language is set to ko-KR`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('ja-JP');
+  });
+  it(`when requested language is ko, current language is set to ko-KR`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('ko');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('ko');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('ko-KR');
-  // });
-  // it(`when requested language is ms, current language is set to ms-MY`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('ko-KR');
+  });
+  it(`when requested language is ms, current language is set to ms-MY`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('ms');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('ms');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('ms-MY');
-  // });
-  // it(`when requested language is nl, current language is set to nl-NL`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('ms-MY');
+  });
+  it(`when requested language is nl, current language is set to nl-NL`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('nl');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('nl');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('nl-NL');
-  // });
-  // it(`when requested language is ro, current language is set to ro-RO`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('nl-NL');
+  });
+  it(`when requested language is ro, current language is set to ro-RO`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('ro');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('ro');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('ro-RO');
-  // });
-  // it(`when requested language is sr-Latn, current language is set to sr-Latn`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('ro-RO');
+  });
+  it(`when requested language is sr-Latn, current language is set to sr-Latn`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('sr-Latn');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('sr-Latn');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('sr-Latn');
-  // });
-  // it(`when requested language is tr, current language is set to tr-TR`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('sr-Latn');
+  });
+  it(`when requested language is tr, current language is set to tr-TR`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('tr');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('tr');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('tr-TR');
-  // });
-  // it(`when requested language is vi, current language is set to vi-VN`, async () => {
-  //   // Arrange
-  //   lfLocalizationService = new LfLocalizationService();
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('tr-TR');
+  });
+  it(`when requested language is vi, current language is set to vi-VN`, async () => {
+    // Arrange
+    lfLocalizationService = new LfLocalizationService();
 
-  //   // Act
-  //   lfLocalizationService.setLanguage('vi');
-  //   await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
+    // Act
+    lfLocalizationService.setLanguage('vi');
+    await lfLocalizationService.initResourcesFromUrlAsync(resourcesFolder);
 
-  //   // Assert
-  //   expect(lfLocalizationService.currentResource?.language).toEqual('vi-VN');
-  // });
+    // Assert
+    expect(lfLocalizationService.currentResource?.language).toEqual('vi-VN');
+  });
 });
