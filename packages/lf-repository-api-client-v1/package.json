@@ -13,8 +13,8 @@
   "scripts": {
     "test": "npm run test:node",
     "test:node": "node --experimental-vm-modules --experimental-fetch node_modules/jest/bin/jest.js --rootDir=test --config jest.node.config.js --runInBand",
-    "test:browser": "node --experimental-vm-modules --experimental-fetch node_modules/jest/bin/jest.js --rootDir=test/Tasks --config jest.jsdom.config.js --runInBand",
-    "test:all": "node --experimental-vm-modules --experimental-fetch node_modules/jest/bin/jest.js --rootDir=test --config jest.node.config.js --runInBand && node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=test --config jest.jsdom.config.js --runInBand",
+    "test:browser": "node --experimental-vm-modules --experimental-fetch node_modules/jest/bin/jest.js --rootDir=test --config jest.jsdom.config.js --runInBand",
+    "test:all": "node --experimental-vm-modules --experimental-fetch node_modules/jest/bin/jest.js --rootDir=test/Tasks --config jest.node.config.js --runInBand && node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=test --config jest.jsdom.config.js --runInBand",
     "build": "npm run nswag && npm run clean && tsc -b",
     "build:watch": "npm run nswag && tsc -b --watch",
     "clean": "tsc -b --clean",
