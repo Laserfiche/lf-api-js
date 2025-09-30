@@ -35,6 +35,7 @@ describe('Task Integration Tests', () => {
       'RepositoryApiClientIntegrationTest JS GetOperationStatus'
     );
     let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
+    body.auditReasonId = 0;
     let result = await _RepositoryApiClient.entriesClient.deleteEntryInfo({
       repoId: repositoryId,
       entryId: deleteEntry.id ?? -1,
