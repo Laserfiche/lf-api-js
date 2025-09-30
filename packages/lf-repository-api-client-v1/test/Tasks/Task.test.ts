@@ -50,7 +50,7 @@ describe('Task Integration Tests', () => {
       operationToken: token ?? '',
     });
     expect(operationProgress).not.toBeNull();
-    expect(operationProgress.status).toBe(OperationStatus.Completed || OperationStatus.Failed);
+    expect([OperationStatus.Completed, OperationStatus.Failed]).toContain(operationProgress.status);
     expect(operationProgress.percentComplete).toBe(100);
   });
 });
