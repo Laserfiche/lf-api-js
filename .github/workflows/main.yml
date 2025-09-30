@@ -184,7 +184,7 @@ jobs:
           REPOSITORY_ID: ${{ secrets.DEV_US_PUBLIC_USE_REPOSITORY_ID_1 }}
           AUTHORIZATION_TYPE: ${{ secrets.AUTHORIZATION_TYPE }}
           TEST_HEADER: ${{ secrets.TEST_HEADER }}
-        run: pnpm --filter @laserfiche/lf-repository-api-client run test:test/Tasks/Task.test.ts
+        run: pnpm --filter @laserfiche/lf-repository-api-client run test:Tasks/Task.test.ts
 
       - name: pnpm test @laserfiche/lf-repository-api-client run all self-hosted tests
         env:
