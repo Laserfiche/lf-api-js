@@ -55,7 +55,7 @@ describe('Task Integration Tests', () => {
       expect(operationProgress.percentComplete).toBe(100);
     }
     catch {
-      console.log(operationProgress?.errors);
+      console.log(operationProgress);
     }
   });
 });
