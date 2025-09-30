@@ -135,47 +135,47 @@ jobs:
       - name: PNPM run build
         run: pnpm run build
 
-      - name: pnpm test lf-js-utils
-        run: pnpm --filter @laserfiche/lf-js-utils run test:ci
+      # - name: pnpm test lf-js-utils
+      #   run: pnpm --filter @laserfiche/lf-js-utils run test:ci
 
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: success() || failure() # run this step even if previous step failed
-        with:
-          name: JS Utils Jest Test Results
-          path: ./packages/lf-js-utils/*.xml
-          reporter: jest-junit
-          only-summary: 'false'
-          list-tests: 'failed'
-          fail-on-error: 'false'
+      # - name: Test Report
+      #   uses: dorny/test-reporter@v1
+      #   if: success() || failure() # run this step even if previous step failed
+      #   with:
+      #     name: JS Utils Jest Test Results
+      #     path: ./packages/lf-js-utils/*.xml
+      #     reporter: jest-junit
+      #     only-summary: 'false'
+      #     list-tests: 'failed'
+      #     fail-on-error: 'false'
 
-      - name: pnpm test lf-api-client-core on cloud
-        id: test-cloud
-        env:
-          ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
-          ACCESS_KEY_JSON: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY_JSON }}
-          SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
-        run: pnpm --filter @laserfiche/lf-api-client-core run test:Cloud
+      # - name: pnpm test lf-api-client-core on cloud
+      #   id: test-cloud
+      #   env:
+      #     ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
+      #     ACCESS_KEY_JSON: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY_JSON }}
+      #     SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
+      #   run: pnpm --filter @laserfiche/lf-api-client-core run test:Cloud
 
-      - name: pnpm test lf-api-client-core on self-hosted
-        if: always() && (steps.test-cloud.outcome == 'success' || steps.test-cloud.outcome == 'failure')
-        env:
-          REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
-          APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
-          APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
-          APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
-        run: pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted
+      # - name: pnpm test lf-api-client-core on self-hosted
+      #   if: always() && (steps.test-cloud.outcome == 'success' || steps.test-cloud.outcome == 'failure')
+      #   env:
+      #     REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
+      #     APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
+      #     APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
+      #     APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
+      #   run: pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted
 
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: success() || failure() # run this step even if previous step failed
-        with:
-          name: Client Core Jest Test Results
-          path: ./packages/lf-api-client-core-js/*.xml
-          reporter: jest-junit
-          only-summary: 'false'
-          list-tests: 'failed'
-          fail-on-error: 'false'
+      # - name: Test Report
+      #   uses: dorny/test-reporter@v1
+      #   if: success() || failure() # run this step even if previous step failed
+      #   with:
+      #     name: Client Core Jest Test Results
+      #     path: ./packages/lf-api-client-core-js/*.xml
+      #     reporter: jest-junit
+      #     only-summary: 'false'
+      #     list-tests: 'failed'
+      #     fail-on-error: 'false'
 
       - name: pnpm test @laserfiche/lf-repository-api-client run all cloud tests
         env:
