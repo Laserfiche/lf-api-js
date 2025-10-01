@@ -352,8 +352,6 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
       
-      - name: pnpm Version
-        run: pnpm -v
       - name: Replace workspace^ with workspace* in lf-api-client-core-js
         working-directory: ./packages/lf-api-client-core-js
         run: sed -i 's/workspace:^/workspace:*/g' package.json
