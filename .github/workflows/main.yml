@@ -43,9 +43,6 @@ jobs:
       - name: Install pnpm
         run: npm install pnpm@9 -g
 
-      - name: pnpm Version
-        run: pnpm -v
-
       - name: PNPM install
         run: pnpm install
 
@@ -127,8 +124,7 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
-      - name: pnpm Version
-        run: pnpm -v
+
       - name: PNPM install
         run: pnpm install
 
@@ -267,8 +263,6 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
-      - name: pnpm Version
-        run: pnpm -v
 
       - name: PNPM install
         run: pnpm install
