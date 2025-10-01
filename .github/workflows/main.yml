@@ -475,8 +475,7 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
-      - name: pnpm Version
-        run: pnpm -v
+
       - name: pnpm version lf-js-utils
         working-directory: ./packages/lf-js-utils
         run: pnpm version ${{ env.NPM_JS_UTILS_VERSION }} --no-git-tag-version --allow-same-version
