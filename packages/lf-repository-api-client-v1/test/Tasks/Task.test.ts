@@ -27,7 +27,7 @@ describe('Task Integration Tests', () => {
     } catch (err: any) {
       expect(err.problemDetails.title.includes('Cannot cancel ended operation'));
     }
-  });
+  }); 
 
   test('Get Operation Status', async () => {
     let deleteEntry: Entry = await CreateEntry(
