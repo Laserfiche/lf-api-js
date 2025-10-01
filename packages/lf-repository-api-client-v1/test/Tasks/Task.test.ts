@@ -27,7 +27,7 @@ describe('Task Integration Tests', () => {
     } catch (err: any) {
       expect(err.problemDetails.title.includes('Cannot cancel ended operation'));
     }
-  }); 
+  });
 
   test('Get Operation Status', async () => {
     let deleteEntry: Entry = await CreateEntry(
@@ -35,7 +35,6 @@ describe('Task Integration Tests', () => {
       'RepositoryApiClientIntegrationTest JS GetOperationStatus'
     );
     let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
-    body.auditReasonId = 0;
     let result = await _RepositoryApiClient.entriesClient.deleteEntryInfo({
       repoId: repositoryId,
       entryId: deleteEntry.id ?? -1,
