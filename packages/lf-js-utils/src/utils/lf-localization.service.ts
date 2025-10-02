@@ -309,7 +309,7 @@ export class LfLocalizationService implements ILocalizationService {
   private mapToClosestLanguage(originalLanguage: string): string {
     const languageWithoutDash = this._selectedLanguage.split('-')[0];
     switch (languageWithoutDash) {
-      case 'zh':
+      case "zh":
         switch (originalLanguage) {
           case 'zh-CN':
             return 'zh-Hans';
