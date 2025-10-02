@@ -45,7 +45,7 @@ describe('Task Integration Tests', () => {
     expect(token).not.toBeNull();
     expect(token).not.toBe('');
     let operationProgress;
-    try{
+
       await new Promise((r) => setTimeout(r, 10000));
       operationProgress = await _RepositoryApiClient.tasksClient.getOperationStatusAndProgress({
         repoId: repositoryId,
@@ -54,9 +54,6 @@ describe('Task Integration Tests', () => {
       expect(operationProgress).not.toBeNull();
       expect([OperationStatus.Completed, OperationStatus.Cancelled]).toContain(operationProgress.status);
       expect(operationProgress.percentComplete).toBe(100);
-    }
-    catch {
-      console.log(operationProgress);
-    }
+
   });
 });
