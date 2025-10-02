@@ -379,7 +379,7 @@ export class LfLocalizationService implements ILocalizationService {
     if (!this.debugMode) {
       return value;
     }
-    let pseudoLocalizedText = '_';
+    let pseudoLocalizedText = "_";
     for (const character of value) {
       if (this.ACCENTED_MAP[character]) {
         pseudoLocalizedText += this.ACCENTED_MAP[character];
