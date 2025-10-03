@@ -16,7 +16,7 @@
     "build": "tsc",
     "postpublish": "git tag lf-js-utils-v$npm_package_version && git push --tags"
   },
-  "author": ":aserfiche",
+  "author": "Laserfiche",
   "license": "MIT",
   "repository": {
     "type": "git",

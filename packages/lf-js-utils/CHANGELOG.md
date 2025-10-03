@@ -1,6 +1,16 @@
 <!--Copyright (c) Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
+## 4.0.13
+
+### Features
+
+- Add fallbacks for more languages. fr falls back to fr-CA.
+
+### Maintenance
+
+- Update dependencies
+
 ## 4.0.12
 
 ### Features
