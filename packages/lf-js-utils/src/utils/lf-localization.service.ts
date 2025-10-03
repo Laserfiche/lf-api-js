@@ -63,17 +63,23 @@ export class LfLocalizationService implements ILocalizationService {
     if (resources) {
       if (!resources.get(this.DEFAULT_LANGUAGE)) {
         throw new ResourceNotFoundError(
-          `Required language resource ${this.DEFAULT_LANGUAGE} is not found in provided map.`
+          `Required language resource ${this.DEFAULT_LANGUAGE} is not found in provided map.`,
         );
       }
       this._resources = resources;
     } else {
-      console.log('No static resources provided. Call initResourcesFromUrlAsync to load resources dynamically.');
+      console.log(
+        'No static resources provided. Call initResourcesFromUrlAsync to load resources dynamically.',
+      );
     }
     try {
       const domainCookie: string = document?.cookie ?? '';
-      const cookieLanguage: LfLanguageCookie | undefined = getLfLanguageCookie(domainCookie);
-      const language = cookieLanguage?.uic ?? window?.navigator?.language ?? this.DEFAULT_LANGUAGE;
+      const cookieLanguage: LfLanguageCookie | undefined =
+        getLfLanguageCookie(domainCookie);
+      const language =
+        cookieLanguage?.uic ??
+        window?.navigator?.language ??
+        this.DEFAULT_LANGUAGE;
       this.setLanguage(language);
     } catch {
       this.setLanguage(this.DEFAULT_LANGUAGE);
@@ -114,15 +120,19 @@ export class LfLocalizationService implements ILocalizationService {
       return;
     } catch (e) {
       console.warn(
-        `Selected language resource ${this._selectedLanguage} is not found at ${url}${this._selectedLanguage}.json.`
+        `Selected language resource ${this._selectedLanguage} is not found at ${url}${this._selectedLanguage}.json.`,
       );
       if ((e as Error)?.name === ResourceNotFoundError_NAME) {
-        const closestLanguage: string = this.mapToClosestLanguage(this._selectedLanguage);
+        const closestLanguage: string = this.mapToClosestLanguage(
+          this._selectedLanguage,
+        );
         try {
           await this.trySetLanguageResourceAsync(url, closestLanguage);
           return;
         } catch {
-          console.warn(`Language resource ${closestLanguage} is not found at ${url}${closestLanguage}.json.`);
+          console.warn(
+            `Language resource ${closestLanguage} is not found at ${url}${closestLanguage}.json.`,
+          );
         }
       } else {
         console.error(e);
@@ -131,7 +141,10 @@ export class LfLocalizationService implements ILocalizationService {
     this.setLanguageResource(this.DEFAULT_LANGUAGE);
   }
 
-  private async trySetLanguageResourceAsync(url: string, language: string): Promise<void> {
+  private async trySetLanguageResourceAsync(
+    url: string,
+    language: string,
+  ): Promise<void> {
     if (!this.setLanguageResource(language)) {
       await this.addResourceFromUrlAsync(`${url}${language}.json`, language);
       this.setLanguageResource(language);
@@ -146,11 +159,14 @@ export class LfLocalizationService implements ILocalizationService {
    */
   private async getDefaultLanguageResourceAsync(url: string) {
     try {
-      await this.addResourceFromUrlAsync(`${url}${this.DEFAULT_LANGUAGE}.json`, this.DEFAULT_LANGUAGE);
+      await this.addResourceFromUrlAsync(
+        `${url}${this.DEFAULT_LANGUAGE}.json`,
+        this.DEFAULT_LANGUAGE,
+      );
     } catch (e) {
       if ((e as Error)?.name === ResourceNotFoundError_NAME) {
         throw new ResourceNotFoundError(
-          `Required language resource ${this.DEFAULT_LANGUAGE} is not found in ${url}${this.DEFAULT_LANGUAGE}.json.`
+          `Required language resource ${this.DEFAULT_LANGUAGE} is not found in ${url}${this.DEFAULT_LANGUAGE}.json.`,
         );
       } else {
         throw e;
@@ -224,7 +240,8 @@ export class LfLocalizationService implements ILocalizationService {
       console.warn('Current resource not found.');
       return `<< ${key} >>`;
     }
-    let localizedString: string | undefined = this._currentResource?.resource[key];
+    let localizedString: string | undefined =
+      this._currentResource?.resource[key];
     if (!localizedString) {
       const defaultResource = this._resources.get(this.DEFAULT_LANGUAGE);
       if (defaultResource) {
@@ -234,7 +251,9 @@ export class LfLocalizationService implements ILocalizationService {
         console.warn(`Resource '${key}' not found in ${this._currentResource?.language}.
         Falling back to ${this.DEFAULT_LANGUAGE}.`);
       } else {
-        console.warn(`Resource '${key}' not found. Use initResourcesFromUrlAsync to load resource.`);
+        console.warn(
+          `Resource '${key}' not found. Use initResourcesFromUrlAsync to load resource.`,
+        );
         return `<< ${key} >>`;
       }
     }
@@ -242,7 +261,9 @@ export class LfLocalizationService implements ILocalizationService {
       const formattedString: string = formatString(localizedString, params);
       return this.convertToPseudoLanguage(formattedString);
     } catch {
-      console.warn(`Given arguments for ${key} did not match required number of arguments.`);
+      console.warn(
+        `Given arguments for ${key} did not match required number of arguments.`,
+      );
       return this.convertToPseudoLanguage(localizedString);
     }
   }
@@ -252,16 +273,23 @@ export class LfLocalizationService implements ILocalizationService {
    * @param url - the remote url to the resource file
    * @param code - format languagecode2-country/regioncode2
    */
-  private async addResourceFromUrlAsync(url: string, code: string): Promise<object> {
+  private async addResourceFromUrlAsync(
+    url: string,
+    code: string,
+  ): Promise<object> {
     const response = await fetch(url);
     if (response.status > 399 && response.status < 500) {
-      throw new ResourceNotFoundError(`HTTP error ${response.status} at ${url}`);
+      throw new ResourceNotFoundError(
+        `HTTP error ${response.status} at ${url}`,
+      );
     } else if (response.status === 200) {
       const json = await response.json();
       this._resources.set(code, json);
       return json;
     } else {
-      throw new Error(`addResourceFromUrlAsync(${url}) HTTP status ${response.status}.`);
+      throw new Error(
+        `addResourceFromUrlAsync(${url}) HTTP status ${response.status}.`,
+      );
     }
   }
 
@@ -278,11 +306,14 @@ export class LfLocalizationService implements ILocalizationService {
     console.warn(`Language resource ${language} is not found.`);
     const closestLanguage = this.mapToClosestLanguage(language);
     if (closestLanguage != language) {
-      const setClosestLanguageResourceFallBackSuccess = this.setLanguageResource(closestLanguage);
+      const setClosestLanguageResourceFallBackSuccess =
+        this.setLanguageResource(closestLanguage);
       if (setClosestLanguageResourceFallBackSuccess) return;
       console.warn(`Language resource ${closestLanguage} is not found.`);
     }
-    const setCurrentResourceFallBackDefaultSuccess = this.setLanguageResource(this.DEFAULT_LANGUAGE);
+    const setCurrentResourceFallBackDefaultSuccess = this.setLanguageResource(
+      this.DEFAULT_LANGUAGE,
+    );
     if (setCurrentResourceFallBackDefaultSuccess) {
       console.warn(`Use initResourcesFromUrlAsync to load resource.
     Fall back to use default language ${this.DEFAULT_LANGUAGE}.`);
@@ -309,7 +340,7 @@ export class LfLocalizationService implements ILocalizationService {
   private mapToClosestLanguage(originalLanguage: string): string {
     const languageWithoutDash = this._selectedLanguage.split('-')[0];
     switch (languageWithoutDash) {
-      case "zh":
+      case 'zh':
         switch (originalLanguage) {
           case 'zh-CN':
             return 'zh-Hans';
@@ -339,15 +370,15 @@ export class LfLocalizationService implements ILocalizationService {
       case 'de':
         return 'de-DE';
       case 'el':
-        return 'el-GR';  
+        return 'el-GR';
       case 'id':
         return 'id-ID';
       case 'ja':
-        return 'ja-JP';    
+        return 'ja-JP';
       case 'ko':
-        return 'ko-KR';      
+        return 'ko-KR';
       case 'ms':
-        return 'ms-MY';    
+        return 'ms-MY';
       case 'nl':
         return 'nl-NL';
       case 'ro':
@@ -357,7 +388,7 @@ export class LfLocalizationService implements ILocalizationService {
       case 'tr':
         return 'tr-TR';
       case 'vi':
-        return 'vi-VN'; 
+        return 'vi-VN';
       default:
         return originalLanguage;
     }
@@ -379,7 +410,7 @@ export class LfLocalizationService implements ILocalizationService {
     if (!this.debugMode) {
       return value;
     }
-    let pseudoLocalizedText = "_";
+    let pseudoLocalizedText = '_';
     for (const character of value) {
       if (this.ACCENTED_MAP[character]) {
         pseudoLocalizedText += this.ACCENTED_MAP[character];
