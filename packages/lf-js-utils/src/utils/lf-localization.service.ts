@@ -309,7 +309,7 @@ export class LfLocalizationService implements ILocalizationService {
   private mapToClosestLanguage(originalLanguage: string): string {
     const languageWithoutDash = this._selectedLanguage.split('-')[0];
     switch (languageWithoutDash) {
-      case 'zh':
+      case "zh":
         switch (originalLanguage) {
           case 'zh-CN':
             return 'zh-Hans';
@@ -327,13 +327,37 @@ export class LfLocalizationService implements ILocalizationService {
       case 'es':
         return 'es-MX';
       case 'fr':
-        return 'fr-FR';
+        return 'fr-CA';
       case 'it':
         return 'it-IT';
       case 'pt':
         return 'pt-BR';
       case 'th':
         return 'th-TH';
+      case 'cs':
+        return 'cs-CZ';
+      case 'de':
+        return 'de-DE';
+      case 'el':
+        return 'el-GR';  
+      case 'id':
+        return 'id-ID';
+      case 'ja':
+        return 'ja-JP';    
+      case 'ko':
+        return 'ko-KR';      
+      case 'ms':
+        return 'ms-MY';    
+      case 'nl':
+        return 'nl-NL';
+      case 'ro':
+        return 'ro-RO';
+      case 'sr':
+        return 'sr-Latn';
+      case 'tr':
+        return 'tr-TR';
+      case 'vi':
+        return 'vi-VN'; 
       default:
         return originalLanguage;
     }
@@ -355,7 +379,7 @@ export class LfLocalizationService implements ILocalizationService {
     if (!this.debugMode) {
       return value;
     }
-    let pseudoLocalizedText = '_';
+    let pseudoLocalizedText = "_";
     for (const character of value) {
       if (this.ACCENTED_MAP[character]) {
         pseudoLocalizedText += this.ACCENTED_MAP[character];
