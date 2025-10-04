@@ -12,6 +12,7 @@ import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 
 describe('Task Integration Tests', () => {
+  
   test('Cancel Operation', async () => {
     let deleteEntry: Entry = await CreateEntry(
       _RepositoryApiClient,
