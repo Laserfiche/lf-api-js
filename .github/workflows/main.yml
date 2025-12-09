@@ -40,6 +40,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
 
@@ -527,4 +530,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         with:
+
           artifact_name: github-pages
