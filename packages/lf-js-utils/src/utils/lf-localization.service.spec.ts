@@ -328,7 +328,7 @@ describe('LfLocalizationService', () => {
       lfLocalizationService.getString(
         'DO_YOU_WANT_TO_APPLY_YOUR_FIELD_CHANGES',
       ),
-    ).toEqual('_¿Ḓḗşḗȧ ȧƥŀīƈȧř şŭş ƈȧḿƀīǿş ḓḗ ƈȧḿƥǿ?_');
+    ).toEqual('_¿Ḓḗşḗȧ ȧƥŀīƈȧř ŀǿş ƈȧḿƀīǿş ḗƞ ḗŀ ƈȧḿƥǿ?_');
   });
 
   it(`when requested language is zh-CN, current language is set to zh-Hans`, async () => {

@@ -43,7 +43,7 @@ jobs:
         run: tar -czvf ./veracode/lf-repository-api-v1.tar.gz ./packages/lf-repository-api-client-v1/dist
 
       - name: Veracode Upload And Scan (Static Application Security Testing)
-        uses: veracode/veracode-uploadandscan-action@0.2.6
+        uses: veracode/veracode-uploadandscan-action@0.2.10
         with:
           appname: 'lf-api-js'
           createprofile: true
