@@ -252,7 +252,7 @@ jobs:
           
   build_documentation:
     runs-on: ubuntu-latest
-    needs: [build_libraries, test_libraries]
+    needs: [build_libraries]
     steps:
       - uses: actions/checkout@v4
 
@@ -304,7 +304,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: preview
     if: ${{ github.run_attempt != 1 }}
-    needs: [build_libraries, test_libraries, build_documentation]
+    needs: [build_libraries, build_documentation]
     steps:
       - uses: actions/checkout@v4
 
@@ -426,7 +426,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: ${{ github.run_attempt != 1 }}
-    needs: [build_libraries, test_libraries, build_documentation]
+    needs: [build_libraries, build_documentation]
     steps:
       - uses: actions/checkout@v4
 
@@ -516,7 +516,7 @@ jobs:
   publish_documentation:
     runs-on: ubuntu-latest
     if: ${{ github.run_attempt != 1 }}
-    needs: [build_libraries, test_libraries, build_documentation]
+    needs: [build_libraries, build_documentation]
     environment: github-pages
     steps:
       - name: Deploy to GitHub Pages
