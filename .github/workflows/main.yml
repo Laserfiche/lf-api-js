@@ -40,9 +40,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Update npm
-        run: npm install -g npm@latest
-
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
 
@@ -352,6 +349,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
       
@@ -413,11 +413,6 @@ jobs:
       - name: PNPM install
         run: pnpm install --no-frozen-lockfile
 
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
       - name: pnpm publish all preview packages
         id: publish-preview-npm
         run: pnpm publish --recursive --access public --tag next --no-git-checks --force
@@ -476,6 +471,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
 
@@ -506,11 +504,6 @@ jobs:
       - name: PNPM install
         run: pnpm install
 
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
       - name: pnpm publish all packages that version changed
         id: publish-prod-npm
         run: pnpm publish --recursive --access public  --tag latest --no-git-checks
@@ -532,3 +525,4 @@ jobs:
         with:
 
           artifact_name: github-pages
+
