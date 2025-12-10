@@ -302,7 +302,7 @@ jobs:
 
   publish-all-preview-packages:
     runs-on: ubuntu-latest
-    environment: preview
+    environment: npm_publish
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, build_documentation]
     steps:
@@ -424,7 +424,7 @@ jobs:
 
   publish-updated-production-packages:
     runs-on: ubuntu-latest
-    environment: production
+    environment: npm_publish
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, build_documentation]
     steps:
