@@ -12,7 +12,7 @@ import {
   ApiException as ApiExceptionCore,
   GetAccessTokenResponse
 } from '@laserfiche/lf-api-client-core';
-class ClientBase {}
+class ClientBase { }
 export interface IRepositoryApiClient {
   attributesClient: IAttributesClient;
   auditReasonsClient: generated.IAuditReasonsClient;
@@ -62,7 +62,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   private constructor(httpRequestHandler: HttpRequestHandler, baseUrlDebug?: string) {
     this.repoClientHandler = new RepositoryApiClientHttpHandler(httpRequestHandler);
-    if (this.repoClientHandler){
+    if (this.repoClientHandler) {
       this.defaultRequestHeaders['Accept-Encoding'] = 'gzip';
     }
     let fetch = this.repoClientHandler.httpHandler;
@@ -1459,8 +1459,7 @@ export interface ITemplateDefinitionsClient {
 
 export class TemplateDefinitionsClient
   extends generated.TemplateDefinitionsClient
-  implements ITemplateDefinitionsClient
-{
+  implements ITemplateDefinitionsClient {
   /**
    * Given a maximum page size, it will continue to make the same call to get a list of template definitions of a fixed size (i.e. maxpagesize) until it reaches the last page (i.e. when next link is null/undefined) or whenever the callback function returns false.
    * - Related: {@link generated.ITemplateDefinitionsClient.listTemplateDefinitions listTemplateDefinitions}
