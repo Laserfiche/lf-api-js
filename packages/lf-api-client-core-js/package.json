@@ -41,6 +41,7 @@
     "@types/jwk-to-pem": "^2.0.1",
     "@types/node": "^20.16.6",
     "babel-jest": "^29.7.0",
+    "dotenv": "^16.0.1",
     "isomorphic-fetch": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^30.2.0",

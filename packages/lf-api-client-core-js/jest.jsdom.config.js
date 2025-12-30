@@ -1,8 +1,14 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
   preset: 'ts-jest/presets/default-esm',
+  setupFiles: [`${__dirname}/jest.setup.js`],
   transform: {
     '^.+\.tsx?$': [
       'ts-jest',
