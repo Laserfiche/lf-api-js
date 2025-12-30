@@ -14,7 +14,7 @@ describe('ApiException', () => {
     const operationId: string = "123456789";
 
     test('ApiException returns input problem details', async () => {
-        const problemDetailsTitle: string = "Error: Repository with the given Id not found or no connection could be made."
+        const problemDetailsTitle: string = "Error: Repository with the given Id not found or no connection could be made.";
         const problemDetails = ProblemDetails.fromJS({
             "status": statusCode,
             "title": problemDetailsTitle
@@ -31,7 +31,7 @@ describe('ApiException', () => {
         const headers: { [key: string]: any; } = {
             "x-requestid": operationId,
             "x-apiserver-error": "Error%3A%20Repository%20with%20the%20given%20Id%20not%20found%20or%20no%20connection%20could%20be%20made."
-        }
+        };
 
         const apiException = new ApiException("exception message", statusCode, headers, null);
 

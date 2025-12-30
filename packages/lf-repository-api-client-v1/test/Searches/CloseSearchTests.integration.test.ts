@@ -25,18 +25,18 @@ describe('Search Integration Tests', () => {
   });
   test('Close Search Operations', async () => {
     //create search
-    let request = new AdvancedSearchRequest();
+    const request = new AdvancedSearchRequest();
     request.searchCommand = '({LF:Basic ~= "search text", option="DFANLT"})';
-    var response =
+    const response =
       await _RepositoryApiClient.searchesClient.createSearchOperation({
         repoId: repositoryId,
         request,
       });
-    let searchToken = response.token;
+    const searchToken = response.token;
     expect(searchToken).not.toBeNull();
 
     //close the search
-    var closeSearchResponse =
+    const closeSearchResponse =
       await _RepositoryApiClient.searchesClient.cancelOrCloseSearch({
         repoId: repositoryId,
         searchToken: searchToken ?? '',
@@ -45,11 +45,11 @@ describe('Search Integration Tests', () => {
   });
 
   test('Get Search Results simple Paging', async () => {
-    let maxPageSize = 1;
-    let searchRequest = new AdvancedSearchRequest();
+    const maxPageSize = 1;
+    const searchRequest = new AdvancedSearchRequest();
     searchRequest.searchCommand =
       '({LF:Basic ~= "search text", option="DFANLT"})';
-    let searchResponse =
+    const searchResponse =
       await _RepositoryApiClient.searchesClient.createSearchOperation({
         repoId: repositoryId,
         request: searchRequest,
@@ -58,8 +58,8 @@ describe('Search Integration Tests', () => {
     expect(searchToken).not.toBe('');
     expect(searchToken).not.toBeNull();
     await new Promise((r) => setTimeout(r, 5000));
-    let prefer = `maxpagesize=${maxPageSize}`;
-    let response: ODataValueContextOfIListOfEntry =
+    const prefer = `maxpagesize=${maxPageSize}`;
+    const response: ODataValueContextOfIListOfEntry =
       await _RepositoryApiClient.searchesClient.getSearchResults({
         repoId: repositoryId,
         searchToken,
@@ -69,10 +69,10 @@ describe('Search Integration Tests', () => {
       throw new Error('response.value is undefined');
     }
     expect(response).not.toBeNull();
-    let nextLink: string = response.odataNextLink ?? '';
+    const nextLink: string = response.odataNextLink ?? '';
     expect(nextLink).not.toBeNull();
     expect(response.value.length).toBeLessThanOrEqual(maxPageSize);
-    let response2 =
+    const response2 =
       await _RepositoryApiClient.searchesClient.getSearchResultsNextLink({
         nextLink,
         maxPageSize,

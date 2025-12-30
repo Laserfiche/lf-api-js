@@ -17,27 +17,27 @@ describe('Create Entry Tests', () => {
 
   afterEach(async () => {
     if (testFolder != null) {
-      let body: StartDeleteEntryRequest = new StartDeleteEntryRequest();
+      const body: StartDeleteEntryRequest = new StartDeleteEntryRequest();
       await _RepositoryApiClient.entriesClient.startDeleteEntry({ repositoryId: repositoryId, entryId: testFolder.id!, request: body });
     }
     testFolder = null;
   });
 
   test('Create Folder', async () => {
-    let newEntryName: string = 'RepositoryApiClientIntegrationTest JS CreateFolder';
-    let parentEntryId: number = 1;
-    let request: CreateEntryRequest = new CreateEntryRequest();
+    const newEntryName: string = 'RepositoryApiClientIntegrationTest JS CreateFolder';
+    const parentEntryId: number = 1;
+    const request: CreateEntryRequest = new CreateEntryRequest();
     request.entryType = CreateEntryRequestEntryType.Folder;
     request.name = newEntryName;
     request.autoRename = true;
     
-    let response: Entry = await _RepositoryApiClient.entriesClient.createEntry({
+    const response: Entry = await _RepositoryApiClient.entriesClient.createEntry({
       repositoryId: repositoryId,
       entryId: parentEntryId,
       request,
     });
     
-    let entry: Entry = response;
+    const entry: Entry = response;
     
     expect(entry).not.toBeNull();
     
@@ -51,7 +51,7 @@ describe('Create Entry Tests', () => {
   test('Create Shortcut', async () => {
     // Create new entry
     let newEntryName: string = 'RepositoryApiClientIntegrationTest JS CreateFolder';
-    let parentEntryId: number = 1;
+    const parentEntryId: number = 1;
     let request: CreateEntryRequest = new CreateEntryRequest();
     request.entryType = CreateEntryRequestEntryType.Folder;
     request.name = newEntryName;
@@ -63,7 +63,7 @@ describe('Create Entry Tests', () => {
       request,
     });
     
-    let targetEntry: Entry = response;
+    const targetEntry: Entry = response;
     
     expect(targetEntry).not.toBeNull();
     
@@ -86,7 +86,7 @@ describe('Create Entry Tests', () => {
       request,
     });
     
-    let shortcut: Shortcut = response;
+    const shortcut: Shortcut = response;
     
     expect(shortcut).not.toBeNull();
     expect(targetEntry.id).toBe(shortcut.parentId);

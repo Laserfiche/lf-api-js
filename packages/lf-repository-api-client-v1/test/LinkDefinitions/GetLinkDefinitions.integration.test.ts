@@ -10,18 +10,18 @@ import 'isomorphic-fetch';
 
 describe('Link Definitions Integration Tests', () => {
   test('Get Link Definition', async () => {
-    let linkDefinitionsResponse: ODataValueContextOfIListOfEntryLinkTypeInfo =
+    const linkDefinitionsResponse: ODataValueContextOfIListOfEntryLinkTypeInfo =
       await _RepositoryApiClient.linkDefinitionsClient.getLinkDefinitions({ repoId: repositoryId });
     if (!linkDefinitionsResponse.value) {
       throw new Error('linkDefinitionsResponse.value');
     }
-    let firstLinkDefinition = linkDefinitionsResponse.value[0];
+    const firstLinkDefinition = linkDefinitionsResponse.value[0];
     expect(firstLinkDefinition).not.toBeNull();
   });
 
 
   test('Get Link Definitions for each paging', async () => {
-    let maxPageSize = 10;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: ODataValueContextOfIListOfEntryLinkTypeInfo) => {
@@ -43,17 +43,17 @@ describe('Link Definitions Integration Tests', () => {
 
 
   test('Get Link Definitions Simple Paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
-    let response = await _RepositoryApiClient.linkDefinitionsClient.getLinkDefinitions({ repoId: repositoryId, prefer });
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
+    const response = await _RepositoryApiClient.linkDefinitionsClient.getLinkDefinitions({ repoId: repositoryId, prefer });
     if (!response.value) {
       throw new Error('response.value is undefined');
     }
     expect(response).not.toBeNull();
-    let nextLink = response.odataNextLink ?? '';
+    const nextLink = response.odataNextLink ?? '';
     expect(nextLink).not.toBeNull();
     expect(response.value.length).toBeLessThanOrEqual(maxPageSize);
-    let response2 = await _RepositoryApiClient.linkDefinitionsClient.getLinkDefinitionsNextLink({
+    const response2 = await _RepositoryApiClient.linkDefinitionsClient.getLinkDefinitionsNextLink({
       nextLink,
       maxPageSize,
     });

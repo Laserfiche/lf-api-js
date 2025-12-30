@@ -7,25 +7,25 @@ import 'isomorphic-fetch';
 
 describe('Attribute Key Integration Tests', () => {
   test('Get the attribute keys', async () => {
-    let result: ODataValueContextOfListOfAttribute =
+    const result: ODataValueContextOfListOfAttribute =
       await _RepositoryApiClient.attributesClient.getTrusteeAttributeKeyValuePairs({ repoId: repositoryId, everyone: true });
     expect(result).not.toBeNull();
   });
 
   test('Get the attribute keys simple paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
-    let result: ODataValueContextOfListOfAttribute =
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
+    const result: ODataValueContextOfListOfAttribute =
       await _RepositoryApiClient.attributesClient.getTrusteeAttributeKeyValuePairs({ repoId: repositoryId, everyone: true, prefer });
     if (!result.value) {
       throw new Error('result.value is undefined');
     }
     expect(result).not.toBeNull();
     expect(result).not.toBeNull();
-    let nextLink = result.odataNextLink ?? '';
+    const nextLink = result.odataNextLink ?? '';
     expect(nextLink).not.toBeNull();
     expect(result.value.length).toBeLessThanOrEqual(maxPageSize);
-    let response2 = await _RepositoryApiClient.attributesClient.getTrusteeAttributeKeyValuePairsNextLink({
+    const response2 = await _RepositoryApiClient.attributesClient.getTrusteeAttributeKeyValuePairsNextLink({
       nextLink,
       maxPageSize,
     });
@@ -37,7 +37,7 @@ describe('Attribute Key Integration Tests', () => {
   });
 
   test('Get Attribute for each paging', async () => {
-    let maxPageSize = 10;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: ODataValueContextOfListOfAttribute) => {
@@ -56,15 +56,15 @@ describe('Attribute Key Integration Tests', () => {
   });
 
   test('Get the attribute value by Key', async () => {
-    let result: ODataValueContextOfListOfAttribute =
+    const result: ODataValueContextOfListOfAttribute =
       await _RepositoryApiClient.attributesClient.getTrusteeAttributeKeyValuePairs({ repoId: repositoryId });
-    let attributeKeys = result.value;
+    const attributeKeys = result.value;
     if (!attributeKeys) {
       throw new Error('attributeKeys is undefined');
     }
     expect(attributeKeys).not.toBeNull();
     expect(attributeKeys.length).toBeGreaterThan(0);
-    let attributeValueResponse = await _RepositoryApiClient.attributesClient.getTrusteeAttributeValueByKey({
+    const attributeValueResponse = await _RepositoryApiClient.attributesClient.getTrusteeAttributeValueByKey({
       repoId: repositoryId,
       attributeKey: attributeKeys[0].key ?? '',
     });

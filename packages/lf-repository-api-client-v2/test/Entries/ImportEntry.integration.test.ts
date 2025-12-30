@@ -24,7 +24,7 @@ describe('Import Document Integration Tests', () => {
         const edoc : FileParameter = {
             fileName: "RepositoryApiClientIntegrationTest JS GetDocumentContent",
             data: blob
-          }
+          };
         try {
             await _RepositoryApiClient.entriesClient.importEntry({
                 repositoryId, entryId: 1, file: edoc, request: request

@@ -20,7 +20,7 @@ describe('Start Copy Entry Test', () => {
 
   afterEach(async () => {
     if (testFolder) {
-      let body: StartDeleteEntryRequest = new StartDeleteEntryRequest();
+      const body: StartDeleteEntryRequest = new StartDeleteEntryRequest();
       await _RepositoryApiClient.entriesClient.startDeleteEntry({ repositoryId: repositoryId, entryId: testFolder.id!, request: body });
     }
     testFolder = null;
@@ -28,16 +28,16 @@ describe('Start Copy Entry Test', () => {
 
   test('Start Copy Entry', async () => {
     // Create a new folder that contains the created entry
-    let testFolderName: string = 'RepositoryApiClientIntegrationTest JS CopyEntry_test_folder';
+    const testFolderName: string = 'RepositoryApiClientIntegrationTest JS CopyEntry_test_folder';
     testFolder = await CreateEntry(_RepositoryApiClient, testFolderName);
 
     // Create new entry
-    let newEntryName: string = 'RepositoryApiClientIntegrationTest JS CreateFolder';
-    let request: CreateEntryRequest = new CreateEntryRequest();
+    const newEntryName: string = 'RepositoryApiClientIntegrationTest JS CreateFolder';
+    const request: CreateEntryRequest = new CreateEntryRequest();
     request.name = newEntryName;
     request.autoRename = true;
     request.entryType = CreateEntryRequestEntryType.Folder;
-    var targetEntry: Entry = await _RepositoryApiClient.entriesClient.createEntry({
+    const targetEntry: Entry = await _RepositoryApiClient.entriesClient.createEntry({
       repositoryId: repositoryId,
       entryId: testFolder.id ?? -1,
       request,
@@ -48,11 +48,11 @@ describe('Start Copy Entry Test', () => {
     expect(targetEntry.entryType).toBe(EntryType.Folder);
 
     // Copy entry
-    let copyRequest: StartCopyEntryRequest = new StartCopyEntryRequest();
+    const copyRequest: StartCopyEntryRequest = new StartCopyEntryRequest();
     copyRequest.name = 'RepositoryApiClientIntegrationTest JS CopiedEntry';
     copyRequest.sourceId = targetEntry.id!;
     copyRequest.autoRename = true;
-    let copyResult = await _RepositoryApiClient.entriesClient.startCopyEntry({
+    const copyResult = await _RepositoryApiClient.entriesClient.startCopyEntry({
       repositoryId: repositoryId,
       entryId: testFolder.id ?? -1,
       request: copyRequest,
@@ -60,11 +60,11 @@ describe('Start Copy Entry Test', () => {
 
     expect(copyResult).not.toBeNull();
 
-    let taskId = copyResult.taskId ?? '';
+    const taskId = copyResult.taskId ?? '';
 
     // Wait for the copy operation to finish
     await new Promise((r) => setTimeout(r, 5000));
-    let opResponse: TaskCollectionResponse = await _RepositoryApiClient.tasksClient.listTasks({
+    const opResponse: TaskCollectionResponse = await _RepositoryApiClient.tasksClient.listTasks({
       repositoryId: repositoryId,
       taskIds: [taskId],
     });
@@ -72,7 +72,7 @@ describe('Start Copy Entry Test', () => {
     expect(opResponse.value).not.toBeNull();
     expect(opResponse.value!.length > 0);
 
-    let taskProgress = opResponse.value![0];
+    const taskProgress = opResponse.value![0];
     expect(taskProgress.status).toBe(TaskStatus.Completed);
   });
 });

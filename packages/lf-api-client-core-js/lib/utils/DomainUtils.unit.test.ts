@@ -11,13 +11,13 @@ import { getRepositoryEndpoint, getLfEndpoints, LfEndpoints, getOauthTokenUrl } 
 describe('DomainUtil', () => {
 
   it('getRepositoryEndpoint returns correct endpoint', () => {
-    let result = getRepositoryEndpoint('laserfiche.com');
+    const result = getRepositoryEndpoint('laserfiche.com');
 
     expect(result).toBe(`https://api.laserfiche.com/repository`);
   });
 
   it('getOauthTokenUrl returns correct endpoint', () => {
-    let result = getOauthTokenUrl('laserfiche.com');
+    const result = getOauthTokenUrl('laserfiche.com');
 
     expect(result).toBe(`https://signin.laserfiche.com/oauth/Token`);
   });

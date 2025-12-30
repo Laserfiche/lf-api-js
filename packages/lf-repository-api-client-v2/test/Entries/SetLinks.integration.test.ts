@@ -11,34 +11,34 @@ describe('Set Entries Integration Tests', () => {
 
   afterEach(async () => {
     if (testFolder != null) {
-      let request = new StartDeleteEntryRequest();
+      const request = new StartDeleteEntryRequest();
       await _RepositoryApiClient.entriesClient.startDeleteEntry({ repositoryId, entryId: testFolder.id!, request });
     }
     testFolder = null;
   });
 
   test('Set Links', async () => {
-    let sourceEntry: Entry = await CreateEntry(
+    const sourceEntry: Entry = await CreateEntry(
       _RepositoryApiClient,
       'RepositoryApiClientIntegrationTest JS SetLinks Source'
     );
     
     testFolder = sourceEntry;
-    var targetEntry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS SetLinks Target', sourceEntry.id!);
+    const targetEntry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS SetLinks Target', sourceEntry.id!);
     
-    let request = new SetLinksRequest();
-    let linkToUpdate = new LinkToUpdate();
+    const request = new SetLinksRequest();
+    const linkToUpdate = new LinkToUpdate();
     linkToUpdate.linkDefinitionId = 1;
     linkToUpdate.otherEntryId = targetEntry.id!;
     request.links = [linkToUpdate];
     
-    let result = await _RepositoryApiClient.entriesClient.setLinks({
+    const result = await _RepositoryApiClient.entriesClient.setLinks({
       repositoryId,
       entryId: sourceEntry.id ?? -1,
       request,
     });
 
-    let links = result.value!;
+    const links = result.value!;
     
     expect(links).not.toBeNull();
     expect(request.links!.length).toBe(links.length);

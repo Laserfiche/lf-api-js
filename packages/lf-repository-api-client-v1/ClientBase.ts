@@ -69,7 +69,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
     }
     let fetch = this.repoClientHandler.httpHandler;
     fetch = fetch.bind(this.repoClientHandler);
-    let http = {
+    const http = {
       fetch,
     };
     this.baseUrl = baseUrlDebug ?? '';
@@ -301,8 +301,8 @@ export class AttributesClient extends generated.AttributesClient implements IAtt
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, everyone, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.getTrusteeAttributeKeyValuePairs({
+    const { callback, repoId, everyone, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.getTrusteeAttributeKeyValuePairs({
       repoId,
       everyone,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -334,7 +334,7 @@ export class AttributesClient extends generated.AttributesClient implements IAtt
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfListOfAttribute> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfListOfAttribute>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -540,7 +540,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let {
+    const {
       callback,
       repoId,
       entryId,
@@ -556,7 +556,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
       count,
       maxPageSize,
     } = args;
-    var response = await this.getEntryListing({
+    let response = await this.getEntryListing({
       repoId,
       entryId,
       groupByEntryType,
@@ -614,9 +614,9 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, entryId, prefer, formatValue, culture, select, orderby, top, skip, count, maxPageSize } =
+    const { callback, repoId, entryId, prefer, formatValue, culture, select, orderby, top, skip, count, maxPageSize } =
       args;
-    var response = await this.getFieldValues({
+    let response = await this.getFieldValues({
       repoId,
       entryId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -665,8 +665,8 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, entryId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.getLinkValuesFromEntry({
+    const { callback, repoId, entryId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.getLinkValuesFromEntry({
       repoId,
       entryId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -713,8 +713,8 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, entryId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.getTagsAssignedToEntry({
+    const { callback, repoId, entryId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.getTagsAssignedToEntry({
       repoId,
       entryId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -746,7 +746,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfEntry> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfEntry>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -765,7 +765,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfFieldValue> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfFieldValue>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -784,7 +784,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfWEntryLinkInfo> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfWEntryLinkInfo>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -803,7 +803,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfWTagInfo> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfWEntryLinkInfo>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -882,8 +882,8 @@ export class FieldDefinitionsClient extends generated.FieldDefinitionsClient imp
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.getFieldDefinitions({
+    const { callback, repoId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.getFieldDefinitions({
       repoId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
       culture,
@@ -915,7 +915,7 @@ export class FieldDefinitionsClient extends generated.FieldDefinitionsClient imp
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfWFieldInfo> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfWFieldInfo>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1051,7 +1051,7 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let {
+    const {
       callback,
       repoId,
       searchToken,
@@ -1068,7 +1068,7 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
       count,
       maxPageSize,
     } = args;
-    var response = await this.getSearchResults({
+    let response = await this.getSearchResults({
       repoId,
       searchToken,
       groupByEntryType,
@@ -1122,8 +1122,8 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, searchToken, rowNumber, prefer, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.getSearchContextHits({
+    const { callback, repoId, searchToken, rowNumber, prefer, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.getSearchContextHits({
       repoId,
       searchToken,
       rowNumber,
@@ -1156,7 +1156,7 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfEntry> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfEntry>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1175,7 +1175,7 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfContextHit> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfContextHit>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1254,8 +1254,8 @@ export class TagDefinitionsClient extends generated.TagDefinitionsClient impleme
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.getTagDefinitions({
+    const { callback, repoId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.getTagDefinitions({
       repoId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
       culture,
@@ -1287,7 +1287,7 @@ export class TagDefinitionsClient extends generated.TagDefinitionsClient impleme
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfWTagInfo> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfWTagInfo>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1451,8 +1451,8 @@ export class TemplateDefinitionsClient
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, templateName, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.getTemplateDefinitions({
+    const { callback, repoId, templateName, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.getTemplateDefinitions({
       repoId,
       templateName,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -1504,8 +1504,8 @@ export class TemplateDefinitionsClient
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, templateId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.getTemplateFieldDefinitions({
+    const { callback, repoId, templateId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.getTemplateFieldDefinitions({
       repoId,
       templateId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -1557,8 +1557,8 @@ export class TemplateDefinitionsClient
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, templateName, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.getTemplateFieldDefinitionsByTemplateName({
+    const { callback, repoId, templateName, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.getTemplateFieldDefinitionsByTemplateName({
       repoId,
       templateName,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -1591,7 +1591,7 @@ export class TemplateDefinitionsClient
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfWTemplateInfo> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfWTemplateInfo>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1610,7 +1610,7 @@ export class TemplateDefinitionsClient
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfTemplateFieldInfo> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfTemplateFieldInfo>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1629,7 +1629,7 @@ export class TemplateDefinitionsClient
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfTemplateFieldInfo> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfTemplateFieldInfo>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1701,8 +1701,8 @@ export class LinkDefinitionsClient extends generated.LinkDefinitionsClient imple
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repoId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.getLinkDefinitions({
+    const { callback, repoId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.getLinkDefinitions({
       repoId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
       select,
@@ -1734,7 +1734,7 @@ export class LinkDefinitionsClient extends generated.LinkDefinitionsClient imple
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.ODataValueContextOfIListOfEntryLinkTypeInfo> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.ODataValueContextOfIListOfEntryLinkTypeInfo>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1752,9 +1752,9 @@ export class RepositoriesClient extends generated.RepositoriesClient {
    * @returns Get the repository resource list successfully.
    */
   public static async getSelfHostedRepositoryList(args: { baseUrl: string }): Promise<generated.RepositoryInfo[]> {
-    let { baseUrl } = args;
+    const { baseUrl } = args;
     const baseUrlWithoutSlash: string = StringUtils.trimEnd(baseUrl, '/');
-    let http = {
+    const http = {
       fetch,
     };
     return await new generated.RepositoriesClient(baseUrlWithoutSlash, http).getRepositoryList({});
@@ -1764,7 +1764,7 @@ export class RepositoriesClient extends generated.RepositoriesClient {
 export class CreateEntryResult extends generated.CreateEntryResult {
   /** @internal */
   getSummary(): string {
-    let messages = [];
+    const messages = [];
     const entryId: number = this.operations?.entryCreate?.entryId ?? 0;
     if (entryId !== 0) {
       messages.push(`entryId = ${entryId}`);

@@ -13,18 +13,18 @@ import 'isomorphic-fetch';
 
 describe('Task Integration Tests', () => {
   test('Cancel Operation', async () => {
-    let deleteEntry: Entry = await CreateEntry(
+    const deleteEntry: Entry = await CreateEntry(
       _RepositoryApiClient,
       'RepositoryApiClientIntegrationTest JS CancelOperation',
     );
-    let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
-    let result: AcceptedOperation =
+    const body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
+    const result: AcceptedOperation =
       await _RepositoryApiClient.entriesClient.deleteEntryInfo({
         repoId: repositoryId,
         entryId: deleteEntry.id ?? -1,
         request: body,
       });
-    let token: string | undefined = result.token;
+    const token: string | undefined = result.token;
     expect(token).not.toBeNull();
     expect(token).not.toBe('');
     try {
@@ -41,21 +41,21 @@ describe('Task Integration Tests', () => {
   });
 
   test('Get Operation Status', async () => {
-    let deleteEntry: Entry = await CreateEntry(
+    const deleteEntry: Entry = await CreateEntry(
       _RepositoryApiClient,
       'RepositoryApiClientIntegrationTest JS GetOperationStatus',
     );
-    let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
-    let result = await _RepositoryApiClient.entriesClient.deleteEntryInfo({
+    const body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
+    const result = await _RepositoryApiClient.entriesClient.deleteEntryInfo({
       repoId: repositoryId,
       entryId: deleteEntry.id ?? -1,
       request: body,
     });
-    let token: string | undefined = result.token;
+    const token: string | undefined = result.token;
     expect(token).not.toBeNull();
     expect(token).not.toBe('');
     await new Promise((r) => setTimeout(r, 5000));
-    let operationProgress =
+    const operationProgress =
       await _RepositoryApiClient.tasksClient.getOperationStatusAndProgress({
         repoId: repositoryId,
         operationToken: token ?? '',

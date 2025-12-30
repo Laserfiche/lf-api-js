@@ -24,7 +24,7 @@ describe('Import Document Integration Tests', () => {
         const edoc : FileParameter = {
             fileName: "RepositoryApiClientIntegrationTest JS GetDocumentContent",
             data: blob
-          }
+          };
         const importDocumentRequest = {
             repoId: repositoryId,
             parentEntryId: 1,
@@ -50,7 +50,7 @@ describe('Import Document Integration Tests', () => {
             expect(e.problemDetails.traceId).toBeUndefined();
             expect(Object.keys(e.problemDetails.extensions).length).toEqual(1);
             
-            var partialSuccessResult: CreateEntryResult = <CreateEntryResult>e.problemDetails.extensions["createEntryResult"];
+            const partialSuccessResult: CreateEntryResult = <CreateEntryResult>e.problemDetails.extensions["createEntryResult"];
             expect(partialSuccessResult).toBeDefined();
 
             expect(e.message.includes(partialSuccessResult?.operations?.entryCreate?.exceptions?.at(0)?.message));

@@ -21,7 +21,7 @@ describe('PKCEUtils', () => {
 
   it('generateCodeVerifier generates a random string of 0-9, a-z, A-Z, -._~', () => {
     const code_verifier = PKCEUtils.generateCodeVerifier();
-    expect(/[\w\-.\~]*/.test(code_verifier)).toEqual(true);
+    expect(/[\w\-.~]*/.test(code_verifier)).toEqual(true);
   });
 
   it('generateCodeChallenge transforms the result of generateCodeVerifier to a output string using SHA-256 hash function', async () => {

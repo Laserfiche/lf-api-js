@@ -7,29 +7,29 @@ import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 
 describe('Move Entries Integration Tests', () => {
-  let createdEntries: Array<Entry> = new Array();
+  const createdEntries: Array<Entry> = [];
 
   afterEach(async () => {
     for (let i = 0; i < createdEntries.length; i++) {
       if (createdEntries[i]) {
-        let body = new DeleteEntryWithAuditReason();
-        let num = Number(createdEntries[i].id);
+        const body = new DeleteEntryWithAuditReason();
+        const num = Number(createdEntries[i].id);
         await _RepositoryApiClient.entriesClient.deleteEntryInfo({ repoId: repositoryId, entryId: num, request: body });
       }
     }
   });
 
   test('Move and Rename Entry', async () => {
-    let parentFolder: Entry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS ParentFolder');
+    const parentFolder: Entry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS ParentFolder');
     createdEntries.push(parentFolder);
-    let childFolder: Entry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS ChildFolder');
+    const childFolder: Entry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS ChildFolder');
     createdEntries.push(childFolder);
 
-    let request = new PatchEntryRequest();
+    const request = new PatchEntryRequest();
     request.parentId = parentFolder.id;
     request.name = 'RepositoryApiClientIntegrationTest JS MovedFolder';
 
-    let movedEntry: Entry = await _RepositoryApiClient.entriesClient.moveOrRenameEntry({
+    const movedEntry: Entry = await _RepositoryApiClient.entriesClient.moveOrRenameEntry({
       repoId: repositoryId,
       entryId: childFolder.id ?? -1,
       request,

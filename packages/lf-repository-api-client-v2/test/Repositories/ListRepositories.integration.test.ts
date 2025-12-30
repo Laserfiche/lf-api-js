@@ -8,12 +8,12 @@ import 'isomorphic-fetch';
 
 describe('Repo List Integration Tests', () => {
   test('Get Repo Lists', async () => {
-    let response = await _RepositoryApiClient.repositoriesClient.listRepositories({});
+    const response = await _RepositoryApiClient.repositoriesClient.listRepositories({});
     let repositoryFound = false;
 
     expect(response.value).not.toBeNull();
 
-    let repositories = response.value!;
+    const repositories = response.value!;
     
     for (let i = 0; i < repositories.length; i++) {
       expect(repositories[i].id).not.toBeNull();
@@ -30,12 +30,12 @@ describe('Repo List Integration Tests', () => {
 
   if (authorizationType == authorizationTypeEnum.APIServerUsernamePassword) {
     test('Get SelfHosted Repo Lists', async () => {
-      let response = await RepositoriesClient.listSelfHostedRepositories({ baseUrl });
+      const response = await RepositoriesClient.listSelfHostedRepositories({ baseUrl });
       let repositoryFound = false;
 
       expect(response.value).not.toBeNull();
 
-      let repositories = response.value!;
+      const repositories = response.value!;
       
       for (let i = 0; i < repositories.length; i++) {
         if (repositories[i].id?.localeCompare(repositoryId, undefined, { sensitivity: "base" }) === 0) {

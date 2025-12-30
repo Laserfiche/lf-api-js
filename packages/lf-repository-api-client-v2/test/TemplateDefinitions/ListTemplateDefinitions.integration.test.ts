@@ -10,16 +10,16 @@ import 'isomorphic-fetch';
 
 describe('Template Definitions Integration Tests', () => {
   test('Get Template Definition', async () => {
-    let templateDefinitionResponse: TemplateDefinitionCollectionResponse =
+    const templateDefinitionResponse: TemplateDefinitionCollectionResponse =
       await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId });
     if (!templateDefinitionResponse.value) {
       throw new Error('templateDefinitionResponse.value');
     }
-    let firstTemplateDefinition = templateDefinitionResponse.value[0];
+    const firstTemplateDefinition = templateDefinitionResponse.value[0];
     
     expect(firstTemplateDefinition).not.toBeNull();
     
-    let result: TemplateDefinitionCollectionResponse =
+    const result: TemplateDefinitionCollectionResponse =
       await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({
         repositoryId,
         templateName: firstTemplateDefinition.name,
@@ -27,7 +27,7 @@ describe('Template Definitions Integration Tests', () => {
     if (!result.value) {
       throw new Error('result.value is undefined');
     }
-    let templateInfo = result.value[0];
+    const templateInfo = result.value[0];
     
     expect(result).not.toBeNull();
     expect(result.value.length).toBe(1);
@@ -35,30 +35,30 @@ describe('Template Definitions Integration Tests', () => {
   });
   
   test('Get Template Definition Fields', async () => {
-    let templateDefinitionResponse: TemplateDefinitionCollectionResponse =
+    const templateDefinitionResponse: TemplateDefinitionCollectionResponse =
       await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId });
     if (!templateDefinitionResponse.value) {
       throw new Error('templateDefinitionResponse.value');
     }
-    let firstTemplateDefinition = templateDefinitionResponse.value[0];
+    const firstTemplateDefinition = templateDefinitionResponse.value[0];
     
     expect(firstTemplateDefinition).not.toBeNull();
     
-    let result: TemplateFieldDefinitionCollectionResponse =
+    const result: TemplateFieldDefinitionCollectionResponse =
       await _RepositoryApiClient.templateDefinitionsClient.listTemplateFieldDefinitionsByTemplateId({
         repositoryId,
         templateId: firstTemplateDefinition.id ?? -1,
       });
     
-    let templateDefinitions = result.value;
+    const templateDefinitions = result.value;
     
     expect(templateDefinitions).not.toBeNull();
     expect(templateDefinitions?.length).toBe(firstTemplateDefinition.fieldCount);
   });
 
   test('Get Template Definitions for each paging', async () => {
-    let maxPages = 3;
-    let maxPageSize = 10;
+    const maxPages = 3;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: TemplateDefinitionCollectionResponse) => {
@@ -81,22 +81,22 @@ describe('Template Definitions Integration Tests', () => {
   });
 
   test('Get Template Definition Fields Simple Paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
     
-    let response = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId, prefer });
+    const response = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId, prefer });
     if (!response.value) {
       throw new Error('response.value is undefined');
     }
     
     expect(response).not.toBeNull();
     
-    let nextLink = response.odataNextLink ?? '';
+    const nextLink = response.odataNextLink ?? '';
     
     expect(nextLink).not.toBeNull();
     expect(response.value.length).toBeLessThanOrEqual(maxPageSize);
     
-    let response2 = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitionsNextLink({
+    const response2 = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitionsNextLink({
       nextLink,
       maxPageSize,
     });
@@ -110,31 +110,31 @@ describe('Template Definitions Integration Tests', () => {
   });
 
   test('Get Template Definition Fields by Template Name', async () => {
-    let templateDefinitionResponse: TemplateDefinitionCollectionResponse =
+    const templateDefinitionResponse: TemplateDefinitionCollectionResponse =
       await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId });
     if (!templateDefinitionResponse.value) {
       throw new Error('templateDefinitionResponse.value');
     }
-    let firstTemplateDefinition = templateDefinitionResponse.value[0];
+    const firstTemplateDefinition = templateDefinitionResponse.value[0];
     
     expect(firstTemplateDefinition).not.toBeNull();
     
-    let result: TemplateFieldDefinitionCollectionResponse =
+    const result: TemplateFieldDefinitionCollectionResponse =
       await _RepositoryApiClient.templateDefinitionsClient.listTemplateFieldDefinitionsByTemplateName({
         repositoryId,
         templateName: firstTemplateDefinition.name ?? '',
       });
-    let templateDefinitions = result.value;
+    const templateDefinitions = result.value;
     
     expect(templateDefinitions).not.toBeNull();
     expect(templateDefinitions?.length).toBe(firstTemplateDefinition.fieldCount);
   });
 
   test('Get Template Field Definition Fields Simple Paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
     
-    let response = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId, prefer });
+    const response = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId, prefer });
     
     if (!response.value) {
       throw new Error('response.value is undefined');
@@ -142,12 +142,12 @@ describe('Template Definitions Integration Tests', () => {
     
     expect(response).not.toBeNull();
     
-    let nextLink = response.odataNextLink ?? '';
+    const nextLink = response.odataNextLink ?? '';
     
     expect(nextLink).not.toBeNull();
     expect(response.value.length).toBeLessThanOrEqual(maxPageSize);
     
-    let response2 = await _RepositoryApiClient.templateDefinitionsClient.listTemplateFieldDefinitionsByTemplateIdNextLink({
+    const response2 = await _RepositoryApiClient.templateDefinitionsClient.listTemplateFieldDefinitionsByTemplateIdNextLink({
       nextLink,
       maxPageSize,
     });
@@ -161,16 +161,16 @@ describe('Template Definitions Integration Tests', () => {
   });
 
   test('Get Template Definition Fields by Id', async () => {
-    let templateDefinitionResponse: TemplateDefinitionCollectionResponse =
+    const templateDefinitionResponse: TemplateDefinitionCollectionResponse =
       await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId });
     if (!templateDefinitionResponse.value) {
       throw new Error('templateDefinitionResponse.value');
     }
-    let firstTemplateDefinition = templateDefinitionResponse.value[0];
+    const firstTemplateDefinition = templateDefinitionResponse.value[0];
     
     expect(firstTemplateDefinition).not.toBeNull();
     
-    let result = await _RepositoryApiClient.templateDefinitionsClient.getTemplateDefinition({
+    const result = await _RepositoryApiClient.templateDefinitionsClient.getTemplateDefinition({
       repositoryId,
       templateId: firstTemplateDefinition.id ?? -1,
     });
@@ -180,10 +180,10 @@ describe('Template Definitions Integration Tests', () => {
   });
 
   test('Get Template Field Definition by Template Name Simple Paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
     
-    let response = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId, prefer });
+    const response = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId, prefer });
     
     if (!response.value) {
       throw new Error('response.value is undefined');
@@ -191,12 +191,12 @@ describe('Template Definitions Integration Tests', () => {
     
     expect(response).not.toBeNull();
     
-    let nextLink = response.odataNextLink ?? '';
+    const nextLink = response.odataNextLink ?? '';
     
     expect(nextLink).not.toBeNull();
     expect(response.value.length).toBeLessThanOrEqual(maxPageSize);
     
-    let response2 =
+    const response2 =
       await _RepositoryApiClient.templateDefinitionsClient.listTemplateFieldDefinitionsByTemplateNameNextLink({
         nextLink,
         maxPageSize,

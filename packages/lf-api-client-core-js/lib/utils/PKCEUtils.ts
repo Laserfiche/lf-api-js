@@ -35,7 +35,7 @@ function generateRandomValuesFromArray(array: Uint8Array): Uint8Array {
   if (!CoreUtils.isBrowser()) {
     throw new Error('generateRandomValuesFromArray not implemented in node js.');
   }
-  let randomArray = window.crypto.getRandomValues(array);
+  const randomArray = window.crypto.getRandomValues(array);
   return randomArray;
 }
 
@@ -45,6 +45,6 @@ async function createBase64SHA256HashAsync(message: string): Promise<string> {
   }
   const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
   const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgUint8); // hash the message
-  const hashEncoded = StringUtils.arrayBufferToBase64(hashBuffer)
+  const hashEncoded = StringUtils.arrayBufferToBase64(hashBuffer);
   return hashEncoded;
 }

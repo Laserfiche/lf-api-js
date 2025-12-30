@@ -10,6 +10,7 @@
     "README.md"
   ],
   "scripts": {
+    "lint": "eslint . --ext .ts",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.node.config.js",
     "test:all": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.jsdom.config.js",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='\\.unit\\.test\\.ts$' --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='\\.unit\\.test\\.ts$' --rootDir=lib --config jest.jsdom.config.js",

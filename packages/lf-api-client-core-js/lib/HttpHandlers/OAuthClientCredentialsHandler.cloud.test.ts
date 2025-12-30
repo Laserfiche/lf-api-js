@@ -27,7 +27,7 @@ describe('OAuthClientCredentialsHandler', () => {
   });
 
   test('Correct config returns handler', () => {
-    let httpRequestHandler = new OAuthClientCredentialsHandler(
+    const httpRequestHandler = new OAuthClientCredentialsHandler(
       testServicePrincipalKey,
       testAccessKeyFromJson
     );
@@ -35,16 +35,16 @@ describe('OAuthClientCredentialsHandler', () => {
   });
 
   test('Correct config beforeFetchRequestAsync returns regional domain', async () => {
-    let httpRequestHandler = new OAuthClientCredentialsHandler(
+    const httpRequestHandler = new OAuthClientCredentialsHandler(
       envServicePrincipalKey,
       accessKey
     );
     const url = 'https://laserfiche.com/repository/';
-    let request: RequestInit = {
+    const request: RequestInit = {
       method: 'GET',
       headers: {},
     };
-    let result: BeforeFetchResult =
+    const result: BeforeFetchResult =
       await httpRequestHandler.beforeFetchRequestAsync(url, request);
     expect(result?.regionalDomain).toBeTruthy();
   });

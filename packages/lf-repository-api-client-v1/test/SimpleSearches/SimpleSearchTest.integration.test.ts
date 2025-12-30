@@ -8,9 +8,9 @@ import 'isomorphic-fetch';
 describe('Simple Search Integration Tests', () => {
 
   test('Create Simple Search', async () => {
-    let request: SimpleSearchRequest = new SimpleSearchRequest();
+    const request: SimpleSearchRequest = new SimpleSearchRequest();
     request.searchCommand = "({LF:Basic ~= \"search text\", option=\"DFANLT\"})";
-    let simpleSearchResponse = await _RepositoryApiClient.simpleSearchesClient.createSimpleSearchOperation({
+    const simpleSearchResponse = await _RepositoryApiClient.simpleSearchesClient.createSimpleSearchOperation({
       repoId: repositoryId,
       request,
     });

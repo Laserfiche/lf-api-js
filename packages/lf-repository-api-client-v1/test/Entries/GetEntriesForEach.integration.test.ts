@@ -11,10 +11,10 @@ import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 
 describe('Get Entry Tests', () => {
-  let entryId: number = 1;
+  const entryId: number = 1;
 
   test('Get Entry Listing for each paging', async () => {
-    let maxPageSize = 10;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: ODataValueContextOfIListOfEntry) => {
@@ -31,7 +31,7 @@ describe('Get Entry Tests', () => {
   });
 
   test('Get Entry Field for each paging', async () => {
-    let maxPageSize = 10;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: ODataValueContextOfIListOfFieldValue) => {
@@ -48,7 +48,7 @@ describe('Get Entry Tests', () => {
   });
 
   test('Get Entry Links for each paging', async () => {
-    let maxPageSize = 10;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: ODataValueContextOfIListOfWEntryLinkInfo) => {
@@ -65,7 +65,7 @@ describe('Get Entry Tests', () => {
   });
 
   test('Get Entry Tags for each paging', async () => {
-    let maxPageSize = 10;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: ODataValueContextOfIListOfWTagInfo) => {

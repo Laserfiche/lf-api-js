@@ -7,16 +7,16 @@ import 'isomorphic-fetch';
 
 describe('Attribute Key Integration Tests', () => {
   test('Get the attribute keys', async () => {
-    let result: AttributeCollectionResponse =
+    const result: AttributeCollectionResponse =
       await _RepositoryApiClient.attributesClient.listAttributes({ repositoryId: repositoryId, everyone: true });
     
       expect(result).not.toBeNull();
   });
 
   test('Get the attribute keys simple paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
-    let result: AttributeCollectionResponse =
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
+    const result: AttributeCollectionResponse =
       await _RepositoryApiClient.attributesClient.listAttributes({ repositoryId: repositoryId, everyone: true, prefer });
     if (!result.value) {
       throw new Error('result.value is undefined');
@@ -25,12 +25,12 @@ describe('Attribute Key Integration Tests', () => {
     expect(result).not.toBeNull();
     expect(result).not.toBeNull();
     
-    let nextLink = result.odataNextLink ?? '';
+    const nextLink = result.odataNextLink ?? '';
     
     expect(nextLink).not.toBeNull();
     expect(result.value.length).toBeLessThanOrEqual(maxPageSize);
     
-    let response2 = await _RepositoryApiClient.attributesClient.listAttributesNextLink({
+    const response2 = await _RepositoryApiClient.attributesClient.listAttributesNextLink({
       nextLink,
       maxPageSize,
     });
@@ -43,8 +43,8 @@ describe('Attribute Key Integration Tests', () => {
   });
 
   test('Get Attribute for each paging', async () => {
-    let maxPages = 3;
-    let maxPageSize = 10;
+    const maxPages = 3;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: AttributeCollectionResponse) => {
@@ -64,9 +64,9 @@ describe('Attribute Key Integration Tests', () => {
   });
 
   test('Get the attribute value by Key', async () => {
-    let result: AttributeCollectionResponse =
+    const result: AttributeCollectionResponse =
       await _RepositoryApiClient.attributesClient.listAttributes({ repositoryId: repositoryId });
-    let attributeKeys = result.value;
+    const attributeKeys = result.value;
     if (!attributeKeys) {
       throw new Error('attributeKeys is undefined');
     }
@@ -74,7 +74,7 @@ describe('Attribute Key Integration Tests', () => {
     expect(attributeKeys).not.toBeNull();
     expect(attributeKeys.length).toBeGreaterThan(0);
     
-    let attributeValueResponse = await _RepositoryApiClient.attributesClient.getAttribute({
+    const attributeValueResponse = await _RepositoryApiClient.attributesClient.getAttribute({
       repositoryId: repositoryId,
       attributeKey: attributeKeys[0].key ?? '',
     });

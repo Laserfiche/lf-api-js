@@ -8,7 +8,7 @@ import 'isomorphic-fetch';
 
 describe('Repo List Integration Tests', () => {
   test('Get Repo Lists', async () => {
-    let RepoListResponse: RepositoryInfo[] = await _RepositoryApiClient.repositoriesClient.getRepositoryList({});
+    const RepoListResponse: RepositoryInfo[] = await _RepositoryApiClient.repositoriesClient.getRepositoryList({});
     let foundRepo = false;
     for (let i = 0; i < RepoListResponse.length; i++) {
       expect(RepoListResponse[i].repoId).not.toBeNull();
@@ -22,7 +22,7 @@ describe('Repo List Integration Tests', () => {
   });
   if (authorizationType == authorizationTypeEnum.APIServerUsernamePassword) {
     test('Get SelfHosted Repo Lists', async () => {
-      let SelfHostedRepoList: RepositoryInfo[] = await RepositoriesClient.getSelfHostedRepositoryList({ baseUrl });
+      const SelfHostedRepoList: RepositoryInfo[] = await RepositoriesClient.getSelfHostedRepositoryList({ baseUrl });
       let foundRepo = false;
       for (let i = 0; i < SelfHostedRepoList.length; i++) {
         if (SelfHostedRepoList[i].repoId?.localeCompare(repositoryId, undefined, { sensitivity: "base" }) === 0) {

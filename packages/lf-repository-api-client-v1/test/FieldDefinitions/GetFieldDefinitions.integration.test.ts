@@ -7,23 +7,23 @@ import 'isomorphic-fetch';
 
 describe('Field Definitions Integration Tests', () => {
   test('Get Field Definitions', async () => {
-    let result: ODataValueContextOfIListOfWFieldInfo =
+    const result: ODataValueContextOfIListOfWFieldInfo =
       await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinitions({ repoId: repositoryId });
     expect(result.value).not.toBeNull();
   });
 
   test('Get Field Definitions simple paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
-    let response = await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinitions({ repoId: repositoryId, prefer });
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
+    const response = await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinitions({ repoId: repositoryId, prefer });
     if (!response.value) {
       throw new Error('response.value is undefined');
     }
     expect(response).not.toBeNull();
-    let nextLink: string = response.odataNextLink ?? '';
+    const nextLink: string = response.odataNextLink ?? '';
     expect(nextLink).not.toBeNull();
     expect(response.value.length).toBeLessThanOrEqual(maxPageSize);
-    let response2 = await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinitionsNextLink({
+    const response2 = await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinitionsNextLink({
       nextLink,
       maxPageSize,
     });
@@ -35,7 +35,7 @@ describe('Field Definitions Integration Tests', () => {
   });
 
   test('Get Field Definitions for each paging', async () => {
-    let maxPageSize = 10;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: ODataValueContextOfIListOfWFieldInfo) => {
@@ -52,21 +52,21 @@ describe('Field Definitions Integration Tests', () => {
   });
 
   test('Get Field Definitions by Id', async () => {
-    let FieldDefResponse: ODataValueContextOfIListOfWFieldInfo =
+    const FieldDefResponse: ODataValueContextOfIListOfWFieldInfo =
       await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinitions({ repoId: repositoryId });
     if (!FieldDefResponse.value) {
       throw new Error('FieldDefResponse.value is undefined');
     }
-    let firstFieldDef: WFieldInfo = FieldDefResponse.value[0];
+    const firstFieldDef: WFieldInfo = FieldDefResponse.value[0];
     if (!firstFieldDef) {
       throw new Error('firstFieldDef is undefined');
     }
     expect(firstFieldDef).not.toBeNull();
-    let response = await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinitionById({
+    const response = await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinitionById({
       repoId: repositoryId,
       fieldDefinitionId: firstFieldDef.id ?? -1,
     });
-    let fieldDef = response;
+    const fieldDef = response;
     expect(fieldDef.id).toBe(firstFieldDef.id);
   });
 });

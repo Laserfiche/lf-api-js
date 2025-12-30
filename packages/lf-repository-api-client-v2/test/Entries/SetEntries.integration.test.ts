@@ -15,20 +15,20 @@ import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 
 describe('Set Entries Integration Tests', () => {
-  var entry: Entry;
+  let entry: Entry;
 
   afterEach(async () => {
     if (entry) {
-      let request = new StartDeleteEntryRequest();
-      let entryId = entry.id!;
+      const request = new StartDeleteEntryRequest();
+      const entryId = entry.id!;
       await _RepositoryApiClient.entriesClient.startDeleteEntry({ repositoryId, entryId, request });
     }
   });
 
   test('Set fields', async () => {
     let field = null;
-    let fieldValue = 'a';
-    let fieldDefinitionsResponse = await _RepositoryApiClient.fieldDefinitionsClient.listFieldDefinitions({ repositoryId });
+    const fieldValue = 'a';
+    const fieldDefinitionsResponse = await _RepositoryApiClient.fieldDefinitionsClient.listFieldDefinitions({ repositoryId });
     let fieldDefinitions = fieldDefinitionsResponse.value;
     
     expect(fieldDefinitions).not.toBeNull();
@@ -48,22 +48,22 @@ describe('Set Entries Integration Tests', () => {
     expect(field).not.toBeNull();
     field = field!;
 
-    let fieldToUpdate = new FieldToUpdate();
+    const fieldToUpdate = new FieldToUpdate();
     fieldToUpdate.values = [fieldValue];
-    fieldToUpdate.name = field.name!
+    fieldToUpdate.name = field.name!;
     
-    let request = new SetFieldsRequest();
-    request.fields = [fieldToUpdate]
+    const request = new SetFieldsRequest();
+    request.fields = [fieldToUpdate];
 
     entry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS SetFields');
     
-    let entryId = entry.id!;
-    let response = await _RepositoryApiClient.entriesClient.setFields({
+    const entryId = entry.id!;
+    const response = await _RepositoryApiClient.entriesClient.setFields({
       repositoryId,
       entryId,
       request,
     });
-    let fields = response.value;
+    const fields = response.value;
 
     expect(fields).not.toBeNull();
     expect(fields!.length).toBe(1);
@@ -71,20 +71,20 @@ describe('Set Entries Integration Tests', () => {
   });
 
   test('Set Tags', async () => {
-    let tagDefinitionsResponse = await _RepositoryApiClient.tagDefinitionsClient.listTagDefinitions({ repositoryId });
-    let tagDefinitions = tagDefinitionsResponse.value!;
+    const tagDefinitionsResponse = await _RepositoryApiClient.tagDefinitionsClient.listTagDefinitions({ repositoryId });
+    const tagDefinitions = tagDefinitionsResponse.value!;
     
     expect(tagDefinitions).not.toBeNull();
     expect(tagDefinitions.length).toBeGreaterThan(0);
     
-    let tag = tagDefinitions[0].name!;
-    let request = new SetTagsRequest();
+    const tag = tagDefinitions[0].name!;
+    const request = new SetTagsRequest();
     request.tags = [tag];
     entry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS SetTags');
     
-    let entryId = entry.id!;
-    let response = await _RepositoryApiClient.entriesClient.setTags({ repositoryId, entryId: entryId, request });
-    let tags = response.value!;
+    const entryId = entry.id!;
+    const response = await _RepositoryApiClient.entriesClient.setTags({ repositoryId, entryId: entryId, request });
+    const tags = response.value!;
     
     expect(tags).not.toBeNull();
     expect(response?.value?.length).toBe(tags?.length);
@@ -94,16 +94,16 @@ describe('Set Entries Integration Tests', () => {
   test('Set Templates', async () => {
     // Find a template definition with no required fields
     let template = null;
-    let templateDefinitionResponse = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({
+    const templateDefinitionResponse = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({
       repositoryId,
     });
-    let templateDefinitions = templateDefinitionResponse.value!;
+    const templateDefinitions = templateDefinitionResponse.value!;
 
     expect(templateDefinitions).not.toBeNull();
     expect(templateDefinitions.length).toBeGreaterThan(0);
 
     for (let i = 0; i < templateDefinitions.length; i++) {
-      let templateDefinitionFieldsResponse =
+      const templateDefinitionFieldsResponse =
         await _RepositoryApiClient.templateDefinitionsClient.listTemplateFieldDefinitionsByTemplateId({
           repositoryId,
           templateId: templateDefinitions[i].id ?? -1,
@@ -117,12 +117,12 @@ describe('Set Entries Integration Tests', () => {
     expect(template).not.toBeNull();
 
     // Set the template on an entry
-    let request = new SetTemplateRequest();
+    const request = new SetTemplateRequest();
     request.templateName = template?.name!;
 
     entry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS DeleteTemplate');
 
-    let setTemplateResponse = await _RepositoryApiClient.entriesClient.setTemplate({
+    const setTemplateResponse = await _RepositoryApiClient.entriesClient.setTemplate({
       repositoryId,
       entryId: entry.id!,
       request,

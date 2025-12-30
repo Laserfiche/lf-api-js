@@ -8,14 +8,14 @@ import { StartDeleteEntryRequest } from '../../index.js';
 
 describe('Delete Entries Integration Tests', () => {
   test('Delete Entry', async () => {
-    let deleteEntry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS DeleteFolder');
-    let body: StartDeleteEntryRequest = new StartDeleteEntryRequest();
-    let result = await _RepositoryApiClient.entriesClient.startDeleteEntry({
+    const deleteEntry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS DeleteFolder');
+    const body: StartDeleteEntryRequest = new StartDeleteEntryRequest();
+    const result = await _RepositoryApiClient.entriesClient.startDeleteEntry({
       repositoryId: repositoryId,
       entryId: deleteEntry.id ?? -1,
       request: body,
     });
-    let taskId: string = result.taskId ?? '';
+    const taskId: string = result.taskId ?? '';
     
     expect(taskId).not.toBeNull();
     expect(taskId).not.toBe('');

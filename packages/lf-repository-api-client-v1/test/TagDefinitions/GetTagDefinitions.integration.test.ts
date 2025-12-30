@@ -7,13 +7,13 @@ import 'isomorphic-fetch';
 
 describe('Tag Definitions Integration Tests', () => {
   test('Get Tag Definitions', async () => {
-    let TagDefinitionsResponse: ODataValueContextOfIListOfWTagInfo =
+    const TagDefinitionsResponse: ODataValueContextOfIListOfWTagInfo =
       await _RepositoryApiClient.tagDefinitionsClient.getTagDefinitions({ repoId: repositoryId });
     expect(TagDefinitionsResponse.value).not.toBeNull();
   });
 
   test('Get Tag Definitions for each paging', async () => {
-    let maxPageSize = 10;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: ODataValueContextOfIListOfWTagInfo) => {
@@ -30,17 +30,17 @@ describe('Tag Definitions Integration Tests', () => {
   });
 
   test('Get Tag Definitions Simple Paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
-    let response = await _RepositoryApiClient.tagDefinitionsClient.getTagDefinitions({ repoId: repositoryId, prefer });
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
+    const response = await _RepositoryApiClient.tagDefinitionsClient.getTagDefinitions({ repoId: repositoryId, prefer });
     if (!response.value) {
       throw new Error('response.value is undefined');
     }
     expect(response).not.toBeNull();
-    let nextLink = response.odataNextLink ?? '';
+    const nextLink = response.odataNextLink ?? '';
     expect(nextLink).not.toBeNull();
     expect(response.value.length).toBeLessThanOrEqual(maxPageSize);
-    let response2 = await _RepositoryApiClient.tagDefinitionsClient.getTagDefinitionsNextLink({
+    const response2 = await _RepositoryApiClient.tagDefinitionsClient.getTagDefinitionsNextLink({
       nextLink,
       maxPageSize,
     });
@@ -51,15 +51,15 @@ describe('Tag Definitions Integration Tests', () => {
     expect(response2.value.length).toBeLessThanOrEqual(maxPageSize);
   });
   test('Get Tag Definitions by Id', async () => {
-    let allTagDefinitionsResponse: ODataValueContextOfIListOfWTagInfo =
+    const allTagDefinitionsResponse: ODataValueContextOfIListOfWTagInfo =
       await _RepositoryApiClient.tagDefinitionsClient.getTagDefinitions({ repoId: repositoryId });
-    let TagDefinitionsResponse = allTagDefinitionsResponse.value;
+    const TagDefinitionsResponse = allTagDefinitionsResponse.value;
     if (!TagDefinitionsResponse) {
       throw new Error('TagDefinitionsResponse is undefined');
     }
-    let firstTagDefinitionsResponse = TagDefinitionsResponse[0];
+    const firstTagDefinitionsResponse = TagDefinitionsResponse[0];
     expect(allTagDefinitionsResponse.value).not.toBeNull();
-    let tagDefinition: WTagInfo = await _RepositoryApiClient.tagDefinitionsClient.getTagDefinitionById({
+    const tagDefinition: WTagInfo = await _RepositoryApiClient.tagDefinitionsClient.getTagDefinitionById({
       repoId: repositoryId,
       tagId: firstTagDefinitionsResponse.id ?? -1,
     });

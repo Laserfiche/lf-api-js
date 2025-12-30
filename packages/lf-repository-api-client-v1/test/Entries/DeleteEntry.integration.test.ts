@@ -25,12 +25,12 @@ describe('Delete Entries Integration Tests', () => {
     }
   });
   test('Delete Entry', async () => {
-    let deleteEntry = await CreateEntry(
+    const deleteEntry = await CreateEntry(
       _RepositoryApiClient,
       'RepositoryApiClientIntegrationTest JS DeleteFolder'
     );
-    let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
-    let result = await _RepositoryApiClient.entriesClient.deleteEntryInfo({
+    const body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
+    const result = await _RepositoryApiClient.entriesClient.deleteEntryInfo({
       repoId: repositoryId,
       entryId: deleteEntry.id ?? -1,
       request: body,

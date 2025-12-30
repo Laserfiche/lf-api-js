@@ -23,36 +23,36 @@ describe('Search Integration Tests', () => {
   });
 
   test('Get Search Context Hits', async () => {
-    let request = new AdvancedSearchRequest();
+    const request = new AdvancedSearchRequest();
     request.searchCommand = '({LF:Basic ~= \"search text\", option="DFANLT"})';
-    var searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({ repoId: repositoryId, request });
+    const searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({ repoId: repositoryId, request });
     searchToken = searchResponse.token ?? '';
     expect(searchToken).not.toBeNull();
     expect(searchToken).not.toBe('');
     await new Promise((r) => setTimeout(r, 5000));
-    var searchResultsResponse = await _RepositoryApiClient.searchesClient.getSearchResults({ repoId: repositoryId, searchToken });
-    var searchResults = searchResultsResponse.value;
+    const searchResultsResponse = await _RepositoryApiClient.searchesClient.getSearchResults({ repoId: repositoryId, searchToken });
+    const searchResults = searchResultsResponse.value;
     if (!searchResults) {
       throw new Error('searchResults is undefined');
     }
     expect(searchResults).not.toBeNull();
     expect(searchResults.length > 0).toBeTruthy();
-    let rowNum = searchResults[0].rowNumber;
+    const rowNum = searchResults[0].rowNumber;
 
-    var contextHitResponse = await _RepositoryApiClient.searchesClient.getSearchContextHits({
+    const contextHitResponse = await _RepositoryApiClient.searchesClient.getSearchContextHits({
       repoId: repositoryId,
       searchToken,
       rowNumber: rowNum ?? -1,
     });
-    var contextHits = contextHitResponse.value;
+    const contextHits = contextHitResponse.value;
     expect(contextHits).not.toBeNull();
   });
 
   test('Get Search Results for each Paging', async () => {
-    let maxPageSize = 10;
-    let searchRequest = new AdvancedSearchRequest();
+    const maxPageSize = 10;
+    const searchRequest = new AdvancedSearchRequest();
     searchRequest.searchCommand = '({LF:Basic ~= \"search text\", option="DFANLT"})';
-    let searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({
+    const searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({
       repoId: repositoryId,
       request: searchRequest,
     });
@@ -76,10 +76,10 @@ describe('Search Integration Tests', () => {
   });
 
   test('Get Search Context Hits for each Paging', async () => {
-    let maxPageSize = 10;
-    let searchRequest = new AdvancedSearchRequest();
+    const maxPageSize = 10;
+    const searchRequest = new AdvancedSearchRequest();
     searchRequest.searchCommand = '({LF:Basic ~= "search", option="DFANLT"})';
-    let searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({
+    const searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({
       repoId: repositoryId,
       request: searchRequest,
     });
@@ -87,14 +87,14 @@ describe('Search Integration Tests', () => {
     expect(searchToken).not.toBe('');
     expect(searchToken).not.toBeNull();
     await new Promise((r) => setTimeout(r, 5000));
-    var searchResultsResponse = await _RepositoryApiClient.searchesClient.getSearchResults({ repoId: repositoryId, searchToken });
+    const searchResultsResponse = await _RepositoryApiClient.searchesClient.getSearchResults({ repoId: repositoryId, searchToken });
     if (!searchResultsResponse.value) {
       throw new Error('searchResultsResponse.value is undefined');
     }
-    var searchResults = searchResultsResponse.value;
+    const searchResults = searchResultsResponse.value;
     expect(searchResults).not.toBeNull();
     expect(searchResults.length > 0).toBeTruthy();
-    let rowNum = searchResults[0].rowNumber ?? 0;
+    const rowNum = searchResults[0].rowNumber ?? 0;
     let searchContextHits = 0;
     let pages = 0;
     const callback = async (response: ODataValueContextOfIListOfContextHit) => {
@@ -117,28 +117,28 @@ describe('Search Integration Tests', () => {
   });
 
   test('Get Search Results', async () => {
-    let request = new AdvancedSearchRequest();
+    const request = new AdvancedSearchRequest();
     request.searchCommand = '({LF:Basic ~= \"search text\", option="DFANLT"})';
-    var searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({ repoId: repositoryId, request });
+    const searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({ repoId: repositoryId, request });
     searchToken = searchResponse.token ?? '';
     expect(searchToken).not.toBeNull();
     expect(searchToken).not.toBe('');
     await new Promise((r) => setTimeout(r, 10000));
-    var searchResultsResponse = await _RepositoryApiClient.searchesClient.getSearchResults({ repoId: repositoryId, searchToken });
-    var searchResults = searchResultsResponse.value;
+    const searchResultsResponse = await _RepositoryApiClient.searchesClient.getSearchResults({ repoId: repositoryId, searchToken });
+    const searchResults = searchResultsResponse.value;
     expect(searchResults).not.toBeNull();
   });
 
   test('Get Search Status', async () => {
-    let request = new AdvancedSearchRequest();
+    const request = new AdvancedSearchRequest();
     request.searchCommand = '({LF:Basic ~= \"search text\", option="DFANLT"})';
-    var searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({ repoId: repositoryId, request });
+    const searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({ repoId: repositoryId, request });
     searchToken = searchResponse.token ?? '';
     expect(searchToken).not.toBeNull();
     expect(searchToken).not.toBe('');
     await new Promise((r) => setTimeout(r, 5000));
-    var searchStatusResponse = await _RepositoryApiClient.searchesClient.getSearchStatus({ repoId: repositoryId, searchToken });
-    var searchStatus = searchStatusResponse;
+    const searchStatusResponse = await _RepositoryApiClient.searchesClient.getSearchStatus({ repoId: repositoryId, searchToken });
+    const searchStatus = searchStatusResponse;
     expect(searchStatus).not.toBeNull();
     expect(searchStatus.operationToken).toBe(searchToken);
   });

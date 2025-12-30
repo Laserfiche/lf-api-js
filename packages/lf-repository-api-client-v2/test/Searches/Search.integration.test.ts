@@ -28,9 +28,9 @@ describe('Search Integration Tests', () => {
   });
 
   test('Get Search Context Hits', async () => {
-    let request = new StartSearchEntryRequest();
+    const request = new StartSearchEntryRequest();
     request.searchCommand = '({LF:Basic ~= "search text", option="DFANLT"})';
-    var searchResponse =
+    const searchResponse =
       await _RepositoryApiClient.searchesClient.startSearchEntry({
         repositoryId,
         request,
@@ -59,34 +59,34 @@ describe('Search Integration Tests', () => {
         taskId,
       });
 
-    var searchResults = searchResultsResponse.value;
+    const searchResults = searchResultsResponse.value;
     if (!searchResults) {
       throw new Error('searchResults is undefined');
     }
 
     expect(searchResults).not.toBeNull();
     expect(searchResults.length > 0).toBeTruthy();
-    let rowNum = searchResults[0].rowNumber;
+    const rowNum = searchResults[0].rowNumber;
 
-    var contextHitResponse =
+    const contextHitResponse =
       await _RepositoryApiClient.searchesClient.listSearchContextHits({
         repositoryId,
         taskId,
         rowNumber: rowNum ?? -1,
       });
-    var contextHits = contextHitResponse.value;
+    const contextHits = contextHitResponse.value;
 
     expect(contextHits).not.toBeNull();
   });
 
   test('Get Search Results for each Paging', async () => {
-    let maxPages = 3;
-    let maxPageSize = 10;
-    let searchRequest = new StartSearchEntryRequest();
+    const maxPages = 3;
+    const maxPageSize = 10;
+    const searchRequest = new StartSearchEntryRequest();
     searchRequest.searchCommand =
       '({LF:Basic ~= "search text", option="DFANLT"})';
 
-    let searchResponse =
+    const searchResponse =
       await _RepositoryApiClient.searchesClient.startSearchEntry({
         repositoryId,
         request: searchRequest,
@@ -122,11 +122,11 @@ describe('Search Integration Tests', () => {
   });
 
   test('Get Search Context Hits for each Paging', async () => {
-    let maxPages = 3;
-    let maxPageSize = 10;
-    let searchRequest = new StartSearchEntryRequest();
+    const maxPages = 3;
+    const maxPageSize = 10;
+    const searchRequest = new StartSearchEntryRequest();
     searchRequest.searchCommand = '({LF:Basic ~= "search", option="DFANLT"})';
-    let searchResponse =
+    const searchResponse =
       await _RepositoryApiClient.searchesClient.startSearchEntry({
         repositoryId,
         request: searchRequest,
@@ -157,12 +157,12 @@ describe('Search Integration Tests', () => {
     if (!searchResultsResponse || !searchResultsResponse.value) {
       throw new Error('searchResultsResponse.value is undefined');
     }
-    var searchResults = searchResultsResponse.value;
+    const searchResults = searchResultsResponse.value;
 
     expect(searchResults).not.toBeNull();
     expect(searchResults.length > 0).toBeTruthy();
 
-    let rowNum = searchResults[0].rowNumber ?? 0;
+    const rowNum = searchResults[0].rowNumber ?? 0;
     let searchContextHits = 0;
     let pages = 0;
     const callback = async (response: SearchContextHitCollectionResponse) => {
@@ -187,9 +187,9 @@ describe('Search Integration Tests', () => {
   });
 
   test('Get Search Results', async () => {
-    let request = new StartSearchEntryRequest();
+    const request = new StartSearchEntryRequest();
     request.searchCommand = '({LF:Basic ~= "search text", option="DFANLT"})';
-    var searchResponse =
+    const searchResponse =
       await _RepositoryApiClient.searchesClient.startSearchEntry({
         repositoryId,
         request,

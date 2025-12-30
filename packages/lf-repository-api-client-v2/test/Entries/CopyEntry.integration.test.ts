@@ -17,7 +17,7 @@ describe('Copy Entry Test', () => {
 
   afterEach(async () => {
     if (testFolder != null) {
-      let body: StartDeleteEntryRequest = new StartDeleteEntryRequest();
+      const body: StartDeleteEntryRequest = new StartDeleteEntryRequest();
       await _RepositoryApiClient.entriesClient.startDeleteEntry({ repositoryId: repositoryId, entryId: testFolder.id!, request: body });
     }
     testFolder = null;
@@ -26,7 +26,7 @@ describe('Copy Entry Test', () => {
   test('Copy Shortcut', async () => {
     // Create new entry
     let newEntryName: string = 'RepositoryApiClientIntegrationTest JS CreateFolder';
-    let parentEntryId: number = 1;
+    const parentEntryId: number = 1;
     let request: CreateEntryRequest = new CreateEntryRequest();
     request.entryType = CreateEntryRequestEntryType.Folder;
     request.name = newEntryName;
@@ -38,7 +38,7 @@ describe('Copy Entry Test', () => {
       request,
     });
     
-    let targetEntry: Entry = response;
+    const targetEntry: Entry = response;
     
     expect(targetEntry).not.toBeNull();
     
@@ -61,19 +61,19 @@ describe('Copy Entry Test', () => {
       request,
     });
     
-    let shortcut: Entry = response;
+    const shortcut: Entry = response;
     
     expect(shortcut).not.toBeNull();
     expect(testFolder.id!).toBe(shortcut.parentId);
     expect(EntryType.Shortcut).toBe(shortcut.entryType);
 
     // Copy Entry
-    let copyRequest = new CopyEntryRequest();
+    const copyRequest = new CopyEntryRequest();
     copyRequest.name = 'RepositoryApiClientIntegrationTest JS CopiedEntry';
     copyRequest.sourceId = shortcut.id!;
     copyRequest.autoRename = true;
     
-    let newEntry: Entry = await _RepositoryApiClient.entriesClient.copyEntry({
+    const newEntry: Entry = await _RepositoryApiClient.entriesClient.copyEntry({
       repositoryId: repositoryId,
       entryId: testFolder.id!,
       request: copyRequest,

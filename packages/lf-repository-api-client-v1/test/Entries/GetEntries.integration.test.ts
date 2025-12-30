@@ -8,15 +8,15 @@ import { authorizationTypeEnum } from '../AuthorizationType.js';
 
 describe('Get Entries Integration Tests', () => {
   let entryId: number = 1;
-  let rootPath: string | null = '\\';
-  let nonExistingPath: string | null = '\\Non Existing Path';
+  const rootPath: string | null = '\\';
+  const nonExistingPath: string | null = '\\Non Existing Path';
 
   test('Get Entry Fields', async () => {
-    let entryFieldResponse = await _RepositoryApiClient.entriesClient.getFieldValues({ repoId: repositoryId, entryId });
+    const entryFieldResponse = await _RepositoryApiClient.entriesClient.getFieldValues({ repoId: repositoryId, entryId });
     expect(entryFieldResponse?.value).not.toBeNull();
   });
   test('Get Entry Listing', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.getEntryListing({
+    const result: any = await _RepositoryApiClient.entriesClient.getEntryListing({
       repoId: repositoryId,
       entryId,
     });
@@ -24,22 +24,22 @@ describe('Get Entries Integration Tests', () => {
   });
 
   test('Get Entry Links', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.getLinkValuesFromEntry({ repoId: repositoryId, entryId });
+    const result: any = await _RepositoryApiClient.entriesClient.getLinkValuesFromEntry({ repoId: repositoryId, entryId });
     expect(result?.value).not.toBeNull();
   });
 
   test('Get Entry Tags', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.getTagsAssignedToEntry({ repoId: repositoryId, entryId });
+    const result: any = await _RepositoryApiClient.entriesClient.getTagsAssignedToEntry({ repoId: repositoryId, entryId });
     expect(result?.value).not.toBeNull();
   });
 
   test('Get Entry Return Root Folder', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.getEntry({ repoId: repositoryId, entryId });
+    const result: any = await _RepositoryApiClient.entriesClient.getEntry({ repoId: repositoryId, entryId });
     expect(result?.value).not.toBeNull();
   });
 
   test('Get Entry By Full Path Return Root Folder', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.getEntryByPath({
+    const result: any = await _RepositoryApiClient.entriesClient.getEntryByPath({
       repoId: repositoryId,
       fullPath: rootPath,
       fallbackToClosestAncestor: false,
@@ -51,7 +51,7 @@ describe('Get Entries Integration Tests', () => {
   });
 
   test('Get Entry By Full Path Return Ancestor Root Folder', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.getEntryByPath({
+    const result: any = await _RepositoryApiClient.entriesClient.getEntryByPath({
       repoId: repositoryId,
       fullPath: nonExistingPath,
       fallbackToClosestAncestor: true,
@@ -70,7 +70,7 @@ describe('Get Entries Integration Tests', () => {
       entryId = 3;
     }
 
-    let result: any = await _RepositoryApiClient.entriesClient.getDocumentContentType({
+    const result: any = await _RepositoryApiClient.entriesClient.getDocumentContentType({
       repoId: repositoryId,
       entryId: entryId,
     });
@@ -98,7 +98,7 @@ describe('Get Entries Integration Tests', () => {
       expect(e.problemDetails.traceId).toBeDefined();
       expect(e.problemDetails.extensions).toBeUndefined();
     }
-  })
+  });
 
   test('Get Document Content Type Throw Exception', async () => {
     try {
@@ -118,6 +118,6 @@ describe('Get Entries Integration Tests', () => {
       expect(e.problemDetails.traceId).toBeUndefined();
       expect(e.problemDetails.additionalProperties).toBeUndefined();
     }
-  })
+  });
 });
 

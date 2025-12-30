@@ -13,13 +13,13 @@ import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 
 describe('Create Copy Entry Tests', () => {
-  let createdEntries: Array<Entry> = new Array();
+  let createdEntries: Array<Entry> = [];
 
   afterEach(async () => {
     for (let i = 0; i < createdEntries.length; i++) {
       if (createdEntries[i]) {
-        let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
-        let num: number = Number(createdEntries[i].id);
+        const body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
+        const num: number = Number(createdEntries[i].id);
         await _RepositoryApiClient.entriesClient.deleteEntryInfo({ repoId: repositoryId, entryId: num, request: body });
       }
     }
@@ -27,18 +27,18 @@ describe('Create Copy Entry Tests', () => {
   });
 
   test('Create Copy Entry Create Folder', async () => {
-    let newEntryName: string = 'RepositoryApiClientIntegrationTest JS CreateFolder';
-    let parentEntryId: number = 1;
-    let request: PostEntryChildrenRequest = new PostEntryChildrenRequest();
+    const newEntryName: string = 'RepositoryApiClientIntegrationTest JS CreateFolder';
+    const parentEntryId: number = 1;
+    const request: PostEntryChildrenRequest = new PostEntryChildrenRequest();
     request.entryType = PostEntryChildrenEntryType.Folder;
     request.name = newEntryName;
-    let response: Entry = await _RepositoryApiClient.entriesClient.createOrCopyEntry({
+    const response: Entry = await _RepositoryApiClient.entriesClient.createOrCopyEntry({
       repoId: repositoryId,
       entryId: parentEntryId,
       request,
       autoRename: true,
     });
-    let entry: Entry = response;
+    const entry: Entry = response;
     expect(entry).not.toBeNull();
     createdEntries.push(entry);
     expect(parentEntryId).toBe(entry.parentId);
@@ -49,7 +49,7 @@ describe('Create Copy Entry Tests', () => {
   test('Create Copy Entry Create Shortcut', async () => {
     //Create new entry
     let newEntryName: string = 'RepositoryApiClientIntegrationTest JS CreateFolder';
-    let parentEntryId: number = 1;
+    const parentEntryId: number = 1;
     let request: PostEntryChildrenRequest = new PostEntryChildrenRequest();
     request.entryType = PostEntryChildrenEntryType.Folder;
     request.name = newEntryName;
@@ -59,7 +59,7 @@ describe('Create Copy Entry Tests', () => {
       request,
       autoRename: true,
     });
-    let targetEntry: Entry = response;
+    const targetEntry: Entry = response;
     expect(targetEntry).not.toBeNull();
     createdEntries.push(targetEntry);
     expect(parentEntryId).toBe(targetEntry.parentId);
@@ -77,7 +77,7 @@ describe('Create Copy Entry Tests', () => {
       request,
       autoRename: true,
     });
-    let shortcut: Shortcut = response;
+    const shortcut: Shortcut = response;
     expect(shortcut).not.toBeNull();
     createdEntries.push(shortcut);
     expect(parentEntryId).toBe(shortcut.parentId);

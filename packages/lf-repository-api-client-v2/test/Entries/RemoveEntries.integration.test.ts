@@ -10,8 +10,8 @@ describe('Remove Entries Integration Tests', () => {
   let entry: Entry;
   afterEach(async () => {
     if (entry) {
-      let request = new StartDeleteEntryRequest();
-      let entryId = Number(entry.id);
+      const request = new StartDeleteEntryRequest();
+      const entryId = Number(entry.id);
       await _RepositoryApiClient.entriesClient.startDeleteEntry({ repositoryId, entryId, request });
     }
   });
@@ -19,8 +19,8 @@ describe('Remove Entries Integration Tests', () => {
   test('Remove Template from Entry Return Entry', async () => {
     // Find a template definition with no required fields
     let template = null;
-    let templateDefinitionResponse = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId });
-    let templateDefinitions = templateDefinitionResponse.value;
+    const templateDefinitionResponse = await _RepositoryApiClient.templateDefinitionsClient.listTemplateDefinitions({ repositoryId });
+    const templateDefinitions = templateDefinitionResponse.value;
     if (!templateDefinitions) {
       throw new Error('templateDefinitions is undefined');
     }
@@ -29,7 +29,7 @@ describe('Remove Entries Integration Tests', () => {
     expect(templateDefinitions.length).toBeGreaterThan(0);
     
     for (let i = 0; i < templateDefinitions.length; i++) {
-      let templateDefinitionFieldsResponse =
+      const templateDefinitionFieldsResponse =
         await _RepositoryApiClient.templateDefinitionsClient.listTemplateFieldDefinitionsByTemplateId({
           repositoryId,
           templateId: templateDefinitions[i].id ?? -1,
@@ -42,11 +42,11 @@ describe('Remove Entries Integration Tests', () => {
     expect(template).not.toBeNull();
 
     // Set the template on an entry
-    let request = new SetTemplateRequest();
+    const request = new SetTemplateRequest();
     request.templateName = template?.name!;
     entry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS RemoveTemplateFromEntry');
-    let entryId = entry.id!;
-    let setTemplateResponse = await _RepositoryApiClient.entriesClient.setTemplate({
+    const entryId = entry.id!;
+    const setTemplateResponse = await _RepositoryApiClient.entriesClient.setTemplate({
       repositoryId,
       entryId,
       request,
@@ -56,11 +56,11 @@ describe('Remove Entries Integration Tests', () => {
     expect(setTemplateResponse.templateName).toBe(template?.name);
 
     // Delete the template on the entry
-    let DeleteTemplateResponse = await _RepositoryApiClient.entriesClient.removeTemplate({
+    const DeleteTemplateResponse = await _RepositoryApiClient.entriesClient.removeTemplate({
       repositoryId,
       entryId,
     });
-    let returnedEntry = DeleteTemplateResponse;
+    const returnedEntry = DeleteTemplateResponse;
     
     expect(returnedEntry).not.toBeNull();
     expect(returnedEntry.id).toBe(entry.id);

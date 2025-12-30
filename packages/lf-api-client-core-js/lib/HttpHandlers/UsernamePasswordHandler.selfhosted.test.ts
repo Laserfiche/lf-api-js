@@ -13,18 +13,18 @@ import 'isomorphic-fetch';
 
 describe('UsernamePasswordHandler', () => {
   test('Correct config returns handler', () => {
-    let httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
+    const httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
     expect(httpRequestHandler).toBeTruthy();
   });
 
   test('Before fetch request async returns new token', async () => {
-    let httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
+    const httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
     const url = 'https://laserfiche.com/repository/';
-    let request: RequestInit = {
+    const request: RequestInit = {
       method: 'GET',
       headers: {},
     };
-    let result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
+    const result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
     expect(result).not.toBeNull;
     expect(result?.regionalDomain).not.toBeNull;
     expect((<any>request.headers)['Authorization'].toString().substring(0, 6)).toBe('Bearer');
@@ -36,22 +36,22 @@ describe('UsernamePasswordHandler', () => {
   });
 
   test('Before fetch request async returns existing token', async () => {
-    let httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
+    const httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
     const url = 'https://laserfiche.com/repository/';
-    let request: RequestInit = {
+    const request: RequestInit = {
       method: 'GET',
       headers: {},
     };
-    let request2: RequestInit = {
+    const request2: RequestInit = {
       method: 'GET',
       headers: {},
     };
-    let result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
-    let result2: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request2);
-    let bearerTokenParameter: string = (<any>request.headers)['Authorization']
+    const result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
+    const result2: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request2);
+    const bearerTokenParameter: string = (<any>request.headers)['Authorization']
       .toString()
       .substring(6, (<any>request.headers)['Authorization'].toString().length - 1);
-    let bearerTokenParameter2: string = (<any>request2.headers)['Authorization']
+    const bearerTokenParameter2: string = (<any>request2.headers)['Authorization']
       .toString()
       .substring(6, (<any>request2.headers)['Authorization'].toString().length - 1);
     expect(result2).not.toBeNull;
@@ -61,13 +61,13 @@ describe('UsernamePasswordHandler', () => {
   });
 
   test('Before fetch request async returns regional domain', async () => {
-    let httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
+    const httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
     const url = 'https://laserfiche.com/repository/';
-    let request: RequestInit = {
+    const request: RequestInit = {
       method: 'GET',
       headers: {},
     };
-    let result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
+    const result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
     expect(result?.regionalDomain).toBeTruthy();
   });
 
@@ -78,8 +78,8 @@ describe('UsernamePasswordHandler', () => {
   ])(
     'Before fetch request async failed authentication throws exception',
     async (repositoryId, username, password, status) => {
-      let httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
-      let request: RequestInit = {
+      const httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
+      const request: RequestInit = {
         method: 'GET',
         headers: {},
       };
@@ -101,9 +101,9 @@ describe('UsernamePasswordHandler', () => {
   );
 
   test('After fetch request async token removed when unauthorized', async () => {
-    let httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
+    const httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);
     const url = 'https://laserfiche.com/repository/';
-    let request: RequestInit = {
+    const request: RequestInit = {
       method: 'GET',
       headers: {},
     };
@@ -112,19 +112,19 @@ describe('UsernamePasswordHandler', () => {
       status: 401,
       statusText: 'UNAUTHORIZED',
     };
-    let response2: Response = new Response(null, myResponse);
-    let result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
-    let retry: boolean = await httpRequestHandler.afterFetchResponseAsync(url, response2, request);
+    const response2: Response = new Response(null, myResponse);
+    const result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
+    const retry: boolean = await httpRequestHandler.afterFetchResponseAsync(url, response2, request);
     expect(retry).toBe(true);
-    let request2: RequestInit = {
+    const request2: RequestInit = {
       method: 'GET',
       headers: {},
     };
-    let result2: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request2);
-    let bearerTokenParameter: string = (<any>request.headers)['Authorization']
+    const result2: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request2);
+    const bearerTokenParameter: string = (<any>request.headers)['Authorization']
       .toString()
       .substring(6, (<any>request.headers)['Authorization'].toString().length - 1);
-    let bearerTokenParameter2: string = (<any>request2.headers)['Authorization']
+    const bearerTokenParameter2: string = (<any>request2.headers)['Authorization']
       .toString()
       .substring(6, (<any>request2.headers)['Authorization'].toString().length - 1);
     expect(result2).not.toBeNull;

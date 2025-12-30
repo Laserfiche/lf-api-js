@@ -7,15 +7,15 @@ import 'isomorphic-fetch';
 
 describe('Tag Definitions Integration Tests', () => {
   test('Get Tag Definitions', async () => {
-    let TagDefinitionsResponse: TagDefinitionCollectionResponse =
+    const TagDefinitionsResponse: TagDefinitionCollectionResponse =
       await _RepositoryApiClient.tagDefinitionsClient.listTagDefinitions({ repositoryId });
     
     expect(TagDefinitionsResponse.value).not.toBeNull();
   });
 
   test('Get Tag Definitions for each paging', async () => {
-    let maxPages = 3;
-    let maxPageSize = 10;
+    const maxPages = 3;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: TagDefinitionCollectionResponse) => {
@@ -34,10 +34,10 @@ describe('Tag Definitions Integration Tests', () => {
   });
 
   test('Get Tag Definitions Simple Paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
     
-    let response = await _RepositoryApiClient.tagDefinitionsClient.listTagDefinitions({ repositoryId, prefer });
+    const response = await _RepositoryApiClient.tagDefinitionsClient.listTagDefinitions({ repositoryId, prefer });
     
     if (!response.value) {
       throw new Error('response.value is undefined');
@@ -45,12 +45,12 @@ describe('Tag Definitions Integration Tests', () => {
     
     expect(response).not.toBeNull();
     
-    let nextLink = response.odataNextLink ?? '';
+    const nextLink = response.odataNextLink ?? '';
     
     expect(nextLink).not.toBeNull();
     expect(response.value.length).toBeLessThanOrEqual(maxPageSize);
     
-    let response2 = await _RepositoryApiClient.tagDefinitionsClient.listTagDefinitionsNextLink({
+    const response2 = await _RepositoryApiClient.tagDefinitionsClient.listTagDefinitionsNextLink({
       nextLink,
       maxPageSize,
     });
@@ -63,17 +63,17 @@ describe('Tag Definitions Integration Tests', () => {
     expect(response2.value.length).toBeLessThanOrEqual(maxPageSize);
   });
   test('Get Tag Definitions by Id', async () => {
-    let allTagDefinitionsResponse: TagDefinitionCollectionResponse =
+    const allTagDefinitionsResponse: TagDefinitionCollectionResponse =
       await _RepositoryApiClient.tagDefinitionsClient.listTagDefinitions({ repositoryId });
-    let TagDefinitionsResponse = allTagDefinitionsResponse.value;
+    const TagDefinitionsResponse = allTagDefinitionsResponse.value;
     if (!TagDefinitionsResponse) {
       throw new Error('TagDefinitionsResponse is undefined');
     }
-    let firstTagDefinitionsResponse = TagDefinitionsResponse[0];
+    const firstTagDefinitionsResponse = TagDefinitionsResponse[0];
     
     expect(allTagDefinitionsResponse.value).not.toBeNull();
     
-    let tagDefinition = await _RepositoryApiClient.tagDefinitionsClient.getTagDefinition({
+    const tagDefinition = await _RepositoryApiClient.tagDefinitionsClient.getTagDefinition({
       repositoryId,
       tagId: firstTagDefinitionsResponse.id ?? -1,
     });

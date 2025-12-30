@@ -11,11 +11,11 @@ import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 
 describe('List Entry Tests', () => {
-  let entryId: number = 1;
+  const entryId: number = 1;
 
   test('List Entries ForEach', async () => {
-    let maxPages = 3;
-    let maxPageSize = 10;
+    const maxPages = 3;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: EntryCollectionResponse) => {
@@ -34,8 +34,8 @@ describe('List Entry Tests', () => {
   });
 
   test('List Fields ForEach', async () => {
-    let maxPages = 3;
-    let maxPageSize = 10;
+    const maxPages = 3;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: FieldCollectionResponse) => {
@@ -54,8 +54,8 @@ describe('List Entry Tests', () => {
   });
 
   test('List Links ForEach', async () => {
-    let maxPages = 3;
-    let maxPageSize = 10;
+    const maxPages = 3;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: LinkCollectionResponse) => {
@@ -74,8 +74,8 @@ describe('List Entry Tests', () => {
   });
 
   test('List Tags ForEach', async () => {
-    let maxPages = 3;
-    let maxPageSize = 10;
+    const maxPages = 3;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: TagDefinitionCollectionResponse) => {

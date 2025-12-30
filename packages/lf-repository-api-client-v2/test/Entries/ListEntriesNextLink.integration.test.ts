@@ -5,75 +5,75 @@ import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 
 describe('Get Entry Next Links Tests', () => {
-  let entryId: number = 1;
+  const entryId: number = 1;
 
   test('List Fields simple paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
-    let response = await _RepositoryApiClient.entriesClient.listFields({ repositoryId, entryId, prefer });
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
+    const response = await _RepositoryApiClient.entriesClient.listFields({ repositoryId, entryId, prefer });
     
     expect(response).not.toBeNull();
     
-    let nextLink = response.odataNextLink!;
+    const nextLink = response.odataNextLink!;
     
     expect(nextLink).not.toBeNull();
     expect(response.toJSON().value.length).toBeLessThanOrEqual(maxPageSize);
     
-    let response2 = await _RepositoryApiClient.entriesClient.listFieldsNextLink({ nextLink, maxPageSize });
+    const response2 = await _RepositoryApiClient.entriesClient.listFieldsNextLink({ nextLink, maxPageSize });
     
     expect(response2).not.toBeNull();
     expect(response2.toJSON().value.length).toBeLessThanOrEqual(maxPageSize);
   });
 
   test('List Links simple paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
-    let response = await _RepositoryApiClient.entriesClient.listLinks({ repositoryId, entryId, prefer });
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
+    const response = await _RepositoryApiClient.entriesClient.listLinks({ repositoryId, entryId, prefer });
     
     expect(response).not.toBeNull();
     
-    let nextLink = response.odataNextLink!;
+    const nextLink = response.odataNextLink!;
     
     expect(nextLink).not.toBeNull();
     expect(response.toJSON().value.length).toBeLessThanOrEqual(maxPageSize);
     
-    let response2 = await _RepositoryApiClient.entriesClient.listLinksNextLink({ nextLink, maxPageSize });
+    const response2 = await _RepositoryApiClient.entriesClient.listLinksNextLink({ nextLink, maxPageSize });
     
     expect(response2).not.toBeNull();
     expect(response2.toJSON().value.length).toBeLessThanOrEqual(maxPageSize);
   });
 
   test('List Entries simple paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
-    let response = await _RepositoryApiClient.entriesClient.listEntries({ repositoryId, entryId, prefer });
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
+    const response = await _RepositoryApiClient.entriesClient.listEntries({ repositoryId, entryId, prefer });
     
     expect(response).not.toBeNull();
     
-    let nextLink = response.odataNextLink!;
+    const nextLink = response.odataNextLink!;
     
     expect(nextLink).not.toBeNull();
     expect(response.toJSON().value.length).toBeLessThanOrEqual(maxPageSize);
     
-    let response2 = await _RepositoryApiClient.entriesClient.listEntriesNextLink({ nextLink, maxPageSize });
+    const response2 = await _RepositoryApiClient.entriesClient.listEntriesNextLink({ nextLink, maxPageSize });
     
     expect(response2).not.toBeNull();
     expect(response2.toJSON().value.length).toBeLessThanOrEqual(maxPageSize);
   });
 
   test('List Tags simple paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
-    let response = await _RepositoryApiClient.entriesClient.listTags({ repositoryId, entryId, prefer });
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
+    const response = await _RepositoryApiClient.entriesClient.listTags({ repositoryId, entryId, prefer });
     
     expect(response).not.toBeNull();
     
-    let nextLink = response.odataNextLink!;
+    const nextLink = response.odataNextLink!;
     
     expect(nextLink).not.toBeNull();
     expect(response.toJSON().value.length).toBeLessThanOrEqual(maxPageSize);
     
-    let response2 = await _RepositoryApiClient.entriesClient.listTagsNextLink({ nextLink, maxPageSize });
+    const response2 = await _RepositoryApiClient.entriesClient.listTagsNextLink({ nextLink, maxPageSize });
     
     expect(response2).not.toBeNull();
     expect(response2.toJSON().value.length).toBeLessThanOrEqual(maxPageSize);

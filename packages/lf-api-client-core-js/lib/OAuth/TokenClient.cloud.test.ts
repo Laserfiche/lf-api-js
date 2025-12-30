@@ -14,7 +14,7 @@ import 'isomorphic-fetch';
 describe('getAccessTokenFromServicePrincipal', () => {
   let inst: TokenClient;
   test('Wrong domain returns null', async () => {
-    let domain = 'fake.laserfiche.com';
+    const domain = 'fake.laserfiche.com';
     inst = new TokenClient(domain);
 
     expect(
@@ -23,7 +23,7 @@ describe('getAccessTokenFromServicePrincipal', () => {
   });
 
   test('Malformed domain returns null', async () => {
-    let domain = 'blah';
+    const domain = 'blah';
     inst = new TokenClient(domain);
 
     expect(
@@ -32,10 +32,10 @@ describe('getAccessTokenFromServicePrincipal', () => {
   });
 
   test('Correct config returns access token', async () => {
-    let domain = accessKey.domain;
+    const domain = accessKey.domain;
     inst = new TokenClient(domain);
 
-    let result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
+    const result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
       envServicePrincipalKey,
       accessKey,
     );
@@ -44,10 +44,10 @@ describe('getAccessTokenFromServicePrincipal', () => {
   });
 
   test('Correct config with scope returns scope', async () => {
-    let domain = accessKey.domain;
+    const domain = accessKey.domain;
     inst = new TokenClient(domain);
 
-    let result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
+    const result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
       envServicePrincipalKey,
       accessKey,
       "repository.Read"
@@ -57,10 +57,10 @@ describe('getAccessTokenFromServicePrincipal', () => {
   });
 
   test('Correct config with incorrect scope is not included', async () => {
-    let domain = accessKey.domain;
+    const domain = accessKey.domain;
     inst = new TokenClient(domain);
 
-    let result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
+    const result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
       envServicePrincipalKey,
       accessKey,
       "repository.Read invalidScope"
@@ -83,10 +83,10 @@ describe('getAccessTokenFromServicePrincipal', () => {
   // });
 
   test('Correct domain is case insensitive', async () => {
-    let domain = accessKey.domain.toUpperCase();
+    const domain = accessKey.domain.toUpperCase();
     inst = new TokenClient(domain);
 
-    let result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
+    const result: GetAccessTokenResponse = await inst.getAccessTokenFromServicePrincipal(
       envServicePrincipalKey,
       accessKey
     );
@@ -94,7 +94,7 @@ describe('getAccessTokenFromServicePrincipal', () => {
   });
 
   test('Empty domain throws exception', async () => {
-    let domain = '';
+    const domain = '';
     expect(() => new TokenClient(domain)).toThrow();
   });
 });

@@ -12,13 +12,13 @@ import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 
 describe('Create Copy Entry Test', () => {
-  let createdEntries: Array<Entry> = new Array();
+  let createdEntries: Array<Entry> = [];
 
   afterEach(async () => {
     for (let i = 0; i < createdEntries.length; i++) {
       if (createdEntries[i]) {
-        let body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
-        let num: number = Number(createdEntries[i].id);
+        const body: DeleteEntryWithAuditReason = new DeleteEntryWithAuditReason();
+        const num: number = Number(createdEntries[i].id);
         await _RepositoryApiClient.entriesClient.deleteEntryInfo({ repoId: repositoryId, entryId: num, request: body });
         await new Promise((r) => setTimeout(r, 5000));
       }
@@ -29,7 +29,7 @@ describe('Create Copy Entry Test', () => {
   test('Create Copy Entry Copy Shortcut', async () => {
     //Create new entry
     let newEntryName: string = 'RepositoryApiClientIntegrationTest JS CreateFolder';
-    let parentEntryId: number = 1;
+    const parentEntryId: number = 1;
     let request: PostEntryChildrenRequest = new PostEntryChildrenRequest();
     request.entryType = PostEntryChildrenEntryType.Folder;
     request.name = newEntryName;
@@ -39,7 +39,7 @@ describe('Create Copy Entry Test', () => {
       request,
       autoRename: true,
     });
-    let targetEntry: Entry = response;
+    const targetEntry: Entry = response;
     expect(targetEntry).not.toBeNull();
     createdEntries.push(targetEntry);
     expect(parentEntryId).toBe(targetEntry.parentId);
@@ -57,7 +57,7 @@ describe('Create Copy Entry Test', () => {
       request,
       autoRename: true,
     });
-    let shortcut: Entry = response;
+    const shortcut: Entry = response;
     expect(shortcut).not.toBeNull();
     createdEntries.push(shortcut);
     expect(parentEntryId).toBe(shortcut.parentId);
@@ -67,7 +67,7 @@ describe('Create Copy Entry Test', () => {
     request = new PostEntryChildrenRequest();
     request.name = 'RepositoryApiClientIntegrationTest JS CopiedEntry';
     request.sourceId = shortcut.id;
-    let newEntry: Entry = await _RepositoryApiClient.entriesClient.createOrCopyEntry({
+    const newEntry: Entry = await _RepositoryApiClient.entriesClient.createOrCopyEntry({
       repoId: repositoryId,
       entryId: parentEntryId,
       request,

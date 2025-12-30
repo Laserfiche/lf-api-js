@@ -8,17 +8,17 @@ import 'isomorphic-fetch';
 
 describe('Task Integration Tests', () => {
   test('Cancel Operation', async () => {
-    let deleteEntry: Entry = await CreateEntry(
+    const deleteEntry: Entry = await CreateEntry(
       _RepositoryApiClient,
       'RepositoryApiClientIntegrationTest JS CancelOperation'
     );
-    let request = new StartDeleteEntryRequest();
-    let result = await _RepositoryApiClient.entriesClient.startDeleteEntry({
+    const request = new StartDeleteEntryRequest();
+    const result = await _RepositoryApiClient.entriesClient.startDeleteEntry({
       repositoryId,
       entryId: deleteEntry.id ?? -1,
       request,
     });
-    let taskId = result.taskId;
+    const taskId = result.taskId;
     
     expect(taskId).not.toBeNull();
     expect(taskId).not.toBe('');
@@ -32,23 +32,23 @@ describe('Task Integration Tests', () => {
   });
 
   test('Get Operation Status', async () => {
-    let deleteEntry: Entry = await CreateEntry(
+    const deleteEntry: Entry = await CreateEntry(
       _RepositoryApiClient,
       'RepositoryApiClientIntegrationTest JS GetOperationStatus'
     );
-    let request = new StartDeleteEntryRequest();
-    let result = await _RepositoryApiClient.entriesClient.startDeleteEntry({
+    const request = new StartDeleteEntryRequest();
+    const result = await _RepositoryApiClient.entriesClient.startDeleteEntry({
       repositoryId,
       entryId: deleteEntry.id ?? -1,
       request,
     });
-    let taskId = result.taskId;
+    const taskId = result.taskId;
     
     expect(taskId).not.toBeNull();
     expect(taskId).not.toBe('');
     
     await new Promise((r) => setTimeout(r, 5000));
-    let response = await _RepositoryApiClient.tasksClient.listTasks({
+    const response = await _RepositoryApiClient.tasksClient.listTasks({
       repositoryId,
       taskIds: [taskId!],
     });
@@ -57,7 +57,7 @@ describe('Task Integration Tests', () => {
     expect(response.value).not.toBeNull();
     expect(response.value!.length).toBeGreaterThan(0);
 
-    let taskProgress = response.value![0];
+    const taskProgress = response.value![0];
     expect(taskProgress.status).toBe(TaskStatus.Completed);
     expect(taskProgress.percentComplete).toBe(100);
   });

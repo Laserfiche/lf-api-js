@@ -5,17 +5,17 @@ import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 
 describe('List Entries Integration Tests', () => {
-  let entryId: number = 1;
-  let rootPath: string = '\\';
-  let nonExistingPath: string = '\\Non Existing Path';
+  const entryId: number = 1;
+  const rootPath: string = '\\';
+  const nonExistingPath: string = '\\Non Existing Path';
 
   test('List Fields', async () => {
-    let entryFieldResponse = await _RepositoryApiClient.entriesClient.listFields({ repositoryId, entryId });
+    const entryFieldResponse = await _RepositoryApiClient.entriesClient.listFields({ repositoryId, entryId });
     
     expect(entryFieldResponse?.value).not.toBeNull();
   });
   test('List Entries', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.listEntries({
+    const result: any = await _RepositoryApiClient.entriesClient.listEntries({
       repositoryId,
       entryId,
     });
@@ -24,25 +24,25 @@ describe('List Entries Integration Tests', () => {
   });
 
   test('List Links', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.listLinks({ repositoryId, entryId });
+    const result: any = await _RepositoryApiClient.entriesClient.listLinks({ repositoryId, entryId });
     
     expect(result?.value).not.toBeNull();
   });
 
   test('List Tags', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.listTags({ repositoryId, entryId });
+    const result: any = await _RepositoryApiClient.entriesClient.listTags({ repositoryId, entryId });
     
     expect(result?.value).not.toBeNull();
   });
 
   test('Get Entry Return Root Folder', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.getEntry({ repositoryId, entryId });
+    const result: any = await _RepositoryApiClient.entriesClient.getEntry({ repositoryId, entryId });
     
     expect(result?.value).not.toBeNull();
   });
 
   test('Get Entry by Full Path Returns Root Folder', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.getEntryByPath({
+    const result: any = await _RepositoryApiClient.entriesClient.getEntryByPath({
       repositoryId,
       fullPath: rootPath,
       fallbackToClosestAncestor: false,
@@ -55,7 +55,7 @@ describe('List Entries Integration Tests', () => {
   });
 
   test('Get Entry by Full Path Returns Ancestor Root Folder', async () => {
-    let result: any = await _RepositoryApiClient.entriesClient.getEntryByPath({
+    const result: any = await _RepositoryApiClient.entriesClient.getEntryByPath({
       repositoryId,
       fullPath: nonExistingPath,
       fallbackToClosestAncestor: true,
@@ -85,5 +85,5 @@ describe('List Entries Integration Tests', () => {
       expect(e.problemDetails.traceId).toBeDefined();
       expect(e.problemDetails.extensions).toBeUndefined();
     }
-  })
+  });
 });

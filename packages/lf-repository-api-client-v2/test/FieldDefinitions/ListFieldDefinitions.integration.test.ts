@@ -7,7 +7,7 @@ import 'isomorphic-fetch';
 
 describe('Field Definitions Integration Tests', () => {
   test('Get Field Definitions', async () => {
-    let result: FieldDefinitionCollectionResponse =
+    const result: FieldDefinitionCollectionResponse =
     
     await _RepositoryApiClient.fieldDefinitionsClient.listFieldDefinitions({ repositoryId });
     
@@ -15,20 +15,20 @@ describe('Field Definitions Integration Tests', () => {
   });
 
   test('Get Field Definitions simple paging', async () => {
-    let maxPageSize = 1;
-    let prefer = `maxpagesize=${maxPageSize}`;
+    const maxPageSize = 1;
+    const prefer = `maxpagesize=${maxPageSize}`;
     
-    let response = await _RepositoryApiClient.fieldDefinitionsClient.listFieldDefinitions({ repositoryId, prefer });
+    const response = await _RepositoryApiClient.fieldDefinitionsClient.listFieldDefinitions({ repositoryId, prefer });
     
     expect(response).not.toBeNull();
     expect(response.value).not.toBeNull();
     
-    let nextLink: string = response.odataNextLink ?? '';
+    const nextLink: string = response.odataNextLink ?? '';
     
     expect(nextLink).not.toBeNull();
     expect(response.value!.length).toBeLessThanOrEqual(maxPageSize);
     
-    let response2 = await _RepositoryApiClient.fieldDefinitionsClient.listFieldDefinitionsNextLink({
+    const response2 = await _RepositoryApiClient.fieldDefinitionsClient.listFieldDefinitionsNextLink({
       nextLink,
       maxPageSize,
     });
@@ -39,8 +39,8 @@ describe('Field Definitions Integration Tests', () => {
   });
 
   test('Get Field Definitions for each paging', async () => {
-    let maxPages = 3;
-    let maxPageSize = 10;
+    const maxPages = 3;
+    const maxPageSize = 10;
     let entries = 0;
     let pages = 0;
     const callback = async (response: FieldDefinitionCollectionResponse) => {
@@ -59,16 +59,16 @@ describe('Field Definitions Integration Tests', () => {
   });
 
   test('Get Field Definitions by Id', async () => {
-    let FieldDefResponse: FieldDefinitionCollectionResponse =
+    const FieldDefResponse: FieldDefinitionCollectionResponse =
       await _RepositoryApiClient.fieldDefinitionsClient.listFieldDefinitions({ repositoryId });
     if (!FieldDefResponse.value) {
       throw new Error('FieldDefResponse.value is undefined');
     }
-    let fieldDefinition1 = FieldDefResponse.value[0];
+    const fieldDefinition1 = FieldDefResponse.value[0];
     
     expect(fieldDefinition1).not.toBeNull();
     
-    let response = await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinition({
+    const response = await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinition({
       repositoryId,
       fieldId: fieldDefinition1.id ?? -1,
     });

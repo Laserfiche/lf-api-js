@@ -8,10 +8,10 @@ import { SearchEntryRequest } from '../../index.js';
 describe('Simple Search Integration Tests', () => {
 
   test('Create Simple Search', async () => {
-    let request = new SearchEntryRequest();
+    const request = new SearchEntryRequest();
     request.searchCommand = "({LF:Basic ~= \"search text\", option=\"DFANLT\"})";
     
-    let simpleSearchResponse = await _RepositoryApiClient.simpleSearchesClient.searchEntry({
+    const simpleSearchResponse = await _RepositoryApiClient.simpleSearchesClient.searchEntry({
       repositoryId,
       request,
     });

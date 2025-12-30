@@ -11,6 +11,7 @@
     "README.md"
   ],
   "scripts": {
+    "lint": "eslint . --ext .ts",
     "test": "npm run test:node",
     "test:node": "node --experimental-vm-modules --experimental-fetch node_modules/jest/bin/jest.js --rootDir=test --config jest.node.config.js --runInBand",
     "test:browser": "node --experimental-vm-modules --experimental-fetch node_modules/jest/bin/jest.js --rootDir=test --config jest.jsdom.config.js --runInBand",

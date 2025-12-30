@@ -7,7 +7,7 @@ import 'isomorphic-fetch';
 
 describe('Audit Reasons Integration Test', () => {
   test('Get the Audit Reasons', async () => {
-    let result: AuditReasons = await _RepositoryApiClient.auditReasonsClient.getAuditReasons({ repoId: repositoryId });
+    const result: AuditReasons = await _RepositoryApiClient.auditReasonsClient.getAuditReasons({ repoId: repositoryId });
     expect(result).not.toBeNull();
     expect(result.deleteEntry).not.toBeNull();
     expect(result.exportDocument).not.toBeNull();

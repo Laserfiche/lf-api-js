@@ -11,7 +11,7 @@ import { LfApiClient } from '../index.js';
 describe('API JS Tests', () => {
   test('Create api js client from access key succeeds', () => {
     // Arrange
-    let testAccessKeyJSON: string = `{
+    const testAccessKeyJSON: string = `{
         "customerId": "123456789",
         "clientId": "525524b2-afe6-47ca-8ed7-98262651047f",
         "domain": "a.clouddev.laserfiche.com",
@@ -27,12 +27,12 @@ describe('API JS Tests', () => {
         }
       }`;
 
-    let testAccessKeyFromJson: AccessKey = JSON.parse(testAccessKeyJSON);
+    const testAccessKeyFromJson: AccessKey = JSON.parse(testAccessKeyJSON);
 
-    let testServicePrincipalKey: string = 'BxLS6xxrW4Ln2aP_n6kU';
+    const testServicePrincipalKey: string = 'BxLS6xxrW4Ln2aP_n6kU';
 
     // Act
-    let apiClient = LfApiClient.createFromAccessKey(
+    const apiClient = LfApiClient.createFromAccessKey(
       testServicePrincipalKey,
       testAccessKeyFromJson
     );
@@ -45,7 +45,7 @@ describe('API JS Tests', () => {
 
   test('Create api js client from getAccessTokenFunc succeeds', () => {
     // Arrange
-    var validAccessToken: GetAccessTokenResponse = {
+    const validAccessToken: GetAccessTokenResponse = {
       access_token:
         'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhLmNsb3VkZGV2Lmxhc2VyZmljaGUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zaWduaW4uYS5jbG91ZGRldi5sYXNlcmZpY2hlLmNvbS9vYXV0aC9Ub2tlbiIsImV4cCI6MTcyNzg5OTk3MCwibmJmIjoxNzI3ODk1NzY5LCJzdWIiOiJhbGV4YW5kcmlhLmdvbWV6QGxhc2VyZmljaGUuY29tIiwiY2xpZW50X2lkIjoiYjkxUGdHUjJkUXBlWWVMMnM3OTBWWTB3IiwiY3NpZCI6IjEyMzQ1Njc4OSIsInRyaWQiOiIxMDExIiwibmFtZSI6ImFsZXhhbmRyaWEuZ29tZXoiLCJ1dHlwIjoiRnVsbCIsImd0aWQiOiIxMDc1MTUiLCJhY3NzayI6InlVdFVaMlVTbDNqTENVRktZQkczWVlJMTB2c1F4T01HVlBwWWFxUE1UUlNPRDBGT2VRU1VVQkRPRXQ3WG13REMiLCJ0Y2lkIjoiMDlhMTM4YjgtNTdjNi00ZWRiLTk0OTEtMGM0M2ZkYjNhZjNmIiwic2NvcGUiOiJyZXBvc2l0b3J5LlJlYWQgcmVwb3NpdG9yeS5Xcml0ZSIsImFzc2V0cyI6IntcIkxhc2VyZmljaGVBcGlcIjoyMDR9IiwiaWF0IjoxNzI3ODk2MzcwfQ.mgn9gG5wOgdyyS0ea-6thYT30Ei3baCnTuSaNnUNE93c0AUIVzACFr7glStAcVY0HPv8MTjHWvbaEtYdkF93Nw',
       refresh_token:
@@ -56,7 +56,7 @@ describe('API JS Tests', () => {
     };
 
     // Act
-    let apiClient = LfApiClient.createFromGetAccessTokenFunc(
+    const apiClient = LfApiClient.createFromGetAccessTokenFunc(
       async () => validAccessToken
     );
 
@@ -68,7 +68,7 @@ describe('API JS Tests', () => {
 
   test('Create api js client from HttpRequestHandler succeeds', () => {
     // Arrange
-    let testAccessKeyJSON: string = `{
+    const testAccessKeyJSON: string = `{
         "customerId": "123456789",
         "clientId": "525524b2-afe6-47ca-8ed7-98262651047f",
         "domain": "a.clouddev.laserfiche.com",
@@ -84,16 +84,16 @@ describe('API JS Tests', () => {
         }
       }`;
 
-    let testAccessKeyFromJson: AccessKey = JSON.parse(testAccessKeyJSON);
+    const testAccessKeyFromJson: AccessKey = JSON.parse(testAccessKeyJSON);
 
-    let testServicePrincipalKey: string = 'BxLS6xxrW4Ln2aP_n6kU';
-    let httpRequestHandler = new OAuthClientCredentialsHandler(
+    const testServicePrincipalKey: string = 'BxLS6xxrW4Ln2aP_n6kU';
+    const httpRequestHandler = new OAuthClientCredentialsHandler(
       testServicePrincipalKey,
       testAccessKeyFromJson
     );
 
     // Act
-    let apiClient =
+    const apiClient =
       LfApiClient.createFromHttpRequestHandler(httpRequestHandler);
 
     // Assert
