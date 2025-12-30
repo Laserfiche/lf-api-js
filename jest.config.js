@@ -61,7 +61,6 @@ export default {
       },
       testEnvironment: 'node',
       testRegex: '\\.unit\\.test\\.ts$',
-      modulePathIgnorePatterns: ['PKCEUtils.unit.test.ts'],
       moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1',
       },

@@ -12,9 +12,8 @@ export default {
     ],
   },
   testEnvironment: 'node',
-  modulePathIgnorePatterns: ["PKCEUtils.unit.test.ts"],
   reporters: ["default", ["jest-junit", { outputName: "junit-node.xml" }]],
-  testTimeout:200000,
+  testTimeout: 200000,
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
