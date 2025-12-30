@@ -12,7 +12,7 @@ import {
   GetAccessTokenResponse,
   OAuthClientCustomTokenCredentialsHandler,
 } from '@laserfiche/lf-api-client-core';
-class ClientBase {}
+class _ClientBase {}
 export interface IRepositoryApiClient {
   attributesClient: IAttributesClient;
   auditReasonsClient: generated.IAuditReasonsClient;

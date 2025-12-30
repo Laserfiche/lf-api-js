@@ -5,7 +5,6 @@ import {
   AcceptedOperation,
   DeleteEntryWithAuditReason,
   Entry,
-  OperationStatus,
 } from '../../index.js';
 import { CreateEntry } from '../BaseTest.js';
 import { _RepositoryApiClient } from '../CreateSession.js';

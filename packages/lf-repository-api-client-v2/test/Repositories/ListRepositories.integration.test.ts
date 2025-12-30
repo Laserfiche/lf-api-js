@@ -1,7 +1,7 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 import { repositoryId, authorizationType, baseUrl } from '../TestHelper.js';
-import { RepositoryCollectionResponse, RepositoriesClient } from '../../index.js';
+import { RepositoriesClient } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import { authorizationTypeEnum } from '../AuthorizationType.js';
 import 'isomorphic-fetch';

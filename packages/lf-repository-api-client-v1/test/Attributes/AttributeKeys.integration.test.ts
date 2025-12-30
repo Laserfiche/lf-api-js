@@ -1,7 +1,7 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 import { repositoryId } from '../TestHelper.js';
-import { ODataValueContextOfListOfAttribute, IRepositoryApiClient } from '../../index.js';
+import { ODataValueContextOfListOfAttribute } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
 

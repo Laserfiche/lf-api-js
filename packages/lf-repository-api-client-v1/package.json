@@ -11,7 +11,7 @@
     "README.md"
   ],
   "scripts": {
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint .",
     "test": "npm run test:node",
     "test:node": "node --experimental-vm-modules --experimental-fetch node_modules/jest/bin/jest.js --rootDir=test --config jest.node.config.js --runInBand",
     "test:browser": "node --experimental-vm-modules --experimental-fetch node_modules/jest/bin/jest.js --rootDir=test --config jest.jsdom.config.js --runInBand",
@@ -35,6 +35,7 @@
     "url": "https://github.com/Laserfiche/lf-api-js"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/isomorphic-fetch": "^0.0.35",
     "@types/jest": "^29.5.14",
     "@types/mocha": "^9.1.0",
@@ -47,7 +48,8 @@
     "nswag": "^14.1.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.4.0",
-    "typescript": "^4.5.5"
+    "typescript": "^4.5.5",
+    "typescript-eslint": "^8.51.0"
   },
   "dependencies": {
     "@laserfiche/lf-api-client-core": "workspace:^",

@@ -1,6 +1,14 @@
 {
   "cSpell.words": ["fesm"],
   "angular.enable-strict-mode-prompt": false,
+
+  // Jest extension configuration for monorepo
+  "jest.disabledWorkspaceFolders": [],
+  "jest.jestCommandLine": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+  "jest.runMode": "on-demand",
+  "jest.monitorLongRun": 60000,
+  "jest.outputConfig":"terminal-based",
+
   "powerHeader.commentMode": "line",
   "powerHeader.autoInsert.enable": true,
   "powerHeader.autoInsert.allow": "all",

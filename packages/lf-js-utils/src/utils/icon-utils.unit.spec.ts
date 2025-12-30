@@ -12,7 +12,6 @@ describe('IconUtils', () => {
             undefined: 'https://lfxstatic.com/npm/@laserfiche/lf-resource-library@5/resources/icons/document-icons.svg#undefined'
         };
         // Act, Assert
-        // eslint-disable-next-line guard-for-in
         for (const input in expectedResultByInput) {
             const expectedResult = expectedResultByInput[input];
             expect(getDocumentIconUrlFromIconId(input)).toEqual(expectedResult);
@@ -45,7 +44,6 @@ describe('IconUtils', () => {
         };
 
         // Act, Assert
-        // eslint-disable-next-line guard-for-in
         for (const input in expectedResultByInput) {
             const expectedResult = expectedResultByInput[input];
             expect(getDocumentIconIdFromExtension(input)).toEqual(expectedResult);

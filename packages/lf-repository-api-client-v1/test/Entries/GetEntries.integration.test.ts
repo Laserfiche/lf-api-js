@@ -3,7 +3,6 @@
 import { repositoryId, authorizationType } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
-import { ApiException } from '../../index.js';
 import { authorizationTypeEnum } from '../AuthorizationType.js';
 
 describe('Get Entries Integration Tests', () => {

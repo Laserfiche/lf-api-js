@@ -75,7 +75,7 @@ export class UsernamePasswordHandler implements HttpRequestHandler {
    * @param request - The HTTP request
    * @returns true if the request should be retried.
    */
-  async afterFetchResponseAsync(url: string, response: Response, request: RequestInit): Promise<boolean> {
+  async afterFetchResponseAsync(url: string, response: Response, _request: RequestInit): Promise<boolean> {
     if (response.status === 401) {
       this._accessToken = undefined;
       return true;

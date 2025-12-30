@@ -72,7 +72,7 @@ export class OAuthClientCustomTokenCredentialsHandler
   async afterFetchResponseAsync(
     url: string,
     response: Response,
-    request: RequestInit
+    _request: RequestInit
   ): Promise<boolean> {
     if (response.status === 401) {
       this._accessTokenInfo = undefined;

@@ -24,7 +24,7 @@ describe('Search Integration Tests', () => {
 
   test('Get Search Context Hits', async () => {
     const request = new AdvancedSearchRequest();
-    request.searchCommand = '({LF:Basic ~= \"search text\", option="DFANLT"})';
+    request.searchCommand = `({LF:Basic ~= "search text", option="DFANLT"})`;
     const searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({ repoId: repositoryId, request });
     searchToken = searchResponse.token ?? '';
     expect(searchToken).not.toBeNull();
@@ -51,7 +51,7 @@ describe('Search Integration Tests', () => {
   test('Get Search Results for each Paging', async () => {
     const maxPageSize = 10;
     const searchRequest = new AdvancedSearchRequest();
-    searchRequest.searchCommand = '({LF:Basic ~= \"search text\", option="DFANLT"})';
+    searchRequest.searchCommand = `({LF:Basic ~= "search text", option="DFANLT"})`;
     const searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({
       repoId: repositoryId,
       request: searchRequest,
@@ -118,7 +118,7 @@ describe('Search Integration Tests', () => {
 
   test('Get Search Results', async () => {
     const request = new AdvancedSearchRequest();
-    request.searchCommand = '({LF:Basic ~= \"search text\", option="DFANLT"})';
+    request.searchCommand = `({LF:Basic ~= "search text", option="DFANLT"})`;
     const searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({ repoId: repositoryId, request });
     searchToken = searchResponse.token ?? '';
     expect(searchToken).not.toBeNull();
@@ -131,7 +131,7 @@ describe('Search Integration Tests', () => {
 
   test('Get Search Status', async () => {
     const request = new AdvancedSearchRequest();
-    request.searchCommand = '({LF:Basic ~= \"search text\", option="DFANLT"})';
+    request.searchCommand = `({LF:Basic ~= "search text", option="DFANLT"})`;
     const searchResponse = await _RepositoryApiClient.searchesClient.createSearchOperation({ repoId: repositoryId, request });
     searchToken = searchResponse.token ?? '';
     expect(searchToken).not.toBeNull();

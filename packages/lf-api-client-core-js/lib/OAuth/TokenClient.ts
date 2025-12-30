@@ -3,7 +3,6 @@
 import { AccessKey, createClientCredentialsAuthorizationJwt } from './AccessKey.js';
 import { GetAccessTokenResponse } from './GetAccessTokenResponse.js';
 import { getOauthTokenUrl } from '../utils/DomainUtils.js';
-import { HTTPError } from '../HttpError.js';
 import { StringUtils } from '@laserfiche/lf-js-utils';
 import { ProblemDetails } from '../ProblemDetails.js';
 import { ApiException } from '../ApiException.js';

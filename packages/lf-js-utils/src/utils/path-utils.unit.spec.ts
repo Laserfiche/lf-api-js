@@ -25,7 +25,6 @@ describe('path-utils', () => {
     };
 
     // Act, Assert
-    // eslint-disable-next-line guard-for-in
     for (const input in expectedResultByInput) {
       const expectedResult = expectedResultByInput[input];
       expect(getLastPathSegment(input)).toEqual(expectedResult);
@@ -214,7 +213,6 @@ describe('path-utils', () => {
     };
 
     // Act, Assert
-    // eslint-disable-next-line guard-for-in
     for (const input in expectedResultByInput) {
       const expectedResult = expectedResultByInput[input];
       expect(getCleanedExtension(input)).toEqual(expectedResult);

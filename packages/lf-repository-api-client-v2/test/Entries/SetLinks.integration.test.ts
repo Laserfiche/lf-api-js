@@ -1,6 +1,6 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-import { repositoryId, authorizationType } from '../TestHelper.js';
+import { repositoryId } from '../TestHelper.js';
 import { Entry, LinkToUpdate, SetLinksRequest, StartDeleteEntryRequest } from '../../index.js';
 import { CreateEntry } from '../BaseTest.js';
 import { _RepositoryApiClient } from '../CreateSession.js';

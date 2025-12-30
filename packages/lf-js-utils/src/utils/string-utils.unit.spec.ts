@@ -180,7 +180,7 @@ describe('string-utils', () => {
     const expectedString = 'AAAAAA=='; // base64-encoding of [0, 0, 0, 0]
 
     // Act
-    const encodedString = arrayBufferToBase64(buffer);
+    const encodedString = arrayBufferToBase64(buffer.buffer);
 
     // Assert
     expect(encodedString).toEqual(expectedString);

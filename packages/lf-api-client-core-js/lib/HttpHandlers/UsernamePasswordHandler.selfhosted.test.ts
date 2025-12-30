@@ -46,7 +46,7 @@ describe('UsernamePasswordHandler', () => {
       method: 'GET',
       headers: {},
     };
-    const result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
+    const _result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
     const result2: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request2);
     const bearerTokenParameter: string = (<any>request.headers)['Authorization']
       .toString()
@@ -113,7 +113,7 @@ describe('UsernamePasswordHandler', () => {
       statusText: 'UNAUTHORIZED',
     };
     const response2: Response = new Response(null, myResponse);
-    const result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
+    const _result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
     const retry: boolean = await httpRequestHandler.afterFetchResponseAsync(url, response2, request);
     expect(retry).toBe(true);
     const request2: RequestInit = {

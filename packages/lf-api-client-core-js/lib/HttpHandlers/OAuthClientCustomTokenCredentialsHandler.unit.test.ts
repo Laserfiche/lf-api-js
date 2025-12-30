@@ -1,12 +1,7 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-import {
-  testAccessKeyFromJson,
-  testServicePrincipalKey,
-} from '../../testHelpers/unitTestHelpers.js';
 import { BeforeFetchResult } from './BeforeFetchResult.js';
 import { OAuthClientCustomTokenCredentialsHandler } from './OAuthClientCustomTokenCredentialsHandler.js';
-import { AccessKey } from '../OAuth/AccessKey.js';
 import 'isomorphic-fetch';
 import { GetAccessTokenResponse } from '../OAuth/GetAccessTokenResponse.js';
 
