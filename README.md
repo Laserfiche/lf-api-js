@@ -17,12 +17,7 @@ Contains the following packages:
 ## To build
 
 - To build all projects run `pnpm run build`
-- To lint run:
-
-```sh
-  cd lf-api-js
-  pnpm turbo lint
-```
+- To lint run: `pnpm turbo lint`
 
 ## To build a specific library
 
