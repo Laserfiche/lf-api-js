@@ -441,7 +441,7 @@ describe('LfLocalizationService', () => {
     lfLocalizationService = new LfLocalizationService(resources);
 
     // Act and Assert
-    let localizedString = lfLocalizationService.getString('TEST_STRING');
+    const localizedString = lfLocalizationService.getString('TEST_STRING');
     expect(localizedString).toEqual('test res');
   });
 
