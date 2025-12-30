@@ -1,6 +1,7 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
   projects: [
     {
@@ -10,15 +11,15 @@ export default {
       moduleFileExtensions: ['ts', 'js'],
       reporters: ['default', 'jest-junit'],
       transform: {
-        '^.+\\.ts$': 'ts-jest',
+        '^.+\\.ts$': [
+          'ts-jest',
+          {
+            tsconfig: 'tsconfig.test.json',
+          },
+        ],
       },
       testRegex: '(/__tests__/.*|(\\.|/)(spec))\\.ts$',
       testEnvironment: 'jsdom',
-      globals: {
-        'ts-jest': {
-          tsconfig: 'tsconfig.test.json'
-        },
-      },
       moduleNameMapper: {
         "^./(.*).js$": "./$1",
       }
@@ -30,15 +31,15 @@ export default {
       moduleFileExtensions: ['ts', 'js'],
       reporters: ['default', 'jest-junit'],
       transform: {
-        '^.+\\.ts$': 'ts-jest',
+        '^.+\\.ts$': [
+          'ts-jest',
+          {
+            tsconfig: 'tsconfig.test.json',
+          },
+        ],
       },
       testRegex: '(/__tests__/.*|(\\.|/)(spec))\\.ts$',
       testEnvironment: 'node',
-      globals: {
-        'ts-jest': {
-          tsconfig: 'tsconfig.test.json'
-        },
-      },
       moduleNameMapper: {
         "^./(.*).js$": "./$1",
       },

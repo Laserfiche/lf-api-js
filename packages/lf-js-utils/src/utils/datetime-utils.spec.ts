@@ -20,7 +20,7 @@ describe('DatetimeUtils', () => {
     const dateNoOffset: Date = new Date(deserializedDate);
     const originalDate: Date = new Date(originalDateString);
     const timeDiff: number = dateNoOffset.getTime() - originalDate.getTime();
-    const offsetInMs = new Date().getTimezoneOffset()*60000;
+    const offsetInMs = originalDate.getTimezoneOffset()*60000;
     expect(timeDiff).toEqual(offsetInMs);
   });
 
@@ -30,7 +30,7 @@ describe('DatetimeUtils', () => {
     const dateNoOffset: Date = new Date(deserializedDate);
     const originalDate: Date = new Date(originalDateTimeString);
     const timeDiff: number = dateNoOffset.getTime() - originalDate.getTime();
-    const offsetInMs = new Date().getTimezoneOffset()*60000;
+    const offsetInMs = originalDate.getTimezoneOffset()*60000;
     expect(timeDiff).toEqual(offsetInMs);
   });
 
