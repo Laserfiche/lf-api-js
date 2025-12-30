@@ -27,6 +27,7 @@
     "generate-esm-module": "npx rollup -c",
     "generate-types": "api-extractor run --local",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=test --config jest.node.config.js --runInBand",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='\\.unit\\.test\\.ts$' --rootDir=test --config jest.node.config.js --runInBand",
     "postpublish": "git tag lf-api-js-v$npm_package_version && git push --tags"
   },
   "devDependencies": {
