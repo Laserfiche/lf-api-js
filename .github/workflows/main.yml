@@ -176,7 +176,7 @@ jobs:
         env:
           ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
-          REPOSITORY_ID: ${{ secrets.DEV_US_PUBLIC_USE_REPOSITORY_ID_1 }}
+          REPOSITORY_ID_CLOUD: ${{ secrets.DEV_US_PUBLIC_USE_REPOSITORY_ID_1 }}
           AUTHORIZATION_TYPE: ${{ secrets.AUTHORIZATION_TYPE }}
           TEST_HEADER: ${{ secrets.TEST_HEADER }}
         run: pnpm --filter @laserfiche/lf-repository-api-client run test:all
@@ -209,7 +209,7 @@ jobs:
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
-          REPOSITORY_ID: ${{ secrets.DEV_CA_PUBLIC_USE_REPOSITORY_ID_1 }}
+          REPOSITORY_ID_CLOUD: ${{ secrets.DEV_CA_PUBLIC_USE_REPOSITORY_ID_1 }}
           AUTHORIZATION_TYPE: ${{ secrets.AUTHORIZATION_TYPE }}
           TEST_HEADER: ${{ secrets.TEST_HEADER }}
         run: pnpm --filter @laserfiche/lf-repository-api-client-v2 run test:node
@@ -219,7 +219,7 @@ jobs:
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
-          REPOSITORY_ID: ${{ secrets.DEV_CA_PUBLIC_USE_REPOSITORY_ID_3 }}
+          REPOSITORY_ID_CLOUD: ${{ secrets.DEV_CA_PUBLIC_USE_REPOSITORY_ID_3 }}
           AUTHORIZATION_TYPE: ${{ secrets.AUTHORIZATION_TYPE }}
           TEST_HEADER: ${{ secrets.TEST_HEADER }}
         run: pnpm --filter @laserfiche/lf-repository-api-client-v2 run test:browser

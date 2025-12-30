@@ -27,11 +27,14 @@ Contains the following packages:
 
 ## To run a command on a specific library (for example tests)
 
+- Test scripts for lf-api-client-core-js:
+  - Edit [.env](./.env)
+
 - Run `pnpm --filter ${project_name} run ${script_name}`
 - Test scripts for lf-js-utils:
   - `pnpm --filter @laserfiche/lf-js-utils run test`
 
-- Test scripts for lf-js-utils:
+- Test scripts for lf-api-client-core:
 - `pnpm --filter @laserfiche/lf-api-client-core run test:unit`
 - `pnpm --filter @laserfiche/lf-api-client-core run test:Cloud`
 - `pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted`
