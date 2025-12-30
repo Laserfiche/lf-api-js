@@ -12,8 +12,9 @@
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.node.config.js",
     "test:all": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.jsdom.config.js",
-    "test:Cloud": "node --experimental-vm-modules node_modules/jest/bin/jest.js --group=IntegrationTests/Cloud --group=UnitTests --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --group=IntegrationTests/Cloud --group=UnitTests --rootDir=lib --config jest.jsdom.config.js",
-    "test:SelfHosted": "node --experimental-vm-modules node_modules/jest/bin/jest.js --group=IntegrationTests/SelfHosted --group=UnitTests --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --group=IntegrationTests/SelfHosted --group=UnitTests --rootDir=lib --config jest.jsdom.config.js",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='\\.unit\\.test\\.ts$' --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='\\.unit\\.test\\.ts$' --rootDir=lib --config jest.jsdom.config.js",
+    "test:Cloud": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='\\.(unit|cloud)\\.test\\.ts$' --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='\\.(unit|cloud)\\.test\\.ts$' --rootDir=lib --config jest.jsdom.config.js",
+    "test:SelfHosted": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='\\.(unit|selfhosted)\\.test\\.ts$' --rootDir=lib --config jest.node.config.js && node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='\\.(unit|selfhosted)\\.test\\.ts$' --rootDir=lib --config jest.jsdom.config.js",
     "example": "cd example && npm i && npm start",
     "build": "npm run clean && tsc -b",
     "build:watch": "tsc -b --watch",
@@ -42,7 +43,6 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-junit": "^13.0.0",
-    "jest-runner-groups": "2.2.0",
     "ts-jest": "^29.2.5",
     "tslib": "^2.6.3",
     "typescript": "^4.5.4"

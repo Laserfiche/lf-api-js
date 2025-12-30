@@ -27,7 +27,11 @@ Contains the following packages:
 ## To run a command on a specific library (for example tests)
 
 - Run `pnpm --filter ${project_name} run ${script_name}`
-- Example to run the "cloud" tests on `@laserfiche/lf-api-client-core` run `pnpm --filter @laserfiche/lf-api-client-core run test:Cloud`
+- Test scripts for lf-js-utils:
+  - `pnpm --filter @laserfiche/lf-js-utils run test`
+  - `pnpm --filter @laserfiche/lf-api-client-core run test:unit`
+  - `pnpm --filter @laserfiche/lf-api-client-core run test:Cloud`
+  - `pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted`
 
 ## To publish a new package
 
