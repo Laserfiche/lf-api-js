@@ -3,7 +3,6 @@
 import { AccessKey, createClientCredentialsAuthorizationJwt } from './AccessKey.js';
 import { GetAccessTokenResponse } from './GetAccessTokenResponse.js';
 import { getOauthTokenUrl } from '../utils/DomainUtils.js';
-import { HTTPError } from '../HttpError.js';
 import { StringUtils } from '@laserfiche/lf-js-utils';
 import { ProblemDetails } from '../ProblemDetails.js';
 import { ApiException } from '../ApiException.js';
@@ -82,7 +81,7 @@ export class TokenClient implements ITokenClient {
     client_secret?: string
   ): Promise<GetAccessTokenResponse> {
     const request = this.createRefreshTokenRequest(refresh_token, client_id, client_secret);
-    let url = this._baseUrl;
+    const url = this._baseUrl;
     const res: Response = await fetch(url, request);
     if (res.status === 200) {
       const getAccessTokenResponse = await res.json();
@@ -123,7 +122,7 @@ export class TokenClient implements ITokenClient {
       client_secret,
       scope
     );
-    let url = this._baseUrl;
+    const url = this._baseUrl;
     const res: Response = await fetch(url, request);
     if (res.status === 200) {
       const getAccessTokenResponse = await res.json();
@@ -215,7 +214,7 @@ export class TokenClient implements ITokenClient {
   private createRefreshTokenRequest(refreshToken: string, client_id: string, client_secret?: string): RequestInit {
     const request: RequestInit = { method: 'POST' };
     const headers = this.getPostRequestHeaders(client_id, client_secret);
-    let body: any= {
+    const body: any= {
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
       client_id

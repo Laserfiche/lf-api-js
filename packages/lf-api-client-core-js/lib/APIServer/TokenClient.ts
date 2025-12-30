@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 import { CreateConnectionRequest } from './CreateConnectionRequest.js';
 import { SessionKeyInfo } from './SessionKeyInfo.js';
-import { HTTPError } from '../HttpError.js';
 import { ProblemDetails } from '../ProblemDetails.js';
 import { ApiException } from '../ApiException.js';
 

@@ -17,6 +17,12 @@ Contains the following packages:
 ## To build
 
 - To build all projects run `pnpm run build`
+- To lint run:
+
+```sh
+  cd lf-api-js
+  pnpm turbo lint
+```
 
 ## To build a specific library
 
@@ -27,15 +33,21 @@ Contains the following packages:
 ## To run a command on a specific library (for example tests)
 
 - Run `pnpm --filter ${project_name} run ${script_name}`
-- Example to run the "cloud" tests on `@laserfiche/lf-api-client-core` run `pnpm --filter @laserfiche/lf-api-client-core run test:Cloud`
+- Test scripts for lf-js-utils:
+  - `pnpm --filter @laserfiche/lf-js-utils run test`
+
+- Test scripts for lf-js-utils:
+- `pnpm --filter @laserfiche/lf-api-client-core run test:unit`
+- `pnpm --filter @laserfiche/lf-api-client-core run test:Cloud`
+- `pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted`
 
 ## To publish a new package
 
 1. Update the version in [main.yml](https://github.com/Laserfiche/lf-api-js/blob/main/.github/workflows/main.yml) for the package that you want to update
-    - `NPM_API_CLIENT_V1_VERSION` for `@laserfiche/lf-repository-api-client`
-    - `NPM_API_CLIENT_V2_VERSION` for `@laserfiche/lf-repository-api-client-v2`
-    - `NPM_CLIENT_CORE_VERSION` for `@laserfiche/lf-api-client-core`
-1. Update CHANGELOG  in the folder for the package you are updating (i.e. `packages/lf-repository-api-client-v1`)
+   - `NPM_API_CLIENT_V1_VERSION` for `@laserfiche/lf-repository-api-client`
+   - `NPM_API_CLIENT_V2_VERSION` for `@laserfiche/lf-repository-api-client-v2`
+   - `NPM_CLIENT_CORE_VERSION` for `@laserfiche/lf-api-client-core`
+1. Update CHANGELOG in the folder for the package you are updating (i.e. `packages/lf-repository-api-client-v1`)
 1. Run pipeline in Github and publish preview package
 1. Test preview package
 1. Run publish production package

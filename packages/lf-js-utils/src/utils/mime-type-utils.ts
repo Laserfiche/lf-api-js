@@ -9,7 +9,6 @@ export enum MIMETypes {
     text_html = 'text/html',
 }
 
-/* eslint-disable */
 const extensionToMIMETypeDict: Record<string, string> = {
     '323': 'text/h323',
     '3g2': 'video/3gpp2',
@@ -573,7 +572,6 @@ const extensionToMIMETypeDict: Record<string, string> = {
     'z': 'application/x-compress',
     'zip': 'application/x-zip-compressed'
 };
-/* eslint-enable */
 
 /**
  * Determines the file extension's corresponding MIME type

@@ -25,8 +25,8 @@ export class ProblemDetails implements IProblemDetails {
 
     constructor(data?: IProblemDetails) {
         if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
+            for (const property in data) {
+                if (Object.prototype.hasOwnProperty.call(data, property))
                     (<any>this)[property] = (<any>data)[property];
             }
         }
@@ -48,7 +48,7 @@ export class ProblemDetails implements IProblemDetails {
 
     static fromJS(data: any): ProblemDetails {
         data = typeof data === 'object' ? data : {};
-        let result = new ProblemDetails();
+        const result = new ProblemDetails();
         result.init(data);
         return result;
     }

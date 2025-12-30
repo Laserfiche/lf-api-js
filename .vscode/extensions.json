@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "epivision.vscode-file-header"
+        "epivision.vscode-file-header",
+        "orta.vscode-jest"
     ]
 }
