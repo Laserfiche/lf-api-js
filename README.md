@@ -46,9 +46,22 @@ Contains the following packages:
   - `pnpm --filter @laserfiche/lf-js-utils run test`
 
 - Test scripts for lf-api-client-core:
-- `pnpm --filter @laserfiche/lf-api-client-core run test:unit`
-- `pnpm --filter @laserfiche/lf-api-client-core run test:Cloud`
-- `pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted`
+  - To run locally, copy .env in package root folder
+  - `pnpm --filter @laserfiche/lf-api-client-core run test:unit`
+  - `pnpm --filter @laserfiche/lf-api-client-core run test:Cloud`
+  - `pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted`
+
+- Test scripts for lf-repository-api-client-v1:
+  - To run locally, copy .env in package root folder
+  - `pnpm --filter @laserfiche/lf-repository-api-client run test:unit`
+  - `pnpm --filter @laserfiche/lf-repository-api-client run test:browser`
+  - `pnpm --filter @laserfiche/lf-repository-api-client run test:node`
+
+- Test scripts for lf-repository-api-client-v2:
+  - To run locally, copy .env in package root folder
+  - `pnpm --filter @laserfiche/lf-repository-api-client-v2 run test:unit`
+  - `pnpm --filter @laserfiche/lf-repository-api-client-v2 run test:browser`
+  - `pnpm --filter @laserfiche/lf-repository-api-client-v2 run test:node`
 
 ## To publish a new package
 
