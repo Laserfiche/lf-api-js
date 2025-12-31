@@ -60,7 +60,7 @@ export default {
       displayName: 'lf-api-client-core:node',
       rootDir: '<rootDir>/packages/lf-api-client-core-js/lib',
       setupFiles: [rootSetupFile],
-      preset: 'ts-jest/presets/js-with-ts-esm',
+      preset: 'ts-jest/presets/default-esm',
       transform: {
         '^.+\\.tsx?$': [
           'ts-jest',
@@ -80,7 +80,7 @@ export default {
       displayName: 'lf-api-client-core:jsdom',
       rootDir: '<rootDir>/packages/lf-api-client-core-js/lib',
       setupFiles: [rootSetupFile],
-      preset: 'ts-jest/presets/js-with-ts-esm',
+      preset: 'ts-jest/presets/default-esm',
       transform: {
         '^.+\\.tsx?$': [
           'ts-jest',
@@ -101,7 +101,7 @@ export default {
       displayName: 'lf-api-js:node',
       rootDir: '<rootDir>/packages/lf-api-js/test',
       setupFiles: [rootSetupFile],
-      preset: 'ts-jest/presets/js-with-ts-esm',
+      preset: 'ts-jest/presets/default-esm',
       transform: {
         '^.+\\.tsx?$': [
           'ts-jest',
@@ -121,7 +121,7 @@ export default {
       displayName: 'lf-repository-api-client-v1:node',
       rootDir: '<rootDir>/packages/lf-repository-api-client-v1/test',
       setupFiles: [rootSetupFile],
-      preset: 'ts-jest/presets/js-with-ts-esm',
+      preset: 'ts-jest/presets/default-esm',
       transform: {
         '^.+\\.tsx?$': [
           'ts-jest',
@@ -141,7 +141,7 @@ export default {
       displayName: 'lf-repository-api-client-v2:node',
       rootDir: '<rootDir>/packages/lf-repository-api-client-v2/test',
       setupFiles: [rootSetupFile],
-      preset: 'ts-jest/presets/js-with-ts-esm',
+      preset: 'ts-jest/presets/default-esm',
       transform: {
         '^.+\\.tsx?$': [
           'ts-jest',
