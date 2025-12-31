@@ -27,8 +27,19 @@ Contains the following packages:
 
 ## To run a command on a specific library (for example tests)
 
-- Test scripts for lf-api-client-core-js:
-  - Edit [.env](./.env)
+- To run integration tests locally:
+  - Create a `.env` file containing the required env variables (e.g. from \*BitWarden - github.com/Laserfiche/lf-api-js)
+
+  ```
+  AUTHORIZATION_TYPE="CLOUD_ACCESS_KEY or API_SERVER_USERNAME_PASSWORD"
+  REPOSITORY_ID="***your-secret***"
+  APISERVER_REPOSITORY_API_BASE_URL="***your-secret***"
+  APISERVER_USERNAME="***your-secret***"
+  APISERVER_PASSWORD="***your-secret***"
+  REPOSITORY_ID_CLOUD="***your-secret***"
+  ACCESS_KEY="***your-secret***"
+  SERVICE_PRINCIPAL_KEY="***your-secret***"
+  ```
 
 - Run `pnpm --filter ${project_name} run ${script_name}`
 - Test scripts for lf-js-utils:
