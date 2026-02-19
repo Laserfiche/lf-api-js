@@ -64,10 +64,11 @@ export class TokenClient implements ITokenClient {
 
   /**
    * Constructor for a TokenClient used to interact with the Laserfiche Cloud OAuth 2.0 token endpoint.
-   * @param regionalDomain - regional specific host, such as 'laserfiche.com', or 'eu.laserfiche.com'
+   * @param regionalDomainOrUrl - regional specific host, such as 'laserfiche.com', or 'eu.laserfiche.com' or it could be a full URL
    */
-  constructor(regionalDomain: string) {
-    this._baseUrl = getOauthTokenUrl(regionalDomain);
+  constructor(regionalDomainOrUrl: string) {
+    console.log("--- regionalDomainOrUrl:", regionalDomainOrUrl);
+      this._baseUrl = regionalDomainOrUrl.startsWith('http') ? regionalDomainOrUrl : getOauthTokenUrl(regionalDomainOrUrl);
   }
 
   /**
