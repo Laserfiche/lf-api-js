@@ -67,8 +67,7 @@ export class TokenClient implements ITokenClient {
    * @param regionalDomainOrUrl - regional specific host, such as 'laserfiche.com', or 'eu.laserfiche.com' or it could be a full URL
    */
   constructor(regionalDomainOrUrl: string) {
-    console.log("--- regionalDomainOrUrl:", regionalDomainOrUrl);
-      this._baseUrl = regionalDomainOrUrl.startsWith('http') ? regionalDomainOrUrl : getOauthTokenUrl(regionalDomainOrUrl);
+    this._baseUrl = regionalDomainOrUrl.startsWith('http') ? regionalDomainOrUrl : getOauthTokenUrl(regionalDomainOrUrl);
   }
 
   /**
