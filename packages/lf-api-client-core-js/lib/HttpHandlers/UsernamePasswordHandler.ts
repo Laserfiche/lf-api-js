@@ -50,7 +50,7 @@ export class UsernamePasswordHandler implements HttpRequestHandler {
    */
   async beforeFetchRequestAsync(url: string, request: RequestInit): Promise<BeforeFetchResult> {
     if (!this._accessToken) {
-      let resp = await this._client.createAccessToken(this._repositoryId, this._request);
+      const resp = await this._client.createAccessToken(this._repositoryId, this._request);
       if (resp?.access_token) {
         this._accessToken = resp.access_token;
       } else {
@@ -75,7 +75,7 @@ export class UsernamePasswordHandler implements HttpRequestHandler {
    * @param request - The HTTP request
    * @returns true if the request should be retried.
    */
-  async afterFetchResponseAsync(url: string, response: Response, request: RequestInit): Promise<boolean> {
+  async afterFetchResponseAsync(url: string, response: Response, _request: RequestInit): Promise<boolean> {
     if (response.status === 401) {
       this._accessToken = undefined;
       return true;

@@ -1,6 +1,6 @@
 // Copyright Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-import { CoreUtils, StringUtils } from "@laserfiche/lf-js-utils";
+import { StringUtils } from "@laserfiche/lf-js-utils";
 
 /**
  * Generates a random PKCE code verifier
@@ -32,19 +32,13 @@ export async function generateCodeChallengeAsync(code_verifier: string): Promise
 
 // Generates random array
 function generateRandomValuesFromArray(array: Uint8Array): Uint8Array {
-  if (!CoreUtils.isBrowser()) {
-    throw new Error('generateRandomValuesFromArray not implemented in node js.');
-  }
-  let randomArray = window.crypto.getRandomValues(array);
+  const randomArray = globalThis.crypto.getRandomValues(array);
   return randomArray;
 }
 
 async function createBase64SHA256HashAsync(message: string): Promise<string> {
-  if (!CoreUtils.isBrowser()) {
-    throw new Error('createBase64SHA256HashAsync not implemented in node js.');
-  }
   const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
-  const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgUint8); // hash the message
-  const hashEncoded = StringUtils.arrayBufferToBase64(hashBuffer)
+  const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', msgUint8); // hash the message
+  const hashEncoded = StringUtils.arrayBufferToBase64(hashBuffer);
   return hashEncoded;
 }

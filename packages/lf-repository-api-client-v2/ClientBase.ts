@@ -12,7 +12,7 @@ import {
   ApiException as ApiExceptionCore,
   GetAccessTokenResponse
 } from '@laserfiche/lf-api-client-core';
-class ClientBase {}
+class ClientBase { }
 export interface IRepositoryApiClient {
   attributesClient: IAttributesClient;
   auditReasonsClient: generated.IAuditReasonsClient;
@@ -62,12 +62,12 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   private constructor(httpRequestHandler: HttpRequestHandler, baseUrlDebug?: string) {
     this.repoClientHandler = new RepositoryApiClientHttpHandler(httpRequestHandler);
-    if (this.repoClientHandler){
+    if (this.repoClientHandler) {
       this.defaultRequestHeaders['Accept-Encoding'] = 'gzip';
     }
     let fetch = this.repoClientHandler.httpHandler;
     fetch = fetch.bind(this.repoClientHandler);
-    let http = {
+    const http = {
       fetch,
     };
     this.baseUrl = baseUrlDebug ?? '';
@@ -301,8 +301,8 @@ export class AttributesClient extends generated.AttributesClient implements IAtt
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, everyone, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.listAttributes({
+    const { callback, repositoryId, everyone, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.listAttributes({
       repositoryId,
       everyone,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -335,7 +335,7 @@ export class AttributesClient extends generated.AttributesClient implements IAtt
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.AttributeCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.AttributeCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -550,7 +550,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let {
+    const {
       callback,
       repositoryId,
       entryId,
@@ -566,7 +566,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
       count,
       maxPageSize,
     } = args;
-    var response = await this.listEntries({
+    let response = await this.listEntries({
       repositoryId,
       entryId,
       groupByEntryType,
@@ -625,9 +625,9 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, entryId, prefer, formatFieldValues, culture, select, orderby, top, skip, count, maxPageSize } =
+    const { callback, repositoryId, entryId, prefer, formatFieldValues, culture, select, orderby, top, skip, count, maxPageSize } =
       args;
-    var response = await this.listFields({
+    let response = await this.listFields({
       repositoryId,
       entryId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -677,8 +677,8 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, entryId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.listLinks({
+    const { callback, repositoryId, entryId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.listLinks({
       repositoryId,
       entryId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -726,8 +726,8 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, entryId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.listTags({
+    const { callback, repositoryId, entryId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.listTags({
       repositoryId,
       entryId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -760,7 +760,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.EntryCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.EntryCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -780,7 +780,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.FieldCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.FieldCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -800,7 +800,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.LinkCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.LinkCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -820,7 +820,7 @@ export class EntriesClient extends generated.EntriesClient implements IEntriesCl
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.TagDefinitionCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.LinkCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -902,8 +902,8 @@ export class FieldDefinitionsClient extends generated.FieldDefinitionsClient imp
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.listFieldDefinitions({
+    const { callback, repositoryId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.listFieldDefinitions({
       repositoryId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
       culture,
@@ -936,7 +936,7 @@ export class FieldDefinitionsClient extends generated.FieldDefinitionsClient imp
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.FieldDefinitionCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.FieldDefinitionCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1077,7 +1077,7 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let {
+    const {
       callback,
       repositoryId,
       taskId,
@@ -1094,7 +1094,7 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
       count,
       maxPageSize,
     } = args;
-    var response = await this.listSearchResults({
+    let response = await this.listSearchResults({
       repositoryId,
       taskId,
       groupByEntryType,
@@ -1149,8 +1149,8 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, taskId, rowNumber, prefer, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.listSearchContextHits({
+    const { callback, repositoryId, taskId, rowNumber, prefer, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.listSearchContextHits({
       repositoryId,
       taskId,
       rowNumber,
@@ -1184,7 +1184,7 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.EntryCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.EntryCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1204,7 +1204,7 @@ export class SearchesClient extends generated.SearchesClient implements ISearche
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.SearchContextHitCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.SearchContextHitCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1286,8 +1286,8 @@ export class TagDefinitionsClient extends generated.TagDefinitionsClient impleme
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.listTagDefinitions({
+    const { callback, repositoryId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.listTagDefinitions({
       repositoryId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
       culture,
@@ -1320,7 +1320,7 @@ export class TagDefinitionsClient extends generated.TagDefinitionsClient impleme
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.TagDefinitionCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.TagDefinitionCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1459,8 +1459,7 @@ export interface ITemplateDefinitionsClient {
 
 export class TemplateDefinitionsClient
   extends generated.TemplateDefinitionsClient
-  implements ITemplateDefinitionsClient
-{
+  implements ITemplateDefinitionsClient {
   /**
    * Given a maximum page size, it will continue to make the same call to get a list of template definitions of a fixed size (i.e. maxpagesize) until it reaches the last page (i.e. when next link is null/undefined) or whenever the callback function returns false.
    * - Related: {@link generated.ITemplateDefinitionsClient.listTemplateDefinitions listTemplateDefinitions}
@@ -1491,8 +1490,8 @@ export class TemplateDefinitionsClient
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, templateName, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.listTemplateDefinitions({
+    const { callback, repositoryId, templateName, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.listTemplateDefinitions({
       repositoryId,
       templateName,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -1545,8 +1544,8 @@ export class TemplateDefinitionsClient
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, templateId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.listTemplateFieldDefinitionsByTemplateId({
+    const { callback, repositoryId, templateId, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.listTemplateFieldDefinitionsByTemplateId({
       repositoryId,
       templateId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -1599,8 +1598,8 @@ export class TemplateDefinitionsClient
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, templateName, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.listTemplateFieldDefinitionsByTemplateName({
+    const { callback, repositoryId, templateName, prefer, culture, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.listTemplateFieldDefinitionsByTemplateName({
       repositoryId,
       templateName,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
@@ -1634,7 +1633,7 @@ export class TemplateDefinitionsClient
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.TemplateDefinitionCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.TemplateDefinitionCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1654,7 +1653,7 @@ export class TemplateDefinitionsClient
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.TemplateFieldDefinitionCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.TemplateFieldDefinitionCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1674,7 +1673,7 @@ export class TemplateDefinitionsClient
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.TemplateFieldDefinitionCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.TemplateFieldDefinitionCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1749,8 +1748,8 @@ export class LinkDefinitionsClient extends generated.LinkDefinitionsClient imple
     count?: boolean;
     maxPageSize?: number;
   }): Promise<void> {
-    let { callback, repositoryId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
-    var response = await this.listLinkDefinitions({
+    const { callback, repositoryId, prefer, select, orderby, top, skip, count, maxPageSize } = args;
+    let response = await this.listLinkDefinitions({
       repositoryId,
       prefer: createMaxPageSizePreferHeaderPayload(maxPageSize),
       select,
@@ -1783,7 +1782,7 @@ export class LinkDefinitionsClient extends generated.LinkDefinitionsClient imple
     nextLink: string;
     maxPageSize?: number;
   }): Promise<generated.LinkDefinitionCollectionResponse> {
-    let { nextLink, maxPageSize } = args;
+    const { nextLink, maxPageSize } = args;
     return await getNextLinkListing<generated.LinkDefinitionCollectionResponse>(
       // @ts-ignore: allow sub class to use private variable from the super class
       this.http,
@@ -1802,9 +1801,9 @@ export class RepositoriesClient extends generated.RepositoriesClient {
    * @returns A collection of respositories.
    */
   public static async listSelfHostedRepositories(args: { baseUrl: string }): Promise<generated.RepositoryCollectionResponse> {
-    let { baseUrl } = args;
+    const { baseUrl } = args;
     const baseUrlWithoutSlash: string = StringUtils.trimEnd(baseUrl, '/');
-    let http = {
+    const http = {
       fetch,
     };
     return await new generated.RepositoriesClient(baseUrlWithoutSlash, http).listRepositories({});

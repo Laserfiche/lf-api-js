@@ -34,7 +34,7 @@ export class OAuthClientCustomTokenCredentialsHandler
   ): Promise<BeforeFetchResult> {
     if (!this._accessTokenInfo) {
       try {
-        let resp = await this._getAccessTokenAsyncFunc();
+        const resp = await this._getAccessTokenAsyncFunc();
         if (resp?.access_token) {
           const jwt = JwtUtils.parseAccessToken(resp.access_token);
           const regionalDomain = JwtUtils.getAudFromLfJWT(jwt);
@@ -72,7 +72,7 @@ export class OAuthClientCustomTokenCredentialsHandler
   async afterFetchResponseAsync(
     url: string,
     response: Response,
-    request: RequestInit
+    _request: RequestInit
   ): Promise<boolean> {
     if (response.status === 401) {
       this._accessTokenInfo = undefined;

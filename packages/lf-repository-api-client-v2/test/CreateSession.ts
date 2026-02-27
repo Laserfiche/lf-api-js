@@ -3,6 +3,5 @@
 import { repositoryId } from './TestHelper.js';
 import { IRepositoryApiClient } from '../index.js';
 import { createClient } from './BaseTest.js';
-let _RepositoryApiClient: IRepositoryApiClient;
-_RepositoryApiClient = createClient();
+const _RepositoryApiClient: IRepositoryApiClient = createClient();
 export { repositoryId, _RepositoryApiClient };

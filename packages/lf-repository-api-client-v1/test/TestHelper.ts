@@ -15,15 +15,19 @@ let accessKeyBase64: string;
 let username: string;
 let password: string;
 let baseUrl: string;
+let repositoryId: string;
+
 if (!authorizationType) {
   throw new Error(`Unable to load AUTHORIZATION_TYPE from .env`);
 }
-const repositoryId: string = process.env.REPOSITORY_ID ?? '';
+
 if (authorizationType === authType.CloudAccessKey) {
+  repositoryId = process.env.REPOSITORY_ID_CLOUD ?? '';
   testServicePrincipalKey = process.env.SERVICE_PRINCIPAL_KEY ?? '';
   accessKeyBase64 = process.env.ACCESS_KEY ?? '';
   OAuthAccessKey = createFromBase64EncodedAccessKey(accessKeyBase64 ?? '');
 } else if (authorizationType === authType.APIServerUsernamePassword) {
+  repositoryId = process.env.REPOSITORY_ID ?? '';
   username = process.env.APISERVER_USERNAME ?? '';
   password = process.env.APISERVER_PASSWORD ?? '';
   baseUrl = process.env.APISERVER_REPOSITORY_API_BASE_URL ?? '';

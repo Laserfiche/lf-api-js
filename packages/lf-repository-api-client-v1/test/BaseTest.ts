@@ -20,10 +20,10 @@ export async function CreateEntry(
   parentEntryId: number = 1,
   autoRename: boolean = true
 ): Promise<Entry> {
-  var request = new PostEntryChildrenRequest();
+  const request = new PostEntryChildrenRequest();
   request.entryType = PostEntryChildrenEntryType.Folder;
   request.name = entryName;
-  var newEntry = await client.entriesClient.createOrCopyEntry({
+  const newEntry = await client.entriesClient.createOrCopyEntry({
     repoId: repositoryId,
     entryId: parentEntryId,
     request,
@@ -55,9 +55,9 @@ export function createClient(): IRepositoryApiClient {
         throw new Error(`RepositoryId, Username, Password, or BaseURL is undefined`);
       _RepositoryApiClient = RepositoryApiClient.createFromUsernamePassword(repositoryId, username, password, baseUrl);
     } else {
-      throw new Error('Authorization type is undefined')
+      throw new Error('Authorization type is undefined');
     }
-    let defaultRequestHeaders: Record<string, string> = { 'X-LF-AppID': 'RepositoryApiClientIntegrationTest JS' };
+    const defaultRequestHeaders: Record<string, string> = { 'X-LF-AppID': 'RepositoryApiClientIntegrationTest JS' };
     if (testHeader) {
       defaultRequestHeaders[testHeader] = 'true';
     }
