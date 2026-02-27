@@ -40,6 +40,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
 
@@ -121,6 +124,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
@@ -261,6 +267,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
 
@@ -302,7 +311,7 @@ jobs:
 
   publish-all-preview-packages:
     runs-on: ubuntu-latest
-    environment: preview
+    environment: npm_publish
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
     steps:
@@ -348,6 +357,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
@@ -410,11 +422,6 @@ jobs:
       - name: PNPM install
         run: pnpm install --no-frozen-lockfile
 
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
       - name: pnpm publish all preview packages
         id: publish-preview-npm
         run: pnpm publish --recursive --access public --tag next --no-git-checks --force
@@ -426,7 +433,7 @@ jobs:
 
   publish-updated-production-packages:
     runs-on: ubuntu-latest
-    environment: production
+    environment: npm_publish
     if: ${{ github.run_attempt != 1 }}
     needs: [build_libraries, test_libraries, build_documentation]
     steps:
@@ -473,6 +480,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
 
@@ -502,11 +512,6 @@ jobs:
 
       - name: PNPM install
         run: pnpm install
-
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: pnpm publish all packages that version changed
         id: publish-prod-npm
