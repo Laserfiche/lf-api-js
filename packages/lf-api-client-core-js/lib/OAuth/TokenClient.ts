@@ -5,7 +5,7 @@ import { GetAccessTokenResponse } from './GetAccessTokenResponse.js';
 import { getOauthTokenUrl } from '../utils/DomainUtils.js';
 import { ProblemDetails } from '../ProblemDetails.js';
 import { ApiException } from '../ApiException.js';
-import { BaseTokenClient} from "../BaseTokenClient.js"
+import { BaseTokenClient } from '../BaseTokenClient.js';
 
 /**
  * An object to interact with the Laserfiche Cloud OAuth 2.0 token endpoint.
@@ -32,7 +32,7 @@ export class TokenClient extends BaseTokenClient implements ITokenClient {
 
   /**
    * Constructor for a TokenClient used to interact with the Laserfiche Cloud OAuth 2.0 token endpoint.
-   * @param regionalDomainOrUrl - regional specific host, such as 'laserfiche.com', or 'eu.laserfiche.com' or it could be a full URL
+   * @param regionalDomain - regional specific host, such as 'laserfiche.com', or 'eu.laserfiche.com'
    */
   constructor(regionalDomain: string) {
     super();
