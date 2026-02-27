@@ -18,7 +18,7 @@ env:
   NPM_CLIENT_CORE_VERSION: '1.1.18'
   NPM_JS_UTILS_VERSION: '4.0.13'
   NPM_API_JS_CLIENT_VERSION: '1.0.5'
-  
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: write
@@ -152,25 +152,25 @@ jobs:
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
         run: pnpm --filter @laserfiche/lf-api-client-core run test:Cloud
 
-      # - name: pnpm test lf-api-client-core on self-hosted
-      #   if: always() && (steps.test-cloud.outcome == 'success' || steps.test-cloud.outcome == 'failure')
-      #   env:
-      #     REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
-      #     APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
-      #     APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
-      #     APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
-      #   run: pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted
+      - name: pnpm test lf-api-client-core on self-hosted
+        if: always() && (steps.test-cloud.outcome == 'success' || steps.test-cloud.outcome == 'failure')
+        env:
+          REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
+          APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
+          APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
+          APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
+        run: pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted
 
-      # - name: Test Report lf-api-client-core
-      #   uses: dorny/test-reporter@v1
-      #   if: success() || failure() # run this step even if previous step failed
-      #   with:
-      #     name: Client Core Jest Test Results
-      #     path: ./packages/lf-api-client-core-js/*.xml
-      #     reporter: jest-junit
-      #     only-summary: 'false'
-      #     list-tests: 'failed'
-      #     fail-on-error: 'false'
+      - name: Test Report lf-api-client-core
+        uses: dorny/test-reporter@v1
+        if: success() || failure() # run this step even if previous step failed
+        with:
+          name: Client Core Jest Test Results
+          path: ./packages/lf-api-client-core-js/*.xml
+          reporter: jest-junit
+          only-summary: 'false'
+          list-tests: 'failed'
+          fail-on-error: 'false'
 
       - name: pnpm test @laserfiche/lf-repository-api-client run all cloud node tests
         env:
@@ -189,18 +189,18 @@ jobs:
           AUTHORIZATION_TYPE: ${{ secrets.AUTHORIZATION_TYPE }}
           TEST_HEADER: ${{ secrets.TEST_HEADER }}
         run: pnpm --filter @laserfiche/lf-repository-api-client run test:browser
-        
-      # - name: pnpm test @laserfiche/lf-repository-api-client run all self-hosted tests
-      #   env:
-      #     ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
-      #     SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
-      #     REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
-      #     APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
-      #     APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
-      #     APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
-      #     AUTHORIZATION_TYPE: ${{ secrets.APISERVER_AUTHORIZATION_TYPE }}
-      #     TEST_HEADER: ${{ secrets.TEST_HEADER }}
-      #   run: pnpm --filter @laserfiche/lf-repository-api-client run test:all
+
+      - name: pnpm test @laserfiche/lf-repository-api-client run all self-hosted tests
+        env:
+          ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
+          SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
+          REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
+          APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
+          APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
+          APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
+          AUTHORIZATION_TYPE: ${{ secrets.APISERVER_AUTHORIZATION_TYPE }}
+          TEST_HEADER: ${{ secrets.TEST_HEADER }}
+        run: pnpm --filter @laserfiche/lf-repository-api-client run test:all
 
       - name: Test Report
         uses: dorny/test-reporter@v1
@@ -257,7 +257,7 @@ jobs:
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
-          
+
   build_documentation:
     runs-on: ubuntu-latest
     needs: [build_libraries]
@@ -362,7 +362,7 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
-      
+
       - name: Replace workspace^ with workspace* in lf-api-client-core-js
         working-directory: ./packages/lf-api-client-core-js
         run: sed -i 's/workspace:^/workspace:*/g' package.json
@@ -413,7 +413,7 @@ jobs:
       - name: pnpm version NpmAPIClientPreviewPackageVersion
         working-directory: ./packages/lf-api-js
         run: pnpm version ${{ env.NpmAPIClientPreviewPackageVersion }} --no-git-tag-version
-        
+
       - name: pnpm version NpmAPIClientPreviewPackageVersion for types
         working-directory: ./packages/lf-api-js/types-npm-publish
         run: pnpm version ${{ env.NpmAPIClientPreviewPackageVersion }} --no-git-tag-version
@@ -531,6 +531,4 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-
           artifact_name: github-pages
-
