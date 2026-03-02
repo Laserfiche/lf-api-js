@@ -1,0 +1,151 @@
+# Copyright Laserfiche.
+# Licensed under the MIT License. See LICENSE in the project root for license information.
+name: integration-tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  NPM_API_CLIENT_V1_VERSION: '1.1.10'
+  NPM_API_CLIENT_V2_VERSION: '1.0.9'
+  NPM_CLIENT_CORE_VERSION: '1.1.18'
+  NPM_JS_UTILS_VERSION: '4.0.13'
+  NPM_API_JS_CLIENT_VERSION: '1.0.5'
+  
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  checks: write
+
+jobs:
+  integration_test_libraries:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure the workflow is not run from an external pull request
+        if: github.event_name == 'pull_request' && github.repository != github.event.pull_request.head.repo.full_name
+        run: echo "Please ask an organization member to run this workflow manually" && exit 1
+
+      - uses: actions/checkout@v4
+
+      - name: Echo build number
+        run: echo ${{github.run_id}}
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Install pnpm
+        run: npm install pnpm@latest-9 -g
+
+      - name: PNPM install
+        run: pnpm install
+
+      - name: PNPM run build
+        run: pnpm run build
+
+      - name: pnpm test lf-api-client-core on cloud
+        id: test-cloud
+        env:
+          ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
+          ACCESS_KEY_JSON: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY_JSON }}
+          SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
+        run: pnpm --filter @laserfiche/lf-api-client-core run test:Cloud
+
+      - name: pnpm test lf-api-client-core on self-hosted
+        if: always() && (steps.test-cloud.outcome == 'success' || steps.test-cloud.outcome == 'failure')
+        env:
+          REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
+          APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
+          APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
+          APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
+        run: pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted
+
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        if: always() # run this step even if previous step failed
+        with:
+          name: Client Core Jest Test Results
+          path: ./packages/lf-api-client-core-js/*.xml
+          reporter: jest-junit
+          only-summary: 'false'
+          list-tests: 'failed'
+          fail-on-error: 'false'
+          use-actions-summary: 'true'
+
+      - name: pnpm test @laserfiche/lf-repository-api-client run all cloud tests
+        env:
+          ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
+          SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
+          REPOSITORY_ID: ${{ secrets.DEV_US_PUBLIC_USE_REPOSITORY_ID_1 }}
+          AUTHORIZATION_TYPE: ${{ secrets.AUTHORIZATION_TYPE }}
+          TEST_HEADER: ${{ secrets.TEST_HEADER }}
+        run: pnpm --filter @laserfiche/lf-repository-api-client run test:all
+
+      - name: pnpm test @laserfiche/lf-repository-api-client run all self-hosted tests
+        env:
+          ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
+          SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
+          REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
+          APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
+          APISERVER_PASSWORD: ${{ secrets.APISERVER_PASSWORD }}
+          APISERVER_REPOSITORY_API_BASE_URL: ${{ secrets.APISERVER_REPOSITORY_API_BASE_URL }}
+          AUTHORIZATION_TYPE: ${{ secrets.APISERVER_AUTHORIZATION_TYPE }}
+          TEST_HEADER: ${{ secrets.TEST_HEADER }}
+        run: pnpm --filter @laserfiche/lf-repository-api-client run test:all
+
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        if: always() # run this step even if previous step failed
+        with:
+          name: Api Client v1 Jest Test Results
+          path: ./packages/lf-repository-api-client-v1/*.xml
+          reporter: jest-junit
+          only-summary: 'false'
+          list-tests: 'failed'
+          fail-on-error: 'false'
+          use-actions-summary: 'true'
+
+      - name: pnpm test lf-repository-api-client-v2 on cloud (node environment)
+        id: test-cloud-node
+        env:
+          ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
+          SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
+          REPOSITORY_ID: ${{ secrets.DEV_CA_PUBLIC_USE_REPOSITORY_ID_1 }}
+          AUTHORIZATION_TYPE: ${{ secrets.AUTHORIZATION_TYPE }}
+          TEST_HEADER: ${{ secrets.TEST_HEADER }}
+        run: pnpm --filter @laserfiche/lf-repository-api-client-v2 run test:node
+
+      - name: pnpm test lf-repository-api-client-v2 on cloud (browser environment)
+        id: test-cloud-browser
+        env:
+          ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
+          SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
+          REPOSITORY_ID: ${{ secrets.DEV_CA_PUBLIC_USE_REPOSITORY_ID_3 }}
+          AUTHORIZATION_TYPE: ${{ secrets.AUTHORIZATION_TYPE }}
+          TEST_HEADER: ${{ secrets.TEST_HEADER }}
+        run: pnpm --filter @laserfiche/lf-repository-api-client-v2 run test:browser
+
+      - name: Test report
+        uses: dorny/test-reporter@v2
+        if: always() # run this step even if previous step failed
+        with:
+          name: Api Client v2 Jest Test Results
+          path: ./packages/lf-repository-api-client-v2/*.xml
+          reporter: jest-junit
+          only-summary: 'false'
+          list-tests: 'failed'
+          fail-on-error: 'false'
+          use-actions-summary: 'true'
