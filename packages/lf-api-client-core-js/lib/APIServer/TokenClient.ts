@@ -2,9 +2,9 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 import { CreateConnectionRequest } from './CreateConnectionRequest.js';
 import { SessionKeyInfo } from './SessionKeyInfo.js';
-import { HTTPError } from '../HttpError.js';
 import { ProblemDetails } from '../ProblemDetails.js';
 import { ApiException } from '../ApiException.js';
+import { BaseTokenClient } from '../BaseTokenClient.js';
 
 export interface ITokenClient {
   /**
@@ -16,8 +16,7 @@ export interface ITokenClient {
   createAccessToken(repositoryId: string, body: CreateConnectionRequest): Promise<SessionKeyInfo>;
 }
 
-export class TokenClient implements ITokenClient{
-  private _baseUrl: string;
+export class TokenClient extends BaseTokenClient implements ITokenClient{
   private _createAccessTokenErrMsg: string = "Get access token error.";
 
   /**
@@ -25,6 +24,7 @@ export class TokenClient implements ITokenClient{
    * @param baseUrl - APIServer Base Url e.g. https://\{APIServerName\}/LFRepositoryAPI
    */
   constructor(baseUrl: string) {
+    super();
     if (!baseUrl) throw new Error('baseUrl is undefined.');
     this._baseUrl = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
   }

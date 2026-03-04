@@ -18,7 +18,7 @@ env:
   NPM_CLIENT_CORE_VERSION: '1.1.18'
   NPM_JS_UTILS_VERSION: '4.0.13'
   NPM_API_JS_CLIENT_VERSION: '1.0.5'
-  
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: write
@@ -373,7 +373,7 @@ jobs:
 
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
-      
+
       - name: Replace workspace^ with workspace* in lf-api-client-core-js
         working-directory: ./packages/lf-api-client-core-js
         run: sed -i 's/workspace:^/workspace:*/g' package.json
@@ -424,7 +424,7 @@ jobs:
       - name: pnpm version NpmAPIClientPreviewPackageVersion
         working-directory: ./packages/lf-api-js
         run: pnpm version ${{ env.NpmAPIClientPreviewPackageVersion }} --no-git-tag-version
-        
+
       - name: pnpm version NpmAPIClientPreviewPackageVersion for types
         working-directory: ./packages/lf-api-js/types-npm-publish
         run: pnpm version ${{ env.NpmAPIClientPreviewPackageVersion }} --no-git-tag-version
