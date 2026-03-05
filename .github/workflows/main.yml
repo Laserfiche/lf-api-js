@@ -141,7 +141,7 @@ jobs:
         run: pnpm --filter @laserfiche/lf-js-utils run test:ci
 
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: success() || failure() # run this step even if previous step failed
         with:
           name: JS Utils Jest Test Results
@@ -169,7 +169,7 @@ jobs:
         run: pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted
 
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: success() || failure() # run this step even if previous step failed
         with:
           name: Client Core Jest Test Results
@@ -201,7 +201,7 @@ jobs:
         run: pnpm --filter @laserfiche/lf-repository-api-client run test:all
 
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: success() || failure() # run this step even if previous step failed
         with:
           name: Api Client v1 Jest Test Results
@@ -232,7 +232,7 @@ jobs:
         run: pnpm --filter @laserfiche/lf-repository-api-client-v2 run test:browser
 
       - name: Test report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: success() || failure() # run this step even if previous step failed
         with:
           name: Api Client v2 Jest Test Results
@@ -246,7 +246,7 @@ jobs:
         run: pnpm --filter @laserfiche/lf-api-js run test
 
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: success() || failure() # run this step even if previous step failed
         with:
           name: Api JS Jest Test Results
@@ -533,3 +533,4 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages
+
