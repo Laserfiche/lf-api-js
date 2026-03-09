@@ -1,3 +1,9 @@
+## 1.1.19
+
+### Features
+
+- Add authorization_code support to the self-hosted token client
+
 ## 1.1.18
 
 ### Maintenance
