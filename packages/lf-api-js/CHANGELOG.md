@@ -1,6 +1,12 @@
 <!--Copyright Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
+## 1.0.6
+
+### Maintenance
+
+- Update version of lf-api-client-core dependency
+
 ## 1.0.5
 
 ### Maintenance
