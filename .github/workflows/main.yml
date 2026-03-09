@@ -142,7 +142,7 @@ jobs:
 
       - name: Test Report
         uses: dorny/test-reporter@v2
-        if: always() # run this step even if previous step failed
+        if: success() || failure() # run this step even if previous step failed
         with:
           name: JS Utils Jest Test Results
           path: ./packages/lf-js-utils/*.xml
@@ -150,11 +150,9 @@ jobs:
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
-          use-actions-summary: 'true'
 
       - name: pnpm test lf-api-client-core on cloud
         id: test-cloud
-        if: github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           ACCESS_KEY_JSON: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY_JSON }}
@@ -162,7 +160,7 @@ jobs:
         run: pnpm --filter @laserfiche/lf-api-client-core run test:Cloud
 
       - name: pnpm test lf-api-client-core on self-hosted
-        if: always() && (steps.test-cloud.outcome == 'success' || steps.test-cloud.outcome == 'failure') && (github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name)
+        if: always() && (steps.test-cloud.outcome == 'success' || steps.test-cloud.outcome == 'failure')
         env:
           REPOSITORY_ID: ${{ secrets.APISERVER_REPOSITORY_ID }}
           APISERVER_USERNAME: ${{ secrets.APISERVER_USERNAME }}
@@ -172,7 +170,7 @@ jobs:
 
       - name: Test Report
         uses: dorny/test-reporter@v2
-        if: always() && (github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name)
+        if: success() || failure() # run this step even if previous step failed
         with:
           name: Client Core Jest Test Results
           path: ./packages/lf-api-client-core-js/*.xml
@@ -180,10 +178,8 @@ jobs:
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
-          use-actions-summary: 'true'
 
       - name: pnpm test @laserfiche/lf-repository-api-client run all cloud tests
-        if: github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name
         env:
           ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
@@ -193,7 +189,6 @@ jobs:
         run: pnpm --filter @laserfiche/lf-repository-api-client run test:all
 
       - name: pnpm test @laserfiche/lf-repository-api-client run all self-hosted tests
-        if: github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name
         env:
           ACCESS_KEY: ${{ secrets.DEV_US_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_US_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
@@ -207,7 +202,7 @@ jobs:
 
       - name: Test Report
         uses: dorny/test-reporter@v2
-        if: always() && (github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name)
+        if: success() || failure() # run this step even if previous step failed
         with:
           name: Api Client v1 Jest Test Results
           path: ./packages/lf-repository-api-client-v1/*.xml
@@ -215,11 +210,9 @@ jobs:
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
-          use-actions-summary: 'true'
 
       - name: pnpm test lf-repository-api-client-v2 on cloud (node environment)
         id: test-cloud-node
-        if: github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
@@ -230,7 +223,6 @@ jobs:
 
       - name: pnpm test lf-repository-api-client-v2 on cloud (browser environment)
         id: test-cloud-browser
-        if: github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name
         env:
           ACCESS_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_INTEGRATION_TEST_ACCESS_KEY }}
           SERVICE_PRINCIPAL_KEY: ${{ secrets.DEV_CA_PUBLIC_USE_TESTOAUTHSERVICEPRINCIPAL_SERVICE_PRINCIPAL_KEY }}
@@ -241,7 +233,7 @@ jobs:
 
       - name: Test report
         uses: dorny/test-reporter@v2
-        if: always() && (github.event_name != 'pull_request' || github.repository == github.event.pull_request.head.repo.full_name)
+        if: success() || failure() # run this step even if previous step failed
         with:
           name: Api Client v2 Jest Test Results
           path: ./packages/lf-repository-api-client-v2/*.xml
@@ -249,14 +241,13 @@ jobs:
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
-          use-actions-summary: 'true'
 
       - name: pnpm test @laserfiche/lf-api-js run all tests
         run: pnpm --filter @laserfiche/lf-api-js run test
 
       - name: Test Report
         uses: dorny/test-reporter@v2
-        if: always() # run this step even if previous step failed
+        if: success() || failure() # run this step even if previous step failed
         with:
           name: Api JS Jest Test Results
           path: ./packages/lf-api-js/*.xml
@@ -264,8 +255,7 @@ jobs:
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
-          use-actions-summary: 'true'
-
+          
   build_documentation:
     runs-on: ubuntu-latest
     needs: [build_libraries, test_libraries]
@@ -543,3 +533,4 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages
+
