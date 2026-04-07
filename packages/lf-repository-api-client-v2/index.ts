@@ -1422,16 +1422,18 @@ export interface IEntriesClient {
     deletePages(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined }): Promise<Entry>;
 
     /**
-     * - Returns a list of page properties including image dimensions, rotation angle, and content flags for all pages.
+     * - Returns a list of page properties including image dimensions, rotation angle, and content flags.
+    - If no pageRange is specified, information for all pages is returned.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.pageRange (optional) The pages to retrieve information for. Comma-separated non-overlapping single values or ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns Successfully retrieved page information for all pages in the document.
+     * @returns Successfully retrieved page information for the specified pages in the document.
      */
-    listPageInfos(args: { repositoryId: string, entryId: number, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]>;
+    listPageInfos(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]>;
 
     /**
      * - Appends a new image page to the end of the specified document.
@@ -1511,8 +1513,8 @@ export interface IEntriesClient {
     movePages(args: { repositoryId: string, entryId: number, request: MovePagesRequest }): Promise<Entry>;
 
     /**
-     * - Moves the specified pages from the source document to the destination document.
-    - The transferred pages are removed from the source and inserted into the destination.
+     * - Copies the specified pages from the source document to the destination document.
+    - The source document retains its pages; copies are inserted into the destination.
     - pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
     - destinationEntryId: The entry ID of the destination document.
     - destinationPageNumber: The 1-based page number in the destination document where pages will be inserted before.
@@ -1520,9 +1522,9 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The source document ID.
      * @param args.request The request body containing the page range, destination entry ID, and destination page number.
-     * @returns Successfully transferred pages from the source document to the destination document. Returned the updated source entry.
+     * @returns Successfully copied pages from the source document to the destination document. The source document retains its pages. Returned the updated source entry.
      */
-    transferPages(args: { repositoryId: string, entryId: number, request: TransferPagesRequest }): Promise<Entry>;
+    copyPages(args: { repositoryId: string, entryId: number, request: CopyPagesRequest }): Promise<Entry>;
 
     /**
      * - Rotates the image of the specified page by the given angle.
@@ -1536,18 +1538,6 @@ export interface IEntriesClient {
      * @returns Successfully rotated the image page. Returned the updated entry.
      */
     rotateImagePage(args: { repositoryId: string, entryId: number, request: RotateImagePageRequest, pageNumber?: number | undefined }): Promise<Entry>;
-
-    /**
-     * - Returns page properties including image dimensions, rotation angle, and content flags.
-    - pageNumber is 1-based.
-    - Required OAuth scope: repository.Read
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.pageNumber The 1-based page number of the page to retrieve information for.
-     * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully retrieved page information for the specified page.
-     */
-    getPageInfo(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageInfoResponse>;
 
     /**
      * - Returns the raw image data for the specified page as a binary stream.
@@ -4558,17 +4548,19 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Returns a list of page properties including image dimensions, rotation angle, and content flags for all pages.
+     * - Returns a list of page properties including image dimensions, rotation angle, and content flags.
+    - If no pageRange is specified, information for all pages is returned.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.pageRange (optional) The pages to retrieve information for.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns Successfully retrieved page information for all pages in the document.
+     * @returns Successfully retrieved page information for the specified pages in the document.
      */
-    listPageInfos(args: { repositoryId: string, entryId: number, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]> {
-        let { repositoryId, entryId, select, orderby, count } = args;
+    listPageInfos(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]> {
+        let { repositoryId, entryId, pageRange, select, orderby, count } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -4576,6 +4568,8 @@ export class EntriesClient implements IEntriesClient {
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageRange !== undefined && pageRange !== null)
+            url_ += "pageRange=" + encodeURIComponent("" + pageRange) + "&";
         if (select !== undefined && select !== null)
             url_ += "$select=" + encodeURIComponent("" + select) + "&";
         if (orderby !== undefined && orderby !== null)
@@ -5283,8 +5277,8 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Moves the specified pages from the source document to the destination document.
-    - The transferred pages are removed from the source and inserted into the destination.
+     * - Copies the specified pages from the source document to the destination document.
+    - The source document retains its pages; copies are inserted into the destination.
     - pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
     - destinationEntryId: The entry ID of the destination document.
     - destinationPageNumber: The 1-based page number in the destination document where pages will be inserted before.
@@ -5292,11 +5286,11 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The source document ID.
      * @param args.request The request body containing the page range, destination entry ID, and destination page number.
-     * @returns Successfully transferred pages from the source document to the destination document. Returned the updated source entry.
+     * @returns Successfully copied pages from the source document to the destination document. The source document retains its pages. Returned the updated source entry.
      */
-    transferPages(args: { repositoryId: string, entryId: number, request: TransferPagesRequest }): Promise<Entry> {
+    copyPages(args: { repositoryId: string, entryId: number, request: CopyPagesRequest }): Promise<Entry> {
         let { repositoryId, entryId, request } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Transfer";
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Copy";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
@@ -5317,11 +5311,11 @@ export class EntriesClient implements IEntriesClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processTransferPages(_response);
+            return this.processCopyPages(_response);
         });
     }
 
-    protected processTransferPages(response: Response): Promise<Entry> {
+    protected processCopyPages(response: Response): Promise<Entry> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -5481,97 +5475,6 @@ export class EntriesClient implements IEntriesClient {
             });
         }
         return Promise.resolve<Entry>(null as any);
-    }
-
-    /**
-     * - Returns page properties including image dimensions, rotation angle, and content flags.
-    - pageNumber is 1-based.
-    - Required OAuth scope: repository.Read
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.pageNumber The 1-based page number of the page to retrieve information for.
-     * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully retrieved page information for the specified page.
-     */
-    getPageInfo(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageInfoResponse> {
-        let { repositoryId, entryId, pageNumber, select } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Info?";
-        if (repositoryId === undefined || repositoryId === null)
-            throw new Error("The parameter 'repositoryId' must be defined.");
-        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
-        if (entryId === undefined || entryId === null)
-            throw new Error("The parameter 'entryId' must be defined.");
-        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (pageNumber === undefined || pageNumber === null)
-            throw new Error("The parameter 'pageNumber' must be defined.");
-        url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
-        if (select !== undefined && select !== null)
-            url_ += "$select=" + encodeURIComponent("" + select) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetPageInfo(_response);
-        });
-    }
-
-    protected processGetPageInfo(response: Response): Promise<PageInfoResponse> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PageInfoResponse.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
-            });
-        } else if (status === 401) {
-            return response.text().then((_responseText) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
-            });
-        } else if (status === 403) {
-            return response.text().then((_responseText) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
-            });
-        } else if (status === 429) {
-            return response.text().then((_responseText) => {
-            let result429: any = null;
-            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<PageInfoResponse>(null as any);
     }
 
     /**
@@ -12523,17 +12426,17 @@ export interface IMovePagesRequest {
     destinationPageNumber: number;
 }
 
-export class TransferPagesRequest implements ITransferPagesRequest {
-    /** The page range to transfer (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
+export class CopyPagesRequest implements ICopyPagesRequest {
+    /** The page range to copy (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
     pageRange!: string;
     /** The entry ID of the destination document. */
     destinationEntryId!: number;
     /** The 1-based page number in the destination document. Pages will be inserted before this position. */
     destinationPageNumber!: number;
 
-    
-    
-    constructor(data?: ITransferPagesRequest) {
+
+
+    constructor(data?: ICopyPagesRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -12550,9 +12453,9 @@ export class TransferPagesRequest implements ITransferPagesRequest {
         }
     }
 
-    static fromJS(data: any): TransferPagesRequest {
+    static fromJS(data: any): CopyPagesRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new TransferPagesRequest();
+        let result = new CopyPagesRequest();
         result.init(data);
         return result;
     }
@@ -12566,8 +12469,8 @@ export class TransferPagesRequest implements ITransferPagesRequest {
     }
 }
 
-export interface ITransferPagesRequest {
-    /** The page range to transfer (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
+export interface ICopyPagesRequest {
+    /** The page range to copy (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
     pageRange: string;
     /** The entry ID of the destination document. */
     destinationEntryId: number;

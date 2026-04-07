@@ -4331,7 +4331,7 @@
         "tags": [
           "Entries"
         ],
-        "summary": "- Returns a list of page properties including image dimensions, rotation angle, and content flags for all pages.\n- Required OAuth scope: repository.Read",
+        "summary": "- Returns a list of page properties including image dimensions, rotation angle, and content flags.\n- If no pageRange is specified, information for all pages is returned.\n- Required OAuth scope: repository.Read",
         "operationId": "ListPageInfos",
         "parameters": [
           {
@@ -4354,6 +4354,16 @@
               "format": "int32"
             },
             "x-position": 2
+          },
+          {
+            "name": "pageRange",
+            "in": "query",
+            "description": "The pages to retrieve information for. If not specified, all pages are returned.",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           },
           {
             "name": "$select",
@@ -4387,7 +4397,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved page information for all pages in the document.",
+            "description": "Successfully retrieved page information for the specified pages in the document.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5242,13 +5252,13 @@
         }
       }
     },
-    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Transfer": {
+    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Copy": {
       "post": {
         "tags": [
           "Entries"
         ],
-        "summary": "- Moves the specified pages from the source document to the destination document.\n- The transferred pages are removed from the source and inserted into the destination.\n- pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: \"1,2,3\", \"1-3,5\", \"2-7,10-12.\"\n- destinationEntryId: The entry ID of the destination document.\n- destinationPageNumber: The 1-based page number in the destination document where pages will be inserted before.\n- Required OAuth scope: repository.Write",
-        "operationId": "TransferPages",
+        "summary": "- Copies the specified pages from the source document to the destination document.\n- The source document retains its pages; copies are inserted into the destination.\n- pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: \"1,2,3\", \"1-3,5\", \"2-7,10-12.\"\n- destinationEntryId: The entry ID of the destination document.\n- destinationPageNumber: The 1-based page number in the destination document where pages will be inserted before.\n- Required OAuth scope: repository.Write",
+        "operationId": "CopyPages",
         "parameters": [
           {
             "name": "repositoryId",
@@ -5278,7 +5288,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TransferPagesRequest"
+                "$ref": "#/components/schemas/CopyPagesRequest"
               }
             }
           },
@@ -5287,7 +5297,7 @@
         },
         "responses": {
           "200": {
-            "description": "Successfully transferred pages from the source document to the destination document. Returned the updated source entry.",
+            "description": "Successfully copied pages from the source document to the destination document. The source document retains its pages. Returned the updated source entry.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5465,121 +5475,6 @@
           },
           "423": {
             "description": "Entry is locked",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit is reached.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Info": {
-      "get": {
-        "tags": [
-          "Entries"
-        ],
-        "summary": "- Returns page properties including image dimensions, rotation angle, and content flags.\n- pageNumber is 1-based.\n- Required OAuth scope: repository.Read",
-        "operationId": "GetPageInfo",
-        "parameters": [
-          {
-            "name": "repositoryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested repository ID.",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested document ID.",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "pageNumber",
-            "in": "path",
-            "required": true,
-            "description": "The 1-based page number of the page to retrieve information for.",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 3
-          },
-          {
-            "name": "$select",
-            "in": "query",
-            "description": "Limits the properties returned in the result.",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 4
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved page information for the specified page.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PageInfoResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or bad request.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Access token is invalid or expired.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access denied for the operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Entry with requested ID was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11196,7 +11091,7 @@
           }
         }
       },
-      "TransferPagesRequest": {
+      "CopyPagesRequest": {
         "type": "object",
         "additionalProperties": false,
         "required": [
@@ -11207,7 +11102,7 @@
         "properties": {
           "pageRange": {
             "type": "string",
-            "description": "The page range to transfer (e.g., \"1-3\" or \"2,4,6\"). 1-based page numbers."
+            "description": "The page range to copy (e.g., \"1-3\" or \"2,4,6\"). 1-based page numbers."
           },
           "destinationEntryId": {
             "type": "integer",
