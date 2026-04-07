@@ -4,7 +4,6 @@ import { repositoryId, authorizationType, baseUrl } from '../TestHelper.js';
 import { RepositoryCollectionResponse, RepositoriesClient } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import { authorizationTypeEnum } from '../AuthorizationType.js';
-import 'isomorphic-fetch';
 
 describe('Repo List Integration Tests', () => {
   test('Get Repo Lists', async () => {

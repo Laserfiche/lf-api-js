@@ -10,7 +10,6 @@ import {
   StartDeleteEntryRequest,
 } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Copy Entry Test', () => {
   let testFolder: Entry | null = null;

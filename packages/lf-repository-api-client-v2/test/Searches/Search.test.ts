@@ -9,7 +9,6 @@ import {
   TaskStatus,
 } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 import { CoreUtils } from '@laserfiche/lf-js-utils';
 
 let taskId: string;

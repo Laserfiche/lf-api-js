@@ -4,7 +4,6 @@ import { repositoryId, authorizationType } from '../TestHelper.js';
 import { Entry, LinkToUpdate, SetLinksRequest, StartDeleteEntryRequest } from '../../index.js';
 import { CreateEntry } from '../BaseTest.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Set Entries Integration Tests', () => {
   let testFolder: Entry | null = null;

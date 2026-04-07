@@ -33,10 +33,10 @@ export interface IAttributesClient {
      * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of attributes associated with the authenticated user.
+     * @returns Successfully returned the list of trustee attribute key value pairs for the authenticated user.
      */
     listAttributes(args: { repositoryId: string, everyone?: boolean | undefined, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<AttributeCollectionResponse>;
 
@@ -47,7 +47,7 @@ export interface IAttributesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.attributeKey The requested attribute key.
      * @param args.everyone (optional) Indicates if attributes associated with the "Everyone" group or the currently authenticated user is returned. The default value is false.
-     * @returns A single attribute associated with the authenticated user.
+     * @returns Successfully returned the specified attribute for the authenticated user.
      */
     getAttribute(args: { repositoryId: string, attributeKey: string, everyone?: boolean | undefined }): Promise<Attribute>;
 }
@@ -59,7 +59,7 @@ export class AttributesClient implements IAttributesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -142,10 +142,10 @@ export class AttributesClient implements IAttributesClient {
      * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of attributes associated with the authenticated user.
+     * @returns Successfully returned the list of trustee attribute key value pairs for the authenticated user.
      */
     listAttributes(args: { repositoryId: string, everyone?: boolean | undefined, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<AttributeCollectionResponse> {
         let { repositoryId, everyone, prefer, select, orderby, top, skip, count } = args;
@@ -250,7 +250,7 @@ export class AttributesClient implements IAttributesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.attributeKey The requested attribute key.
      * @param args.everyone (optional) Indicates if attributes associated with the "Everyone" group or the currently authenticated user is returned. The default value is false.
-     * @returns A single attribute associated with the authenticated user.
+     * @returns Successfully returned the specified attribute for the authenticated user.
      */
     getAttribute(args: { repositoryId: string, attributeKey: string, everyone?: boolean | undefined }): Promise<Attribute> {
         let { repositoryId, attributeKey, everyone } = args;
@@ -315,7 +315,7 @@ export class AttributesClient implements IAttributesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested attribute key not found.", status, _responseText, _headers, result404);
+            return throwException("The requested attribute key was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -344,10 +344,10 @@ export interface IAuditReasonsClient {
      * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of audit reasons.
+     * @returns Successfully returned list of audit reasons.
      */
     listAuditReasons(args: { repositoryId: string, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<AuditReasonCollectionResponse>;
 }
@@ -359,7 +359,7 @@ export class AuditReasonsClient implements IAuditReasonsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -371,10 +371,10 @@ export class AuditReasonsClient implements IAuditReasonsClient {
      * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of audit reasons.
+     * @returns Successfully returned list of audit reasons.
      */
     listAuditReasons(args: { repositoryId: string, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<AuditReasonCollectionResponse> {
         let { repositoryId, prefer, select, orderby, top, skip, count } = args;
@@ -480,7 +480,7 @@ export interface IFieldDefinitionsClient {
      * @param args.fieldId The requested field definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns A single field definition.
+     * @returns Successfully returned requested field definition.
      */
     getFieldDefinition(args: { repositoryId: string, fieldId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<FieldDefinition>;
 
@@ -494,10 +494,10 @@ export interface IFieldDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of field definitions.
+     * @returns Successfully returned field definitions.
      */
     listFieldDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<FieldDefinitionCollectionResponse>;
 }
@@ -509,7 +509,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -594,7 +594,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
      * @param args.fieldId The requested field definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns A single field definition.
+     * @returns Successfully returned requested field definition.
      */
     getFieldDefinition(args: { repositoryId: string, fieldId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<FieldDefinition> {
         let { repositoryId, fieldId, culture, select } = args;
@@ -659,7 +659,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested field definition id not found.", status, _responseText, _headers, result404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -686,10 +686,10 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of field definitions.
+     * @returns Successfully returned field definitions.
      */
     listFieldDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<FieldDefinitionCollectionResponse> {
         let { repositoryId, prefer, culture, select, orderby, top, skip, count } = args;
@@ -797,10 +797,10 @@ export interface ILinkDefinitionsClient {
      * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of link definitions.
+     * @returns Successfully returned link definitions.
      */
     listLinkDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<LinkDefinitionCollectionResponse>;
 
@@ -812,7 +812,7 @@ export interface ILinkDefinitionsClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.linkDefinitionId The requested link definition ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns A single link definition.
+     * @returns Successfully returned specified link definition.
      */
     getLinkDefinition(args: { repositoryId: string, linkDefinitionId: number, select?: string | null | undefined }): Promise<LinkDefinition>;
 }
@@ -824,7 +824,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -905,10 +905,10 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
      * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of link definitions.
+     * @returns Successfully returned link definitions.
      */
     listLinkDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<LinkDefinitionCollectionResponse> {
         let { repositoryId, prefer, select, orderby, top, skip, count } = args;
@@ -1010,7 +1010,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.linkDefinitionId The requested link definition ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns A single link definition.
+     * @returns Successfully returned specified link definition.
      */
     getLinkDefinition(args: { repositoryId: string, linkDefinitionId: number, select?: string | null | undefined }): Promise<LinkDefinition> {
         let { repositoryId, linkDefinitionId, select } = args;
@@ -1073,7 +1073,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested link definition ID not found", status, _responseText, _headers, result404);
+            return throwException("Link definition with the specfied id was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -1105,19 +1105,20 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.request The request body.
-     * @returns A response containing an upload id and an array of upload URLs.
+     * @returns Returned response containing an upload ID and an array of upload URLs.
      */
     createMultipartUploadUrls(args: { repositoryId: string, request: CreateMultipartUploadUrlsRequest }): Promise<CreateMultipartUploadUrlsResponse>;
 
     /**
-     * - Imports a new file in the specified folder. The file should be already written (in chunks) to the upload URLs obtained by calling the Upload api. The maximum file size allowed is 64 GB.
+     * - Imports a new file in the specified folder from previously uploaded parts. The maximum file size allowed is 64 GB.
+    - The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.
     - This route does not support partial success.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.request (optional) The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @returns A long operation task id.
+     * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startImportUploadedParts(args: { repositoryId: string, entryId: number, request?: StartImportUploadedPartsRequest | undefined, culture?: string | null | undefined }): Promise<StartTaskResponse>;
 
@@ -1129,7 +1130,7 @@ export interface IEntriesClient {
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
      * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when part=Edoc.
-     * @returns A long operation task id.
+     * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startExportEntry(args: { repositoryId: string, entryId: number, request: StartExportEntryRequest, pageRange?: string | null | undefined }): Promise<StartTaskResponse>;
 
@@ -1143,7 +1144,7 @@ export interface IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @returns A long operation task id.
+     * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startCopyEntry(args: { repositoryId: string, entryId: number, request: StartCopyEntryRequest, culture?: string | null | undefined }): Promise<StartTaskResponse>;
 
@@ -1155,20 +1156,21 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request (optional) The submitted audit reason.
-     * @returns A long operation task id.
+     * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startDeleteEntry(args: { repositoryId: string, entryId: number, request?: StartDeleteEntryRequest | undefined }): Promise<StartTaskResponse>;
 
     /**
      * - Returns a single entry object.
     - Provide an entry ID, and get the entry associated with that ID. Useful when detailed information about the entry is required, such as metadata, path information, etc.
-    - If the entry is a subtype (Folder, Document, or Shortcut), the entry will automatically be converted to include those model-specific properties.
+    - If the entry is a subtype (Folder, Document, or Shortcut), the response will automatically include properties specific to that entry type. For example, Document entries include page-related properties such as the number of image pages and whether an electronic document is attached. Entries with an electronic document component include the electronic document size (in bytes). Folder entries include whether the folder is a record series. Shortcut entries include the target entry ID.
     - Allowed OData query options: Select.
+    - When OData Select query option is used, 'entryType' is always included in the result.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns A single entry.
+     * @returns Successfully retrieved requested entry.
      */
     getEntry(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<Entry>;
 
@@ -1181,7 +1183,7 @@ export interface IEntriesClient {
      * @param args.entryId The requested entry ID.
      * @param args.request The request containing the folder ID that the entry will be moved to and the new name the entry will be renamed to.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @returns The updated entry.
+     * @returns Succesfully moved and/or renamed the entry. Returned updated entry.
      */
     updateEntry(args: { repositoryId: string, entryId: number, request: UpdateEntryRequest, culture?: string | null | undefined }): Promise<Entry>;
 
@@ -1192,9 +1194,9 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @param args.file (optional) 
+     * @param args.file (optional) The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.
      * @param args.request (optional) 
-     * @returns The created entry.
+     * @returns Document was created successfully. Returns created entry.
      */
     importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined }): Promise<Entry>;
 
@@ -1206,7 +1208,7 @@ export interface IEntriesClient {
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
      * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when exporting as Edoc.
-     * @returns A link to download the exported entry.
+     * @returns Export was successful. Returned a link to download the exported entry.
      */
     exportEntry(args: { repositoryId: string, entryId: number, request: ExportEntryRequest, pageRange?: string | null | undefined }): Promise<ExportEntryResponse>;
 
@@ -1217,7 +1219,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.fullPath The requested entry path.
      * @param args.fallbackToClosestAncestor (optional) An optional query parameter used to indicate whether or not the closest ancestor in the path should be returned if the initial entry path is not found. The default value is false.
-     * @returns The found entry or ancestor entry.
+     * @returns Successfully retrieved requested entry or ancestor entry.
      */
     getEntryByPath(args: { repositoryId: string, fullPath: string, fallbackToClosestAncestor?: boolean | undefined }): Promise<GetEntryByPathResponse>;
 
@@ -1238,10 +1240,10 @@ export interface IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag. The formatFieldValues query parameter must be set to true, otherwise culture will not be used for formatting.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of children entries of a folder.
+     * @returns Successfully returned list of children entries in requested folder.
      */
     listEntries(args: { repositoryId: string, entryId: number, groupByEntryType?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<EntryCollectionResponse>;
 
@@ -1253,7 +1255,7 @@ export interface IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @returns The created entry.
+     * @returns Document was created successfully. Returns created entry.
      */
     createEntry(args: { repositoryId: string, entryId: number, request: CreateEntryRequest, culture?: string | null | undefined }): Promise<Entry>;
 
@@ -1269,10 +1271,10 @@ export interface IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag. The formatFieldValues query parameter must be set to true, otherwise culture will not be used for formatting.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of fields assigned to the entry.
+     * @returns Successfully returned field values for requested entry.
      */
     listFields(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, formatFieldValues?: boolean | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<FieldCollectionResponse>;
 
@@ -1285,7 +1287,7 @@ export interface IEntriesClient {
      * @param args.entryId The entry ID of the entry that will have its fields updated.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @returns A collection of fields assigned to the entry.
+     * @returns Successfully updated field values on requested entry. Returned updated fields
      */
     setFields(args: { repositoryId: string, entryId: number, request: SetFieldsRequest, culture?: string | null | undefined }): Promise<FieldCollectionResponse>;
 
@@ -1299,10 +1301,10 @@ export interface IEntriesClient {
      * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of tags assigned to the entry.
+     * @returns Successfully returned tags for requested entry.
      */
     listTags(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TagCollectionResponse>;
 
@@ -1314,7 +1316,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The tags to add.
-     * @returns A collection of tags assigned to the entry.
+     * @returns Successfully assigned tags to the requested entry. Returned updated tags.
      */
     setTags(args: { repositoryId: string, entryId: number, request: SetTagsRequest }): Promise<TagCollectionResponse>;
 
@@ -1326,7 +1328,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The request repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The request body.
-     * @returns A collection of links assigned to the entry.
+     * @returns Successfully returned list of links assigned to requested entry.
      */
     setLinks(args: { repositoryId: string, entryId: number, request: SetLinksRequest }): Promise<LinkCollectionResponse>;
 
@@ -1340,10 +1342,10 @@ export interface IEntriesClient {
      * @param args.prefer (optional) An optional odata header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of links assigned to the entry.
+     * @returns Successfully returned list of links assigned to requested entry.
      */
     listLinks(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<LinkCollectionResponse>;
 
@@ -1355,16 +1357,56 @@ export interface IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @returns The copied entry.
+     * @returns Entry was copied successfully. Returned copied entry.
      */
     copyEntry(args: { repositoryId: string, entryId: number, request: CopyEntryRequest, culture?: string | null | undefined }): Promise<Entry>;
+
+    /**
+     * - Update the electronic document and/or metadata of the specified document entry.
+    - At least one of file or metadata must be provided.
+    - If a file is provided, it writes or replaces the electronic document component. The file may fail if it is greater than 100 MB. This value is subject to change at any time.
+    - If metadata is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
+    - The optional createVersion parameter (default false) controls whether a new version is created when a file is provided. When true, the document is put under version control (if not already) and a new version is created.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
+     * @param args.file (optional) The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.
+     * @param args.request (optional) 
+     * @returns Successfully updated the document. Returned the updated entry.
+     */
+    updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: UpdateDocumentRequest | undefined }): Promise<Entry>;
+
+    /**
+     * - Returns the electronic document content as a binary stream.
+    - The entry must be a document with an electronic document component.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the electronic document as a binary stream.
+     */
+    getDocument(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<FileResponse>;
+
+    /**
+     * - Assembles previously uploaded file chunks and writes them as the electronic document on the specified document entry, optionally updating metadata.
+    - The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.
+    - Use this endpoint for files that exceed the upload size limit of the UpdateDocument (PATCH) endpoint.
+    - If metadata is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the upload ID, part ETags, and optional metadata.
+     * @returns Successfully started the update document from uploaded parts operation. Returns a task ID for polling progress.
+     */
+    updateDocumentUploadedParts(args: { repositoryId: string, entryId: number, request: UpdateDocumentUploadedPartsRequest }): Promise<StartTaskResponse>;
 
     /**
      * - Delete the edoc associated with the provided entry ID.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @returns The updated entry.
+     * @returns Successfully deleted edoc associated with the specified entry. Returned the updated entry.
      */
     deleteElectronicDocument(args: { repositoryId: string, entryId: number }): Promise<Entry>;
 
@@ -1375,9 +1417,183 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageRange (optional) The pages to be deleted.
-     * @returns The updated entry.
+     * @returns Successfully deleted pages associated with the specified entry. Returned the updated entry.
      */
     deletePages(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined }): Promise<Entry>;
+
+    /**
+     * - Returns a list of page properties including image dimensions, rotation angle, and content flags for all pages.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
+     * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
+     * @returns Successfully retrieved page information for all pages in the document.
+     */
+    listPageInfos(args: { repositoryId: string, entryId: number, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]>;
+
+    /**
+     * - Appends a new image page to the end of the specified document.
+    - The image file should be a supported image format (TIFF, JPG, PNG).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
+     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
+     * @returns Successfully appended an image page to the specified document. Returned the updated entry.
+     */
+    appendImagePage(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry>;
+
+    /**
+     * - Inserts a new image page at the specified position in the document.
+    - The image file should be a supported image format (TIFF, JPG, PNG).
+    - pageNumber is 1-based. Existing pages at and after this position are shifted down.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber (optional) The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
+     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
+     * @returns Successfully inserted an image page into the specified document at the given page number. Returned the updated entry.
+     */
+    insertImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry>;
+
+    /**
+     * - Inserts a new text page at the specified position in the document.
+    - Provide the text content in the request body.
+    - pageNumber is 1-based. Existing pages at and after this position are shifted down.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the text content.
+     * @param args.pageNumber (optional) The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.
+     * @returns Successfully inserted a text page into the specified document at the given page number. Returned the updated entry.
+     */
+    insertTextPage(args: { repositoryId: string, entryId: number, request: AppendTextPageRequest, pageNumber?: number | undefined }): Promise<Entry>;
+
+    /**
+     * - Replaces the image content of the specified page in the document.
+    - The image file should be a supported image format (TIFF, JPG, PNG).
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber (optional) The 1-based page number of the page to replace.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
+     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
+     * @returns Successfully replaced the image content of the specified page. Returned the updated entry.
+     */
+    replaceImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry>;
+
+    /**
+     * - Replaces the text content of the specified page in the document.
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the replacement text content.
+     * @param args.pageNumber (optional) The 1-based page number of the page to replace.
+     * @returns Successfully replaced the text content of the specified page. Returned the updated entry.
+     */
+    replaceTextPage(args: { repositoryId: string, entryId: number, request: ReplaceTextPageRequest, pageNumber?: number | undefined }): Promise<Entry>;
+
+    /**
+     * - Moves the specified pages within the same document to a new position.
+    - pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
+    - destinationPageNumber: The 1-based page number where the pages will be moved before.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the page range and destination.
+     * @returns Successfully moved pages within the specified document. Returned the updated entry.
+     */
+    movePages(args: { repositoryId: string, entryId: number, request: MovePagesRequest }): Promise<Entry>;
+
+    /**
+     * - Moves the specified pages from the source document to the destination document.
+    - The transferred pages are removed from the source and inserted into the destination.
+    - pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
+    - destinationEntryId: The entry ID of the destination document.
+    - destinationPageNumber: The 1-based page number in the destination document where pages will be inserted before.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The source document ID.
+     * @param args.request The request body containing the page range, destination entry ID, and destination page number.
+     * @returns Successfully transferred pages from the source document to the destination document. Returned the updated source entry.
+     */
+    transferPages(args: { repositoryId: string, entryId: number, request: TransferPagesRequest }): Promise<Entry>;
+
+    /**
+     * - Rotates the image of the specified page by the given angle.
+    - rotationAngle: The rotation angle in degrees. Accepted values: 0, 90, 180, 270.
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the rotation angle.
+     * @param args.pageNumber (optional) The 1-based page number of the page to rotate.
+     * @returns Successfully rotated the image page. Returned the updated entry.
+     */
+    rotateImagePage(args: { repositoryId: string, entryId: number, request: RotateImagePageRequest, pageNumber?: number | undefined }): Promise<Entry>;
+
+    /**
+     * - Returns page properties including image dimensions, rotation angle, and content flags.
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to retrieve information for.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved page information for the specified page.
+     */
+    getPageInfo(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageInfoResponse>;
+
+    /**
+     * - Returns the raw image data for the specified page as a binary stream.
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to retrieve the image for.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved the image content for the specified page.
+     */
+    getPageImage(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<FileResponse>;
+
+    /**
+     * - Returns the text content for the specified page.
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to retrieve the text for.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved the text content for the specified page.
+     */
+    getPageText(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageTextResponse>;
+
+    /**
+     * - Triggers server-side text generation for the specified document.
+    - For documents with image pages, this performs OCR to generate searchable text.
+    - For documents with an electronic document part (e.g., PDF), this extracts embedded text.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @returns Successfully triggered text generation for the document. Returned the updated entry.
+     */
+    generateText(args: { repositoryId: string, entryId: number }): Promise<Entry2>;
+
+    /**
+     * - Appends a new text page to the end of the specified document.
+    - Provide the text content in the request body.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the text content.
+     * @returns Successfully appended a text page to the specified document. Returned the updated entry.
+     */
+    appendTextPage(args: { repositoryId: string, entryId: number, request: AppendTextPageRequest }): Promise<Entry>;
 
     /**
      * - Returns dynamic field logic values with the current values of the fields in the template.
@@ -1387,7 +1603,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The request body.
-     * @returns A collection of dynamic field values.
+     * @returns Successfully returned dynamic field values for specified entry, template, and field values.
      */
     listDynamicFieldValues(args: { repositoryId: string, entryId: number, request: ListDynamicFieldValuesRequest }): Promise<{ [key: string]: string[]; }>;
 
@@ -1398,7 +1614,7 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of the entry that will have its template removed.
-     * @returns The updated entry.
+     * @returns Successfully removed the currently assigned template from requested entry. Returned updated entry.
      */
     removeTemplate(args: { repositoryId: string, entryId: number }): Promise<Entry>;
 
@@ -1411,9 +1627,86 @@ export interface IEntriesClient {
      * @param args.entryId The ID of entry that will have its template updated.
      * @param args.request The template and template fields that will be assigned to the entry.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @returns The updated entry.
+     * @returns Successfully assigned specified template to requested entry. Returned updated entry.
      */
     setTemplate(args: { repositoryId: string, entryId: number, request: SetTemplateRequest, culture?: string | null | undefined }): Promise<Entry>;
+
+    /**
+     * - Creates a persistent lock on the specified document. Persistent locks survive session disconnect and server restart.
+    - Optionally specify a comment and lock extent (Page, Edoc, Metadata, or All). Defaults to All.
+    - Returns lock info including the lock token, owner, and extent.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request (optional) The request body containing optional lock comment and extent.
+     * @returns Successfully created a persistent lock on the document.
+     */
+    lockDocument(args: { repositoryId: string, entryId: number, request?: LockDocumentRequest | undefined }): Promise<LockInfo>;
+
+    /**
+     * - Returns the current persistent lock state of the document, including who holds the lock, the lock token, comment, extent, and creation timestamp.
+    - If the document is not locked, returns lock info with isActive set to false.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the lock state of the document.
+     */
+    getDocumentLockInfo(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<LockInfo>;
+
+    /**
+     * - Without a lockToken query parameter, removes the current user's persistent lock on the document.
+    - With a lockToken query parameter, removes the specified lock regardless of owner (administrative unlock).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.lockToken (optional) Optional lock token to unlock a specific lock held by another user (administrative unlock).
+     * @returns Successfully removed the persistent lock from the document.
+     */
+    unlockDocument(args: { repositoryId: string, entryId: number, lockToken?: string | null | undefined }): Promise<void>;
+
+    /**
+     * - Puts the specified document under version control. No-op if already under version control.
+    - Documents must be under version control before they can be checked out.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @returns Successfully put the document under version control.
+     */
+    putUnderVersionControl(args: { repositoryId: string, entryId: number }): Promise<Entry2>;
+
+    /**
+     * - Checks out the specified document for editing. The document must be under version control.
+    - By default, a persistent lock is automatically acquired (lock=true). Set lock=false to check out without locking.
+    - Optionally specify a comment for the check-out.
+    - Returns an error if the document is not under version control.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request (optional) The request body containing optional lock and comment parameters.
+     * @returns Successfully checked out the document.
+     */
+    checkOutDocument(args: { repositoryId: string, entryId: number, request?: CheckOutDocumentRequest | undefined }): Promise<Entry2>;
+
+    /**
+     * - Checks in the specified document, creating a new version in the version history.
+    - Returns an error if the document is not currently checked out.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @returns Successfully checked in the document.
+     */
+    checkInDocument(args: { repositoryId: string, entryId: number }): Promise<Entry2>;
+
+    /**
+     * - Releases the check-out state without creating a new version in the version history.
+    - Returns an error if the document is not under version control.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @returns Successfully undid the document check-out.
+     */
+    undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry2>;
 }
 
 export class EntriesClient implements IEntriesClient {
@@ -1423,7 +1716,7 @@ export class EntriesClient implements IEntriesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -1755,7 +2048,7 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.request The request body.
-     * @returns A response containing an upload id and an array of upload URLs.
+     * @returns Returned response containing an upload ID and an array of upload URLs.
      */
     createMultipartUploadUrls(args: { repositoryId: string, request: CreateMultipartUploadUrlsRequest }): Promise<CreateMultipartUploadUrlsResponse> {
         let { repositoryId, request } = args;
@@ -1817,7 +2110,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested repository not found.", status, _responseText, _headers, result404);
+            return throwException("Requested repository was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -1842,14 +2135,15 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Imports a new file in the specified folder. The file should be already written (in chunks) to the upload URLs obtained by calling the Upload api. The maximum file size allowed is 64 GB.
+     * - Imports a new file in the specified folder from previously uploaded parts. The maximum file size allowed is 64 GB.
+    - The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.
     - This route does not support partial success.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.request (optional) The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @returns A long operation task id.
+     * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startImportUploadedParts(args: { repositoryId: string, entryId: number, request?: StartImportUploadedPartsRequest | undefined, culture?: string | null | undefined }): Promise<StartTaskResponse> {
         let { repositoryId, entryId, request, culture } = args;
@@ -1916,7 +2210,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested repository not found.", status, _responseText, _headers, result404);
+            return throwException("Requested repository was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -1937,7 +2231,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Import operation failed due to an internal server error.", status, _responseText, _headers, result500);
+            return throwException("Import operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -1955,7 +2249,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
      * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when part=Edoc.
-     * @returns A long operation task id.
+     * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startExportEntry(args: { repositoryId: string, entryId: number, request: StartExportEntryRequest, pageRange?: string | null | undefined }): Promise<StartTaskResponse> {
         let { repositoryId, entryId, request, pageRange } = args;
@@ -2022,7 +2316,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested repository not found.", status, _responseText, _headers, result404);
+            return throwException("Requested repository was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -2043,7 +2337,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Export operation failed due to an internal server error.", status, _responseText, _headers, result500);
+            return throwException("Export operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -2063,7 +2357,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @returns A long operation task id.
+     * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startCopyEntry(args: { repositoryId: string, entryId: number, request: StartCopyEntryRequest, culture?: string | null | undefined }): Promise<StartTaskResponse> {
         let { repositoryId, entryId, request, culture } = args;
@@ -2130,7 +2424,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested repository not found.", status, _responseText, _headers, result404);
+            return throwException("Requested repository was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -2144,7 +2438,7 @@ export class EntriesClient implements IEntriesClient {
             let result429: any = null;
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Operation limit or request limit reached.", status, _responseText, _headers, result429);
+            return throwException("Operation limit or request limit has been reached.", status, _responseText, _headers, result429);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -2162,7 +2456,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request (optional) The submitted audit reason.
-     * @returns A long operation task id.
+     * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startDeleteEntry(args: { repositoryId: string, entryId: number, request?: StartDeleteEntryRequest | undefined }): Promise<StartTaskResponse> {
         let { repositoryId, entryId, request } = args;
@@ -2227,7 +2521,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested repository not found.", status, _responseText, _headers, result404);
+            return throwException("Requested repository was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -2241,7 +2535,7 @@ export class EntriesClient implements IEntriesClient {
             let result429: any = null;
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Operation limit or request limit reached.", status, _responseText, _headers, result429);
+            return throwException("Operation limit or request limit has been reached.", status, _responseText, _headers, result429);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -2254,13 +2548,14 @@ export class EntriesClient implements IEntriesClient {
     /**
      * - Returns a single entry object.
     - Provide an entry ID, and get the entry associated with that ID. Useful when detailed information about the entry is required, such as metadata, path information, etc.
-    - If the entry is a subtype (Folder, Document, or Shortcut), the entry will automatically be converted to include those model-specific properties.
+    - If the entry is a subtype (Folder, Document, or Shortcut), the response will automatically include properties specific to that entry type. For example, Document entries include page-related properties such as the number of image pages and whether an electronic document is attached. Entries with an electronic document component include the electronic document size (in bytes). Folder entries include whether the folder is a record series. Shortcut entries include the target entry ID.
     - Allowed OData query options: Select.
+    - When OData Select query option is used, 'entryType' is always included in the result.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns A single entry.
+     * @returns Successfully retrieved requested entry.
      */
     getEntry(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, select } = args;
@@ -2323,7 +2618,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -2349,7 +2644,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The requested entry ID.
      * @param args.request The request containing the folder ID that the entry will be moved to and the new name the entry will be renamed to.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @returns The updated entry.
+     * @returns Succesfully moved and/or renamed the entry. Returned updated entry.
      */
     updateEntry(args: { repositoryId: string, entryId: number, request: UpdateEntryRequest, culture?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, request, culture } = args;
@@ -2416,7 +2711,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 409) {
             return response.text().then((_responseText) => {
@@ -2437,7 +2732,7 @@ export class EntriesClient implements IEntriesClient {
             let result423: any = null;
             let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked.", status, _responseText, _headers, result423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -2461,9 +2756,9 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @param args.file (optional) 
+     * @param args.file (optional) The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.
      * @param args.request (optional) 
-     * @returns The created entry.
+     * @returns Document was created successfully. Returns created entry.
      */
     importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined }): Promise<Entry> {
         let { repositoryId, entryId, culture, file, request } = args;
@@ -2537,7 +2832,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -2558,7 +2853,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Document creation is completely failed.", status, _responseText, _headers, result500);
+            return throwException("Unable to create document.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -2576,7 +2871,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
      * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when exporting as Edoc.
-     * @returns A link to download the exported entry.
+     * @returns Export was successful. Returned a link to download the exported entry.
      */
     exportEntry(args: { repositoryId: string, entryId: number, request: ExportEntryRequest, pageRange?: string | null | undefined }): Promise<ExportEntryResponse> {
         let { repositoryId, entryId, request, pageRange } = args;
@@ -2643,7 +2938,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -2657,7 +2952,7 @@ export class EntriesClient implements IEntriesClient {
             let result423: any = null;
             let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked.", status, _responseText, _headers, result423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -2671,7 +2966,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Export operation failed due to an internal server error.", status, _responseText, _headers, result500);
+            return throwException("Export operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -2688,7 +2983,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.fullPath The requested entry path.
      * @param args.fallbackToClosestAncestor (optional) An optional query parameter used to indicate whether or not the closest ancestor in the path should be returned if the initial entry path is not found. The default value is false.
-     * @returns The found entry or ancestor entry.
+     * @returns Successfully retrieved requested entry or ancestor entry.
      */
     getEntryByPath(args: { repositoryId: string, fullPath: string, fallbackToClosestAncestor?: boolean | undefined }): Promise<GetEntryByPathResponse> {
         let { repositoryId, fullPath, fallbackToClosestAncestor } = args;
@@ -2754,7 +3049,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested entry path not found", status, _responseText, _headers, result404);
+            return throwException("Entry with requested entry path was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -2788,10 +3083,10 @@ export class EntriesClient implements IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag. The formatFieldValues query parameter must be set to true, otherwise culture will not be used for formatting.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of children entries of a folder.
+     * @returns Successfully returned list of children entries in requested folder.
      */
     listEntries(args: { repositoryId: string, entryId: number, groupByEntryType?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<EntryCollectionResponse> {
         let { repositoryId, entryId, groupByEntryType, fields, formatFieldValues, prefer, culture, select, orderby, top, skip, count } = args;
@@ -2883,7 +3178,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -2908,7 +3203,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @returns The created entry.
+     * @returns Document was created successfully. Returns created entry.
      */
     createEntry(args: { repositoryId: string, entryId: number, request: CreateEntryRequest, culture?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, request, culture } = args;
@@ -2975,7 +3270,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 409) {
             return response.text().then((_responseText) => {
@@ -3018,10 +3313,10 @@ export class EntriesClient implements IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag. The formatFieldValues query parameter must be set to true, otherwise culture will not be used for formatting.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of fields assigned to the entry.
+     * @returns Successfully returned field values for requested entry.
      */
     listFields(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, formatFieldValues?: boolean | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<FieldCollectionResponse> {
         let { repositoryId, entryId, prefer, formatFieldValues, culture, select, orderby, top, skip, count } = args;
@@ -3107,7 +3402,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -3133,7 +3428,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The entry ID of the entry that will have its fields updated.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @returns A collection of fields assigned to the entry.
+     * @returns Successfully updated field values on requested entry. Returned updated fields
      */
     setFields(args: { repositoryId: string, entryId: number, request: SetFieldsRequest, culture?: string | null | undefined }): Promise<FieldCollectionResponse> {
         let { repositoryId, entryId, request, culture } = args;
@@ -3200,7 +3495,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -3214,7 +3509,7 @@ export class EntriesClient implements IEntriesClient {
             let result423: any = null;
             let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked.", status, _responseText, _headers, result423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -3241,10 +3536,10 @@ export class EntriesClient implements IEntriesClient {
      * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of tags assigned to the entry.
+     * @returns Successfully returned tags for requested entry.
      */
     listTags(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TagCollectionResponse> {
         let { repositoryId, entryId, prefer, select, orderby, top, skip, count } = args;
@@ -3324,7 +3619,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -3349,7 +3644,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The tags to add.
-     * @returns A collection of tags assigned to the entry.
+     * @returns Successfully assigned tags to the requested entry. Returned updated tags.
      */
     setTags(args: { repositoryId: string, entryId: number, request: SetTagsRequest }): Promise<TagCollectionResponse> {
         let { repositoryId, entryId, request } = args;
@@ -3414,7 +3709,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request id not found.", status, _responseText, _headers, result404);
+            return throwException("Tag with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -3428,7 +3723,7 @@ export class EntriesClient implements IEntriesClient {
             let result423: any = null;
             let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked.", status, _responseText, _headers, result423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -3453,7 +3748,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The request repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The request body.
-     * @returns A collection of links assigned to the entry.
+     * @returns Successfully returned list of links assigned to requested entry.
      */
     setLinks(args: { repositoryId: string, entryId: number, request: SetLinksRequest }): Promise<LinkCollectionResponse> {
         let { repositoryId, entryId, request } = args;
@@ -3518,7 +3813,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -3532,7 +3827,7 @@ export class EntriesClient implements IEntriesClient {
             let result423: any = null;
             let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked.", status, _responseText, _headers, result423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -3559,10 +3854,10 @@ export class EntriesClient implements IEntriesClient {
      * @param args.prefer (optional) An optional odata header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of links assigned to the entry.
+     * @returns Successfully returned list of links assigned to requested entry.
      */
     listLinks(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<LinkCollectionResponse> {
         let { repositoryId, entryId, prefer, select, orderby, top, skip, count } = args;
@@ -3642,7 +3937,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -3667,7 +3962,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
-     * @returns The copied entry.
+     * @returns Entry was copied successfully. Returned copied entry.
      */
     copyEntry(args: { repositoryId: string, entryId: number, request: CopyEntryRequest, culture?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, request, culture } = args;
@@ -3734,7 +4029,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry ID not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 409) {
             return response.text().then((_responseText) => {
@@ -3766,11 +4061,324 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
+     * - Update the electronic document and/or metadata of the specified document entry.
+    - At least one of file or metadata must be provided.
+    - If a file is provided, it writes or replaces the electronic document component. The file may fail if it is greater than 100 MB. This value is subject to change at any time.
+    - If metadata is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
+    - The optional createVersion parameter (default false) controls whether a new version is created when a file is provided. When true, the document is put under version control (if not already) and a new version is created.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
+     * @param args.file (optional) The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.
+     * @param args.request (optional) 
+     * @returns Successfully updated the document. Returned the updated entry.
+     */
+    updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: UpdateDocumentRequest | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, culture, file, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (culture !== undefined && culture !== null)
+            url_ += "culture=" + encodeURIComponent("" + culture) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (file === null || file === undefined)
+            throw new Error("The parameter 'file' cannot be null.");
+        else
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+        if (request === null || request === undefined)
+            throw new Error("The parameter 'request' cannot be null.");
+        else
+            content_.append("request", JSON.stringify(request));
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateDocument(_response);
+        });
+    }
+
+    protected processUpdateDocument(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Returns the electronic document content as a binary stream.
+    - The entry must be a document with an electronic document component.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the electronic document as a binary stream.
+     */
+    getDocument(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<FileResponse> {
+        let { repositoryId, entryId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDocument(_response);
+        });
+    }
+
+    protected processGetDocument(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(null as any);
+    }
+
+    /**
+     * - Assembles previously uploaded file chunks and writes them as the electronic document on the specified document entry, optionally updating metadata.
+    - The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.
+    - Use this endpoint for files that exceed the upload size limit of the UpdateDocument (PATCH) endpoint.
+    - If metadata is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the upload ID, part ETags, and optional metadata.
+     * @returns Successfully started the update document from uploaded parts operation. Returns a task ID for polling progress.
+     */
+    updateDocumentUploadedParts(args: { repositoryId: string, entryId: number, request: UpdateDocumentUploadedPartsRequest }): Promise<StartTaskResponse> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/UpdateUploadedParts";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateDocumentUploadedParts(_response);
+        });
+    }
+
+    protected processUpdateDocumentUploadedParts(response: Response): Promise<StartTaskResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 202) {
+            return response.text().then((_responseText) => {
+            let result202: any = null;
+            let resultData202 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result202 = StartTaskResponse.fromJS(resultData202);
+            return result202;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 413) {
+            return response.text().then((_responseText) => {
+            let result413: any = null;
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result413 = ProblemDetails.fromJS(resultData413);
+            return throwException("Request is too large.", status, _responseText, _headers, result413);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Import operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<StartTaskResponse>(null as any);
+    }
+
+    /**
      * - Delete the edoc associated with the provided entry ID.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @returns The updated entry.
+     * @returns Successfully deleted edoc associated with the specified entry. Returned the updated entry.
      */
     deleteElectronicDocument(args: { repositoryId: string, entryId: number }): Promise<Entry> {
         let { repositoryId, entryId } = args;
@@ -3831,14 +4439,14 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
             let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked.", status, _responseText, _headers, result423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -3862,7 +4470,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageRange (optional) The pages to be deleted.
-     * @returns The updated entry.
+     * @returns Successfully deleted pages associated with the specified entry. Returned the updated entry.
      */
     deletePages(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, pageRange } = args;
@@ -3925,14 +4533,1398 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
             let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked.", status, _responseText, _headers, result423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Returns a list of page properties including image dimensions, rotation angle, and content flags for all pages.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
+     * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
+     * @returns Successfully retrieved page information for all pages in the document.
+     */
+    listPageInfos(args: { repositoryId: string, entryId: number, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]> {
+        let { repositoryId, entryId, select, orderby, count } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        if (orderby !== undefined && orderby !== null)
+            url_ += "$orderby=" + encodeURIComponent("" + orderby) + "&";
+        if (count === null)
+            throw new Error("The parameter 'count' cannot be null.");
+        else if (count !== undefined)
+            url_ += "$count=" + encodeURIComponent("" + count) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processListPageInfos(_response);
+        });
+    }
+
+    protected processListPageInfos(response: Response): Promise<PageInfoResponse[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PageInfoResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PageInfoResponse[]>(null as any);
+    }
+
+    /**
+     * - Appends a new image page to the end of the specified document.
+    - The image file should be a supported image format (TIFF, JPG, PNG).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
+     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
+     * @returns Successfully appended an image page to the specified document. Returned the updated entry.
+     */
+    appendImagePage(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, generateText, imageFile } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Append?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (generateText === null)
+            throw new Error("The parameter 'generateText' cannot be null.");
+        else if (generateText !== undefined)
+            url_ += "generateText=" + encodeURIComponent("" + generateText) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (imageFile === null || imageFile === undefined)
+            throw new Error("The parameter 'imageFile' cannot be null.");
+        else
+            content_.append("imageFile", imageFile.data, imageFile.fileName ? imageFile.fileName : "imageFile");
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAppendImagePage(_response);
+        });
+    }
+
+    protected processAppendImagePage(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Inserts a new image page at the specified position in the document.
+    - The image file should be a supported image format (TIFF, JPG, PNG).
+    - pageNumber is 1-based. Existing pages at and after this position are shifted down.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber (optional) The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
+     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
+     * @returns Successfully inserted an image page into the specified document at the given page number. Returned the updated entry.
+     */
+    insertImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, pageNumber, generateText, imageFile } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Insert?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber === null)
+            throw new Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (generateText === null)
+            throw new Error("The parameter 'generateText' cannot be null.");
+        else if (generateText !== undefined)
+            url_ += "generateText=" + encodeURIComponent("" + generateText) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (imageFile === null || imageFile === undefined)
+            throw new Error("The parameter 'imageFile' cannot be null.");
+        else
+            content_.append("imageFile", imageFile.data, imageFile.fileName ? imageFile.fileName : "imageFile");
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processInsertImagePage(_response);
+        });
+    }
+
+    protected processInsertImagePage(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Inserts a new text page at the specified position in the document.
+    - Provide the text content in the request body.
+    - pageNumber is 1-based. Existing pages at and after this position are shifted down.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the text content.
+     * @param args.pageNumber (optional) The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.
+     * @returns Successfully inserted a text page into the specified document at the given page number. Returned the updated entry.
+     */
+    insertTextPage(args: { repositoryId: string, entryId: number, request: AppendTextPageRequest, pageNumber?: number | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, request, pageNumber } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Text/Insert?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber === null)
+            throw new Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processInsertTextPage(_response);
+        });
+    }
+
+    protected processInsertTextPage(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Replaces the image content of the specified page in the document.
+    - The image file should be a supported image format (TIFF, JPG, PNG).
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber (optional) The 1-based page number of the page to replace.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
+     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
+     * @returns Successfully replaced the image content of the specified page. Returned the updated entry.
+     */
+    replaceImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, pageNumber, generateText, imageFile } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Replace?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber === null)
+            throw new Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (generateText === null)
+            throw new Error("The parameter 'generateText' cannot be null.");
+        else if (generateText !== undefined)
+            url_ += "generateText=" + encodeURIComponent("" + generateText) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (imageFile === null || imageFile === undefined)
+            throw new Error("The parameter 'imageFile' cannot be null.");
+        else
+            content_.append("imageFile", imageFile.data, imageFile.fileName ? imageFile.fileName : "imageFile");
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processReplaceImagePage(_response);
+        });
+    }
+
+    protected processReplaceImagePage(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Replaces the text content of the specified page in the document.
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the replacement text content.
+     * @param args.pageNumber (optional) The 1-based page number of the page to replace.
+     * @returns Successfully replaced the text content of the specified page. Returned the updated entry.
+     */
+    replaceTextPage(args: { repositoryId: string, entryId: number, request: ReplaceTextPageRequest, pageNumber?: number | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, request, pageNumber } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Text/Replace?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber === null)
+            throw new Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processReplaceTextPage(_response);
+        });
+    }
+
+    protected processReplaceTextPage(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Moves the specified pages within the same document to a new position.
+    - pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
+    - destinationPageNumber: The 1-based page number where the pages will be moved before.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the page range and destination.
+     * @returns Successfully moved pages within the specified document. Returned the updated entry.
+     */
+    movePages(args: { repositoryId: string, entryId: number, request: MovePagesRequest }): Promise<Entry> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Move";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processMovePages(_response);
+        });
+    }
+
+    protected processMovePages(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Moves the specified pages from the source document to the destination document.
+    - The transferred pages are removed from the source and inserted into the destination.
+    - pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
+    - destinationEntryId: The entry ID of the destination document.
+    - destinationPageNumber: The 1-based page number in the destination document where pages will be inserted before.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The source document ID.
+     * @param args.request The request body containing the page range, destination entry ID, and destination page number.
+     * @returns Successfully transferred pages from the source document to the destination document. Returned the updated source entry.
+     */
+    transferPages(args: { repositoryId: string, entryId: number, request: TransferPagesRequest }): Promise<Entry> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Transfer";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processTransferPages(_response);
+        });
+    }
+
+    protected processTransferPages(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Rotates the image of the specified page by the given angle.
+    - rotationAngle: The rotation angle in degrees. Accepted values: 0, 90, 180, 270.
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the rotation angle.
+     * @param args.pageNumber (optional) The 1-based page number of the page to rotate.
+     * @returns Successfully rotated the image page. Returned the updated entry.
+     */
+    rotateImagePage(args: { repositoryId: string, entryId: number, request: RotateImagePageRequest, pageNumber?: number | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, request, pageNumber } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Rotate?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber === null)
+            throw new Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRotateImagePage(_response);
+        });
+    }
+
+    protected processRotateImagePage(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Returns page properties including image dimensions, rotation angle, and content flags.
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to retrieve information for.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved page information for the specified page.
+     */
+    getPageInfo(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageInfoResponse> {
+        let { repositoryId, entryId, pageNumber, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Info?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined.");
+        url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPageInfo(_response);
+        });
+    }
+
+    protected processGetPageInfo(response: Response): Promise<PageInfoResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PageInfoResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PageInfoResponse>(null as any);
+    }
+
+    /**
+     * - Returns the raw image data for the specified page as a binary stream.
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to retrieve the image for.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved the image content for the specified page.
+     */
+    getPageImage(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<FileResponse> {
+        let { repositoryId, entryId, pageNumber, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Image?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined.");
+        url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPageImage(_response);
+        });
+    }
+
+    protected processGetPageImage(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(null as any);
+    }
+
+    /**
+     * - Returns the text content for the specified page.
+    - pageNumber is 1-based.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to retrieve the text for.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved the text content for the specified page.
+     */
+    getPageText(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageTextResponse> {
+        let { repositoryId, entryId, pageNumber, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Text?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined.");
+        url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPageText(_response);
+        });
+    }
+
+    protected processGetPageText(response: Response): Promise<PageTextResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PageTextResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PageTextResponse>(null as any);
+    }
+
+    /**
+     * - Triggers server-side text generation for the specified document.
+    - For documents with image pages, this performs OCR to generate searchable text.
+    - For documents with an electronic document part (e.g., PDF), this extracts embedded text.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @returns Successfully triggered text generation for the document. Returned the updated entry.
+     */
+    generateText(args: { repositoryId: string, entryId: number }): Promise<Entry2> {
+        let { repositoryId, entryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/GenerateText";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGenerateText(_response);
+        });
+    }
+
+    protected processGenerateText(response: Response): Promise<Entry2> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry2.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry2>(null as any);
+    }
+
+    /**
+     * - Appends a new text page to the end of the specified document.
+    - Provide the text content in the request body.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request The request body containing the text content.
+     * @returns Successfully appended a text page to the specified document. Returned the updated entry.
+     */
+    appendTextPage(args: { repositoryId: string, entryId: number, request: AppendTextPageRequest }): Promise<Entry> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Text/Append";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAppendTextPage(_response);
+        });
+    }
+
+    protected processAppendTextPage(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -3957,7 +5949,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
      * @param args.request The request body.
-     * @returns A collection of dynamic field values.
+     * @returns Successfully returned dynamic field values for specified entry, template, and field values.
      */
     listDynamicFieldValues(args: { repositoryId: string, entryId: number, request: ListDynamicFieldValuesRequest }): Promise<{ [key: string]: string[]; }> {
         let { repositoryId, entryId, request } = args;
@@ -4031,7 +6023,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -4062,7 +6054,7 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of the entry that will have its template removed.
-     * @returns The updated entry.
+     * @returns Successfully removed the currently assigned template from requested entry. Returned updated entry.
      */
     removeTemplate(args: { repositoryId: string, entryId: number }): Promise<Entry> {
         let { repositoryId, entryId } = args;
@@ -4123,14 +6115,14 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
             let result423: any = null;
             let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked.", status, _responseText, _headers, result423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -4156,7 +6148,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The ID of entry that will have its template updated.
      * @param args.request The template and template fields that will be assigned to the entry.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @returns The updated entry.
+     * @returns Successfully assigned specified template to requested entry. Returned updated entry.
      */
     setTemplate(args: { repositoryId: string, entryId: number, request: SetTemplateRequest, culture?: string | null | undefined }): Promise<Entry> {
         let { repositoryId, entryId, request, culture } = args;
@@ -4223,7 +6215,7 @@ export class EntriesClient implements IEntriesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request entry id not found.", status, _responseText, _headers, result404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -4237,7 +6229,7 @@ export class EntriesClient implements IEntriesClient {
             let result423: any = null;
             let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked.", status, _responseText, _headers, result423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -4253,6 +6245,644 @@ export class EntriesClient implements IEntriesClient {
         }
         return Promise.resolve<Entry>(null as any);
     }
+
+    /**
+     * - Creates a persistent lock on the specified document. Persistent locks survive session disconnect and server restart.
+    - Optionally specify a comment and lock extent (Page, Edoc, Metadata, or All). Defaults to All.
+    - Returns lock info including the lock token, owner, and extent.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request (optional) The request body containing optional lock comment and extent.
+     * @returns Successfully created a persistent lock on the document.
+     */
+    lockDocument(args: { repositoryId: string, entryId: number, request?: LockDocumentRequest | undefined }): Promise<LockInfo> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Lock";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processLockDocument(_response);
+        });
+    }
+
+    protected processLockDocument(response: Response): Promise<LockInfo> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LockInfo.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LockInfo>(null as any);
+    }
+
+    /**
+     * - Returns the current persistent lock state of the document, including who holds the lock, the lock token, comment, extent, and creation timestamp.
+    - If the document is not locked, returns lock info with isActive set to false.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the lock state of the document.
+     */
+    getDocumentLockInfo(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<LockInfo> {
+        let { repositoryId, entryId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Lock?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDocumentLockInfo(_response);
+        });
+    }
+
+    protected processGetDocumentLockInfo(response: Response): Promise<LockInfo> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LockInfo.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LockInfo>(null as any);
+    }
+
+    /**
+     * - Without a lockToken query parameter, removes the current user's persistent lock on the document.
+    - With a lockToken query parameter, removes the specified lock regardless of owner (administrative unlock).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.lockToken (optional) Optional lock token to unlock a specific lock held by another user (administrative unlock).
+     * @returns Successfully removed the persistent lock from the document.
+     */
+    unlockDocument(args: { repositoryId: string, entryId: number, lockToken?: string | null | undefined }): Promise<void> {
+        let { repositoryId, entryId, lockToken } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Lock?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (lockToken !== undefined && lockToken !== null)
+            url_ += "lockToken=" + encodeURIComponent("" + lockToken) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUnlockDocument(_response);
+        });
+    }
+
+    protected processUnlockDocument(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * - Puts the specified document under version control. No-op if already under version control.
+    - Documents must be under version control before they can be checked out.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @returns Successfully put the document under version control.
+     */
+    putUnderVersionControl(args: { repositoryId: string, entryId: number }): Promise<Entry2> {
+        let { repositoryId, entryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/VersionControl";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processPutUnderVersionControl(_response);
+        });
+    }
+
+    protected processPutUnderVersionControl(response: Response): Promise<Entry2> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry2.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry2>(null as any);
+    }
+
+    /**
+     * - Checks out the specified document for editing. The document must be under version control.
+    - By default, a persistent lock is automatically acquired (lock=true). Set lock=false to check out without locking.
+    - Optionally specify a comment for the check-out.
+    - Returns an error if the document is not under version control.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.request (optional) The request body containing optional lock and comment parameters.
+     * @returns Successfully checked out the document.
+     */
+    checkOutDocument(args: { repositoryId: string, entryId: number, request?: CheckOutDocumentRequest | undefined }): Promise<Entry2> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/CheckOut";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCheckOutDocument(_response);
+        });
+    }
+
+    protected processCheckOutDocument(response: Response): Promise<Entry2> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry2.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Conflict. The request could not be completed due to the current state of the resource.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry2>(null as any);
+    }
+
+    /**
+     * - Checks in the specified document, creating a new version in the version history.
+    - Returns an error if the document is not currently checked out.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @returns Successfully checked in the document.
+     */
+    checkInDocument(args: { repositoryId: string, entryId: number }): Promise<Entry2> {
+        let { repositoryId, entryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/CheckIn";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCheckInDocument(_response);
+        });
+    }
+
+    protected processCheckInDocument(response: Response): Promise<Entry2> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry2.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Conflict. The request could not be completed due to the current state of the resource.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry2>(null as any);
+    }
+
+    /**
+     * - Releases the check-out state without creating a new version in the version history.
+    - Returns an error if the document is not under version control.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @returns Successfully undid the document check-out.
+     */
+    undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry2> {
+        let { repositoryId, entryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/UndoCheckOut";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUndoCheckOut(_response);
+        });
+    }
+
+    protected processUndoCheckOut(response: Response): Promise<Entry2> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry2.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Conflict. The request could not be completed due to the current state of the resource.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry2>(null as any);
+    }
 }
 
 export interface IRepositoriesClient {
@@ -4260,7 +6890,7 @@ export interface IRepositoriesClient {
     /**
      * - Returns the repository resource list that current user has access to.
     - Required OAuth scope: repository.Read
-     * @returns A collection of respositories.
+     * @returns Successfully returned list of available repositories.
      */
     listRepositories(args: {  }): Promise<RepositoryCollectionResponse>;
 }
@@ -4272,7 +6902,7 @@ export class RepositoriesClient implements IRepositoriesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -4294,7 +6924,7 @@ export class RepositoriesClient implements IRepositoriesClient {
     /**
      * - Returns the repository resource list that current user has access to.
     - Required OAuth scope: repository.Read
-     * @returns A collection of respositories.
+     * @returns Successfully returned list of available repositories.
      */
     listRepositories(args: {  }): Promise<RepositoryCollectionResponse> {
         let {  } = args;
@@ -4365,11 +6995,12 @@ export interface ISearchesClient {
     /**
      * - Runs a search operation on the repository.
     - The status for search operations must be checked via the Tasks route.
+    - For datetime search criteria that relate to time zone like CreateDate and ModifiedDate, the value should be in UTC time.
     - Optional body parameters: FuzzyType: (default none), which can be used to determine what is considered a match by number of letters or percentage. FuzzyFactor: integer value that determines the degree to which a search will be considered a match (integer value for NumberOfLetters, or int value representing a percentage).
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.request The Laserfiche search command to run, optionally include fuzzy search settings.
-     * @returns A long operation task id.
+     * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startSearchEntry(args: { repositoryId: string, request: StartSearchEntryRequest }): Promise<StartTaskResponse>;
 
@@ -4380,6 +7011,7 @@ export interface ISearchesClient {
     - Optional query parameter: refresh (default false). If the search listing should be refreshed to show updated values.
     - Optionally returns field values for the entries in the folder. Each field name needs to be specified in the request. Maximum limit of 10 field names. If field values are requested, only the first value is returned if it is a multi value field. The remaining field values can be retrieved via the GET fields route. Null or Empty field values should not be used to determine if a field is assigned to the entry.
     - Default page size: 150. Allowed OData query options: Select | Count | OrderBy | Skip | Top | SkipToken | Prefer. OData $OrderBy syntax should follow: "PropertyName direction,PropertyName2 direction". sort order can be either "asc" or "desc".
+    - When OData Select query option is used, 'entryType' is always included in the result.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.taskId The requested task ID.
@@ -4391,10 +7023,10 @@ export interface ISearchesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag. The formatFieldValues query parameter must be set to true, otherwise culture will not be used for formatting.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of entry search results.
+     * @returns Successfully returned search results.
      */
     listSearchResults(args: { repositoryId: string, taskId: string, groupByEntryType?: boolean | undefined, refresh?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<EntryCollectionResponse>;
 
@@ -4409,10 +7041,10 @@ export interface ISearchesClient {
      * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of context hits for a search result.
+     * @returns Successfully returned context hits for specified search.
      */
     listSearchContextHits(args: { repositoryId: string, taskId: string, rowNumber: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<SearchContextHitCollectionResponse>;
 }
@@ -4424,7 +7056,7 @@ export class SearchesClient implements ISearchesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -4606,11 +7238,12 @@ export class SearchesClient implements ISearchesClient {
     /**
      * - Runs a search operation on the repository.
     - The status for search operations must be checked via the Tasks route.
+    - For datetime search criteria that relate to time zone like CreateDate and ModifiedDate, the value should be in UTC time.
     - Optional body parameters: FuzzyType: (default none), which can be used to determine what is considered a match by number of letters or percentage. FuzzyFactor: integer value that determines the degree to which a search will be considered a match (integer value for NumberOfLetters, or int value representing a percentage).
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.request The Laserfiche search command to run, optionally include fuzzy search settings.
-     * @returns A long operation task id.
+     * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startSearchEntry(args: { repositoryId: string, request: StartSearchEntryRequest }): Promise<StartTaskResponse> {
         let { repositoryId, request } = args;
@@ -4672,7 +7305,7 @@ export class SearchesClient implements ISearchesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Requested repository not found.", status, _responseText, _headers, result404);
+            return throwException("Requested repository was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 413) {
             return response.text().then((_responseText) => {
@@ -4686,7 +7319,7 @@ export class SearchesClient implements ISearchesClient {
             let result429: any = null;
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Operation limit or request limit reached.", status, _responseText, _headers, result429);
+            return throwException("Operation limit or request limit has been reached.", status, _responseText, _headers, result429);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -4703,6 +7336,7 @@ export class SearchesClient implements ISearchesClient {
     - Optional query parameter: refresh (default false). If the search listing should be refreshed to show updated values.
     - Optionally returns field values for the entries in the folder. Each field name needs to be specified in the request. Maximum limit of 10 field names. If field values are requested, only the first value is returned if it is a multi value field. The remaining field values can be retrieved via the GET fields route. Null or Empty field values should not be used to determine if a field is assigned to the entry.
     - Default page size: 150. Allowed OData query options: Select | Count | OrderBy | Skip | Top | SkipToken | Prefer. OData $OrderBy syntax should follow: "PropertyName direction,PropertyName2 direction". sort order can be either "asc" or "desc".
+    - When OData Select query option is used, 'entryType' is always included in the result.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.taskId The requested task ID.
@@ -4714,10 +7348,10 @@ export class SearchesClient implements ISearchesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag. The formatFieldValues query parameter must be set to true, otherwise culture will not be used for formatting.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of entry search results.
+     * @returns Successfully returned search results.
      */
     listSearchResults(args: { repositoryId: string, taskId: string, groupByEntryType?: boolean | undefined, refresh?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<EntryCollectionResponse> {
         let { repositoryId, taskId, groupByEntryType, refresh, fields, formatFieldValues, prefer, culture, select, orderby, top, skip, count } = args;
@@ -4813,7 +7447,7 @@ export class SearchesClient implements ISearchesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request taskId not found.", status, _responseText, _headers, result404);
+            return throwException("Task with requested taskId was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -4841,10 +7475,10 @@ export class SearchesClient implements ISearchesClient {
      * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of context hits for a search result.
+     * @returns Successfully returned context hits for specified search.
      */
     listSearchContextHits(args: { repositoryId: string, taskId: string, rowNumber: number, prefer?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<SearchContextHitCollectionResponse> {
         let { repositoryId, taskId, rowNumber, prefer, select, orderby, top, skip, count } = args;
@@ -4927,7 +7561,7 @@ export class SearchesClient implements ISearchesClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request taskId not found.", status, _responseText, _headers, result404);
+            return throwException("Task with requested taskId was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -4951,7 +7585,9 @@ export interface ISimpleSearchesClient {
      * - Runs a "simple" search operation on the repository.
     - Returns a truncated search result listing.
     - Search result listing may be truncated, depending on number of results. Additionally, searches may time out if they take too long. Use the other search route to run full searches.
+    - For datetime search criteria that relate to time zone like CreateDate and ModifiedDate, the value should be in UTC time.
     - Optionally returns field values for the entries in the folder. Each field name needs to be specified in the request. Maximum limit of 10 field names. If field values are requested, only the first value is returned if it is a multi value field. The remaining field values can be retrieved via the GET fields route. Null or Empty field values should not be used to determine if a field is assigned to the entry.
+    - When OData Select query option is used, 'entryType' is always included in the result.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.request The Laserfiche search command to run.
@@ -4961,7 +7597,7 @@ export interface ISimpleSearchesClient {
      * @param args.fields (optional) Optional array of field names. Field values corresponding to the given field names will be returned for each search result.
      * @param args.formatFieldValues (optional) Indicates if field values should be formatted. Only applicable if Fields are specified. The default value is false.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag. The formatFieldValues query parameter must be set to true, otherwise culture will not be used for formatting.
-     * @returns A collection of entry search results.
+     * @returns Successfully returned search results.
      */
     searchEntry(args: { repositoryId: string, request: SearchEntryRequest, select?: string | undefined, orderby?: string | undefined, count?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, culture?: string | null | undefined }): Promise<EntryCollectionResponse>;
 }
@@ -4973,14 +7609,16 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
      * - Runs a "simple" search operation on the repository.
     - Returns a truncated search result listing.
     - Search result listing may be truncated, depending on number of results. Additionally, searches may time out if they take too long. Use the other search route to run full searches.
+    - For datetime search criteria that relate to time zone like CreateDate and ModifiedDate, the value should be in UTC time.
     - Optionally returns field values for the entries in the folder. Each field name needs to be specified in the request. Maximum limit of 10 field names. If field values are requested, only the first value is returned if it is a multi value field. The remaining field values can be retrieved via the GET fields route. Null or Empty field values should not be used to determine if a field is assigned to the entry.
+    - When OData Select query option is used, 'entryType' is always included in the result.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.request The Laserfiche search command to run.
@@ -4990,7 +7628,7 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
      * @param args.fields (optional) Optional array of field names. Field values corresponding to the given field names will be returned for each search result.
      * @param args.formatFieldValues (optional) Indicates if field values should be formatted. Only applicable if Fields are specified. The default value is false.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag. The formatFieldValues query parameter must be set to true, otherwise culture will not be used for formatting.
-     * @returns A collection of entry search results.
+     * @returns Successfully returned search results.
      */
     searchEntry(args: { repositoryId: string, request: SearchEntryRequest, select?: string | undefined, orderby?: string | undefined, count?: boolean | undefined, fields?: string[] | null | undefined, formatFieldValues?: boolean | undefined, culture?: string | null | undefined }): Promise<EntryCollectionResponse> {
         let { repositoryId, request, select, orderby, count, fields, formatFieldValues, culture } = args;
@@ -5093,7 +7731,7 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
             let result429: any = null;
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Operation limit or request limit reached.", status, _responseText, _headers, result429);
+            return throwException("Operation limit or request limit has been reached.", status, _responseText, _headers, result429);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -5116,10 +7754,10 @@ export interface ITagDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of tag definitions.
+     * @returns Successfully returned list of tag definitions.
      */
     listTagDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TagDefinitionCollectionResponse>;
 
@@ -5132,7 +7770,7 @@ export interface ITagDefinitionsClient {
      * @param args.tagId The requested tag definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns A single tag definition.
+     * @returns Successfully returned requested tag definition.
      */
     getTagDefinition(args: { repositoryId: string, tagId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<TagDefinition>;
 }
@@ -5144,7 +7782,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -5230,10 +7868,10 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of tag definitions.
+     * @returns Successfully returned list of tag definitions.
      */
     listTagDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TagDefinitionCollectionResponse> {
         let { repositoryId, prefer, culture, select, orderby, top, skip, count } = args;
@@ -5338,7 +7976,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
      * @param args.tagId The requested tag definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns A single tag definition.
+     * @returns Successfully returned requested tag definition.
      */
     getTagDefinition(args: { repositoryId: string, tagId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<TagDefinition> {
         let { repositoryId, tagId, culture, select } = args;
@@ -5403,7 +8041,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request tag definition id not found.", status, _responseText, _headers, result404);
+            return throwException("Tag definition with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -5432,7 +8070,7 @@ export interface ITasksClient {
     - Required OAuth scope: None
      * @param args.repositoryId The requested repository ID
      * @param args.taskIds (optional) An array of task IDs. Leave this parameter empty to get the list of all the tasks associated with the current access token.
-     * @returns A collection of task progresses.
+     * @returns Returned a list of tasks.
      */
     listTasks(args: { repositoryId: string, taskIds?: string[] | null | undefined }): Promise<TaskCollectionResponse>;
 
@@ -5445,9 +8083,19 @@ export interface ITasksClient {
     - Required OAuth scope: None
      * @param args.repositoryId The requested repository ID
      * @param args.taskIds (optional) An array of task IDs. Leave this parameter empty to cancel the list of all the tasks associated with the current access token.
-     * @returns A collection of task cancellation results.
+     * @returns Successfully canceled requested tasks. Returned successfully canceled tasks.
      */
     cancelTasks(args: { repositoryId: string, taskIds?: string[] | null | undefined }): Promise<CancelTasksResponse>;
+
+    /**
+     * Starts a test operation that behaves according to specified parameters.
+     * @param args.repositoryId The requested repository id.
+     * @param args.operationTime (optional) The time the operation will take to complete.
+     * @param args.hasRedirectUri (optional) If operation adds redirect uri.
+     * @param args.hasError (optional) If mock operation should return "failed" status.
+     * @returns Test task was started successfully.
+     */
+    startTestTask(args: { repositoryId: string, operationTime?: number | undefined, hasRedirectUri?: boolean | undefined, hasError?: boolean | undefined }): Promise<StartTaskResponse>;
 }
 
 export class TasksClient implements ITasksClient {
@@ -5457,7 +8105,7 @@ export class TasksClient implements ITasksClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -5469,7 +8117,7 @@ export class TasksClient implements ITasksClient {
     - Required OAuth scope: None
      * @param args.repositoryId The requested repository ID
      * @param args.taskIds (optional) An array of task IDs. Leave this parameter empty to get the list of all the tasks associated with the current access token.
-     * @returns A collection of task progresses.
+     * @returns Returned a list of tasks.
      */
     listTasks(args: { repositoryId: string, taskIds?: string[] | null | undefined }): Promise<TaskCollectionResponse> {
         let { repositoryId, taskIds } = args;
@@ -5529,7 +8177,7 @@ export class TasksClient implements ITasksClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Repository is not found.", status, _responseText, _headers, result404);
+            return throwException("Requested repository was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -5555,7 +8203,7 @@ export class TasksClient implements ITasksClient {
     - Required OAuth scope: None
      * @param args.repositoryId The requested repository ID
      * @param args.taskIds (optional) An array of task IDs. Leave this parameter empty to cancel the list of all the tasks associated with the current access token.
-     * @returns A collection of task cancellation results.
+     * @returns Successfully canceled requested tasks. Returned successfully canceled tasks.
      */
     cancelTasks(args: { repositoryId: string, taskIds?: string[] | null | undefined }): Promise<CancelTasksResponse> {
         let { repositoryId, taskIds } = args;
@@ -5615,7 +8263,7 @@ export class TasksClient implements ITasksClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Repository is not found.", status, _responseText, _headers, result404);
+            return throwException("Requested repository was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -5630,6 +8278,99 @@ export class TasksClient implements ITasksClient {
             });
         }
         return Promise.resolve<CancelTasksResponse>(null as any);
+    }
+
+    /**
+     * Starts a test operation that behaves according to specified parameters.
+     * @param args.repositoryId The requested repository id.
+     * @param args.operationTime (optional) The time the operation will take to complete.
+     * @param args.hasRedirectUri (optional) If operation adds redirect uri.
+     * @param args.hasError (optional) If mock operation should return "failed" status.
+     * @returns Test task was started successfully.
+     */
+    startTestTask(args: { repositoryId: string, operationTime?: number | undefined, hasRedirectUri?: boolean | undefined, hasError?: boolean | undefined }): Promise<StartTaskResponse> {
+        let { repositoryId, operationTime, hasRedirectUri, hasError } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Tasks/StartTestTaskAsync?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (operationTime === null)
+            throw new Error("The parameter 'operationTime' cannot be null.");
+        else if (operationTime !== undefined)
+            url_ += "operationTime=" + encodeURIComponent("" + operationTime) + "&";
+        if (hasRedirectUri === null)
+            throw new Error("The parameter 'hasRedirectUri' cannot be null.");
+        else if (hasRedirectUri !== undefined)
+            url_ += "hasRedirectUri=" + encodeURIComponent("" + hasRedirectUri) + "&";
+        if (hasError === null)
+            throw new Error("The parameter 'hasError' cannot be null.");
+        else if (hasError !== undefined)
+            url_ += "hasError=" + encodeURIComponent("" + hasError) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processStartTestTask(_response);
+        });
+    }
+
+    protected processStartTestTask(response: Response): Promise<StartTaskResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StartTaskResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Task with requested taskId was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<StartTaskResponse>(null as any);
     }
 }
 
@@ -5646,10 +8387,10 @@ export interface ITemplateDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of template definitions.
+     * @returns Returned list of template definitions.
      */
     listTemplateDefinitions(args: { repositoryId: string, templateName?: string | null | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateDefinitionCollectionResponse>;
 
@@ -5662,7 +8403,7 @@ export interface ITemplateDefinitionsClient {
      * @param args.templateId The requested template definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns A single template definition.
+     * @returns Successfully found and returned specified template.
      */
     getTemplateDefinition(args: { repositoryId: string, templateId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<TemplateDefinition>;
 
@@ -5677,10 +8418,10 @@ export interface ITemplateDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of template field definitions.
+     * @returns Returned list of field definitions for specified template.
      */
     listTemplateFieldDefinitionsByTemplateId(args: { repositoryId: string, templateId: number, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateFieldDefinitionCollectionResponse>;
 
@@ -5695,10 +8436,10 @@ export interface ITemplateDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of template field definitions.
+     * @returns Returned list of field definitions for specified template.
      */
     listTemplateFieldDefinitionsByTemplateName(args: { repositoryId: string, templateName: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateFieldDefinitionCollectionResponse>;
 }
@@ -5710,7 +8451,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -5948,10 +8689,10 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of template definitions.
+     * @returns Returned list of template definitions.
      */
     listTemplateDefinitions(args: { repositoryId: string, templateName?: string | null | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateDefinitionCollectionResponse> {
         let { repositoryId, templateName, prefer, culture, select, orderby, top, skip, count } = args;
@@ -6032,7 +8773,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request template name not found.", status, _responseText, _headers, result404);
+            return throwException("Template with requested name was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -6058,7 +8799,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.templateId The requested template definition ID.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns A single template definition.
+     * @returns Successfully found and returned specified template.
      */
     getTemplateDefinition(args: { repositoryId: string, templateId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<TemplateDefinition> {
         let { repositoryId, templateId, culture, select } = args;
@@ -6123,7 +8864,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request template id not found.", status, _responseText, _headers, result404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -6151,10 +8892,10 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of template field definitions.
+     * @returns Returned list of field definitions for specified template.
      */
     listTemplateFieldDefinitionsByTemplateId(args: { repositoryId: string, templateId: number, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateFieldDefinitionCollectionResponse> {
         let { repositoryId, templateId, prefer, culture, select, orderby, top, skip, count } = args;
@@ -6236,7 +8977,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request template id not found.", status, _responseText, _headers, result404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -6264,10 +9005,10 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used for formatting. The value should be a standard language tag.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
-     * @param args.top (optional) Limits the number of items returned from a collection.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns A collection of template field definitions.
+     * @returns Returned list of field definitions for specified template.
      */
     listTemplateFieldDefinitionsByTemplateName(args: { repositoryId: string, templateName: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateFieldDefinitionCollectionResponse> {
         let { repositoryId, templateName, prefer, culture, select, orderby, top, skip, count } = args;
@@ -6350,7 +9091,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Request template name not found.", status, _responseText, _headers, result404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -6374,7 +9115,8 @@ export class AttributeCollectionResponse implements IAttributeCollectionResponse
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: Attribute[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Attribute[] | undefined;
 
     
     
@@ -6425,7 +9167,8 @@ export interface IAttributeCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: Attribute[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Attribute[] | undefined;
 }
 
 /** Represents a trustee attribute. */
@@ -6592,7 +9335,8 @@ export class AuditReasonCollectionResponse implements IAuditReasonCollectionResp
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: AuditReason[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: AuditReason[] | undefined;
 
     
     
@@ -6643,7 +9387,8 @@ export interface IAuditReasonCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: AuditReason[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: AuditReason[] | undefined;
 }
 
 /** Represents a user-defined audit reason for an audit event. */
@@ -6875,7 +9620,8 @@ export class FieldDefinitionCollectionResponse implements IFieldDefinitionCollec
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: FieldDefinition[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: FieldDefinition[] | undefined;
 
     
     
@@ -6926,7 +9672,8 @@ export interface IFieldDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: FieldDefinition[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: FieldDefinition[] | undefined;
 }
 
 /** Response containing a collection of LinkDefinition. */
@@ -6935,7 +9682,8 @@ export class LinkDefinitionCollectionResponse implements ILinkDefinitionCollecti
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: LinkDefinition[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: LinkDefinition[] | undefined;
 
     
     
@@ -6986,7 +9734,8 @@ export interface ILinkDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: LinkDefinition[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: LinkDefinition[] | undefined;
 }
 
 /** Represents an entry link definition. */
@@ -8344,6 +11093,14 @@ export class Document extends Entry implements IDocument {
     isCheckedOut?: boolean;
     /** A boolean indicating if the represented document is under version control. */
     isUnderVersionControl?: boolean;
+    /** A boolean indicating if the represented document has a persistent lock. */
+    isLocked?: boolean;
+    /** The account name of the persistent lock holder. Null if the document is not locked. */
+    lockedBy?: string | undefined;
+    /** The version number of the document. 0 if the document is not under version control. */
+    currentVersion?: number;
+    /** The account name of the user who checked out the document. Null if the document is not checked out. */
+    checkedOutBy?: string | undefined;
 
     
     
@@ -8369,6 +11126,10 @@ export class Document extends Entry implements IDocument {
             this.pageCount = _data["pageCount"];
             this.isCheckedOut = _data["isCheckedOut"];
             this.isUnderVersionControl = _data["isUnderVersionControl"];
+            this.isLocked = _data["isLocked"];
+            this.lockedBy = _data["lockedBy"];
+            this.currentVersion = _data["currentVersion"];
+            this.checkedOutBy = _data["checkedOutBy"];
         }
     }
 
@@ -8389,6 +11150,10 @@ export class Document extends Entry implements IDocument {
         data["pageCount"] = this.pageCount;
         data["isCheckedOut"] = this.isCheckedOut;
         data["isUnderVersionControl"] = this.isUnderVersionControl;
+        data["isLocked"] = this.isLocked;
+        data["lockedBy"] = this.lockedBy;
+        data["currentVersion"] = this.currentVersion;
+        data["checkedOutBy"] = this.checkedOutBy;
         super.toJSON(data);
         return data;
     }
@@ -8412,6 +11177,14 @@ export interface IDocument extends IEntry {
     isCheckedOut?: boolean;
     /** A boolean indicating if the represented document is under version control. */
     isUnderVersionControl?: boolean;
+    /** A boolean indicating if the represented document has a persistent lock. */
+    isLocked?: boolean;
+    /** The account name of the persistent lock holder. Null if the document is not locked. */
+    lockedBy?: string | undefined;
+    /** The version number of the document. 0 if the document is not under version control. */
+    currentVersion?: number;
+    /** The account name of the user who checked out the document. Null if the document is not checked out. */
+    checkedOutBy?: string | undefined;
 }
 
 /** Represents an entry shortcut in a Laserfiche repository. */
@@ -8524,1201 +11297,10 @@ export interface IFolder extends IEntry {
     isUnderRecordSeries?: boolean;
 }
 
-export abstract class IHeaderDictionary implements IIHeaderDictionary {
-    item?: any[];
-    contentLength?: number | undefined;
-    accept?: any[];
-    acceptCharset?: any[];
-    acceptEncoding?: any[];
-    acceptLanguage?: any[];
-    acceptRanges?: any[];
-    accessControlAllowCredentials?: any[];
-    accessControlAllowHeaders?: any[];
-    accessControlAllowMethods?: any[];
-    accessControlAllowOrigin?: any[];
-    accessControlExposeHeaders?: any[];
-    accessControlMaxAge?: any[];
-    accessControlRequestHeaders?: any[];
-    accessControlRequestMethod?: any[];
-    age?: any[];
-    allow?: any[];
-    altSvc?: any[];
-    authorization?: any[];
-    baggage?: any[];
-    cacheControl?: any[];
-    connection?: any[];
-    contentDisposition?: any[];
-    contentEncoding?: any[];
-    contentLanguage?: any[];
-    contentLocation?: any[];
-    contentMD5?: any[];
-    contentRange?: any[];
-    contentSecurityPolicy?: any[];
-    contentSecurityPolicyReportOnly?: any[];
-    contentType?: any[];
-    correlationContext?: any[];
-    cookie?: any[];
-    date?: any[];
-    eTag?: any[];
-    expires?: any[];
-    expect?: any[];
-    from?: any[];
-    grpcAcceptEncoding?: any[];
-    grpcEncoding?: any[];
-    grpcMessage?: any[];
-    grpcStatus?: any[];
-    grpcTimeout?: any[];
-    host?: any[];
-    keepAlive?: any[];
-    ifMatch?: any[];
-    ifModifiedSince?: any[];
-    ifNoneMatch?: any[];
-    ifRange?: any[];
-    ifUnmodifiedSince?: any[];
-    lastModified?: any[];
-    link?: any[];
-    location?: any[];
-    maxForwards?: any[];
-    origin?: any[];
-    pragma?: any[];
-    proxyAuthenticate?: any[];
-    proxyAuthorization?: any[];
-    proxyConnection?: any[];
-    range?: any[];
-    referer?: any[];
-    retryAfter?: any[];
-    requestId?: any[];
-    secWebSocketAccept?: any[];
-    secWebSocketKey?: any[];
-    secWebSocketProtocol?: any[];
-    secWebSocketVersion?: any[];
-    secWebSocketExtensions?: any[];
-    server?: any[];
-    setCookie?: any[];
-    strictTransportSecurity?: any[];
-    tE?: any[];
-    trailer?: any[];
-    transferEncoding?: any[];
-    translate?: any[];
-    traceParent?: any[];
-    traceState?: any[];
-    upgrade?: any[];
-    upgradeInsecureRequests?: any[];
-    userAgent?: any[];
-    vary?: any[];
-    via?: any[];
-    warning?: any[];
-    webSocketSubProtocols?: any[];
-    wWWAuthenticate?: any[];
-    xContentTypeOptions?: any[];
-    xFrameOptions?: any[];
-    xPoweredBy?: any[];
-    xRequestedWith?: any[];
-    xUACompatible?: any[];
-    xXSSProtection?: any[];
-
-    
-    
-    constructor(data?: IIHeaderDictionary) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["Item"])) {
-                this.item = [] as any;
-                for (let item of _data["Item"])
-                    this.item!.push(item);
-            }
-            this.contentLength = _data["ContentLength"];
-            if (Array.isArray(_data["Accept"])) {
-                this.accept = [] as any;
-                for (let item of _data["Accept"])
-                    this.accept!.push(item);
-            }
-            if (Array.isArray(_data["AcceptCharset"])) {
-                this.acceptCharset = [] as any;
-                for (let item of _data["AcceptCharset"])
-                    this.acceptCharset!.push(item);
-            }
-            if (Array.isArray(_data["AcceptEncoding"])) {
-                this.acceptEncoding = [] as any;
-                for (let item of _data["AcceptEncoding"])
-                    this.acceptEncoding!.push(item);
-            }
-            if (Array.isArray(_data["AcceptLanguage"])) {
-                this.acceptLanguage = [] as any;
-                for (let item of _data["AcceptLanguage"])
-                    this.acceptLanguage!.push(item);
-            }
-            if (Array.isArray(_data["AcceptRanges"])) {
-                this.acceptRanges = [] as any;
-                for (let item of _data["AcceptRanges"])
-                    this.acceptRanges!.push(item);
-            }
-            if (Array.isArray(_data["AccessControlAllowCredentials"])) {
-                this.accessControlAllowCredentials = [] as any;
-                for (let item of _data["AccessControlAllowCredentials"])
-                    this.accessControlAllowCredentials!.push(item);
-            }
-            if (Array.isArray(_data["AccessControlAllowHeaders"])) {
-                this.accessControlAllowHeaders = [] as any;
-                for (let item of _data["AccessControlAllowHeaders"])
-                    this.accessControlAllowHeaders!.push(item);
-            }
-            if (Array.isArray(_data["AccessControlAllowMethods"])) {
-                this.accessControlAllowMethods = [] as any;
-                for (let item of _data["AccessControlAllowMethods"])
-                    this.accessControlAllowMethods!.push(item);
-            }
-            if (Array.isArray(_data["AccessControlAllowOrigin"])) {
-                this.accessControlAllowOrigin = [] as any;
-                for (let item of _data["AccessControlAllowOrigin"])
-                    this.accessControlAllowOrigin!.push(item);
-            }
-            if (Array.isArray(_data["AccessControlExposeHeaders"])) {
-                this.accessControlExposeHeaders = [] as any;
-                for (let item of _data["AccessControlExposeHeaders"])
-                    this.accessControlExposeHeaders!.push(item);
-            }
-            if (Array.isArray(_data["AccessControlMaxAge"])) {
-                this.accessControlMaxAge = [] as any;
-                for (let item of _data["AccessControlMaxAge"])
-                    this.accessControlMaxAge!.push(item);
-            }
-            if (Array.isArray(_data["AccessControlRequestHeaders"])) {
-                this.accessControlRequestHeaders = [] as any;
-                for (let item of _data["AccessControlRequestHeaders"])
-                    this.accessControlRequestHeaders!.push(item);
-            }
-            if (Array.isArray(_data["AccessControlRequestMethod"])) {
-                this.accessControlRequestMethod = [] as any;
-                for (let item of _data["AccessControlRequestMethod"])
-                    this.accessControlRequestMethod!.push(item);
-            }
-            if (Array.isArray(_data["Age"])) {
-                this.age = [] as any;
-                for (let item of _data["Age"])
-                    this.age!.push(item);
-            }
-            if (Array.isArray(_data["Allow"])) {
-                this.allow = [] as any;
-                for (let item of _data["Allow"])
-                    this.allow!.push(item);
-            }
-            if (Array.isArray(_data["AltSvc"])) {
-                this.altSvc = [] as any;
-                for (let item of _data["AltSvc"])
-                    this.altSvc!.push(item);
-            }
-            if (Array.isArray(_data["Authorization"])) {
-                this.authorization = [] as any;
-                for (let item of _data["Authorization"])
-                    this.authorization!.push(item);
-            }
-            if (Array.isArray(_data["Baggage"])) {
-                this.baggage = [] as any;
-                for (let item of _data["Baggage"])
-                    this.baggage!.push(item);
-            }
-            if (Array.isArray(_data["CacheControl"])) {
-                this.cacheControl = [] as any;
-                for (let item of _data["CacheControl"])
-                    this.cacheControl!.push(item);
-            }
-            if (Array.isArray(_data["Connection"])) {
-                this.connection = [] as any;
-                for (let item of _data["Connection"])
-                    this.connection!.push(item);
-            }
-            if (Array.isArray(_data["ContentDisposition"])) {
-                this.contentDisposition = [] as any;
-                for (let item of _data["ContentDisposition"])
-                    this.contentDisposition!.push(item);
-            }
-            if (Array.isArray(_data["ContentEncoding"])) {
-                this.contentEncoding = [] as any;
-                for (let item of _data["ContentEncoding"])
-                    this.contentEncoding!.push(item);
-            }
-            if (Array.isArray(_data["ContentLanguage"])) {
-                this.contentLanguage = [] as any;
-                for (let item of _data["ContentLanguage"])
-                    this.contentLanguage!.push(item);
-            }
-            if (Array.isArray(_data["ContentLocation"])) {
-                this.contentLocation = [] as any;
-                for (let item of _data["ContentLocation"])
-                    this.contentLocation!.push(item);
-            }
-            if (Array.isArray(_data["ContentMD5"])) {
-                this.contentMD5 = [] as any;
-                for (let item of _data["ContentMD5"])
-                    this.contentMD5!.push(item);
-            }
-            if (Array.isArray(_data["ContentRange"])) {
-                this.contentRange = [] as any;
-                for (let item of _data["ContentRange"])
-                    this.contentRange!.push(item);
-            }
-            if (Array.isArray(_data["ContentSecurityPolicy"])) {
-                this.contentSecurityPolicy = [] as any;
-                for (let item of _data["ContentSecurityPolicy"])
-                    this.contentSecurityPolicy!.push(item);
-            }
-            if (Array.isArray(_data["ContentSecurityPolicyReportOnly"])) {
-                this.contentSecurityPolicyReportOnly = [] as any;
-                for (let item of _data["ContentSecurityPolicyReportOnly"])
-                    this.contentSecurityPolicyReportOnly!.push(item);
-            }
-            if (Array.isArray(_data["ContentType"])) {
-                this.contentType = [] as any;
-                for (let item of _data["ContentType"])
-                    this.contentType!.push(item);
-            }
-            if (Array.isArray(_data["CorrelationContext"])) {
-                this.correlationContext = [] as any;
-                for (let item of _data["CorrelationContext"])
-                    this.correlationContext!.push(item);
-            }
-            if (Array.isArray(_data["Cookie"])) {
-                this.cookie = [] as any;
-                for (let item of _data["Cookie"])
-                    this.cookie!.push(item);
-            }
-            if (Array.isArray(_data["Date"])) {
-                this.date = [] as any;
-                for (let item of _data["Date"])
-                    this.date!.push(item);
-            }
-            if (Array.isArray(_data["ETag"])) {
-                this.eTag = [] as any;
-                for (let item of _data["ETag"])
-                    this.eTag!.push(item);
-            }
-            if (Array.isArray(_data["Expires"])) {
-                this.expires = [] as any;
-                for (let item of _data["Expires"])
-                    this.expires!.push(item);
-            }
-            if (Array.isArray(_data["Expect"])) {
-                this.expect = [] as any;
-                for (let item of _data["Expect"])
-                    this.expect!.push(item);
-            }
-            if (Array.isArray(_data["From"])) {
-                this.from = [] as any;
-                for (let item of _data["From"])
-                    this.from!.push(item);
-            }
-            if (Array.isArray(_data["GrpcAcceptEncoding"])) {
-                this.grpcAcceptEncoding = [] as any;
-                for (let item of _data["GrpcAcceptEncoding"])
-                    this.grpcAcceptEncoding!.push(item);
-            }
-            if (Array.isArray(_data["GrpcEncoding"])) {
-                this.grpcEncoding = [] as any;
-                for (let item of _data["GrpcEncoding"])
-                    this.grpcEncoding!.push(item);
-            }
-            if (Array.isArray(_data["GrpcMessage"])) {
-                this.grpcMessage = [] as any;
-                for (let item of _data["GrpcMessage"])
-                    this.grpcMessage!.push(item);
-            }
-            if (Array.isArray(_data["GrpcStatus"])) {
-                this.grpcStatus = [] as any;
-                for (let item of _data["GrpcStatus"])
-                    this.grpcStatus!.push(item);
-            }
-            if (Array.isArray(_data["GrpcTimeout"])) {
-                this.grpcTimeout = [] as any;
-                for (let item of _data["GrpcTimeout"])
-                    this.grpcTimeout!.push(item);
-            }
-            if (Array.isArray(_data["Host"])) {
-                this.host = [] as any;
-                for (let item of _data["Host"])
-                    this.host!.push(item);
-            }
-            if (Array.isArray(_data["KeepAlive"])) {
-                this.keepAlive = [] as any;
-                for (let item of _data["KeepAlive"])
-                    this.keepAlive!.push(item);
-            }
-            if (Array.isArray(_data["IfMatch"])) {
-                this.ifMatch = [] as any;
-                for (let item of _data["IfMatch"])
-                    this.ifMatch!.push(item);
-            }
-            if (Array.isArray(_data["IfModifiedSince"])) {
-                this.ifModifiedSince = [] as any;
-                for (let item of _data["IfModifiedSince"])
-                    this.ifModifiedSince!.push(item);
-            }
-            if (Array.isArray(_data["IfNoneMatch"])) {
-                this.ifNoneMatch = [] as any;
-                for (let item of _data["IfNoneMatch"])
-                    this.ifNoneMatch!.push(item);
-            }
-            if (Array.isArray(_data["IfRange"])) {
-                this.ifRange = [] as any;
-                for (let item of _data["IfRange"])
-                    this.ifRange!.push(item);
-            }
-            if (Array.isArray(_data["IfUnmodifiedSince"])) {
-                this.ifUnmodifiedSince = [] as any;
-                for (let item of _data["IfUnmodifiedSince"])
-                    this.ifUnmodifiedSince!.push(item);
-            }
-            if (Array.isArray(_data["LastModified"])) {
-                this.lastModified = [] as any;
-                for (let item of _data["LastModified"])
-                    this.lastModified!.push(item);
-            }
-            if (Array.isArray(_data["Link"])) {
-                this.link = [] as any;
-                for (let item of _data["Link"])
-                    this.link!.push(item);
-            }
-            if (Array.isArray(_data["Location"])) {
-                this.location = [] as any;
-                for (let item of _data["Location"])
-                    this.location!.push(item);
-            }
-            if (Array.isArray(_data["MaxForwards"])) {
-                this.maxForwards = [] as any;
-                for (let item of _data["MaxForwards"])
-                    this.maxForwards!.push(item);
-            }
-            if (Array.isArray(_data["Origin"])) {
-                this.origin = [] as any;
-                for (let item of _data["Origin"])
-                    this.origin!.push(item);
-            }
-            if (Array.isArray(_data["Pragma"])) {
-                this.pragma = [] as any;
-                for (let item of _data["Pragma"])
-                    this.pragma!.push(item);
-            }
-            if (Array.isArray(_data["ProxyAuthenticate"])) {
-                this.proxyAuthenticate = [] as any;
-                for (let item of _data["ProxyAuthenticate"])
-                    this.proxyAuthenticate!.push(item);
-            }
-            if (Array.isArray(_data["ProxyAuthorization"])) {
-                this.proxyAuthorization = [] as any;
-                for (let item of _data["ProxyAuthorization"])
-                    this.proxyAuthorization!.push(item);
-            }
-            if (Array.isArray(_data["ProxyConnection"])) {
-                this.proxyConnection = [] as any;
-                for (let item of _data["ProxyConnection"])
-                    this.proxyConnection!.push(item);
-            }
-            if (Array.isArray(_data["Range"])) {
-                this.range = [] as any;
-                for (let item of _data["Range"])
-                    this.range!.push(item);
-            }
-            if (Array.isArray(_data["Referer"])) {
-                this.referer = [] as any;
-                for (let item of _data["Referer"])
-                    this.referer!.push(item);
-            }
-            if (Array.isArray(_data["RetryAfter"])) {
-                this.retryAfter = [] as any;
-                for (let item of _data["RetryAfter"])
-                    this.retryAfter!.push(item);
-            }
-            if (Array.isArray(_data["RequestId"])) {
-                this.requestId = [] as any;
-                for (let item of _data["RequestId"])
-                    this.requestId!.push(item);
-            }
-            if (Array.isArray(_data["SecWebSocketAccept"])) {
-                this.secWebSocketAccept = [] as any;
-                for (let item of _data["SecWebSocketAccept"])
-                    this.secWebSocketAccept!.push(item);
-            }
-            if (Array.isArray(_data["SecWebSocketKey"])) {
-                this.secWebSocketKey = [] as any;
-                for (let item of _data["SecWebSocketKey"])
-                    this.secWebSocketKey!.push(item);
-            }
-            if (Array.isArray(_data["SecWebSocketProtocol"])) {
-                this.secWebSocketProtocol = [] as any;
-                for (let item of _data["SecWebSocketProtocol"])
-                    this.secWebSocketProtocol!.push(item);
-            }
-            if (Array.isArray(_data["SecWebSocketVersion"])) {
-                this.secWebSocketVersion = [] as any;
-                for (let item of _data["SecWebSocketVersion"])
-                    this.secWebSocketVersion!.push(item);
-            }
-            if (Array.isArray(_data["SecWebSocketExtensions"])) {
-                this.secWebSocketExtensions = [] as any;
-                for (let item of _data["SecWebSocketExtensions"])
-                    this.secWebSocketExtensions!.push(item);
-            }
-            if (Array.isArray(_data["Server"])) {
-                this.server = [] as any;
-                for (let item of _data["Server"])
-                    this.server!.push(item);
-            }
-            if (Array.isArray(_data["SetCookie"])) {
-                this.setCookie = [] as any;
-                for (let item of _data["SetCookie"])
-                    this.setCookie!.push(item);
-            }
-            if (Array.isArray(_data["StrictTransportSecurity"])) {
-                this.strictTransportSecurity = [] as any;
-                for (let item of _data["StrictTransportSecurity"])
-                    this.strictTransportSecurity!.push(item);
-            }
-            if (Array.isArray(_data["TE"])) {
-                this.tE = [] as any;
-                for (let item of _data["TE"])
-                    this.tE!.push(item);
-            }
-            if (Array.isArray(_data["Trailer"])) {
-                this.trailer = [] as any;
-                for (let item of _data["Trailer"])
-                    this.trailer!.push(item);
-            }
-            if (Array.isArray(_data["TransferEncoding"])) {
-                this.transferEncoding = [] as any;
-                for (let item of _data["TransferEncoding"])
-                    this.transferEncoding!.push(item);
-            }
-            if (Array.isArray(_data["Translate"])) {
-                this.translate = [] as any;
-                for (let item of _data["Translate"])
-                    this.translate!.push(item);
-            }
-            if (Array.isArray(_data["TraceParent"])) {
-                this.traceParent = [] as any;
-                for (let item of _data["TraceParent"])
-                    this.traceParent!.push(item);
-            }
-            if (Array.isArray(_data["TraceState"])) {
-                this.traceState = [] as any;
-                for (let item of _data["TraceState"])
-                    this.traceState!.push(item);
-            }
-            if (Array.isArray(_data["Upgrade"])) {
-                this.upgrade = [] as any;
-                for (let item of _data["Upgrade"])
-                    this.upgrade!.push(item);
-            }
-            if (Array.isArray(_data["UpgradeInsecureRequests"])) {
-                this.upgradeInsecureRequests = [] as any;
-                for (let item of _data["UpgradeInsecureRequests"])
-                    this.upgradeInsecureRequests!.push(item);
-            }
-            if (Array.isArray(_data["UserAgent"])) {
-                this.userAgent = [] as any;
-                for (let item of _data["UserAgent"])
-                    this.userAgent!.push(item);
-            }
-            if (Array.isArray(_data["Vary"])) {
-                this.vary = [] as any;
-                for (let item of _data["Vary"])
-                    this.vary!.push(item);
-            }
-            if (Array.isArray(_data["Via"])) {
-                this.via = [] as any;
-                for (let item of _data["Via"])
-                    this.via!.push(item);
-            }
-            if (Array.isArray(_data["Warning"])) {
-                this.warning = [] as any;
-                for (let item of _data["Warning"])
-                    this.warning!.push(item);
-            }
-            if (Array.isArray(_data["WebSocketSubProtocols"])) {
-                this.webSocketSubProtocols = [] as any;
-                for (let item of _data["WebSocketSubProtocols"])
-                    this.webSocketSubProtocols!.push(item);
-            }
-            if (Array.isArray(_data["WWWAuthenticate"])) {
-                this.wWWAuthenticate = [] as any;
-                for (let item of _data["WWWAuthenticate"])
-                    this.wWWAuthenticate!.push(item);
-            }
-            if (Array.isArray(_data["XContentTypeOptions"])) {
-                this.xContentTypeOptions = [] as any;
-                for (let item of _data["XContentTypeOptions"])
-                    this.xContentTypeOptions!.push(item);
-            }
-            if (Array.isArray(_data["XFrameOptions"])) {
-                this.xFrameOptions = [] as any;
-                for (let item of _data["XFrameOptions"])
-                    this.xFrameOptions!.push(item);
-            }
-            if (Array.isArray(_data["XPoweredBy"])) {
-                this.xPoweredBy = [] as any;
-                for (let item of _data["XPoweredBy"])
-                    this.xPoweredBy!.push(item);
-            }
-            if (Array.isArray(_data["XRequestedWith"])) {
-                this.xRequestedWith = [] as any;
-                for (let item of _data["XRequestedWith"])
-                    this.xRequestedWith!.push(item);
-            }
-            if (Array.isArray(_data["XUACompatible"])) {
-                this.xUACompatible = [] as any;
-                for (let item of _data["XUACompatible"])
-                    this.xUACompatible!.push(item);
-            }
-            if (Array.isArray(_data["XXSSProtection"])) {
-                this.xXSSProtection = [] as any;
-                for (let item of _data["XXSSProtection"])
-                    this.xXSSProtection!.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): IHeaderDictionary {
-        data = typeof data === 'object' ? data : {};
-        throw new Error("The abstract class 'IHeaderDictionary' cannot be instantiated.");
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.item)) {
-            data["Item"] = [];
-            for (let item of this.item)
-                data["Item"].push(item);
-        }
-        data["ContentLength"] = this.contentLength;
-        if (Array.isArray(this.accept)) {
-            data["Accept"] = [];
-            for (let item of this.accept)
-                data["Accept"].push(item);
-        }
-        if (Array.isArray(this.acceptCharset)) {
-            data["AcceptCharset"] = [];
-            for (let item of this.acceptCharset)
-                data["AcceptCharset"].push(item);
-        }
-        if (Array.isArray(this.acceptEncoding)) {
-            data["AcceptEncoding"] = [];
-            for (let item of this.acceptEncoding)
-                data["AcceptEncoding"].push(item);
-        }
-        if (Array.isArray(this.acceptLanguage)) {
-            data["AcceptLanguage"] = [];
-            for (let item of this.acceptLanguage)
-                data["AcceptLanguage"].push(item);
-        }
-        if (Array.isArray(this.acceptRanges)) {
-            data["AcceptRanges"] = [];
-            for (let item of this.acceptRanges)
-                data["AcceptRanges"].push(item);
-        }
-        if (Array.isArray(this.accessControlAllowCredentials)) {
-            data["AccessControlAllowCredentials"] = [];
-            for (let item of this.accessControlAllowCredentials)
-                data["AccessControlAllowCredentials"].push(item);
-        }
-        if (Array.isArray(this.accessControlAllowHeaders)) {
-            data["AccessControlAllowHeaders"] = [];
-            for (let item of this.accessControlAllowHeaders)
-                data["AccessControlAllowHeaders"].push(item);
-        }
-        if (Array.isArray(this.accessControlAllowMethods)) {
-            data["AccessControlAllowMethods"] = [];
-            for (let item of this.accessControlAllowMethods)
-                data["AccessControlAllowMethods"].push(item);
-        }
-        if (Array.isArray(this.accessControlAllowOrigin)) {
-            data["AccessControlAllowOrigin"] = [];
-            for (let item of this.accessControlAllowOrigin)
-                data["AccessControlAllowOrigin"].push(item);
-        }
-        if (Array.isArray(this.accessControlExposeHeaders)) {
-            data["AccessControlExposeHeaders"] = [];
-            for (let item of this.accessControlExposeHeaders)
-                data["AccessControlExposeHeaders"].push(item);
-        }
-        if (Array.isArray(this.accessControlMaxAge)) {
-            data["AccessControlMaxAge"] = [];
-            for (let item of this.accessControlMaxAge)
-                data["AccessControlMaxAge"].push(item);
-        }
-        if (Array.isArray(this.accessControlRequestHeaders)) {
-            data["AccessControlRequestHeaders"] = [];
-            for (let item of this.accessControlRequestHeaders)
-                data["AccessControlRequestHeaders"].push(item);
-        }
-        if (Array.isArray(this.accessControlRequestMethod)) {
-            data["AccessControlRequestMethod"] = [];
-            for (let item of this.accessControlRequestMethod)
-                data["AccessControlRequestMethod"].push(item);
-        }
-        if (Array.isArray(this.age)) {
-            data["Age"] = [];
-            for (let item of this.age)
-                data["Age"].push(item);
-        }
-        if (Array.isArray(this.allow)) {
-            data["Allow"] = [];
-            for (let item of this.allow)
-                data["Allow"].push(item);
-        }
-        if (Array.isArray(this.altSvc)) {
-            data["AltSvc"] = [];
-            for (let item of this.altSvc)
-                data["AltSvc"].push(item);
-        }
-        if (Array.isArray(this.authorization)) {
-            data["Authorization"] = [];
-            for (let item of this.authorization)
-                data["Authorization"].push(item);
-        }
-        if (Array.isArray(this.baggage)) {
-            data["Baggage"] = [];
-            for (let item of this.baggage)
-                data["Baggage"].push(item);
-        }
-        if (Array.isArray(this.cacheControl)) {
-            data["CacheControl"] = [];
-            for (let item of this.cacheControl)
-                data["CacheControl"].push(item);
-        }
-        if (Array.isArray(this.connection)) {
-            data["Connection"] = [];
-            for (let item of this.connection)
-                data["Connection"].push(item);
-        }
-        if (Array.isArray(this.contentDisposition)) {
-            data["ContentDisposition"] = [];
-            for (let item of this.contentDisposition)
-                data["ContentDisposition"].push(item);
-        }
-        if (Array.isArray(this.contentEncoding)) {
-            data["ContentEncoding"] = [];
-            for (let item of this.contentEncoding)
-                data["ContentEncoding"].push(item);
-        }
-        if (Array.isArray(this.contentLanguage)) {
-            data["ContentLanguage"] = [];
-            for (let item of this.contentLanguage)
-                data["ContentLanguage"].push(item);
-        }
-        if (Array.isArray(this.contentLocation)) {
-            data["ContentLocation"] = [];
-            for (let item of this.contentLocation)
-                data["ContentLocation"].push(item);
-        }
-        if (Array.isArray(this.contentMD5)) {
-            data["ContentMD5"] = [];
-            for (let item of this.contentMD5)
-                data["ContentMD5"].push(item);
-        }
-        if (Array.isArray(this.contentRange)) {
-            data["ContentRange"] = [];
-            for (let item of this.contentRange)
-                data["ContentRange"].push(item);
-        }
-        if (Array.isArray(this.contentSecurityPolicy)) {
-            data["ContentSecurityPolicy"] = [];
-            for (let item of this.contentSecurityPolicy)
-                data["ContentSecurityPolicy"].push(item);
-        }
-        if (Array.isArray(this.contentSecurityPolicyReportOnly)) {
-            data["ContentSecurityPolicyReportOnly"] = [];
-            for (let item of this.contentSecurityPolicyReportOnly)
-                data["ContentSecurityPolicyReportOnly"].push(item);
-        }
-        if (Array.isArray(this.contentType)) {
-            data["ContentType"] = [];
-            for (let item of this.contentType)
-                data["ContentType"].push(item);
-        }
-        if (Array.isArray(this.correlationContext)) {
-            data["CorrelationContext"] = [];
-            for (let item of this.correlationContext)
-                data["CorrelationContext"].push(item);
-        }
-        if (Array.isArray(this.cookie)) {
-            data["Cookie"] = [];
-            for (let item of this.cookie)
-                data["Cookie"].push(item);
-        }
-        if (Array.isArray(this.date)) {
-            data["Date"] = [];
-            for (let item of this.date)
-                data["Date"].push(item);
-        }
-        if (Array.isArray(this.eTag)) {
-            data["ETag"] = [];
-            for (let item of this.eTag)
-                data["ETag"].push(item);
-        }
-        if (Array.isArray(this.expires)) {
-            data["Expires"] = [];
-            for (let item of this.expires)
-                data["Expires"].push(item);
-        }
-        if (Array.isArray(this.expect)) {
-            data["Expect"] = [];
-            for (let item of this.expect)
-                data["Expect"].push(item);
-        }
-        if (Array.isArray(this.from)) {
-            data["From"] = [];
-            for (let item of this.from)
-                data["From"].push(item);
-        }
-        if (Array.isArray(this.grpcAcceptEncoding)) {
-            data["GrpcAcceptEncoding"] = [];
-            for (let item of this.grpcAcceptEncoding)
-                data["GrpcAcceptEncoding"].push(item);
-        }
-        if (Array.isArray(this.grpcEncoding)) {
-            data["GrpcEncoding"] = [];
-            for (let item of this.grpcEncoding)
-                data["GrpcEncoding"].push(item);
-        }
-        if (Array.isArray(this.grpcMessage)) {
-            data["GrpcMessage"] = [];
-            for (let item of this.grpcMessage)
-                data["GrpcMessage"].push(item);
-        }
-        if (Array.isArray(this.grpcStatus)) {
-            data["GrpcStatus"] = [];
-            for (let item of this.grpcStatus)
-                data["GrpcStatus"].push(item);
-        }
-        if (Array.isArray(this.grpcTimeout)) {
-            data["GrpcTimeout"] = [];
-            for (let item of this.grpcTimeout)
-                data["GrpcTimeout"].push(item);
-        }
-        if (Array.isArray(this.host)) {
-            data["Host"] = [];
-            for (let item of this.host)
-                data["Host"].push(item);
-        }
-        if (Array.isArray(this.keepAlive)) {
-            data["KeepAlive"] = [];
-            for (let item of this.keepAlive)
-                data["KeepAlive"].push(item);
-        }
-        if (Array.isArray(this.ifMatch)) {
-            data["IfMatch"] = [];
-            for (let item of this.ifMatch)
-                data["IfMatch"].push(item);
-        }
-        if (Array.isArray(this.ifModifiedSince)) {
-            data["IfModifiedSince"] = [];
-            for (let item of this.ifModifiedSince)
-                data["IfModifiedSince"].push(item);
-        }
-        if (Array.isArray(this.ifNoneMatch)) {
-            data["IfNoneMatch"] = [];
-            for (let item of this.ifNoneMatch)
-                data["IfNoneMatch"].push(item);
-        }
-        if (Array.isArray(this.ifRange)) {
-            data["IfRange"] = [];
-            for (let item of this.ifRange)
-                data["IfRange"].push(item);
-        }
-        if (Array.isArray(this.ifUnmodifiedSince)) {
-            data["IfUnmodifiedSince"] = [];
-            for (let item of this.ifUnmodifiedSince)
-                data["IfUnmodifiedSince"].push(item);
-        }
-        if (Array.isArray(this.lastModified)) {
-            data["LastModified"] = [];
-            for (let item of this.lastModified)
-                data["LastModified"].push(item);
-        }
-        if (Array.isArray(this.link)) {
-            data["Link"] = [];
-            for (let item of this.link)
-                data["Link"].push(item);
-        }
-        if (Array.isArray(this.location)) {
-            data["Location"] = [];
-            for (let item of this.location)
-                data["Location"].push(item);
-        }
-        if (Array.isArray(this.maxForwards)) {
-            data["MaxForwards"] = [];
-            for (let item of this.maxForwards)
-                data["MaxForwards"].push(item);
-        }
-        if (Array.isArray(this.origin)) {
-            data["Origin"] = [];
-            for (let item of this.origin)
-                data["Origin"].push(item);
-        }
-        if (Array.isArray(this.pragma)) {
-            data["Pragma"] = [];
-            for (let item of this.pragma)
-                data["Pragma"].push(item);
-        }
-        if (Array.isArray(this.proxyAuthenticate)) {
-            data["ProxyAuthenticate"] = [];
-            for (let item of this.proxyAuthenticate)
-                data["ProxyAuthenticate"].push(item);
-        }
-        if (Array.isArray(this.proxyAuthorization)) {
-            data["ProxyAuthorization"] = [];
-            for (let item of this.proxyAuthorization)
-                data["ProxyAuthorization"].push(item);
-        }
-        if (Array.isArray(this.proxyConnection)) {
-            data["ProxyConnection"] = [];
-            for (let item of this.proxyConnection)
-                data["ProxyConnection"].push(item);
-        }
-        if (Array.isArray(this.range)) {
-            data["Range"] = [];
-            for (let item of this.range)
-                data["Range"].push(item);
-        }
-        if (Array.isArray(this.referer)) {
-            data["Referer"] = [];
-            for (let item of this.referer)
-                data["Referer"].push(item);
-        }
-        if (Array.isArray(this.retryAfter)) {
-            data["RetryAfter"] = [];
-            for (let item of this.retryAfter)
-                data["RetryAfter"].push(item);
-        }
-        if (Array.isArray(this.requestId)) {
-            data["RequestId"] = [];
-            for (let item of this.requestId)
-                data["RequestId"].push(item);
-        }
-        if (Array.isArray(this.secWebSocketAccept)) {
-            data["SecWebSocketAccept"] = [];
-            for (let item of this.secWebSocketAccept)
-                data["SecWebSocketAccept"].push(item);
-        }
-        if (Array.isArray(this.secWebSocketKey)) {
-            data["SecWebSocketKey"] = [];
-            for (let item of this.secWebSocketKey)
-                data["SecWebSocketKey"].push(item);
-        }
-        if (Array.isArray(this.secWebSocketProtocol)) {
-            data["SecWebSocketProtocol"] = [];
-            for (let item of this.secWebSocketProtocol)
-                data["SecWebSocketProtocol"].push(item);
-        }
-        if (Array.isArray(this.secWebSocketVersion)) {
-            data["SecWebSocketVersion"] = [];
-            for (let item of this.secWebSocketVersion)
-                data["SecWebSocketVersion"].push(item);
-        }
-        if (Array.isArray(this.secWebSocketExtensions)) {
-            data["SecWebSocketExtensions"] = [];
-            for (let item of this.secWebSocketExtensions)
-                data["SecWebSocketExtensions"].push(item);
-        }
-        if (Array.isArray(this.server)) {
-            data["Server"] = [];
-            for (let item of this.server)
-                data["Server"].push(item);
-        }
-        if (Array.isArray(this.setCookie)) {
-            data["SetCookie"] = [];
-            for (let item of this.setCookie)
-                data["SetCookie"].push(item);
-        }
-        if (Array.isArray(this.strictTransportSecurity)) {
-            data["StrictTransportSecurity"] = [];
-            for (let item of this.strictTransportSecurity)
-                data["StrictTransportSecurity"].push(item);
-        }
-        if (Array.isArray(this.tE)) {
-            data["TE"] = [];
-            for (let item of this.tE)
-                data["TE"].push(item);
-        }
-        if (Array.isArray(this.trailer)) {
-            data["Trailer"] = [];
-            for (let item of this.trailer)
-                data["Trailer"].push(item);
-        }
-        if (Array.isArray(this.transferEncoding)) {
-            data["TransferEncoding"] = [];
-            for (let item of this.transferEncoding)
-                data["TransferEncoding"].push(item);
-        }
-        if (Array.isArray(this.translate)) {
-            data["Translate"] = [];
-            for (let item of this.translate)
-                data["Translate"].push(item);
-        }
-        if (Array.isArray(this.traceParent)) {
-            data["TraceParent"] = [];
-            for (let item of this.traceParent)
-                data["TraceParent"].push(item);
-        }
-        if (Array.isArray(this.traceState)) {
-            data["TraceState"] = [];
-            for (let item of this.traceState)
-                data["TraceState"].push(item);
-        }
-        if (Array.isArray(this.upgrade)) {
-            data["Upgrade"] = [];
-            for (let item of this.upgrade)
-                data["Upgrade"].push(item);
-        }
-        if (Array.isArray(this.upgradeInsecureRequests)) {
-            data["UpgradeInsecureRequests"] = [];
-            for (let item of this.upgradeInsecureRequests)
-                data["UpgradeInsecureRequests"].push(item);
-        }
-        if (Array.isArray(this.userAgent)) {
-            data["UserAgent"] = [];
-            for (let item of this.userAgent)
-                data["UserAgent"].push(item);
-        }
-        if (Array.isArray(this.vary)) {
-            data["Vary"] = [];
-            for (let item of this.vary)
-                data["Vary"].push(item);
-        }
-        if (Array.isArray(this.via)) {
-            data["Via"] = [];
-            for (let item of this.via)
-                data["Via"].push(item);
-        }
-        if (Array.isArray(this.warning)) {
-            data["Warning"] = [];
-            for (let item of this.warning)
-                data["Warning"].push(item);
-        }
-        if (Array.isArray(this.webSocketSubProtocols)) {
-            data["WebSocketSubProtocols"] = [];
-            for (let item of this.webSocketSubProtocols)
-                data["WebSocketSubProtocols"].push(item);
-        }
-        if (Array.isArray(this.wWWAuthenticate)) {
-            data["WWWAuthenticate"] = [];
-            for (let item of this.wWWAuthenticate)
-                data["WWWAuthenticate"].push(item);
-        }
-        if (Array.isArray(this.xContentTypeOptions)) {
-            data["XContentTypeOptions"] = [];
-            for (let item of this.xContentTypeOptions)
-                data["XContentTypeOptions"].push(item);
-        }
-        if (Array.isArray(this.xFrameOptions)) {
-            data["XFrameOptions"] = [];
-            for (let item of this.xFrameOptions)
-                data["XFrameOptions"].push(item);
-        }
-        if (Array.isArray(this.xPoweredBy)) {
-            data["XPoweredBy"] = [];
-            for (let item of this.xPoweredBy)
-                data["XPoweredBy"].push(item);
-        }
-        if (Array.isArray(this.xRequestedWith)) {
-            data["XRequestedWith"] = [];
-            for (let item of this.xRequestedWith)
-                data["XRequestedWith"].push(item);
-        }
-        if (Array.isArray(this.xUACompatible)) {
-            data["XUACompatible"] = [];
-            for (let item of this.xUACompatible)
-                data["XUACompatible"].push(item);
-        }
-        if (Array.isArray(this.xXSSProtection)) {
-            data["XXSSProtection"] = [];
-            for (let item of this.xXSSProtection)
-                data["XXSSProtection"].push(item);
-        }
-        return data;
-    }
-}
-
-export interface IIHeaderDictionary {
-    item?: any[];
-    contentLength?: number | undefined;
-    accept?: any[];
-    acceptCharset?: any[];
-    acceptEncoding?: any[];
-    acceptLanguage?: any[];
-    acceptRanges?: any[];
-    accessControlAllowCredentials?: any[];
-    accessControlAllowHeaders?: any[];
-    accessControlAllowMethods?: any[];
-    accessControlAllowOrigin?: any[];
-    accessControlExposeHeaders?: any[];
-    accessControlMaxAge?: any[];
-    accessControlRequestHeaders?: any[];
-    accessControlRequestMethod?: any[];
-    age?: any[];
-    allow?: any[];
-    altSvc?: any[];
-    authorization?: any[];
-    baggage?: any[];
-    cacheControl?: any[];
-    connection?: any[];
-    contentDisposition?: any[];
-    contentEncoding?: any[];
-    contentLanguage?: any[];
-    contentLocation?: any[];
-    contentMD5?: any[];
-    contentRange?: any[];
-    contentSecurityPolicy?: any[];
-    contentSecurityPolicyReportOnly?: any[];
-    contentType?: any[];
-    correlationContext?: any[];
-    cookie?: any[];
-    date?: any[];
-    eTag?: any[];
-    expires?: any[];
-    expect?: any[];
-    from?: any[];
-    grpcAcceptEncoding?: any[];
-    grpcEncoding?: any[];
-    grpcMessage?: any[];
-    grpcStatus?: any[];
-    grpcTimeout?: any[];
-    host?: any[];
-    keepAlive?: any[];
-    ifMatch?: any[];
-    ifModifiedSince?: any[];
-    ifNoneMatch?: any[];
-    ifRange?: any[];
-    ifUnmodifiedSince?: any[];
-    lastModified?: any[];
-    link?: any[];
-    location?: any[];
-    maxForwards?: any[];
-    origin?: any[];
-    pragma?: any[];
-    proxyAuthenticate?: any[];
-    proxyAuthorization?: any[];
-    proxyConnection?: any[];
-    range?: any[];
-    referer?: any[];
-    retryAfter?: any[];
-    requestId?: any[];
-    secWebSocketAccept?: any[];
-    secWebSocketKey?: any[];
-    secWebSocketProtocol?: any[];
-    secWebSocketVersion?: any[];
-    secWebSocketExtensions?: any[];
-    server?: any[];
-    setCookie?: any[];
-    strictTransportSecurity?: any[];
-    tE?: any[];
-    trailer?: any[];
-    transferEncoding?: any[];
-    translate?: any[];
-    traceParent?: any[];
-    traceState?: any[];
-    upgrade?: any[];
-    upgradeInsecureRequests?: any[];
-    userAgent?: any[];
-    vary?: any[];
-    via?: any[];
-    warning?: any[];
-    webSocketSubProtocols?: any[];
-    wWWAuthenticate?: any[];
-    xContentTypeOptions?: any[];
-    xFrameOptions?: any[];
-    xPoweredBy?: any[];
-    xRequestedWith?: any[];
-    xUACompatible?: any[];
-    xXSSProtection?: any[];
-}
-
-/** Request body for importing an entry. */
-export class ImportEntryRequest implements IImportEntryRequest {
-    /** The name for the imported entry. */
-    name!: string;
-    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
-    autoRename?: boolean;
-    /** The options applied when importing a PDF. */
-    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. This option is only applicable when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
-    importAsElectronicDocument?: boolean;
-    /** The metadata that will be assigned to the entry. */
-    metadata?: ImportEntryRequestMetadata | undefined;
-    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
-    volumeName?: string | undefined;
-
-    
-    
-    constructor(data?: IImportEntryRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.autoRename = false;
-            this.importAsElectronicDocument = false;
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.autoRename = _data["autoRename"] !== undefined ? _data["autoRename"] : false;
-            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
-            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
-            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
-            this.volumeName = _data["volumeName"];
-        }
-    }
-
-    static fromJS(data: any): ImportEntryRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new ImportEntryRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["autoRename"] = this.autoRename;
-        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
-        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
-        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
-        data["volumeName"] = this.volumeName;
-        return data;
-    }
-}
-
-/** Request body for importing an entry. */
-export interface IImportEntryRequest {
-    /** The name for the imported entry. */
-    name: string;
-    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
-    autoRename?: boolean;
-    /** The options applied when importing a PDF. */
-    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. This option is only applicable when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
-    importAsElectronicDocument?: boolean;
-    /** The metadata that will be assigned to the entry. */
-    metadata?: ImportEntryRequestMetadata | undefined;
-    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
-    volumeName?: string | undefined;
-}
-
 /** Response containing a link to download the exported entry. */
 export class ExportEntryResponse implements IExportEntryResponse {
-    value?: string;
+    /** Gets or sets the OData response content in the "value". */
+    value?: string | undefined;
 
     
     
@@ -9753,7 +11335,8 @@ export class ExportEntryResponse implements IExportEntryResponse {
 
 /** Response containing a link to download the exported entry. */
 export interface IExportEntryResponse {
-    value?: string;
+    /** Gets or sets the OData response content in the "value". */
+    value?: string | undefined;
 }
 
 /** Request body for exporting an entry. */
@@ -9936,7 +11519,8 @@ export class EntryCollectionResponse implements IEntryCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: Entry[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Entry[] | undefined;
 
     
     
@@ -9987,7 +11571,8 @@ export interface IEntryCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: Entry[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Entry[] | undefined;
 }
 
 /** Response containing a collection of Field. */
@@ -9996,7 +11581,8 @@ export class FieldCollectionResponse implements IFieldCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: Field[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Field[] | undefined;
 
     
     
@@ -10047,7 +11633,8 @@ export interface IFieldCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: Field[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Field[] | undefined;
 }
 
 /** Request body for assigning fields to an entry. */
@@ -10106,7 +11693,8 @@ export class TagCollectionResponse implements ITagCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: Tag[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Tag[] | undefined;
 
     
     
@@ -10157,7 +11745,8 @@ export interface ITagCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: Tag[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Tag[] | undefined;
 }
 
 /** Represents a tag set on an entry. */
@@ -10360,7 +11949,8 @@ export class LinkCollectionResponse implements ILinkCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: Link[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Link[] | undefined;
 
     
     
@@ -10411,7 +12001,8 @@ export interface ILinkCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: Link[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Link[] | undefined;
 }
 
 /** Represents a link between a source entry and a target entry. */
@@ -10728,6 +12319,1020 @@ export enum CreateEntryRequestEntryType {
     Shortcut = "Shortcut",
 }
 
+/** Request body for updating a document's electronic document and/or metadata from previously uploaded parts. */
+export class UpdateDocumentUploadedPartsRequest implements IUpdateDocumentUploadedPartsRequest {
+    /** The UploadId received when calling the CreateMultipartUploadUrls API to request upload URLs. */
+    uploadId!: string;
+    /** The array of the ETag values received when writing the file chunks into the upload URLs. The ETag values should be in the order of their associated upload URLs. */
+    partETags!: string[];
+    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+
+    
+    
+    constructor(data?: IUpdateDocumentUploadedPartsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.partETags = [];
+            this.importAsElectronicDocument = false;
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.uploadId = _data["uploadId"];
+            if (Array.isArray(_data["partETags"])) {
+                this.partETags = [] as any;
+                for (let item of _data["partETags"])
+                    this.partETags!.push(item);
+            }
+            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
+            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
+            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UpdateDocumentUploadedPartsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDocumentUploadedPartsRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["uploadId"] = this.uploadId;
+        if (Array.isArray(this.partETags)) {
+            data["partETags"] = [];
+            for (let item of this.partETags)
+                data["partETags"].push(item);
+        }
+        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
+        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
+        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+/** Request body for updating a document's electronic document and/or metadata from previously uploaded parts. */
+export interface IUpdateDocumentUploadedPartsRequest {
+    /** The UploadId received when calling the CreateMultipartUploadUrls API to request upload URLs. */
+    uploadId: string;
+    /** The array of the ETag values received when writing the file chunks into the upload URLs. The ETag values should be in the order of their associated upload URLs. */
+    partETags: string[];
+    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+}
+
+export class AppendTextPageRequest implements IAppendTextPageRequest {
+    /** The text content for the new page. */
+    text!: string;
+
+    
+    
+    constructor(data?: IAppendTextPageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): AppendTextPageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppendTextPageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface IAppendTextPageRequest {
+    /** The text content for the new page. */
+    text: string;
+}
+
+export class ReplaceTextPageRequest implements IReplaceTextPageRequest {
+    /** The replacement text content for the page. */
+    text!: string;
+
+    
+    
+    constructor(data?: IReplaceTextPageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): ReplaceTextPageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReplaceTextPageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface IReplaceTextPageRequest {
+    /** The replacement text content for the page. */
+    text: string;
+}
+
+export class MovePagesRequest implements IMovePagesRequest {
+    /** The page range to move (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
+    pageRange!: string;
+    /** The 1-based destination page number. Pages will be moved before this position. */
+    destinationPageNumber!: number;
+
+    
+    
+    constructor(data?: IMovePagesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageRange = _data["pageRange"];
+            this.destinationPageNumber = _data["destinationPageNumber"];
+        }
+    }
+
+    static fromJS(data: any): MovePagesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new MovePagesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageRange"] = this.pageRange;
+        data["destinationPageNumber"] = this.destinationPageNumber;
+        return data;
+    }
+}
+
+export interface IMovePagesRequest {
+    /** The page range to move (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
+    pageRange: string;
+    /** The 1-based destination page number. Pages will be moved before this position. */
+    destinationPageNumber: number;
+}
+
+export class TransferPagesRequest implements ITransferPagesRequest {
+    /** The page range to transfer (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
+    pageRange!: string;
+    /** The entry ID of the destination document. */
+    destinationEntryId!: number;
+    /** The 1-based page number in the destination document. Pages will be inserted before this position. */
+    destinationPageNumber!: number;
+
+    
+    
+    constructor(data?: ITransferPagesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageRange = _data["pageRange"];
+            this.destinationEntryId = _data["destinationEntryId"];
+            this.destinationPageNumber = _data["destinationPageNumber"];
+        }
+    }
+
+    static fromJS(data: any): TransferPagesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new TransferPagesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageRange"] = this.pageRange;
+        data["destinationEntryId"] = this.destinationEntryId;
+        data["destinationPageNumber"] = this.destinationPageNumber;
+        return data;
+    }
+}
+
+export interface ITransferPagesRequest {
+    /** The page range to transfer (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
+    pageRange: string;
+    /** The entry ID of the destination document. */
+    destinationEntryId: number;
+    /** The 1-based page number in the destination document. Pages will be inserted before this position. */
+    destinationPageNumber: number;
+}
+
+export class RotateImagePageRequest implements IRotateImagePageRequest {
+    /** The rotation angle in degrees. Accepted values: 0, 90, 180, 270. */
+    rotationAngle!: number;
+
+    
+    
+    constructor(data?: IRotateImagePageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.rotationAngle = _data["rotationAngle"];
+        }
+    }
+
+    static fromJS(data: any): RotateImagePageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new RotateImagePageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["rotationAngle"] = this.rotationAngle;
+        return data;
+    }
+}
+
+export interface IRotateImagePageRequest {
+    /** The rotation angle in degrees. Accepted values: 0, 90, 180, 270. */
+    rotationAngle: number;
+}
+
+export class PageInfoResponse implements IPageInfoResponse {
+    pageNumber?: number;
+    pageId?: number;
+    entryId?: number;
+    hasImage?: boolean;
+    hasText?: boolean;
+    hasThumbnail?: boolean;
+    imageRotationAngle?: number;
+    imageRotation?: number;
+    imageWidth?: number;
+    imageHeight?: number;
+    imageDepth?: number;
+    imageXResolution?: number;
+    imageYResolution?: number;
+    imageDataSize?: number;
+    textDataSize?: number;
+
+    
+    
+    constructor(data?: IPageInfoResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageNumber = _data["pageNumber"];
+            this.pageId = _data["pageId"];
+            this.entryId = _data["entryId"];
+            this.hasImage = _data["hasImage"];
+            this.hasText = _data["hasText"];
+            this.hasThumbnail = _data["hasThumbnail"];
+            this.imageRotationAngle = _data["imageRotationAngle"];
+            this.imageRotation = _data["imageRotation"];
+            this.imageWidth = _data["imageWidth"];
+            this.imageHeight = _data["imageHeight"];
+            this.imageDepth = _data["imageDepth"];
+            this.imageXResolution = _data["imageXResolution"];
+            this.imageYResolution = _data["imageYResolution"];
+            this.imageDataSize = _data["imageDataSize"];
+            this.textDataSize = _data["textDataSize"];
+        }
+    }
+
+    static fromJS(data: any): PageInfoResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PageInfoResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageNumber"] = this.pageNumber;
+        data["pageId"] = this.pageId;
+        data["entryId"] = this.entryId;
+        data["hasImage"] = this.hasImage;
+        data["hasText"] = this.hasText;
+        data["hasThumbnail"] = this.hasThumbnail;
+        data["imageRotationAngle"] = this.imageRotationAngle;
+        data["imageRotation"] = this.imageRotation;
+        data["imageWidth"] = this.imageWidth;
+        data["imageHeight"] = this.imageHeight;
+        data["imageDepth"] = this.imageDepth;
+        data["imageXResolution"] = this.imageXResolution;
+        data["imageYResolution"] = this.imageYResolution;
+        data["imageDataSize"] = this.imageDataSize;
+        data["textDataSize"] = this.textDataSize;
+        return data;
+    }
+}
+
+export interface IPageInfoResponse {
+    pageNumber?: number;
+    pageId?: number;
+    entryId?: number;
+    hasImage?: boolean;
+    hasText?: boolean;
+    hasThumbnail?: boolean;
+    imageRotationAngle?: number;
+    imageRotation?: number;
+    imageWidth?: number;
+    imageHeight?: number;
+    imageDepth?: number;
+    imageXResolution?: number;
+    imageYResolution?: number;
+    imageDataSize?: number;
+    textDataSize?: number;
+}
+
+export class PageTextResponse implements IPageTextResponse {
+    text?: string | undefined;
+
+    
+    
+    constructor(data?: IPageTextResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): PageTextResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PageTextResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface IPageTextResponse {
+    text?: string | undefined;
+}
+
+export abstract class Entry2 implements IEntry2 {
+    /** The ID of the entry. */
+    id?: number;
+    /** The name of the entry. */
+    name?: string | undefined;
+    /** The ID of the parent entry. */
+    parentId?: number | undefined;
+    /** The full path in the Laserfiche repository to the entry. */
+    fullPath?: string | undefined;
+    /** The path in the Laserfiche repository to the parent folder. */
+    folderPath?: string | undefined;
+    /** The name of the user that created this entry. */
+    creator?: string | undefined;
+    /** The creation time of the entry. */
+    creationTime?: Date;
+    /** The last modification time of the entry. */
+    lastModifiedTime?: Date;
+    /** The type of the entry. */
+    entryType?: EntryType2;
+    /** A boolean indicating if this entry is a container object; it can have other entries as children. */
+    isContainer?: boolean;
+    /** A boolean indicating if this entry is a leaf object; it cannot have other entries as children. */
+    isLeaf?: boolean;
+    /** The name of the template assigned to this entry. */
+    templateName?: string | undefined;
+    /** The id of the template assigned to this entry. */
+    templateId?: number;
+    /** The names of the fields assigned to the template assigned to this entry. */
+    templateFieldNames?: string[] | undefined;
+    /** The name of the volume that this entry is associated with. */
+    volumeName?: string | undefined;
+    /** Row number assigned to this entry in the listing. */
+    rowNumber?: number | undefined;
+    /** The fields assigned to this entry. */
+    fields?: EntryFieldValue[] | undefined;
+    protected _discriminator: string;
+
+    
+    
+    constructor(data?: IEntry2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "Entry2";
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.parentId = _data["parentId"];
+            this.fullPath = _data["fullPath"];
+            this.folderPath = _data["folderPath"];
+            this.creator = _data["creator"];
+            this.creationTime = _data["creationTime"] ? new Date(_data["creationTime"].toString()) : <any>undefined;
+            this.lastModifiedTime = _data["lastModifiedTime"] ? new Date(_data["lastModifiedTime"].toString()) : <any>undefined;
+            this.entryType = _data["entryType"];
+            this.isContainer = _data["isContainer"];
+            this.isLeaf = _data["isLeaf"];
+            this.templateName = _data["templateName"];
+            this.templateId = _data["templateId"];
+            if (Array.isArray(_data["templateFieldNames"])) {
+                this.templateFieldNames = [] as any;
+                for (let item of _data["templateFieldNames"])
+                    this.templateFieldNames!.push(item);
+            }
+            this.volumeName = _data["volumeName"];
+            this.rowNumber = _data["rowNumber"];
+            if (Array.isArray(_data["fields"])) {
+                this.fields = [] as any;
+                for (let item of _data["fields"])
+                    this.fields!.push(EntryFieldValue.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Entry2 {
+        data = typeof data === 'object' ? data : {};
+        if (data["entryType"] === "Document") {
+            let result = new Document2();
+            result.init(data);
+            return result;
+        }
+        if (data["entryType"] === "Shortcut") {
+            let result = new Shortcut2();
+            result.init(data);
+            return result;
+        }
+        if (data["entryType"] === "Folder") {
+            let result = new Folder2();
+            result.init(data);
+            return result;
+        }
+        if (data["entryType"] === "RecordSeries2") {
+            let result = new RecordSeries2();
+            result.init(data);
+            return result;
+        }
+        throw new Error("The abstract class 'Entry2' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["entryType"] = this._discriminator;
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["parentId"] = this.parentId;
+        data["fullPath"] = this.fullPath;
+        data["folderPath"] = this.folderPath;
+        data["creator"] = this.creator;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["lastModifiedTime"] = this.lastModifiedTime ? this.lastModifiedTime.toISOString() : <any>undefined;
+        data["entryType"] = this.entryType;
+        data["isContainer"] = this.isContainer;
+        data["isLeaf"] = this.isLeaf;
+        data["templateName"] = this.templateName;
+        data["templateId"] = this.templateId;
+        if (Array.isArray(this.templateFieldNames)) {
+            data["templateFieldNames"] = [];
+            for (let item of this.templateFieldNames)
+                data["templateFieldNames"].push(item);
+        }
+        data["volumeName"] = this.volumeName;
+        data["rowNumber"] = this.rowNumber;
+        if (Array.isArray(this.fields)) {
+            data["fields"] = [];
+            for (let item of this.fields)
+                data["fields"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IEntry2 {
+    /** The ID of the entry. */
+    id?: number;
+    /** The name of the entry. */
+    name?: string | undefined;
+    /** The ID of the parent entry. */
+    parentId?: number | undefined;
+    /** The full path in the Laserfiche repository to the entry. */
+    fullPath?: string | undefined;
+    /** The path in the Laserfiche repository to the parent folder. */
+    folderPath?: string | undefined;
+    /** The name of the user that created this entry. */
+    creator?: string | undefined;
+    /** The creation time of the entry. */
+    creationTime?: Date;
+    /** The last modification time of the entry. */
+    lastModifiedTime?: Date;
+    /** The type of the entry. */
+    entryType?: EntryType2;
+    /** A boolean indicating if this entry is a container object; it can have other entries as children. */
+    isContainer?: boolean;
+    /** A boolean indicating if this entry is a leaf object; it cannot have other entries as children. */
+    isLeaf?: boolean;
+    /** The name of the template assigned to this entry. */
+    templateName?: string | undefined;
+    /** The id of the template assigned to this entry. */
+    templateId?: number;
+    /** The names of the fields assigned to the template assigned to this entry. */
+    templateFieldNames?: string[] | undefined;
+    /** The name of the volume that this entry is associated with. */
+    volumeName?: string | undefined;
+    /** Row number assigned to this entry in the listing. */
+    rowNumber?: number | undefined;
+    /** The fields assigned to this entry. */
+    fields?: EntryFieldValue[] | undefined;
+}
+
+export enum EntryType2 {
+    Folder = "Folder",
+    RecordSeries = "RecordSeries",
+    Document = "Document",
+    Shortcut = "Shortcut",
+}
+
+export class EntryFieldValue implements IEntryFieldValue {
+    /** The name of the field. */
+    fieldName?: string | undefined;
+    /** The values assigned to the field. */
+    values?: { [key: string]: any; }[] | undefined;
+    /** The type of the field. The possible field types are listed below. */
+    fieldType?: WFieldType;
+    /** The ID of the field. */
+    fieldId?: number;
+    /** A boolean indicating if the represented field supports multiple values. */
+    isMultiValue?: boolean;
+    /** A boolean indicating if the represented field must have a value set on entries assigned to a template that the field is a member of. */
+    isRequired?: boolean;
+    /** A boolean indicating if there are more field values. */
+    hasMoreValues?: boolean;
+
+    
+    
+    constructor(data?: IEntryFieldValue) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fieldName = _data["fieldName"];
+            if (Array.isArray(_data["values"])) {
+                this.values = [] as any;
+                for (let item of _data["values"])
+                    this.values!.push(item);
+            }
+            this.fieldType = _data["fieldType"];
+            this.fieldId = _data["fieldId"];
+            this.isMultiValue = _data["isMultiValue"];
+            this.isRequired = _data["isRequired"];
+            this.hasMoreValues = _data["hasMoreValues"];
+        }
+    }
+
+    static fromJS(data: any): EntryFieldValue {
+        data = typeof data === 'object' ? data : {};
+        let result = new EntryFieldValue();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fieldName"] = this.fieldName;
+        if (Array.isArray(this.values)) {
+            data["values"] = [];
+            for (let item of this.values)
+                data["values"].push(item);
+        }
+        data["fieldType"] = this.fieldType;
+        data["fieldId"] = this.fieldId;
+        data["isMultiValue"] = this.isMultiValue;
+        data["isRequired"] = this.isRequired;
+        data["hasMoreValues"] = this.hasMoreValues;
+        return data;
+    }
+}
+
+export interface IEntryFieldValue {
+    /** The name of the field. */
+    fieldName?: string | undefined;
+    /** The values assigned to the field. */
+    values?: { [key: string]: any; }[] | undefined;
+    /** The type of the field. The possible field types are listed below. */
+    fieldType?: WFieldType;
+    /** The ID of the field. */
+    fieldId?: number;
+    /** A boolean indicating if the represented field supports multiple values. */
+    isMultiValue?: boolean;
+    /** A boolean indicating if the represented field must have a value set on entries assigned to a template that the field is a member of. */
+    isRequired?: boolean;
+    /** A boolean indicating if there are more field values. */
+    hasMoreValues?: boolean;
+}
+
+export enum WFieldType {
+    DateTime = "DateTime",
+    Blob = "Blob",
+    Date = "Date",
+    ShortInteger = "ShortInteger",
+    LongInteger = "LongInteger",
+    List = "List",
+    Number = "Number",
+    String = "String",
+    Time = "Time",
+}
+
+export class RecordSeries2 extends Entry2 implements IRecordSeries2 {
+
+    
+    
+    constructor(data?: IRecordSeries2) {
+        super(data);
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "RecordSeries2";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+    }
+
+    static fromJS(data: any): RecordSeries2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecordSeries2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IRecordSeries2 extends IEntry2 {
+}
+
+export class Document2 extends Entry2 implements IDocument2 {
+    /** The size of the electronic document attached to the represented document,
+if there is one, in bytes. */
+    elecDocumentSize?: number;
+    /** The extension for the document. */
+    extension?: string | undefined;
+    /** A boolean indicating if there is an electronic document attached to the represented document. */
+    isElectronicDocument?: boolean;
+    /** A boolean indicating if the represented document is a record. */
+    isRecord?: boolean;
+    /** The MIME type of the electronic document. */
+    mimeType?: string | undefined;
+    /** The page count of the represented document. */
+    pageCount?: number;
+    /** A boolean indicating if the represented document is checked out. */
+    isCheckedOut?: boolean;
+    /** A boolean indicating if the represented document is under version control. */
+    isUnderVersionControl?: boolean;
+    /** The electronic document attached to the represented document. */
+    edoc?: Edoc | undefined;
+    /** A boolean indicating if the represented document has a persistent lock. */
+    isLocked?: boolean;
+    /** The account name of the persistent lock holder. Null if the document is not locked. */
+    lockedBy?: string | undefined;
+    /** The version number of the document. 0 if the document is not under version control. */
+    currentVersion?: number;
+    /** The account name of the user who checked out the document. Null if the document is not checked out. */
+    checkedOutBy?: string | undefined;
+
+    
+    
+    constructor(data?: IDocument2) {
+        super(data);
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "Document";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.elecDocumentSize = _data["elecDocumentSize"];
+            this.extension = _data["extension"];
+            this.isElectronicDocument = _data["isElectronicDocument"];
+            this.isRecord = _data["isRecord"];
+            this.mimeType = _data["mimeType"];
+            this.pageCount = _data["pageCount"];
+            this.isCheckedOut = _data["isCheckedOut"];
+            this.isUnderVersionControl = _data["isUnderVersionControl"];
+            this.edoc = _data["edoc"] ? Edoc.fromJS(_data["edoc"]) : <any>undefined;
+            this.isLocked = _data["isLocked"];
+            this.lockedBy = _data["lockedBy"];
+            this.currentVersion = _data["currentVersion"];
+            this.checkedOutBy = _data["checkedOutBy"];
+        }
+    }
+
+    static fromJS(data: any): Document2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new Document2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["elecDocumentSize"] = this.elecDocumentSize;
+        data["extension"] = this.extension;
+        data["isElectronicDocument"] = this.isElectronicDocument;
+        data["isRecord"] = this.isRecord;
+        data["mimeType"] = this.mimeType;
+        data["pageCount"] = this.pageCount;
+        data["isCheckedOut"] = this.isCheckedOut;
+        data["isUnderVersionControl"] = this.isUnderVersionControl;
+        data["edoc"] = this.edoc ? this.edoc.toJSON() : <any>undefined;
+        data["isLocked"] = this.isLocked;
+        data["lockedBy"] = this.lockedBy;
+        data["currentVersion"] = this.currentVersion;
+        data["checkedOutBy"] = this.checkedOutBy;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IDocument2 extends IEntry2 {
+    /** The size of the electronic document attached to the represented document,
+if there is one, in bytes. */
+    elecDocumentSize?: number;
+    /** The extension for the document. */
+    extension?: string | undefined;
+    /** A boolean indicating if there is an electronic document attached to the represented document. */
+    isElectronicDocument?: boolean;
+    /** A boolean indicating if the represented document is a record. */
+    isRecord?: boolean;
+    /** The MIME type of the electronic document. */
+    mimeType?: string | undefined;
+    /** The page count of the represented document. */
+    pageCount?: number;
+    /** A boolean indicating if the represented document is checked out. */
+    isCheckedOut?: boolean;
+    /** A boolean indicating if the represented document is under version control. */
+    isUnderVersionControl?: boolean;
+    /** The electronic document attached to the represented document. */
+    edoc?: Edoc | undefined;
+    /** A boolean indicating if the represented document has a persistent lock. */
+    isLocked?: boolean;
+    /** The account name of the persistent lock holder. Null if the document is not locked. */
+    lockedBy?: string | undefined;
+    /** The version number of the document. 0 if the document is not under version control. */
+    currentVersion?: number;
+    /** The account name of the user who checked out the document. Null if the document is not checked out. */
+    checkedOutBy?: string | undefined;
+}
+
+export class Edoc implements IEdoc {
+
+    
+    
+    constructor(data?: IEdoc) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): Edoc {
+        data = typeof data === 'object' ? data : {};
+        let result = new Edoc();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface IEdoc {
+}
+
+export class Shortcut2 extends Entry2 implements IShortcut2 {
+    /** The entry ID of the shortcut target. */
+    targetId?: number;
+    /** The extension of the shortcut target. */
+    extension?: string | undefined;
+    /** The entry type of the shortcut target. */
+    targetType?: EntryType2;
+
+    
+    
+    constructor(data?: IShortcut2) {
+        super(data);
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "Shortcut";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.targetId = _data["targetId"];
+            this.extension = _data["extension"];
+            this.targetType = _data["targetType"];
+        }
+    }
+
+    static fromJS(data: any): Shortcut2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new Shortcut2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["targetId"] = this.targetId;
+        data["extension"] = this.extension;
+        data["targetType"] = this.targetType;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IShortcut2 extends IEntry2 {
+    /** The entry ID of the shortcut target. */
+    targetId?: number;
+    /** The extension of the shortcut target. */
+    extension?: string | undefined;
+    /** The entry type of the shortcut target. */
+    targetType?: EntryType2;
+}
+
+export class Folder2 extends Entry2 implements IFolder2 {
+    /** A boolean indicating if the folder that this instance represents is known
+to be a record folder. */
+    isRecordFolder?: boolean;
+    /** A boolean indicating if the folder that this instance represents is known
+to directly or indirectly under a record series in the repository. */
+    isUnderRecordSeries?: boolean;
+    /** The entries in this folder. */
+    children?: Entry2[] | undefined;
+
+    
+    
+    constructor(data?: IFolder2) {
+        super(data);
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "Folder";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.isRecordFolder = _data["isRecordFolder"];
+            this.isUnderRecordSeries = _data["isUnderRecordSeries"];
+            if (Array.isArray(_data["children"])) {
+                this.children = [] as any;
+                for (let item of _data["children"])
+                    this.children!.push(Entry2.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Folder2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new Folder2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isRecordFolder"] = this.isRecordFolder;
+        data["isUnderRecordSeries"] = this.isUnderRecordSeries;
+        if (Array.isArray(this.children)) {
+            data["children"] = [];
+            for (let item of this.children)
+                data["children"].push(item.toJSON());
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IFolder2 extends IEntry2 {
+    /** A boolean indicating if the folder that this instance represents is known
+to be a record folder. */
+    isRecordFolder?: boolean;
+    /** A boolean indicating if the folder that this instance represents is known
+to directly or indirectly under a record series in the repository. */
+    isUnderRecordSeries?: boolean;
+    /** The entries in this folder. */
+    children?: Entry2[] | undefined;
+}
+
 /** Request body for listing dynamic field values for an entry. */
 export class ListDynamicFieldValuesRequest implements IListDynamicFieldValuesRequest {
     /** The template id. */
@@ -10844,9 +13449,185 @@ export interface ISetTemplateRequest {
     fields?: FieldToUpdate[] | undefined;
 }
 
+export class LockInfo implements ILockInfo {
+    /** The unique lock token. */
+    lockToken?: string | undefined;
+    /** The account name of the lock owner (e.g., "DOMAIN\user"). */
+    owner?: string | undefined;
+    /** The user-defined comment for the lock. */
+    comment?: string | undefined;
+    /** The lock extent (e.g., "Page", "Edoc", "Metadata", "All"). */
+    extent?: string | undefined;
+    /** The UTC timestamp when the lock was created. */
+    creationTimestampUtc?: Date | undefined;
+    /** The entry ID of the locked document. */
+    entryId?: number;
+    /** Whether the lock is currently active. */
+    isActive?: boolean;
+
+    
+    
+    constructor(data?: ILockInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.lockToken = _data["lockToken"];
+            this.owner = _data["owner"];
+            this.comment = _data["comment"];
+            this.extent = _data["extent"];
+            this.creationTimestampUtc = _data["creationTimestampUtc"] ? new Date(_data["creationTimestampUtc"].toString()) : <any>undefined;
+            this.entryId = _data["entryId"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): LockInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new LockInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["lockToken"] = this.lockToken;
+        data["owner"] = this.owner;
+        data["comment"] = this.comment;
+        data["extent"] = this.extent;
+        data["creationTimestampUtc"] = this.creationTimestampUtc ? this.creationTimestampUtc.toISOString() : <any>undefined;
+        data["entryId"] = this.entryId;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ILockInfo {
+    /** The unique lock token. */
+    lockToken?: string | undefined;
+    /** The account name of the lock owner (e.g., "DOMAIN\user"). */
+    owner?: string | undefined;
+    /** The user-defined comment for the lock. */
+    comment?: string | undefined;
+    /** The lock extent (e.g., "Page", "Edoc", "Metadata", "All"). */
+    extent?: string | undefined;
+    /** The UTC timestamp when the lock was created. */
+    creationTimestampUtc?: Date | undefined;
+    /** The entry ID of the locked document. */
+    entryId?: number;
+    /** Whether the lock is currently active. */
+    isActive?: boolean;
+}
+
+/** Request body for creating a persistent lock on a document. */
+export class LockDocumentRequest implements ILockDocumentRequest {
+    /** An optional comment for the persistent lock. */
+    comment?: string | undefined;
+    /** The lock extent. Valid values: "Page", "Edoc", "Metadata", "All". Defaults to "All". */
+    extent?: string | undefined;
+
+    
+    
+    constructor(data?: ILockDocumentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.comment = _data["comment"];
+            this.extent = _data["extent"];
+        }
+    }
+
+    static fromJS(data: any): LockDocumentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new LockDocumentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["comment"] = this.comment;
+        data["extent"] = this.extent;
+        return data;
+    }
+}
+
+/** Request body for creating a persistent lock on a document. */
+export interface ILockDocumentRequest {
+    /** An optional comment for the persistent lock. */
+    comment?: string | undefined;
+    /** The lock extent. Valid values: "Page", "Edoc", "Metadata", "All". Defaults to "All". */
+    extent?: string | undefined;
+}
+
+/** Request body for checking out a document. */
+export class CheckOutDocumentRequest implements ICheckOutDocumentRequest {
+    /** Whether to automatically acquire a persistent lock as part of the check-out. Defaults to true. */
+    lock?: boolean;
+    /** An optional comment for the check-out. */
+    comment?: string | undefined;
+
+    
+    
+    constructor(data?: ICheckOutDocumentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.lock = true;
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.lock = _data["lock"] !== undefined ? _data["lock"] : true;
+            this.comment = _data["comment"];
+        }
+    }
+
+    static fromJS(data: any): CheckOutDocumentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CheckOutDocumentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["lock"] = this.lock;
+        data["comment"] = this.comment;
+        return data;
+    }
+}
+
+/** Request body for checking out a document. */
+export interface ICheckOutDocumentRequest {
+    /** Whether to automatically acquire a persistent lock as part of the check-out. Defaults to true. */
+    lock?: boolean;
+    /** An optional comment for the check-out. */
+    comment?: string | undefined;
+}
+
 /** Response containing a collection of Repository. */
 export class RepositoryCollectionResponse implements IRepositoryCollectionResponse {
-    value?: Repository[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Repository[] | undefined;
 
     
     
@@ -10889,7 +13670,8 @@ export class RepositoryCollectionResponse implements IRepositoryCollectionRespon
 
 /** Response containing a collection of Repository. */
 export interface IRepositoryCollectionResponse {
-    value?: Repository[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: Repository[] | undefined;
 }
 
 /** Represents a Laserfiche repository. */
@@ -11012,7 +13794,8 @@ export class SearchContextHitCollectionResponse implements ISearchContextHitColl
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: SearchContextHit[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: SearchContextHit[] | undefined;
 
     
     
@@ -11063,7 +13846,8 @@ export interface ISearchContextHitCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: SearchContextHit[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: SearchContextHit[] | undefined;
 }
 
 /** Represents a context hit for a search result. */
@@ -11260,7 +14044,8 @@ export class TagDefinitionCollectionResponse implements ITagDefinitionCollection
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: TagDefinition[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: TagDefinition[] | undefined;
 
     
     
@@ -11311,7 +14096,8 @@ export interface ITagDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: TagDefinition[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: TagDefinition[] | undefined;
 }
 
 /** Represents an entry tag definition. */
@@ -11388,7 +14174,8 @@ export interface ITagDefinition {
 
 /** Response containing a collection of TaskProgress. */
 export class TaskCollectionResponse implements ITaskCollectionResponse {
-    value?: TaskProgress[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: TaskProgress[] | undefined;
 
     
     
@@ -11431,7 +14218,8 @@ export class TaskCollectionResponse implements ITaskCollectionResponse {
 
 /** Response containing a collection of TaskProgress. */
 export interface ITaskCollectionResponse {
-    value?: TaskProgress[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: TaskProgress[] | undefined;
 }
 
 /** Represents the progress of a long operation task. */
@@ -11594,7 +14382,8 @@ export interface ITaskResult {
 
 /** Response containing a collection of CancelTaskResult. */
 export class CancelTasksResponse implements ICancelTasksResponse {
-    value?: CancelTaskResult[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: CancelTaskResult[] | undefined;
 
     
     
@@ -11637,7 +14426,8 @@ export class CancelTasksResponse implements ICancelTasksResponse {
 
 /** Response containing a collection of CancelTaskResult. */
 export interface ICancelTasksResponse {
-    value?: CancelTaskResult[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: CancelTaskResult[] | undefined;
 }
 
 /** Represents the result of cancelling a long operation task. */
@@ -11700,7 +14490,8 @@ export class TemplateDefinitionCollectionResponse implements ITemplateDefinition
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: TemplateDefinition[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: TemplateDefinition[] | undefined;
 
     
     
@@ -11751,7 +14542,8 @@ export interface ITemplateDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: TemplateDefinition[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: TemplateDefinition[] | undefined;
 }
 
 /** Represents a template definition. */
@@ -11892,7 +14684,8 @@ export class TemplateFieldDefinitionCollectionResponse implements ITemplateField
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: TemplateFieldDefinition[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: TemplateFieldDefinition[] | undefined;
 
     
     
@@ -11943,7 +14736,8 @@ export interface ITemplateFieldDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    value?: TemplateFieldDefinition[];
+    /** Gets or sets the OData response content in the "value". */
+    value?: TemplateFieldDefinition[] | undefined;
 }
 
 /** Represents a template field definition. */
@@ -12053,9 +14847,164 @@ export interface IRule {
     ancestors?: number[] | undefined;
 }
 
+/** Request body for importing an entry. */
+export class ImportEntryRequest implements IImportEntryRequest {
+    /** The name for the imported entry. */
+    name!: string;
+    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
+    autoRename?: boolean;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. This option is only applicable when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
+    volumeName?: string | undefined;
+
+    
+    
+    constructor(data?: IImportEntryRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.autoRename = false;
+            this.importAsElectronicDocument = false;
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.autoRename = _data["autoRename"] !== undefined ? _data["autoRename"] : false;
+            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
+            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
+            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
+            this.volumeName = _data["volumeName"];
+        }
+    }
+
+    static fromJS(data: any): ImportEntryRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportEntryRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["autoRename"] = this.autoRename;
+        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
+        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
+        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
+        data["volumeName"] = this.volumeName;
+        return data;
+    }
+}
+
+/** Request body for importing an entry. */
+export interface IImportEntryRequest {
+    /** The name for the imported entry. */
+    name: string;
+    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
+    autoRename?: boolean;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. This option is only applicable when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
+    volumeName?: string | undefined;
+}
+
+/** Request body for updating a document's electronic document and/or metadata. */
+export class UpdateDocumentRequest implements IUpdateDocumentRequest {
+    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false.
+This option is only applicable when a file is provided and when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Whether to create a new version when updating the document with a file.
+When true, the document is put under version control (if not already) and a new version is created.
+When false (default), the file overwrites the existing content without creating a version.
+Only applicable when a file is provided. */
+    createVersion?: boolean;
+
+    
+    
+    constructor(data?: IUpdateDocumentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.importAsElectronicDocument = false;
+            this.createVersion = false;
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
+            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
+            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
+            this.createVersion = _data["createVersion"] !== undefined ? _data["createVersion"] : false;
+        }
+    }
+
+    static fromJS(data: any): UpdateDocumentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDocumentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
+        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
+        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
+        data["createVersion"] = this.createVersion;
+        return data;
+    }
+}
+
+/** Request body for updating a document's electronic document and/or metadata. */
+export interface IUpdateDocumentRequest {
+    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false.
+This option is only applicable when a file is provided and when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Whether to create a new version when updating the document with a file.
+When true, the document is put under version control (if not already) and a new version is created.
+When false (default), the file overwrites the existing content without creating a version.
+Only applicable when a file is provided. */
+    createVersion?: boolean;
+}
+
 export interface FileParameter {
     data: any;
     fileName: string;
+}
+
+export interface FileResponse {
+    data: Blob;
+    status: number;
+    fileName?: string;
+    headers?: { [name: string]: any };
 }
 
 function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): any {

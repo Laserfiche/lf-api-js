@@ -13,7 +13,6 @@ import {
 } from '../../index.js';
 import { CreateEntry } from '../BaseTest.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Start Copy Entry Test', () => {
   let testFolder: Entry | null = null;

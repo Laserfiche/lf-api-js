@@ -60,7 +60,8 @@ export function createClient(): IRepositoryApiClient {
       _RepositoryApiClient = RepositoryApiClient.createFromAccessKey(
         testServicePrincipalKey,
         OAuthAccessKey,
-        'repository.ReadWrite'
+        'repository.ReadWrite',
+        baseUrl || undefined
       );
     } else if (authorizationType === authType.APIServerUsernamePassword) {
       if (!repositoryId || !username || !password || !baseUrl)

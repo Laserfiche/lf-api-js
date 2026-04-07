@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('List Entries Integration Tests', () => {
   let entryId: number = 1;

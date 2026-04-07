@@ -3,7 +3,6 @@
 import { repositoryId } from '../TestHelper.js';
 import { ListDynamicFieldValuesRequest, TemplateDefinitionCollectionResponse } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Dynamic Fields Integration Tests', () => {
   let entryId: number = 1;
