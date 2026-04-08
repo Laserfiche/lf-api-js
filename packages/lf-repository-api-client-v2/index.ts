@@ -1198,7 +1198,7 @@ export interface IEntriesClient {
      * @param args.request (optional) 
      * @returns Document was created successfully. Returns created entry.
      */
-    importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined }): Promise<Entry>;
+    importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: ImportEntryRequest | undefined }): Promise<Entry>;
 
     /**
      * - Export an entry.
@@ -1375,7 +1375,7 @@ export interface IEntriesClient {
      * @param args.request (optional) 
      * @returns Successfully updated the document. Returned the updated entry.
      */
-    updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: UpdateDocumentRequest | undefined }): Promise<Entry>;
+    updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: UpdateDocumentRequest | undefined, overwriteContent?: boolean | undefined }): Promise<Entry>;
 
     /**
      * - Returns the electronic document content as a binary stream.
@@ -2750,8 +2750,8 @@ export class EntriesClient implements IEntriesClient {
      * @param args.request (optional) 
      * @returns Document was created successfully. Returns created entry.
      */
-    importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, culture, file, request } = args;
+    importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: ImportEntryRequest | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, culture, file, imageFiles, request } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Folder/Import?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -2772,6 +2772,11 @@ export class EntriesClient implements IEntriesClient {
             throw new Error("The parameter 'request' cannot be null.");
         else
             content_.append("request", JSON.stringify(request));
+        if (imageFiles !== undefined && imageFiles !== null) {
+            for (const imageFile of imageFiles) {
+                content_.append("imageFiles", imageFile.data, imageFile.fileName ? imageFile.fileName : "imageFile");
+            }
+        }
 
         let options_: RequestInit = {
             body: content_,
@@ -4064,8 +4069,8 @@ export class EntriesClient implements IEntriesClient {
      * @param args.request (optional) 
      * @returns Successfully updated the document. Returned the updated entry.
      */
-    updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: UpdateDocumentRequest | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, culture, file, request } = args;
+    updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: UpdateDocumentRequest | undefined, overwriteContent?: boolean | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, culture, file, imageFiles, request, overwriteContent } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -4073,19 +4078,22 @@ export class EntriesClient implements IEntriesClient {
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (overwriteContent !== undefined && overwriteContent !== null)
+            url_ += "overwriteContent=" + encodeURIComponent("" + overwriteContent) + "&";
         if (culture !== undefined && culture !== null)
             url_ += "culture=" + encodeURIComponent("" + culture) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file === null || file === undefined)
-            throw new Error("The parameter 'file' cannot be null.");
-        else
+        if (file !== undefined && file !== null)
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
-        if (request === null || request === undefined)
-            throw new Error("The parameter 'request' cannot be null.");
-        else
+        if (request !== undefined && request !== null)
             content_.append("request", JSON.stringify(request));
+        if (imageFiles !== undefined && imageFiles !== null) {
+            for (const imageFile of imageFiles) {
+                content_.append("imageFiles", imageFile.data, imageFile.fileName ? imageFile.fileName : "imageFile");
+            }
+        }
 
         let options_: RequestInit = {
             body: content_,
@@ -14764,9 +14772,9 @@ export class ImportEntryRequest implements IImportEntryRequest {
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
     volumeName?: string | undefined;
+    /** Whether to generate text (OCR) for image pages added via imageFiles after import. The default value is false. */
+    generateImagePagesText?: boolean;
 
-    
-    
     constructor(data?: IImportEntryRequest) {
         if (data) {
             for (var property in data) {
@@ -14788,6 +14796,7 @@ export class ImportEntryRequest implements IImportEntryRequest {
             this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
             this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
             this.volumeName = _data["volumeName"];
+            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : false;
         }
     }
 
@@ -14806,6 +14815,7 @@ export class ImportEntryRequest implements IImportEntryRequest {
         data["importAsElectronicDocument"] = this.importAsElectronicDocument;
         data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
         data["volumeName"] = this.volumeName;
+        data["generateImagePagesText"] = this.generateImagePagesText;
         return data;
     }
 }
@@ -14824,6 +14834,8 @@ export interface IImportEntryRequest {
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
     volumeName?: string | undefined;
+    /** Whether to generate text (OCR) for image pages added via imageFiles after import. The default value is false. */
+    generateImagePagesText?: boolean;
 }
 
 /** Request body for updating a document's electronic document and/or metadata. */
@@ -14840,9 +14852,9 @@ When true, the document is put under version control (if not already) and a new 
 When false (default), the file overwrites the existing content without creating a version.
 Only applicable when a file is provided. */
     createVersion?: boolean;
+    /** Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is false. */
+    generateImagePagesText?: boolean;
 
-    
-    
     constructor(data?: IUpdateDocumentRequest) {
         if (data) {
             for (var property in data) {
@@ -14862,6 +14874,7 @@ Only applicable when a file is provided. */
             this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
             this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
             this.createVersion = _data["createVersion"] !== undefined ? _data["createVersion"] : false;
+            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : false;
         }
     }
 
@@ -14878,6 +14891,7 @@ Only applicable when a file is provided. */
         data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
         data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
         data["createVersion"] = this.createVersion;
+        data["generateImagePagesText"] = this.generateImagePagesText;
         return data;
     }
 }
@@ -14896,6 +14910,8 @@ When true, the document is put under version control (if not already) and a new 
 When false (default), the file overwrites the existing content without creating a version.
 Only applicable when a file is provided. */
     createVersion?: boolean;
+    /** Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is false. */
+    generateImagePagesText?: boolean;
 }
 
 export interface FileParameter {

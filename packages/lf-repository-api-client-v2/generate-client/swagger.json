@@ -1921,7 +1921,7 @@
         "tags": [
           "Entries"
         ],
-        "summary": "- Import a new document in the specified folder, and optionally assigns metadata.\n- The import may fail if the file is greater than 100 MB or time out if it takes longer than 60 seconds. These values are subject to change at anytime. Use the long operation asynchronous import if you run into these restrictions.\n- Required OAuth scope: repository.Write",
+        "summary": "- Import a new document in the specified folder, and optionally assigns metadata.\n- Optional imageFiles: up to 10 image files (TIFF, JPG, PNG) appended as pages after import. Total size must not exceed 100 MB.\n- Optional generateImagePagesText in request body: when true, triggers OCR for image pages added via imageFiles.\n- The import may fail if the file is greater than 100 MB or time out if it takes longer than 60 seconds. These values are subject to change at anytime. Use the long operation asynchronous import if you run into these restrictions.\n- Required OAuth scope: repository.Write",
         "operationId": "ImportEntry",
         "parameters": [
           {
@@ -1971,6 +1971,14 @@
                     "type": "string",
                     "description": "The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.",
                     "format": "binary"
+                  },
+                  "imageFiles": {
+                    "type": "array",
+                    "description": "Optional image files (TIFF, JPG, PNG) to append as pages after import. Maximum 10 files, 100 MB aggregate.",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
                   },
                   "request": {
                     "$ref": "#/components/schemas/ImportEntryRequest"
@@ -3741,7 +3749,7 @@
         "tags": [
           "Entries"
         ],
-        "summary": "- Update the electronic document and/or metadata of the specified document entry.\n- At least one of file or metadata must be provided.\n- If a file is provided, it writes or replaces the electronic document component. The file may fail if it is greater than 100 MB. This value is subject to change at any time.\n- If metadata is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.\n- The optional createVersion parameter (default false) controls whether a new version is created when a file is provided. When true, the document is put under version control (if not already) and a new version is created.\n- Required OAuth scope: repository.Write",
+        "summary": "- Update the electronic document, image pages, and/or metadata of the specified document entry.\n- At least one of file, imageFiles, or metadata must be provided.\n- If a non-zero file is provided, it replaces the electronic document. A zero-length file deletes the edoc.\n- Optional imageFiles: up to 10 image files (TIFF, JPG, PNG) appended as pages. Total size must not exceed 100 MB.\n- Optional overwriteContent query parameter (default false): when true, metadata is replaced and existing pages are deleted before imageFiles are appended.\n- Optional generateImagePagesText in request body: when true, triggers OCR for image pages.\n- Required OAuth scope: repository.Write",
         "operationId": "UpdateDocument",
         "parameters": [
           {
@@ -3766,6 +3774,16 @@
             "x-position": 2
           },
           {
+            "name": "overwriteContent",
+            "in": "query",
+            "description": "When false (default), metadata is additive and imageFiles are appended. When true, metadata replaces existing values and existing pages are deleted before imageFiles are appended.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "x-position": 3
+          },
+          {
             "name": "culture",
             "in": "query",
             "description": "An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.",
@@ -3774,7 +3792,7 @@
               "default": "",
               "nullable": true
             },
-            "x-position": 3
+            "x-position": 4
           }
         ],
         "requestBody": {
@@ -3785,8 +3803,16 @@
                 "properties": {
                   "file": {
                     "type": "string",
-                    "description": "The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.",
+                    "description": "The electronic document file. A non-zero file replaces the edoc. A zero-length file deletes the edoc.",
                     "format": "binary"
+                  },
+                  "imageFiles": {
+                    "type": "array",
+                    "description": "Optional image files (TIFF, JPG, PNG) to append as pages. Maximum 10 files, 100 MB aggregate.",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
                   },
                   "request": {
                     "$ref": "#/components/schemas/UpdateDocumentRequest"
@@ -12581,6 +12607,11 @@
             "type": "string",
             "description": "The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud.",
             "nullable": true
+          },
+          "generateImagePagesText": {
+            "type": "boolean",
+            "description": "Whether to generate text (OCR) for image pages added via imageFiles after import. The default value is false.",
+            "default": false
           }
         }
       },
@@ -12615,6 +12646,11 @@
           "createVersion": {
             "type": "boolean",
             "description": "Whether to create a new version when updating the document with a file.\nWhen true, the document is put under version control (if not already) and a new version is created.\nWhen false (default), the file overwrites the existing content without creating a version.\nOnly applicable when a file is provided.",
+            "default": false
+          },
+          "generateImagePagesText": {
+            "type": "boolean",
+            "description": "Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is false.",
             "default": false
           }
         }
