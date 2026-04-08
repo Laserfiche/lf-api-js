@@ -1189,12 +1189,15 @@ export interface IEntriesClient {
 
     /**
      * - Import a new document in the specified folder, and optionally assigns metadata.
+    - Optional imageFiles: up to 10 image files appended as pages after import. Total size must not exceed 100 MB.
+    - Optional generateImagePagesText in request body: when true, triggers OCR for image pages added via imageFiles.
     - The import may fail if the file is greater than 100 MB or time out if it takes longer than 60 seconds. These values are subject to change at anytime. Use the long operation asynchronous import if you run into these restrictions.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.
+     * @param args.imageFiles (optional) Optional image files to append as pages after import. Maximum 10 files, 100 MB aggregate.
      * @param args.request (optional) 
      * @returns Document was created successfully. Returns created entry.
      */
@@ -1362,20 +1365,23 @@ export interface IEntriesClient {
     copyEntry(args: { repositoryId: string, entryId: number, request: CopyEntryRequest, culture?: string | null | undefined }): Promise<Entry>;
 
     /**
-     * - Update the electronic document and/or metadata of the specified document entry.
-    - At least one of file or metadata must be provided.
-    - If a file is provided, it writes or replaces the electronic document component. The file may fail if it is greater than 100 MB. This value is subject to change at any time.
-    - If metadata is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
-    - The optional createVersion parameter (default false) controls whether a new version is created when a file is provided. When true, the document is put under version control (if not already) and a new version is created.
+     * - Update the electronic document, image pages, and/or metadata of the specified document entry.
+    - At least one of file, imageFiles, or metadata must be provided.
+    - If a non-zero file is provided, it replaces the electronic document. A zero-length file deletes the edoc.
+    - Optional imageFiles: up to 10 image files appended as pages. Total size must not exceed 100 MB.
+    - Optional overwriteContent query parameter (default false): when true, metadata is replaced and existing pages are deleted before imageFiles are appended.
+    - Optional generateImagePagesText in request body: when true, triggers OCR for image pages.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.overwriteContent (optional) When false (default), metadata is additive and imageFiles are appended. When true, metadata replaces existing values and existing pages are deleted before imageFiles are appended.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @param args.file (optional) The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.
+     * @param args.file (optional) The electronic document file. A non-zero file replaces the edoc. A zero-length file deletes the edoc.
+     * @param args.imageFiles (optional) Optional image files to append as pages. Maximum 10 files, 100 MB aggregate.
      * @param args.request (optional) 
      * @returns Successfully updated the document. Returned the updated entry.
      */
-    updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: UpdateDocumentRequest | undefined, overwriteContent?: boolean | undefined }): Promise<Entry>;
+    updateDocument(args: { repositoryId: string, entryId: number, overwriteContent?: boolean | undefined, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: UpdateDocumentRequest | undefined }): Promise<Entry>;
 
     /**
      * - Returns the electronic document content as a binary stream.
@@ -1427,7 +1433,7 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.pageRange (optional) The pages to retrieve information for. Comma-separated non-overlapping single values or ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
+     * @param args.pageRange (optional) The pages to retrieve information for. If not specified, all pages are returned.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
@@ -1436,30 +1442,30 @@ export interface IEntriesClient {
     listPageInfos(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]>;
 
     /**
-     * - Appends a new image page to the end of the specified document.
-    - The image file should be a supported image format (TIFF, JPG, PNG).
+     * - Appends new image pages to the end of the specified document.
+    - Provide image files in the imageFiles form field. Maximum 10 files, 100 MB aggregate size.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
-     * @returns Successfully appended an image page to the specified document. Returned the updated entry.
+     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
+     * @returns Successfully appended image pages to the specified document. Returned the updated entry.
      */
-    appendImagePage(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry>;
+    appendImagePage(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
 
     /**
-     * - Inserts a new image page at the specified position in the document.
-    - The image file should be a supported image format (TIFF, JPG, PNG).
+     * - Inserts new image pages at the specified position in the document.
+    - Provide image files in the imageFiles form field. Maximum 10 files, 100 MB aggregate size.
     - pageNumber is 1-based. Existing pages at and after this position are shifted down.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageNumber (optional) The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
-     * @returns Successfully inserted an image page into the specified document at the given page number. Returned the updated entry.
+     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
+     * @returns Successfully inserted image pages into the specified document. Returned the updated entry.
      */
-    insertImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry>;
+    insertImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
 
     /**
      * - Inserts a new text page at the specified position in the document.
@@ -1476,7 +1482,7 @@ export interface IEntriesClient {
 
     /**
      * - Replaces the image content of the specified page in the document.
-    - The image file should be a supported image format (TIFF, JPG, PNG).
+    - The image file should be a supported image format.
     - pageNumber is 1-based.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
@@ -2741,12 +2747,15 @@ export class EntriesClient implements IEntriesClient {
 
     /**
      * - Import a new document in the specified folder, and optionally assigns metadata.
+    - Optional imageFiles: up to 10 image files appended as pages after import. Total size must not exceed 100 MB.
+    - Optional generateImagePagesText in request body: when true, triggers OCR for image pages added via imageFiles.
     - The import may fail if the file is greater than 100 MB or time out if it takes longer than 60 seconds. These values are subject to change at anytime. Use the long operation asynchronous import if you run into these restrictions.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.
+     * @param args.imageFiles (optional) Optional image files to append as pages after import. Maximum 10 files, 100 MB aggregate.
      * @param args.request (optional) 
      * @returns Document was created successfully. Returns created entry.
      */
@@ -2768,15 +2777,12 @@ export class EntriesClient implements IEntriesClient {
             throw new Error("The parameter 'file' cannot be null.");
         else
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
+        if (imageFiles !== null && imageFiles !== undefined && imageFiles.length > 0)
+            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
         if (request === null || request === undefined)
             throw new Error("The parameter 'request' cannot be null.");
         else
             content_.append("request", JSON.stringify(request));
-        if (imageFiles !== undefined && imageFiles !== null) {
-            for (const imageFile of imageFiles) {
-                content_.append("imageFiles", imageFile.data, imageFile.fileName ? imageFile.fileName : "imageFile");
-            }
-        }
 
         let options_: RequestInit = {
             body: content_,
@@ -4056,21 +4062,24 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Update the electronic document and/or metadata of the specified document entry.
-    - At least one of file or metadata must be provided.
-    - If a file is provided, it writes or replaces the electronic document component. The file may fail if it is greater than 100 MB. This value is subject to change at any time.
-    - If metadata is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
-    - The optional createVersion parameter (default false) controls whether a new version is created when a file is provided. When true, the document is put under version control (if not already) and a new version is created.
+     * - Update the electronic document, image pages, and/or metadata of the specified document entry.
+    - At least one of file, imageFiles, or metadata must be provided.
+    - If a non-zero file is provided, it replaces the electronic document. A zero-length file deletes the edoc.
+    - Optional imageFiles: up to 10 image files appended as pages. Total size must not exceed 100 MB.
+    - Optional overwriteContent query parameter (default false): when true, metadata is replaced and existing pages are deleted before imageFiles are appended.
+    - Optional generateImagePagesText in request body: when true, triggers OCR for image pages.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.overwriteContent (optional) When false (default), metadata is additive and imageFiles are appended. When true, metadata replaces existing values and existing pages are deleted before imageFiles are appended.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @param args.file (optional) The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.
+     * @param args.file (optional) The electronic document file. A non-zero file replaces the edoc. A zero-length file deletes the edoc.
+     * @param args.imageFiles (optional) Optional image files to append as pages. Maximum 10 files, 100 MB aggregate.
      * @param args.request (optional) 
      * @returns Successfully updated the document. Returned the updated entry.
      */
-    updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: UpdateDocumentRequest | undefined, overwriteContent?: boolean | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, culture, file, imageFiles, request, overwriteContent } = args;
+    updateDocument(args: { repositoryId: string, entryId: number, overwriteContent?: boolean | undefined, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: UpdateDocumentRequest | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, overwriteContent, culture, file, imageFiles, request } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -4078,22 +4087,25 @@ export class EntriesClient implements IEntriesClient {
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (overwriteContent !== undefined && overwriteContent !== null)
+        if (overwriteContent === null)
+            throw new Error("The parameter 'overwriteContent' cannot be null.");
+        else if (overwriteContent !== undefined)
             url_ += "overwriteContent=" + encodeURIComponent("" + overwriteContent) + "&";
         if (culture !== undefined && culture !== null)
             url_ += "culture=" + encodeURIComponent("" + culture) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file !== undefined && file !== null)
+        if (file === null || file === undefined)
+            throw new Error("The parameter 'file' cannot be null.");
+        else
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
-        if (request !== undefined && request !== null)
+        if (imageFiles !== null && imageFiles !== undefined && imageFiles.length > 0)
+            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
+        if (request === null || request === undefined)
+            throw new Error("The parameter 'request' cannot be null.");
+        else
             content_.append("request", JSON.stringify(request));
-        if (imageFiles !== undefined && imageFiles !== null) {
-            for (const imageFile of imageFiles) {
-                content_.append("imageFiles", imageFile.data, imageFile.fileName ? imageFile.fileName : "imageFile");
-            }
-        }
 
         let options_: RequestInit = {
             body: content_,
@@ -4561,7 +4573,7 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.pageRange (optional) The pages to retrieve information for.
+     * @param args.pageRange (optional) The pages to retrieve information for. If not specified, all pages are returned.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
@@ -4661,17 +4673,17 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Appends a new image page to the end of the specified document.
-    - The image file should be a supported image format (TIFF, JPG, PNG).
+     * - Appends new image pages to the end of the specified document.
+    - Provide image files in the imageFiles form field. Maximum 10 files, 100 MB aggregate size.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
-     * @returns Successfully appended an image page to the specified document. Returned the updated entry.
+     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
+     * @returns Successfully appended image pages to the specified document. Returned the updated entry.
      */
-    appendImagePage(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, generateText, imageFile } = args;
+    appendImagePage(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, generateText, imageFiles } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Append?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -4686,10 +4698,10 @@ export class EntriesClient implements IEntriesClient {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (imageFile === null || imageFile === undefined)
-            throw new Error("The parameter 'imageFile' cannot be null.");
+        if (imageFiles === null || imageFiles === undefined)
+            throw new Error("The parameter 'imageFiles' cannot be null.");
         else
-            content_.append("imageFile", imageFile.data, imageFile.fileName ? imageFile.fileName : "imageFile");
+            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
 
         let options_: RequestInit = {
             body: content_,
@@ -4765,19 +4777,19 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Inserts a new image page at the specified position in the document.
-    - The image file should be a supported image format (TIFF, JPG, PNG).
+     * - Inserts new image pages at the specified position in the document.
+    - Provide image files in the imageFiles form field. Maximum 10 files, 100 MB aggregate size.
     - pageNumber is 1-based. Existing pages at and after this position are shifted down.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageNumber (optional) The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
-     * @returns Successfully inserted an image page into the specified document at the given page number. Returned the updated entry.
+     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
+     * @returns Successfully inserted image pages into the specified document. Returned the updated entry.
      */
-    insertImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, pageNumber, generateText, imageFile } = args;
+    insertImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, pageNumber, generateText, imageFiles } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Insert?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -4796,10 +4808,10 @@ export class EntriesClient implements IEntriesClient {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (imageFile === null || imageFile === undefined)
-            throw new Error("The parameter 'imageFile' cannot be null.");
+        if (imageFiles === null || imageFiles === undefined)
+            throw new Error("The parameter 'imageFiles' cannot be null.");
         else
-            content_.append("imageFile", imageFile.data, imageFile.fileName ? imageFile.fileName : "imageFile");
+            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
 
         let options_: RequestInit = {
             body: content_,
@@ -4978,7 +4990,7 @@ export class EntriesClient implements IEntriesClient {
 
     /**
      * - Replaces the image content of the specified page in the document.
-    - The image file should be a supported image format (TIFF, JPG, PNG).
+    - The image file should be a supported image format.
     - pageNumber is 1-based.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
@@ -12442,8 +12454,8 @@ export class CopyPagesRequest implements ICopyPagesRequest {
     /** The 1-based page number in the destination document. Pages will be inserted before this position. */
     destinationPageNumber!: number;
 
-
-
+    
+    
     constructor(data?: ICopyPagesRequest) {
         if (data) {
             for (var property in data) {
@@ -14775,6 +14787,8 @@ export class ImportEntryRequest implements IImportEntryRequest {
     /** Whether to generate text (OCR) for image pages added via imageFiles after import. The default value is false. */
     generateImagePagesText?: boolean;
 
+    
+    
     constructor(data?: IImportEntryRequest) {
         if (data) {
             for (var property in data) {
@@ -14785,6 +14799,7 @@ export class ImportEntryRequest implements IImportEntryRequest {
         if (!data) {
             this.autoRename = false;
             this.importAsElectronicDocument = false;
+            this.generateImagePagesText = false;
         }
     }
 
@@ -14855,6 +14870,8 @@ Only applicable when a file is provided. */
     /** Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is false. */
     generateImagePagesText?: boolean;
 
+    
+    
     constructor(data?: IUpdateDocumentRequest) {
         if (data) {
             for (var property in data) {
@@ -14865,6 +14882,7 @@ Only applicable when a file is provided. */
         if (!data) {
             this.importAsElectronicDocument = false;
             this.createVersion = false;
+            this.generateImagePagesText = false;
         }
     }
 

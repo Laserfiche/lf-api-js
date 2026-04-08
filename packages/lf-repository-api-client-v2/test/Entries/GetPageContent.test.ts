@@ -65,7 +65,7 @@ describe('Get Page Content Integration Tests', () => {
     await _RepositoryApiClient.entriesClient.appendImagePage({
       repositoryId,
       entryId,
-      imageFile,
+      imageFiles: [imageFile],
     });
 
     return entryId;
