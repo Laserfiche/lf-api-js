@@ -1442,43 +1442,21 @@ export interface IEntriesClient {
     listPageInfos(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]>;
 
     /**
-     * - Appends new image pages to the end of the specified document.
-    - Provide image files in the imageFiles form field. Maximum 10 files, 100 MB aggregate size.
+     * - Creates new pages in the specified document by appending or inserting image files and/or text.
+    - Provide image files in the imageFiles form field and/or text in the request JSON. Maximum 10 files, 100 MB aggregate size.
+    - pageNumber is 1-based. If specified, pages are inserted at that position; otherwise appended.
+    - count creates the specified number of blank pages.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
      * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
-     * @returns Successfully appended image pages to the specified document. Returned the updated entry.
-     */
-    appendImagePage(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
-
-    /**
-     * - Inserts new image pages at the specified position in the document.
-    - Provide image files in the imageFiles form field. Maximum 10 files, 100 MB aggregate size.
-    - pageNumber is 1-based. Existing pages at and after this position are shifted down.
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.pageNumber (optional) The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.
+     * @param args.request (optional) The request body containing optional text content.
+     * @param args.pageNumber (optional) The 1-based page number at which to insert. Existing pages at and after this position are shifted.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
-     * @returns Successfully inserted image pages into the specified document. Returned the updated entry.
+     * @param args.count (optional) The number of blank pages to create.
+     * @returns Successfully created pages in the specified document. Returned the updated entry.
      */
-    insertImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
-
-    /**
-     * - Inserts a new text page at the specified position in the document.
-    - Provide the text content in the request body.
-    - pageNumber is 1-based. Existing pages at and after this position are shifted down.
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.request The request body containing the text content.
-     * @param args.pageNumber (optional) The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.
-     * @returns Successfully inserted a text page into the specified document at the given page number. Returned the updated entry.
-     */
-    insertTextPage(args: { repositoryId: string, entryId: number, request: AppendTextPageRequest, pageNumber?: number | undefined }): Promise<Entry>;
+    createPages(args: { repositoryId: string, entryId: number, imageFiles?: FileParameter[] | undefined, request?: CreatePagesRequest | undefined, pageNumber?: number | undefined, generateText?: boolean | undefined, count?: number | undefined }): Promise<Entry>;
 
     /**
      * - Replaces the image content of the specified page in the document.
@@ -1487,12 +1465,12 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.pageNumber (optional) The 1-based page number of the page to replace.
+     * @param args.pageNumber The 1-based page number of the page to replace.
+     * @param args.imageFile The image file to upload.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
      * @returns Successfully replaced the image content of the specified page. Returned the updated entry.
      */
-    replaceImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry>;
+    writePageImage(args: { repositoryId: string, entryId: number, pageNumber: number, imageFile: FileParameter, generateText?: boolean | undefined }): Promise<Entry>;
 
     /**
      * - Replaces the text content of the specified page in the document.
@@ -1500,11 +1478,11 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to replace.
      * @param args.request The request body containing the replacement text content.
-     * @param args.pageNumber (optional) The 1-based page number of the page to replace.
      * @returns Successfully replaced the text content of the specified page. Returned the updated entry.
      */
-    replaceTextPage(args: { repositoryId: string, entryId: number, request: ReplaceTextPageRequest, pageNumber?: number | undefined }): Promise<Entry>;
+    writePageText(args: { repositoryId: string, entryId: number, pageNumber: number, request: WritePageTextRequest }): Promise<Entry>;
 
     /**
      * - Moves the specified pages within the same document to a new position.
@@ -1543,7 +1521,7 @@ export interface IEntriesClient {
      * @param args.pageNumber (optional) The 1-based page number of the page to rotate.
      * @returns Successfully rotated the image page. Returned the updated entry.
      */
-    rotateImagePage(args: { repositoryId: string, entryId: number, request: RotateImagePageRequest, pageNumber?: number | undefined }): Promise<Entry>;
+    rotateImagePage(args: { repositoryId: string, entryId: number, pageNumber: number, request: RotateImagePageRequest }): Promise<Entry>;
 
     /**
      * - Returns the raw image data for the specified page as a binary stream.
@@ -1579,17 +1557,6 @@ export interface IEntriesClient {
      * @returns Successfully triggered text generation for the document. Returned the updated entry.
      */
     generateText(args: { repositoryId: string, entryId: number }): Promise<Entry2>;
-
-    /**
-     * - Appends a new text page to the end of the specified document.
-    - Provide the text content in the request body.
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.request The request body containing the text content.
-     * @returns Successfully appended a text page to the specified document. Returned the updated entry.
-     */
-    appendTextPage(args: { repositoryId: string, entryId: number, request: AppendTextPageRequest }): Promise<Entry>;
 
     /**
      * - Returns dynamic field logic values with the current values of the fields in the template.
@@ -4673,124 +4640,23 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Appends new image pages to the end of the specified document.
-    - Provide image files in the imageFiles form field. Maximum 10 files, 100 MB aggregate size.
+     * - Creates new pages in the specified document by appending or inserting image files and/or text.
+    - Provide image files in the imageFiles form field and/or text in the request JSON. Maximum 10 files, 100 MB aggregate size.
+    - pageNumber is 1-based. If specified, pages are inserted at that position; otherwise appended.
+    - count creates the specified number of blank pages.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
      * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
-     * @returns Successfully appended image pages to the specified document. Returned the updated entry.
-     */
-    appendImagePage(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, generateText, imageFiles } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Append?";
-        if (repositoryId === undefined || repositoryId === null)
-            throw new Error("The parameter 'repositoryId' must be defined.");
-        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
-        if (entryId === undefined || entryId === null)
-            throw new Error("The parameter 'entryId' must be defined.");
-        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (generateText === null)
-            throw new Error("The parameter 'generateText' cannot be null.");
-        else if (generateText !== undefined)
-            url_ += "generateText=" + encodeURIComponent("" + generateText) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = new FormData();
-        if (imageFiles === null || imageFiles === undefined)
-            throw new Error("The parameter 'imageFiles' cannot be null.");
-        else
-            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAppendImagePage(_response);
-        });
-    }
-
-    protected processAppendImagePage(response: Response): Promise<Entry> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Entry.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
-            });
-        } else if (status === 401) {
-            return response.text().then((_responseText) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
-            });
-        } else if (status === 403) {
-            return response.text().then((_responseText) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
-            });
-        } else if (status === 423) {
-            return response.text().then((_responseText) => {
-            let result423: any = null;
-            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked", status, _responseText, _headers, result423);
-            });
-        } else if (status === 429) {
-            return response.text().then((_responseText) => {
-            let result429: any = null;
-            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Entry>(null as any);
-    }
-
-    /**
-     * - Inserts new image pages at the specified position in the document.
-    - Provide image files in the imageFiles form field. Maximum 10 files, 100 MB aggregate size.
-    - pageNumber is 1-based. Existing pages at and after this position are shifted down.
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.pageNumber (optional) The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.
+     * @param args.request (optional) The request body containing optional text content.
+     * @param args.pageNumber (optional) The 1-based page number at which to insert. Existing pages at and after this position are shifted.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
-     * @returns Successfully inserted image pages into the specified document. Returned the updated entry.
+     * @param args.count (optional) The number of blank pages to create.
+     * @returns Successfully created pages in the specified document. Returned the updated entry.
      */
-    insertImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, pageNumber, generateText, imageFiles } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Insert?";
+    createPages(args: { repositoryId: string, entryId: number, imageFiles?: FileParameter[] | undefined, request?: CreatePagesRequest | undefined, pageNumber?: number | undefined, generateText?: boolean | undefined, count?: number | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, imageFiles, request, pageNumber, generateText, count } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Create?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
@@ -4805,187 +4671,41 @@ export class EntriesClient implements IEntriesClient {
             throw new Error("The parameter 'generateText' cannot be null.");
         else if (generateText !== undefined)
             url_ += "generateText=" + encodeURIComponent("" + generateText) + "&";
+        if (count === null)
+            throw new Error("The parameter 'count' cannot be null.");
+        else if (count !== undefined)
+            url_ += "count=" + encodeURIComponent("" + count) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = new FormData();
-        if (imageFiles === null || imageFiles === undefined)
-            throw new Error("The parameter 'imageFiles' cannot be null.");
-        else
-            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
+        const hasFiles = imageFiles !== null && imageFiles !== undefined && imageFiles.length > 0;
+        const hasRequest = request !== null && request !== undefined;
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
+        let options_: RequestInit;
+        if (hasFiles || hasRequest) {
+            const content_ = new FormData();
+            if (hasFiles)
+                imageFiles!.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
+            if (hasRequest)
+                content_.append("request", new Blob([JSON.stringify(request)], { type: "application/json" }));
+            options_ = {
+                body: content_,
+                method: "POST",
+                headers: {
+                    "Accept": "application/json"
+                }
+            };
+        } else {
+            options_ = {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json"
+                }
+            };
+        }
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processInsertImagePage(_response);
+            return this.processPageOperationResponse(_response);
         });
-    }
-
-    protected processInsertImagePage(response: Response): Promise<Entry> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Entry.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
-            });
-        } else if (status === 401) {
-            return response.text().then((_responseText) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
-            });
-        } else if (status === 403) {
-            return response.text().then((_responseText) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
-            });
-        } else if (status === 423) {
-            return response.text().then((_responseText) => {
-            let result423: any = null;
-            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked", status, _responseText, _headers, result423);
-            });
-        } else if (status === 429) {
-            return response.text().then((_responseText) => {
-            let result429: any = null;
-            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Entry>(null as any);
-    }
-
-    /**
-     * - Inserts a new text page at the specified position in the document.
-    - Provide the text content in the request body.
-    - pageNumber is 1-based. Existing pages at and after this position are shifted down.
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.request The request body containing the text content.
-     * @param args.pageNumber (optional) The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.
-     * @returns Successfully inserted a text page into the specified document at the given page number. Returned the updated entry.
-     */
-    insertTextPage(args: { repositoryId: string, entryId: number, request: AppendTextPageRequest, pageNumber?: number | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, request, pageNumber } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Text/Insert?";
-        if (repositoryId === undefined || repositoryId === null)
-            throw new Error("The parameter 'repositoryId' must be defined.");
-        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
-        if (entryId === undefined || entryId === null)
-            throw new Error("The parameter 'entryId' must be defined.");
-        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (pageNumber === null)
-            throw new Error("The parameter 'pageNumber' cannot be null.");
-        else if (pageNumber !== undefined)
-            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(request);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processInsertTextPage(_response);
-        });
-    }
-
-    protected processInsertTextPage(response: Response): Promise<Entry> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Entry.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
-            });
-        } else if (status === 401) {
-            return response.text().then((_responseText) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
-            });
-        } else if (status === 403) {
-            return response.text().then((_responseText) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
-            });
-        } else if (status === 423) {
-            return response.text().then((_responseText) => {
-            let result423: any = null;
-            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked", status, _responseText, _headers, result423);
-            });
-        } else if (status === 429) {
-            return response.text().then((_responseText) => {
-            let result429: any = null;
-            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Entry>(null as any);
     }
 
     /**
@@ -4995,24 +4715,23 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.pageNumber (optional) The 1-based page number of the page to replace.
+     * @param args.pageNumber The 1-based page number of the page to replace.
+     * @param args.imageFile The image file to upload.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @param args.imageFile (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
      * @returns Successfully replaced the image content of the specified page. Returned the updated entry.
      */
-    replaceImagePage(args: { repositoryId: string, entryId: number, pageNumber?: number | undefined, generateText?: boolean | undefined, imageFile?: FileParameter | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, pageNumber, generateText, imageFile } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Replace?";
+    writePageImage(args: { repositoryId: string, entryId: number, pageNumber: number, imageFile: FileParameter, generateText?: boolean | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, pageNumber, imageFile, generateText } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Image?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (pageNumber === null)
-            throw new Error("The parameter 'pageNumber' cannot be null.");
-        else if (pageNumber !== undefined)
-            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined.");
+        url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
         if (generateText === null)
             throw new Error("The parameter 'generateText' cannot be null.");
         else if (generateText !== undefined)
@@ -5027,75 +4746,15 @@ export class EntriesClient implements IEntriesClient {
 
         let options_: RequestInit = {
             body: content_,
-            method: "POST",
+            method: "PUT",
             headers: {
                 "Accept": "application/json"
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processReplaceImagePage(_response);
+            return this.processPageOperationResponse(_response);
         });
-    }
-
-    protected processReplaceImagePage(response: Response): Promise<Entry> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Entry.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
-            });
-        } else if (status === 401) {
-            return response.text().then((_responseText) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
-            });
-        } else if (status === 403) {
-            return response.text().then((_responseText) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
-            });
-        } else if (status === 423) {
-            return response.text().then((_responseText) => {
-            let result423: any = null;
-            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked", status, _responseText, _headers, result423);
-            });
-        } else if (status === 429) {
-            return response.text().then((_responseText) => {
-            let result429: any = null;
-            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Entry>(null as any);
     }
 
     /**
@@ -5104,30 +4763,29 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to replace.
      * @param args.request The request body containing the replacement text content.
-     * @param args.pageNumber (optional) The 1-based page number of the page to replace.
      * @returns Successfully replaced the text content of the specified page. Returned the updated entry.
      */
-    replaceTextPage(args: { repositoryId: string, entryId: number, request: ReplaceTextPageRequest, pageNumber?: number | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, request, pageNumber } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Text/Replace?";
+    writePageText(args: { repositoryId: string, entryId: number, pageNumber: number, request: WritePageTextRequest }): Promise<Entry> {
+        let { repositoryId, entryId, pageNumber, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Text";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (pageNumber === null)
-            throw new Error("The parameter 'pageNumber' cannot be null.");
-        else if (pageNumber !== undefined)
-            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined.");
+        url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(request);
 
         let options_: RequestInit = {
             body: content_,
-            method: "POST",
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
@@ -5135,11 +4793,11 @@ export class EntriesClient implements IEntriesClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processReplaceTextPage(_response);
+            return this.processPageOperationResponse(_response);
         });
     }
 
-    protected processReplaceTextPage(response: Response): Promise<Entry> {
+    protected processPageOperationResponse(response: Response): Promise<Entry> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -5406,20 +5064,18 @@ export class EntriesClient implements IEntriesClient {
      * @param args.pageNumber (optional) The 1-based page number of the page to rotate.
      * @returns Successfully rotated the image page. Returned the updated entry.
      */
-    rotateImagePage(args: { repositoryId: string, entryId: number, request: RotateImagePageRequest, pageNumber?: number | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, request, pageNumber } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Rotate?";
+    rotateImagePage(args: { repositoryId: string, entryId: number, pageNumber: number, request: RotateImagePageRequest }): Promise<Entry> {
+        let { repositoryId, entryId, pageNumber, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Image/Rotate";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (pageNumber === null)
-            throw new Error("The parameter 'pageNumber' cannot be null.");
-        else if (pageNumber !== undefined)
-            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined.");
+        url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
 
         const content_ = JSON.stringify(request);
 
@@ -5766,102 +5422,6 @@ export class EntriesClient implements IEntriesClient {
             });
         }
         return Promise.resolve<Entry2>(null as any);
-    }
-
-    /**
-     * - Appends a new text page to the end of the specified document.
-    - Provide the text content in the request body.
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.request The request body containing the text content.
-     * @returns Successfully appended a text page to the specified document. Returned the updated entry.
-     */
-    appendTextPage(args: { repositoryId: string, entryId: number, request: AppendTextPageRequest }): Promise<Entry> {
-        let { repositoryId, entryId, request } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Text/Append";
-        if (repositoryId === undefined || repositoryId === null)
-            throw new Error("The parameter 'repositoryId' must be defined.");
-        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
-        if (entryId === undefined || entryId === null)
-            throw new Error("The parameter 'entryId' must be defined.");
-        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(request);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAppendTextPage(_response);
-        });
-    }
-
-    protected processAppendTextPage(response: Response): Promise<Entry> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Entry.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
-            });
-        } else if (status === 401) {
-            return response.text().then((_responseText) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
-            });
-        } else if (status === 403) {
-            return response.text().then((_responseText) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
-            });
-        } else if (status === 423) {
-            return response.text().then((_responseText) => {
-            let result423: any = null;
-            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result423 = ProblemDetails.fromJS(resultData423);
-            return throwException("Entry is locked", status, _responseText, _headers, result423);
-            });
-        } else if (status === 429) {
-            return response.text().then((_responseText) => {
-            let result429: any = null;
-            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Entry>(null as any);
     }
 
     /**
@@ -12400,6 +11960,86 @@ export interface IReplaceTextPageRequest {
     text: string;
 }
 
+export class CreatePagesRequest implements ICreatePagesRequest {
+    /** The text content for the new page. */
+    text?: string | undefined;
+
+
+
+    constructor(data?: ICreatePagesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): CreatePagesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePagesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface ICreatePagesRequest {
+    /** The text content for the new page. */
+    text?: string | undefined;
+}
+
+export class WritePageTextRequest implements IWritePageTextRequest {
+    /** The replacement text content for the page. */
+    text!: string;
+
+
+
+    constructor(data?: IWritePageTextRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): WritePageTextRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new WritePageTextRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface IWritePageTextRequest {
+    /** The replacement text content for the page. */
+    text: string;
+}
+
 export class MovePagesRequest implements IMovePagesRequest {
     /** The page range to move (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
     pageRange!: string;
@@ -14867,11 +14507,11 @@ When true, the document is put under version control (if not already) and a new 
 When false (default), the file overwrites the existing content without creating a version.
 Only applicable when a file is provided. */
     createVersion?: boolean;
-    /** Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is false. */
+    /** Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is true. */
     generateImagePagesText?: boolean;
 
-    
-    
+
+
     constructor(data?: IUpdateDocumentRequest) {
         if (data) {
             for (var property in data) {
@@ -14882,7 +14522,7 @@ Only applicable when a file is provided. */
         if (!data) {
             this.importAsElectronicDocument = false;
             this.createVersion = false;
-            this.generateImagePagesText = false;
+            this.generateImagePagesText = true;
         }
     }
 
@@ -14892,7 +14532,7 @@ Only applicable when a file is provided. */
             this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
             this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
             this.createVersion = _data["createVersion"] !== undefined ? _data["createVersion"] : false;
-            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : false;
+            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
         }
     }
 
@@ -14928,7 +14568,7 @@ When true, the document is put under version control (if not already) and a new 
 When false (default), the file overwrites the existing content without creating a version.
 Only applicable when a file is provided. */
     createVersion?: boolean;
-    /** Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is false. */
+    /** Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is true. */
     generateImagePagesText?: boolean;
 }
 

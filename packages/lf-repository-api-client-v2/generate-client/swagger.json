@@ -5395,7 +5395,7 @@
         }
       }
     },
-    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Rotate": {
+    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Image/Rotate": {
       "post": {
         "tags": [
           "Entries"
@@ -5426,7 +5426,8 @@
           },
           {
             "name": "pageNumber",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "description": "The 1-based page number of the page to rotate.",
             "schema": {
               "type": "integer",
@@ -12650,8 +12651,8 @@
           },
           "generateImagePagesText": {
             "type": "boolean",
-            "description": "Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is false.",
-            "default": false
+            "description": "Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is true.",
+            "default": true
           }
         }
       }

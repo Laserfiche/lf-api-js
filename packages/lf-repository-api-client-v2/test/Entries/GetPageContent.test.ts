@@ -3,7 +3,7 @@
 import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import {
-  AppendTextPageRequest,
+  CreatePagesRequest,
   ImportEntryRequest,
   FileParameter,
   StartDeleteEntryRequest,
@@ -26,12 +26,12 @@ describe('Get Page Content Integration Tests', () => {
     });
     const entryId = entry.id!;
 
-    const appendRequest = new AppendTextPageRequest();
-    appendRequest.text = text;
-    await _RepositoryApiClient.entriesClient.appendTextPage({
+    const createPagesRequest = new CreatePagesRequest();
+    createPagesRequest.text = text;
+    await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
       entryId,
-      request: appendRequest,
+      request: createPagesRequest,
     });
 
     return entryId;
@@ -62,7 +62,7 @@ describe('Get Page Content Integration Tests', () => {
     ]);
     const imageBlob = new Blob([pngBytes], { type: 'image/png' });
     const imageFile: FileParameter = { fileName: 'test.png', data: imageBlob };
-    await _RepositoryApiClient.entriesClient.appendImagePage({
+    await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
       entryId,
       imageFiles: [imageFile],

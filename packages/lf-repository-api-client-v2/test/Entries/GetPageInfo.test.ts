@@ -3,7 +3,7 @@
 import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import {
-  AppendTextPageRequest,
+  CreatePagesRequest,
   ImportEntryRequest,
   FileParameter,
   StartDeleteEntryRequest,
@@ -27,12 +27,12 @@ describe('List Page Infos Integration Tests', () => {
     const entryId = entry.id!;
 
     for (const text of pageTexts) {
-      const appendRequest = new AppendTextPageRequest();
-      appendRequest.text = text;
-      await _RepositoryApiClient.entriesClient.appendTextPage({
+      const createPagesRequest = new CreatePagesRequest();
+      createPagesRequest.text = text;
+      await _RepositoryApiClient.entriesClient.createPages({
         repositoryId,
         entryId,
-        request: appendRequest,
+        request: createPagesRequest,
       });
     }
 

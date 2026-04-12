@@ -4,16 +4,15 @@ import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import {
   Document,
-  AppendTextPageRequest,
   ImportEntryRequest,
   FileParameter,
   StartDeleteEntryRequest,
 } from '../../index.js';
 
-describe('Insert Image Page Integration Tests', () => {
+describe('WritePageImage Integration Tests', () => {
   let createdEntryId: number = 0;
 
-  async function createDocumentWithTextPages(name: string, pageCount: number): Promise<number> {
+  async function createEmptyDocument(name: string): Promise<number> {
     const blob = new Blob([''], { type: 'text/plain' });
     const importRequest = new ImportEntryRequest();
     importRequest.name = name;
@@ -25,19 +24,7 @@ describe('Insert Image Page Integration Tests', () => {
       file,
       request: importRequest,
     });
-    const entryId = entry.id!;
-
-    for (let i = 0; i < pageCount; i++) {
-      const appendRequest = new AppendTextPageRequest();
-      appendRequest.text = `Page ${i + 1} content`;
-      await _RepositoryApiClient.entriesClient.appendTextPage({
-        repositoryId,
-        entryId,
-        request: appendRequest,
-      });
-    }
-
-    return entryId;
+    return entry.id!;
   }
 
   function createPngFileParameter(name: string): FileParameter {
@@ -65,42 +52,64 @@ describe('Insert Image Page Integration Tests', () => {
     }
   });
 
-  test('InsertImagePage single file', async () => {
-    createdEntryId = await createDocumentWithTextPages(
-      'RepositoryApiClientIntegrationTest JS InsertImagePage',
-      1
+  test('WritePageImage replaces image', async () => {
+    createdEntryId = await createEmptyDocument(
+      'RepositoryApiClientIntegrationTest JS WritePageImage'
     );
 
-    const result = await _RepositoryApiClient.entriesClient.insertImagePage({
+    // Create an image page first
+    await _RepositoryApiClient.entriesClient.createPages({
+      repositoryId,
+      entryId: createdEntryId,
+      imageFiles: [createPngFileParameter('original.png')],
+    });
+
+    // Replace the image on page 1
+    const result = await _RepositoryApiClient.entriesClient.writePageImage({
       repositoryId,
       entryId: createdEntryId,
       pageNumber: 1,
-      imageFiles: [createPngFileParameter('test.png')],
+      imageFile: createPngFileParameter('replacement.png'),
     });
 
     expect(result).not.toBeNull();
     expect(result.id).toBe(createdEntryId);
-    expect((result as Document).pageCount).toBe(2);
+    expect((result as Document).pageCount).toBe(1);
+
+    // Verify image can be retrieved
+    const imageResult = await _RepositoryApiClient.entriesClient.getPageImage({
+      repositoryId,
+      entryId: createdEntryId,
+      pageNumber: 1,
+    });
+    expect(imageResult).not.toBeNull();
+    expect(imageResult.data).toBeDefined();
+    expect(imageResult.data.size).toBeGreaterThan(0);
   });
 
-  test('InsertImagePage multiple files', async () => {
-    createdEntryId = await createDocumentWithTextPages(
-      'RepositoryApiClientIntegrationTest JS InsertImagePageMultiple',
-      2
+  test('WritePageImage with generateText', async () => {
+    createdEntryId = await createEmptyDocument(
+      'RepositoryApiClientIntegrationTest JS WritePageImage GenerateText'
     );
 
-    const result = await _RepositoryApiClient.entriesClient.insertImagePage({
+    // Create an image page first
+    await _RepositoryApiClient.entriesClient.createPages({
+      repositoryId,
+      entryId: createdEntryId,
+      imageFiles: [createPngFileParameter('original.png')],
+    });
+
+    // Replace with generateText
+    const result = await _RepositoryApiClient.entriesClient.writePageImage({
       repositoryId,
       entryId: createdEntryId,
       pageNumber: 1,
-      imageFiles: [
-        createPngFileParameter('insert1.png'),
-        createPngFileParameter('insert2.png'),
-      ],
+      imageFile: createPngFileParameter('replacement.png'),
+      generateText: true,
     });
 
     expect(result).not.toBeNull();
     expect(result.id).toBe(createdEntryId);
-    expect((result as Document).pageCount).toBe(4);
+    expect((result as Document).pageCount).toBe(1);
   });
 });
