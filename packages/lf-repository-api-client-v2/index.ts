@@ -1659,7 +1659,7 @@ export interface IEntriesClient {
      * @param args.entryId The requested document ID.
      * @returns Successfully checked in the document.
      */
-    checkInDocument(args: { repositoryId: string, entryId: number }): Promise<Entry2>;
+    checkInDocument(args: { repositoryId: string, entryId: number, request?: CheckInDocumentRequest | undefined }): Promise<Entry2>;
 
     /**
      * - Releases the check-out state without creating a new version in the version history.
@@ -6187,14 +6187,16 @@ export class EntriesClient implements IEntriesClient {
 
     /**
      * - Checks in the specified document, creating a new version in the version history.
+    - By default, the persistent lock is automatically released (unlock=true). Set unlock=false to retain the lock after check-in.
     - Returns an error if the document is not currently checked out.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.request (optional) The request body containing an optional unlock parameter.
      * @returns Successfully checked in the document.
      */
-    checkInDocument(args: { repositoryId: string, entryId: number }): Promise<Entry2> {
-        let { repositoryId, entryId } = args;
+    checkInDocument(args: { repositoryId: string, entryId: number, request?: CheckInDocumentRequest | undefined }): Promise<Entry2> {
+        let { repositoryId, entryId, request } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/CheckIn";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -6204,9 +6206,13 @@ export class EntriesClient implements IEntriesClient {
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(request);
+
         let options_: RequestInit = {
+            body: content_,
             method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -10580,13 +10586,17 @@ export class Document extends Entry implements IDocument {
     isLocked?: boolean;
     /** The account name of the persistent lock holder. Null if the document is not locked. */
     lockedBy?: string | undefined;
+    /** A boolean indicating if the document is locked by a user other than the authenticated user. */
+    isLockedByAnotherUser?: boolean;
     /** The version number of the document. 0 if the document is not under version control. */
     currentVersion?: number;
     /** The account name of the user who checked out the document. Null if the document is not checked out. */
     checkedOutBy?: string | undefined;
+    /** A boolean indicating if the document is checked out by a user other than the authenticated user. */
+    isCheckedOutByAnotherUser?: boolean;
 
-    
-    
+
+
     constructor(data?: IDocument) {
         super(data);
         if (data) {
@@ -10611,8 +10621,10 @@ export class Document extends Entry implements IDocument {
             this.isUnderVersionControl = _data["isUnderVersionControl"];
             this.isLocked = _data["isLocked"];
             this.lockedBy = _data["lockedBy"];
+            this.isLockedByAnotherUser = _data["isLockedByAnotherUser"];
             this.currentVersion = _data["currentVersion"];
             this.checkedOutBy = _data["checkedOutBy"];
+            this.isCheckedOutByAnotherUser = _data["isCheckedOutByAnotherUser"];
         }
     }
 
@@ -10635,8 +10647,10 @@ export class Document extends Entry implements IDocument {
         data["isUnderVersionControl"] = this.isUnderVersionControl;
         data["isLocked"] = this.isLocked;
         data["lockedBy"] = this.lockedBy;
+        data["isLockedByAnotherUser"] = this.isLockedByAnotherUser;
         data["currentVersion"] = this.currentVersion;
         data["checkedOutBy"] = this.checkedOutBy;
+        data["isCheckedOutByAnotherUser"] = this.isCheckedOutByAnotherUser;
         super.toJSON(data);
         return data;
     }
@@ -10664,10 +10678,14 @@ export interface IDocument extends IEntry {
     isLocked?: boolean;
     /** The account name of the persistent lock holder. Null if the document is not locked. */
     lockedBy?: string | undefined;
+    /** A boolean indicating if the document is locked by a user other than the authenticated user. */
+    isLockedByAnotherUser?: boolean;
     /** The version number of the document. 0 if the document is not under version control. */
     currentVersion?: number;
     /** The account name of the user who checked out the document. Null if the document is not checked out. */
     checkedOutBy?: string | undefined;
+    /** A boolean indicating if the document is checked out by a user other than the authenticated user. */
+    isCheckedOutByAnotherUser?: boolean;
 }
 
 /** Represents an entry shortcut in a Laserfiche repository. */
@@ -12646,13 +12664,17 @@ if there is one, in bytes. */
     isLocked?: boolean;
     /** The account name of the persistent lock holder. Null if the document is not locked. */
     lockedBy?: string | undefined;
+    /** A boolean indicating if the document is locked by a user other than the authenticated user. */
+    isLockedByAnotherUser?: boolean;
     /** The version number of the document. 0 if the document is not under version control. */
     currentVersion?: number;
     /** The account name of the user who checked out the document. Null if the document is not checked out. */
     checkedOutBy?: string | undefined;
+    /** A boolean indicating if the document is checked out by a user other than the authenticated user. */
+    isCheckedOutByAnotherUser?: boolean;
 
-    
-    
+
+
     constructor(data?: IDocument2) {
         super(data);
         if (data) {
@@ -12678,8 +12700,10 @@ if there is one, in bytes. */
             this.edoc = _data["edoc"] ? Edoc.fromJS(_data["edoc"]) : <any>undefined;
             this.isLocked = _data["isLocked"];
             this.lockedBy = _data["lockedBy"];
+            this.isLockedByAnotherUser = _data["isLockedByAnotherUser"];
             this.currentVersion = _data["currentVersion"];
             this.checkedOutBy = _data["checkedOutBy"];
+            this.isCheckedOutByAnotherUser = _data["isCheckedOutByAnotherUser"];
         }
     }
 
@@ -12703,8 +12727,10 @@ if there is one, in bytes. */
         data["edoc"] = this.edoc ? this.edoc.toJSON() : <any>undefined;
         data["isLocked"] = this.isLocked;
         data["lockedBy"] = this.lockedBy;
+        data["isLockedByAnotherUser"] = this.isLockedByAnotherUser;
         data["currentVersion"] = this.currentVersion;
         data["checkedOutBy"] = this.checkedOutBy;
+        data["isCheckedOutByAnotherUser"] = this.isCheckedOutByAnotherUser;
         super.toJSON(data);
         return data;
     }
@@ -12734,10 +12760,14 @@ if there is one, in bytes. */
     isLocked?: boolean;
     /** The account name of the persistent lock holder. Null if the document is not locked. */
     lockedBy?: string | undefined;
+    /** A boolean indicating if the document is locked by a user other than the authenticated user. */
+    isLockedByAnotherUser?: boolean;
     /** The version number of the document. 0 if the document is not under version control. */
     currentVersion?: number;
     /** The account name of the user who checked out the document. Null if the document is not checked out. */
     checkedOutBy?: string | undefined;
+    /** A boolean indicating if the document is checked out by a user other than the authenticated user. */
+    isCheckedOutByAnotherUser?: boolean;
 }
 
 export class Edoc implements IEdoc {
@@ -13185,6 +13215,51 @@ export interface ICheckOutDocumentRequest {
     lock?: boolean;
     /** An optional comment for the check-out. */
     comment?: string | undefined;
+}
+
+/** Request body for checking in a document. */
+export class CheckInDocumentRequest implements ICheckInDocumentRequest {
+    /** Whether to automatically release the persistent lock as part of the check-in. Defaults to true. */
+    unlock?: boolean;
+
+
+
+    constructor(data?: ICheckInDocumentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.unlock = true;
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.unlock = _data["unlock"] !== undefined ? _data["unlock"] : true;
+        }
+    }
+
+    static fromJS(data: any): CheckInDocumentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CheckInDocumentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["unlock"] = this.unlock;
+        return data;
+    }
+}
+
+/** Request body for checking in a document. */
+export interface ICheckInDocumentRequest {
+    /** Whether to automatically release the persistent lock as part of the check-in. Defaults to true. */
+    unlock?: boolean;
 }
 
 /** Response containing a collection of Repository. */

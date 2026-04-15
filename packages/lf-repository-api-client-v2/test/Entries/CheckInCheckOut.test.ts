@@ -3,7 +3,9 @@
 import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import {
+  CheckInDocumentRequest,
   CheckOutDocumentRequest,
+  Document,
   ImportEntryRequest,
   FileParameter,
   StartDeleteEntryRequest,
@@ -80,7 +82,21 @@ describe('Check In Check Out Integration Tests', () => {
     expect(checkOutResult).not.toBeNull();
     expect(checkOutResult.id).toBe(createdEntryId);
 
-    // Check in
+    // Verify new fields while checked out
+    const whileCheckedOut = (await _RepositoryApiClient.entriesClient.getEntry({
+      repositoryId,
+      entryId: createdEntryId,
+    })) as Document;
+    expect(whileCheckedOut.isCheckedOut).toBe(true);
+    expect(whileCheckedOut.checkedOutBy).toBeTruthy();
+    expect(whileCheckedOut.checkedOutBy!.startsWith('S-1-')).toBe(false);
+    expect(whileCheckedOut.isCheckedOutByAnotherUser).toBe(false);
+    expect(whileCheckedOut.isLocked).toBe(true);
+    expect(whileCheckedOut.lockedBy).toBeTruthy();
+    expect(whileCheckedOut.lockedBy!.startsWith('S-1-')).toBe(false);
+    expect(whileCheckedOut.isLockedByAnotherUser).toBe(false);
+
+    // Check in (default unlock=true releases lock)
     const checkInResult = await _RepositoryApiClient.entriesClient.checkInDocument({
       repositoryId,
       entryId: createdEntryId,
@@ -162,6 +178,48 @@ describe('Check In Check Out Integration Tests', () => {
 
     // Cleanup
     await _RepositoryApiClient.entriesClient.undoCheckOut({
+      repositoryId,
+      entryId: createdEntryId,
+    });
+  });
+
+  test('CheckIn with unlock=false keeps persistent lock', async () => {
+    createdEntryId = await createDocument('RepositoryApiClientIntegrationTest JS CheckInKeepLock');
+
+    await _RepositoryApiClient.entriesClient.putUnderVersionControl({
+      repositoryId,
+      entryId: createdEntryId,
+    });
+
+    const checkOutRequest = new CheckOutDocumentRequest();
+    checkOutRequest.lock = true;
+    await _RepositoryApiClient.entriesClient.checkOutDocument({
+      repositoryId,
+      entryId: createdEntryId,
+      request: checkOutRequest,
+    });
+
+    // Check in with unlock=false
+    const checkInRequest = new CheckInDocumentRequest();
+    checkInRequest.unlock = false;
+    const checkInResult = await _RepositoryApiClient.entriesClient.checkInDocument({
+      repositoryId,
+      entryId: createdEntryId,
+      request: checkInRequest,
+    });
+
+    expect(checkInResult).not.toBeNull();
+    expect(checkInResult.id).toBe(createdEntryId);
+
+    // Verify persistent lock still active
+    const lockInfo = await _RepositoryApiClient.entriesClient.getDocumentLockInfo({
+      repositoryId,
+      entryId: createdEntryId,
+    });
+    expect(lockInfo.isActive).toBe(true);
+
+    // Cleanup — unlock manually
+    await _RepositoryApiClient.entriesClient.unlockDocument({
       repositoryId,
       entryId: createdEntryId,
     });
