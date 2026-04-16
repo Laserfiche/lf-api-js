@@ -3,6 +3,9 @@
 
 import type { JestConfigWithTsJest } from 'ts-jest';
 
+const outputName =
+    process.env.APISERVER_REPOSITORY_API_BASE_URL !== undefined ? 'junit-jsdom-selfhosted.xml' : 'junit-jsdom.xml';
+
 const config: JestConfigWithTsJest = {
     preset: 'ts-jest/presets/default-esm',
     transform: {
@@ -14,6 +17,7 @@ const config: JestConfigWithTsJest = {
         ],
     },
     testEnvironment: 'jsdom',
+    reporters: ['default', ['jest-junit', { outputName }]],
     setupFiles: ['<rootDir>/../jest.setup.ts'],
     testTimeout: 200000,
     modulePathIgnorePatterns: ['PKCEUtils.unit.test.ts'],
