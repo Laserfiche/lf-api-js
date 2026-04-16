@@ -61,7 +61,7 @@ export class UsernamePasswordHandler implements HttpRequestHandler {
       if (!request.headers) {
         request.headers = {};
       }
-      (<any>request.headers)['Authorization'] = 'Bearer ' + this._accessToken;
+      (request.headers as Record<string, string>)['Authorization'] = 'Bearer ' + this._accessToken;
     }
     return {
       regionalDomain: this._baseUrl,

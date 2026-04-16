@@ -6,8 +6,7 @@ import { GetAccessTokenResponse } from '../OAuth/GetAccessTokenResponse.js';
 import * as JwtUtils from '../utils/JwtUtils.js';
 
 export class OAuthClientCustomTokenCredentialsHandler
-  implements HttpRequestHandler
-{
+  implements HttpRequestHandler {
   private _getAccessTokenAsyncFunc: () => Promise<GetAccessTokenResponse>;
   private _accessTokenInfo?: { accessToken: string; regionalDomain: string };
 
@@ -46,13 +45,17 @@ export class OAuthClientCustomTokenCredentialsHandler
           throw Error(`${resp}`);
         }
       }
-      catch (err: any) {
-        throw Error(`Invalid or missing access token: ${err.message}`);
+      catch (err: unknown) {
+        if (err instanceof Error) {
+          throw Error(`Invalid or missing access token: ${err.message}`);
+        } else {
+          throw Error(`Invalid or missing access token: ${err}`);
+        }
       }
     }
 
     if (this._accessTokenInfo) {
-      (<any>request.headers)['Authorization'] = 'Bearer ' + this._accessTokenInfo.accessToken;
+      (request.headers as Record<string, unknown>)['Authorization'] = 'Bearer ' + this._accessTokenInfo.accessToken;
 
       return {
         regionalDomain: this._accessTokenInfo.regionalDomain,

@@ -11,6 +11,9 @@ Contains the following packages:
 
 ## One time setup
 
+- Use Node 24 for local development:
+  - `nvm use` if you already have Node 24 installed
+  - `nvm install 24 && nvm use 24` if you do not
 - Run `npm install pnpm@latest-9 -g`
 - Run `pnpm install`
 
@@ -21,9 +24,8 @@ Contains the following packages:
 
 ## To build a specific library
 
-- To build all projects run `pnpm run build --filter ${name-of-library-npm-package}`
-  - Ex/ `pnpm run build --filter @laserfiche/lf-repository-api-client-js`
-- This will build the specified project and all dependent libaries (in this case `@laserfiche/lf-api-client-core`)
+- To build a specific projects run `pnpm run build --filter ${name-of-library-npm-package}`
+  - Ex/ `pnpm run build --filter @laserfiche/lf-repository-api-client-v2`
 
 ## To run a command on a specific library (for example tests)
 
@@ -42,6 +44,10 @@ Contains the following packages:
   ```
 
 - Run `pnpm --filter ${project_name} run ${script_name}`
+
+- Test scripts for lf-js-utils:
+  - pnpm --filter @laserfiche/lf-js-utils run test:ci
+
 - Test scripts for lf-js-utils:
   - `pnpm --filter @laserfiche/lf-js-utils run test`
 

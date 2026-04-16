@@ -54,7 +54,7 @@ export async function waitForConditionAsync(func: () => boolean, timeoutFunc: ()
  * await yieldAsync();  // makes sure this.isLoading is true, and the subsequence call is based on this.isLoading being true
  * ```
  */
- export function yieldAsync(): Promise<void> {
+export function yieldAsync(): Promise<void> {
   const promise = new Promise<void>((resolve) => {
     setTimeout(() => resolve());
   });
@@ -81,7 +81,7 @@ export async function waitForConditionAsync(func: () => boolean, timeoutFunc: ()
  * validateDefined(value2, param, undefined); // 'validString'
  * ```
  */
- export function validateDefined<T>(value: T | undefined, paramName: string, defaultValue?: T): T {
+export function validateDefined<T>(value: T | undefined, paramName: string, defaultValue?: T): T {
   if (value === undefined) {
     if (defaultValue !== undefined) {
       return defaultValue;
@@ -90,7 +90,7 @@ export async function waitForConditionAsync(func: () => boolean, timeoutFunc: ()
   }
   return value;
 }
-  
+
 let _isBrowser: boolean | undefined;
 
 /**

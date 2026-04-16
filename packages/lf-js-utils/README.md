@@ -23,4 +23,4 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 
 ### Development prerequisite
 
-See .github/workflows/main.yml for Node and NPM version used.
+Use Node 24 for local development. From the repository root, run `nvm use` to pick up the version from `.nvmrc`.

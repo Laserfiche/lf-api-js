@@ -12,7 +12,7 @@ import {
   GetAccessTokenResponse,
   OAuthClientCustomTokenCredentialsHandler,
 } from '@laserfiche/lf-api-client-core';
-class _ClientBase {}
+class _ClientBase { }
 export interface IRepositoryApiClient {
   attributesClient: IAttributesClient;
   auditReasonsClient: generated.IAuditReasonsClient;
@@ -64,7 +64,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   private constructor(httpRequestHandler: HttpRequestHandler, baseUrlDebug?: string) {
     this.repoClientHandler = new RepositoryApiClientHttpHandler(httpRequestHandler);
-    if (this.repoClientHandler){
+    if (this.repoClientHandler) {
       this.defaultRequestHeaders['Accept-Encoding'] = 'gzip';
     }
     let fetch = this.repoClientHandler.httpHandler;
@@ -1420,8 +1420,7 @@ export interface ITemplateDefinitionsClient {
 
 export class TemplateDefinitionsClient
   extends generated.TemplateDefinitionsClient
-  implements ITemplateDefinitionsClient
-{
+  implements ITemplateDefinitionsClient {
   /**
    * Given a maximum page size, it will continue to make the same call to get a list of template definitions of a fixed size (i.e. maxpagesize) until it reaches the last page (i.e. when next link is null/undefined) or whenever the callback function returns false.
    * @param args.callback async callback function that will accept the current page results and return a boolean value to either continue or stop paging.
@@ -1790,8 +1789,9 @@ export class CreateEntryResult extends generated.CreateEntryResult {
 }
 
 export class ProblemDetails extends generated.ProblemDetails {
-  extensions: any;
+  declare extensions: Record<string, unknown> | undefined;
 }
+
 export class ApiException extends ApiExceptionCore {
   constructor(message: string, status: number, response: string, headers: { [key: string]: any }, result: any) {
     super(message, status, headers, result);

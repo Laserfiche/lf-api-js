@@ -8,17 +8,8 @@ import { BeforeFetchResult } from './BeforeFetchResult.js';
 export class OAuthClientCredentialsHandler implements HttpRequestHandler {
   // A valid JWK access key taken from the Laserfiche Developer Console
   // config page for your application.
-  private _accessKey: AccessKey;
   private _tokenClient: TokenClient;
   private _accessToken: string | undefined;
-
-  // The service principal key for the associated service principal user
-  // for the application. You can configure service principals in
-  // the Laserfiche Account Administration page under
-  // "Service Principals"
-  private _servicePrincipalKey: string;
-
-  private _scope: string | undefined;
 
   /**
    * Constructor
@@ -26,13 +17,11 @@ export class OAuthClientCredentialsHandler implements HttpRequestHandler {
    * @param accessKey - The access key exported from the Laserfiche Developer Console.
    * @param scope - Specifies the requested scopes for the authorization request. Scopes are case-sensitive and space-delimited.
    */
-  public constructor(servicePrincipalKey: string, accessKey: AccessKey, scope?: string) {
-    if (!servicePrincipalKey) throw new Error('Service principal key cannot be blank.');
+  public constructor(private servicePrincipalKey: string, private accessKey: AccessKey, private scope?: string) {
+    if (!servicePrincipalKey)
+      throw new Error('Service principal key cannot be blank.');
 
-    this._accessKey = accessKey;
-    this._servicePrincipalKey = servicePrincipalKey;
-    this._tokenClient = new TokenClient(this._accessKey.domain);
-    this._scope = scope;
+    this._tokenClient = new TokenClient(this.accessKey.domain);
   }
 
   /**
@@ -42,15 +31,15 @@ export class OAuthClientCredentialsHandler implements HttpRequestHandler {
    */
   async beforeFetchRequestAsync(url: string, request: RequestInit): Promise<BeforeFetchResult> {
     if (!this._accessToken) {
-      const resp = await this._tokenClient.getAccessTokenFromServicePrincipal(this._servicePrincipalKey, this._accessKey, this._scope);
+      const resp = await this._tokenClient.getAccessTokenFromServicePrincipal(this.servicePrincipalKey, this.accessKey, this.scope);
       if (resp?.access_token) this._accessToken = resp.access_token;
       else console.warn(`getAccessToken did not return a token. ${resp}`);
     }
 
-    if (this._accessToken) (<any>request.headers)['Authorization'] = 'Bearer ' + this._accessToken;
+    if (this._accessToken) (request.headers as Record<string, unknown>)['Authorization'] = 'Bearer ' + this._accessToken;
 
     return {
-      regionalDomain: this._accessKey.domain,
+      regionalDomain: this.accessKey.domain,
     };
   }
 

@@ -24,7 +24,7 @@ export interface JWT {
  * ```
  */
 export function getAccountIdFromLfJWT(lfJwt: JWT): string {
-  return (<any>lfJwt).payload['csid'];
+  return (lfJwt.payload as Record<string, string>)['csid'];
 }
 
 /**
@@ -42,7 +42,7 @@ export function getAccountIdFromLfJWT(lfJwt: JWT): string {
  * ```
  */
 export function getUsernameFromLfJWT(lfJwt: JWT): string {
-  return (<any>lfJwt).payload['name'];
+  return (lfJwt.payload as Record<string, string>)['name'];
 }
 
 /**
@@ -60,7 +60,7 @@ export function getUsernameFromLfJWT(lfJwt: JWT): string {
  * ```
  */
 export function getAudFromLfJWT(lfJwt: JWT): string {
-  return (<any>lfJwt).payload['aud'];
+  return (lfJwt.payload as Record<string, string>)['aud'];
 }
 
 /**
@@ -78,7 +78,7 @@ export function getAudFromLfJWT(lfJwt: JWT): string {
  * ```
  */
 export function getTrusteeIdFromLfJWT(lfJwt: JWT): string {
-  return (<any>lfJwt).payload['trid'];
+  return (lfJwt.payload as Record<string, string>)['trid'];
 }
 
 /**

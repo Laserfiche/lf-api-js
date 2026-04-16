@@ -47,8 +47,8 @@ describe('createFromBase64EncodedAccessKey', () => {
         try {
           createFromBase64EncodedAccessKey(base64EncodedAccessKey);
           return false;
-        } catch (err: any) {
-          const msg: string | undefined = err?.message;
+        } catch (err: Error | unknown) {
+          const msg: string | undefined = err instanceof Error ? err.message : undefined;
           return msg?.includes('Unexpected') && msg?.includes('JSON');
         }
       }).toBeTruthy();
@@ -75,7 +75,7 @@ describe('createClientCredentialsAuthorizationJwt', () => {
     expect(JWT.payload).toHaveProperty('exp');
     expect(
       JWT.payload['exp' as keyof payloadType] -
-        JWT.payload['iat' as keyof payloadType]
+      JWT.payload['iat' as keyof payloadType]
     ).toBe(3600);
   });
 
@@ -123,7 +123,7 @@ describe('createClientCredentialsAuthorizationJwt', () => {
       expect(JWT.payload).toHaveProperty('exp');
       expect(
         JWT.payload['exp' as keyof payloadType] -
-          JWT.payload['iat' as keyof payloadType]
+        JWT.payload['iat' as keyof payloadType]
       ).toBe(Math.ceil(expirationTime));
     }
   );

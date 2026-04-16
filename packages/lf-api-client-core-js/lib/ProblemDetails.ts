@@ -21,50 +21,50 @@ export class ProblemDetails implements IProblemDetails {
     /** The trace id. */
     traceId?: string | undefined;
     /** A property that may contain additional info such as in the case of partial success responses. */
-    extensions?: any;
+    extensions?: Record<string, unknown>;
 
     constructor(data?: IProblemDetails) {
         if (data) {
             for (const property in data) {
                 if (Object.prototype.hasOwnProperty.call(data, property))
-                    (<any>this)[property] = (<any>data)[property];
+                    (this as Record<string, unknown>)[property] = (data as unknown as Record<string, unknown>)[property];
             }
         }
     }
 
-    init(_data?: any) {
+    init(_data?: Record<string, unknown>) {
         if (_data) {
-            this.type = _data["type"];
-            this.title = _data["title"];
-            this.status = _data["status"];
-            this.detail = _data["detail"];
-            this.instance = _data["instance"];
-            this.operationId = _data["operationId"];
-            this.errorSource = _data["errorSource"];
-            this.errorCode = _data["errorCode"];
-            this.traceId = _data["traceId"];
+            this.type = _data["type"] as string | undefined;
+            this.title = _data["title"] as string | undefined;
+            this.status = _data["status"] as number;
+            this.detail = _data["detail"] as string | undefined;
+            this.instance = _data["instance"] as string | undefined;
+            this.operationId = _data["operationId"] as string | undefined;
+            this.errorSource = _data["errorSource"] as string | undefined;
+            this.errorCode = _data["errorCode"] as number | undefined;
+            this.traceId = _data["traceId"] as string | undefined;
         }
     }
 
-    static fromJS(data: any): ProblemDetails {
-        data = typeof data === 'object' ? data : {};
+    static fromJS(data: Record<string, unknown>): ProblemDetails {
+        const typedData = typeof data === 'object' ? (data as Record<string, unknown>) : {};
         const result = new ProblemDetails();
-        result.init(data);
+        result.init(typedData);
         return result;
     }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["type"] = this.type;
-        data["title"] = this.title;
-        data["status"] = this.status;
-        data["detail"] = this.detail;
-        data["instance"] = this.instance;
-        data["operationId"] = this.operationId;
-        data["errorSource"] = this.errorSource;
-        data["errorCode"] = this.errorCode;
-        data["traceId"] = this.traceId;
-        return data;
+    toJSON(data?: Record<string, unknown>) {
+        const result = typeof data === 'object' ? (data as Record<string, unknown>) : {};
+        result["type"] = this.type;
+        result["title"] = this.title;
+        result["status"] = this.status;
+        result["detail"] = this.detail;
+        result["instance"] = this.instance;
+        result["operationId"] = this.operationId;
+        result["errorSource"] = this.errorSource;
+        result["errorCode"] = this.errorCode;
+        result["traceId"] = this.traceId;
+        return result;
     }
 }
 
@@ -89,5 +89,5 @@ export interface IProblemDetails {
     /** The trace id. */
     traceId?: string | undefined;
     /** A property that may contain additional info such as in the case of partial success responses. */
-    extensions?: any;
+    extensions?: Record<string, unknown>;
 }

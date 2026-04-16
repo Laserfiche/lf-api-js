@@ -1811,8 +1811,9 @@ export class RepositoriesClient extends generated.RepositoriesClient {
 }
 
 export class ProblemDetails extends generated.ProblemDetails {
-  extensions: any;
+  declare extensions: Record<string, unknown> | undefined;
 }
+
 export class ApiException extends ApiExceptionCore {
   constructor(message: string, status: number, response: string, headers: { [key: string]: any }, result: any) {
     super(message, status, headers, result);

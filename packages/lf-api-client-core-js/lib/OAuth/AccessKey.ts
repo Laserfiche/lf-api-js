@@ -67,8 +67,8 @@ export function createClientCredentialsAuthorizationJwt(
   expireInSeconds = 3600,
   scope?: string
 ): string {
-  const currentTime: any = new Date(); // the current time in milliseconds
-  const nowSecondsFrom1970: number = Math.ceil(currentTime / 1000 - 1);
+  const currentTime: Date = new Date();
+  const nowSecondsFrom1970: number = Math.ceil((currentTime.getTime()) / 1000 - 1);
   const audience: string = 'laserfiche.com';
   const maxScopesLength: number = 32768; // 2^15
 
@@ -109,9 +109,11 @@ export function createClientCredentialsAuthorizationJwt(
     },
   };
 
-  const privateKey = KEYUTIL.getKey(<any>accessKey.jwk);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const privateKey = KEYUTIL.getKey(accessKey.jwk as any);
 
-  const token = KJUR.jws.JWS.sign(options.algorithm, options.header, payload, <any>privateKey);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const token: string = KJUR.jws.JWS.sign(options.algorithm, options.header, payload, privateKey as any);
 
   return token;
 }

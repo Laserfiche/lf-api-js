@@ -20,6 +20,7 @@ const config = [
       commonjs(),
       typescript({
         declaration: false,
+        outDir: 'cdn',
       }),
       terser(),
     ],

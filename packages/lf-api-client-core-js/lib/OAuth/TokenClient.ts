@@ -90,7 +90,7 @@ export class TokenClient implements ITokenClient {
       const errorResponse = await res.json();
       const problemDetails = ProblemDetails.fromJS(errorResponse);
       const apiException = new ApiException(problemDetails.title ?? this._refreshTokenErrMsg,
-                                             problemDetails.status, res.headers, problemDetails);
+        problemDetails.status, res.headers, problemDetails);
       throw apiException;
     } else {
       throw new ApiException(this._refreshTokenErrMsg, res.status, res.headers, null);
@@ -131,7 +131,7 @@ export class TokenClient implements ITokenClient {
       const errorResponse = await res.json();
       const problemDetails = ProblemDetails.fromJS(errorResponse);
       const apiException = new ApiException(problemDetails.title ?? this._acessTokenCodeErrMsg,
-                                             problemDetails.status, res.headers, problemDetails);
+        problemDetails.status, res.headers, problemDetails);
       throw apiException;
     } else {
       throw new ApiException(this._acessTokenCodeErrMsg, res.status, res.headers, null);
@@ -176,7 +176,7 @@ export class TokenClient implements ITokenClient {
       const errorResponse = await res.json();
       const problemDetails = ProblemDetails.fromJS(errorResponse);
       const apiException = new ApiException(problemDetails.title ?? this._accessTokenSPErrMsg,
-                                             problemDetails.status, res.headers, problemDetails);
+        problemDetails.status, res.headers, problemDetails);
       throw apiException;
     } else {
       throw new ApiException(this._accessTokenSPErrMsg, res.status, res.headers, null);
@@ -193,7 +193,7 @@ export class TokenClient implements ITokenClient {
   ): RequestInit {
     const request: RequestInit = { method: 'POST' };
     const headers = this.getPostRequestHeaders(client_id, client_secret);
-    const body: any = {
+    const body: Record<string, string | undefined> = {
       grant_type: 'authorization_code',
       code,
       redirect_uri,
@@ -214,7 +214,7 @@ export class TokenClient implements ITokenClient {
   private createRefreshTokenRequest(refreshToken: string, client_id: string, client_secret?: string): RequestInit {
     const request: RequestInit = { method: 'POST' };
     const headers = this.getPostRequestHeaders(client_id, client_secret);
-    const body: any= {
+    const body: Record<string, string | undefined> = {
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
       client_id
@@ -237,10 +237,13 @@ export class TokenClient implements ITokenClient {
     return headers;
   }
 
-  private objToWWWFormUrlEncodedBody(obj: any): string {
+  private objToWWWFormUrlEncodedBody(obj: Record<string, string | undefined>): string {
     const urlSearchParams = new URLSearchParams();
-    for (const i in obj) {
-      urlSearchParams.set(i, obj[i]);
+    for (const i in Object.keys(obj)) {
+      const value = obj[i];
+      if (value !== undefined) {
+        urlSearchParams.set(i, value);
+      }
     }
     return urlSearchParams.toString();
   }

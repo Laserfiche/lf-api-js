@@ -5,22 +5,26 @@ import { ProblemDetails } from "./ProblemDetails.js";
 const OPERATION_ID_HEADER: string = "x-requestid";
 const API_SERVER_ERROR_HEADER: string = "x-apiserver-error";
 
-export class ApiException extends Error  {
-    message: string;
-    status: number;
-    headers: { [key: string]: any; };
-    problemDetails: ProblemDetails;
+export class ApiException extends Error {
+  message: string;
+  status: number;
+  headers: Record<string, unknown>;
+  problemDetails: ProblemDetails;
 
-    constructor(message: string, status: number, headers: { [key: string]: any; }, problemDetails: ProblemDetails | null) {
-      super();
+  constructor(message: string, status: number, headers: Record<string, unknown> | Headers, problemDetails: ProblemDetails | null) {
+    super();
+    // Convert Headers to plain object if needed
+    const headersObj: Record<string, unknown> = headers instanceof Headers
+      ? Object.fromEntries(headers.entries())
+      : headers;
 
-      this.problemDetails = problemDetails != null && problemDetails.status !== undefined ? problemDetails : ProblemDetails.fromJS({
-        "title": headers[API_SERVER_ERROR_HEADER]? decodeURIComponent(headers[API_SERVER_ERROR_HEADER]) : "HTTP status code " + status,
-        "status": status,
-        "operationId": headers[OPERATION_ID_HEADER],
-      });
-      this.message = this.problemDetails.title?? message;
-      this.status = status;
-      this.headers = headers;
-    }
+    this.problemDetails = problemDetails != null && problemDetails.status !== undefined ? problemDetails : ProblemDetails.fromJS({
+      "title": headersObj[API_SERVER_ERROR_HEADER] ? decodeURIComponent(headersObj[API_SERVER_ERROR_HEADER] as string) : "HTTP status code " + status,
+      "status": status,
+      "operationId": headersObj[OPERATION_ID_HEADER],
+    });
+    this.message = this.problemDetails.title ?? message;
+    this.status = status;
+    this.headers = headersObj;
   }
+}

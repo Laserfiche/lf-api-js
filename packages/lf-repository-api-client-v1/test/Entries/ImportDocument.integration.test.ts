@@ -8,23 +8,23 @@ import { CreateEntryResult, FileParameter, PostEntryWithEdocMetadataRequest } fr
 import { isBrowser } from '@laserfiche/lf-js-utils/dist/utils/core-utils.js';
 
 describe('Import Document Integration Tests', () => {
-  
+
     test('Import Document Throws Exception', async () => {
         let blob: any;
-        if (isBrowser()){
+        if (isBrowser()) {
             blob = new Blob([""], {
                 type: "application/json",
-              });
+            });
         } else {
             blob = new NodeBlob([""], {
                 type: "application/json",
-              });
+            });
         }
         const request = new PostEntryWithEdocMetadataRequest();
-        const edoc : FileParameter = {
+        const edoc: FileParameter = {
             fileName: "RepositoryApiClientIntegrationTest JS GetDocumentContent",
             data: blob
-          };
+        };
         const importDocumentRequest = {
             repoId: repositoryId,
             parentEntryId: 1,
@@ -32,7 +32,7 @@ describe('Import Document Integration Tests', () => {
             autoRename: true,
             request: request,
             electronicDocument: edoc
-            
+
         };
         try {
             await _RepositoryApiClient.entriesClient.importDocument({
@@ -49,12 +49,12 @@ describe('Import Document Integration Tests', () => {
             expect(e.problemDetails.errorSource).toBeUndefined();
             expect(e.problemDetails.traceId).toBeUndefined();
             expect(Object.keys(e.problemDetails.extensions).length).toEqual(1);
-            
+
             const partialSuccessResult: CreateEntryResult = <CreateEntryResult>e.problemDetails.extensions["createEntryResult"];
             expect(partialSuccessResult).toBeDefined();
 
-            expect(e.message.includes(partialSuccessResult?.operations?.entryCreate?.exceptions?.at(0)?.message));
+            expect(e.message.includes(partialSuccessResult?.operations?.entryCreate?.exceptions?.[0]?.message));
         }
 
     });
-  });
+});

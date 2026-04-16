@@ -61,7 +61,7 @@ export function createClient(): IRepositoryApiClient {
     if (testHeader) {
       defaultRequestHeaders[testHeader] = 'true';
     }
-    _RepositoryApiClient.defaultRequestHeaders = defaultRequestHeaders ?? '';
+    _RepositoryApiClient.defaultRequestHeaders = defaultRequestHeaders ?? {} as Record<string, string>;
   }
   return _RepositoryApiClient;
 }

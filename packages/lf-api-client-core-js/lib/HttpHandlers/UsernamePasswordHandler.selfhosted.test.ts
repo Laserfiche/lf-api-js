@@ -25,14 +25,11 @@ describe('UsernamePasswordHandler', () => {
       headers: {},
     };
     const result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
-    expect(result).not.toBeNull;
-    expect(result?.regionalDomain).not.toBeNull;
-    expect((<any>request.headers)['Authorization'].toString().substring(0, 6)).toBe('Bearer');
-    expect(
-      (<any>request.headers)['Authorization']
-        .toString()
-        .substring(6, (<any>request.headers)['Authorization'].toString().length - 1)
-    ).not.toBeNull;
+    expect(result).not.toBeNull();
+    expect(result?.regionalDomain).not.toBeNull();
+    const headers = request.headers as Record<string, string>;
+    expect(headers['Authorization'].substring(0, 6)).toBe('Bearer');
+    expect(headers['Authorization'].substring(6, headers['Authorization'].length - 1)).not.toBeNull();
   });
 
   test('Before fetch request async returns existing token', async () => {
@@ -46,17 +43,16 @@ describe('UsernamePasswordHandler', () => {
       method: 'GET',
       headers: {},
     };
-    const _result: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
+    const result1: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request);
     const result2: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request2);
-    const bearerTokenParameter: string = (<any>request.headers)['Authorization']
-      .toString()
-      .substring(6, (<any>request.headers)['Authorization'].toString().length - 1);
-    const bearerTokenParameter2: string = (<any>request2.headers)['Authorization']
-      .toString()
-      .substring(6, (<any>request2.headers)['Authorization'].toString().length - 1);
-    expect(result2).not.toBeNull;
-    expect(result2.regionalDomain).not.toBeNull;
-    expect((<any>request.headers)['Authorization'].toString().substring(0, 6)).toBe('Bearer');
+    const headers1 = request.headers as Record<string, string>;
+    const headers2 = request2.headers as Record<string, string>;
+    const bearerTokenParameter: string = headers1['Authorization'].substring(6, headers1['Authorization'].length - 1);
+    const bearerTokenParameter2: string = headers2['Authorization'].substring(6, headers2['Authorization'].length - 1);
+    expect(result1).not.toBeNull();
+    expect(result2).not.toBeNull();
+    expect(result2.regionalDomain).not.toBeNull();
+    expect(headers1['Authorization'].substring(0, 6)).toBe('Bearer');
     expect(bearerTokenParameter).toBe(bearerTokenParameter2);
   });
 
@@ -86,15 +82,16 @@ describe('UsernamePasswordHandler', () => {
       try {
         await httpRequestHandler.beforeFetchRequestAsync(baseUrl, request);
         return false;
-      } catch (e: any) {
-        expect(e.status).toBe(status);
-        expect(e.message).toBeDefined();
-        expect(e.problemDetails.title).toEqual(e.message);
-        expect(e.problemDetails.operationId).toBeDefined();
-        expect(e.problemDetails.type).toBeDefined();
-        expect(e.problemDetails.instance).toBeDefined();
-        expect(e.problemDetails.errorSource).toBeDefined();
-        expect(e.problemDetails.traceId).toBeDefined();
+      } catch (e: unknown) {
+        const err = e as Error & { status: number; message: string; problemDetails: Record<string, string> };
+        expect(err.status).toBe(status);
+        expect(err.message).toBeDefined();
+        expect(err.problemDetails.title).toEqual(err.message);
+        expect(err.problemDetails.operationId).toBeDefined();
+        expect(err.problemDetails.type).toBeDefined();
+        expect(err.problemDetails.instance).toBeDefined();
+        expect(err.problemDetails.errorSource).toBeDefined();
+        expect(err.problemDetails.traceId).toBeDefined();
         return true;
       }
     }
@@ -121,16 +118,14 @@ describe('UsernamePasswordHandler', () => {
       headers: {},
     };
     const result2: BeforeFetchResult = await httpRequestHandler.beforeFetchRequestAsync(url, request2);
-    const bearerTokenParameter: string = (<any>request.headers)['Authorization']
-      .toString()
-      .substring(6, (<any>request.headers)['Authorization'].toString().length - 1);
-    const bearerTokenParameter2: string = (<any>request2.headers)['Authorization']
-      .toString()
-      .substring(6, (<any>request2.headers)['Authorization'].toString().length - 1);
-    expect(result2).not.toBeNull;
-    expect(result2.regionalDomain).not.toBeNull;
-    expect((<any>request.headers)['Authorization'].toString().substring(0, 6)).toBe('Bearer');
-    expect(bearerTokenParameter2).not.toBeNull;
+    const headers1 = request.headers as Record<string, string>;
+    const headers2 = request2.headers as Record<string, string>;
+    const bearerTokenParameter: string = headers1['Authorization'].substring(6, headers1['Authorization'].length - 1);
+    const bearerTokenParameter2: string = headers2['Authorization'].substring(6, headers2['Authorization'].length - 1);
+    expect(result2).not.toBeNull();
+    expect(result2.regionalDomain).not.toBeNull();
+    expect(headers1['Authorization'].substring(0, 6)).toBe('Bearer');
+    expect(bearerTokenParameter2).not.toBeNull();
     expect(bearerTokenParameter).not.toBe(bearerTokenParameter2);
   });
 });

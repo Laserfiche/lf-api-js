@@ -28,7 +28,7 @@ describe('ApiException', () => {
     });
 
     test('ApiException returns error message from header', async () => {
-        const headers: { [key: string]: any; } = {
+        const headers: { [key: string]: string; } = {
             "x-requestid": operationId,
             "x-apiserver-error": "Error%3A%20Repository%20with%20the%20given%20Id%20not%20found%20or%20no%20connection%20could%20be%20made."
         };
@@ -44,7 +44,7 @@ describe('ApiException', () => {
     });
 
     test('ApiException returns default error message', async () => {
-        const headers: { [key: string]: any; } = {
+        const headers: { [key: string]: string; } = {
             "x-requestid": operationId,
         };
         const apiException = new ApiException("exception message", statusCode, headers, null);
@@ -57,4 +57,4 @@ describe('ApiException', () => {
         expect(apiException.headers).toEqual(headers);
     });
 });
-  
+

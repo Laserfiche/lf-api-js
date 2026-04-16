@@ -12,7 +12,7 @@ describe('CoreUtils', () => {
         }, 500);
         await waitForConditionAsync(
             () => value === expected,
-            () => { throw Error('Timeout');}
+            () => { throw Error('Timeout'); }
         );
         expect(value).toEqual(expected);
     });
@@ -23,17 +23,17 @@ describe('CoreUtils', () => {
         setTimeout(() => {
             value = 8;
         }, 500);
-      try {
-          await waitForConditionAsync(
-            () => value === expected,
-            () => { throw Error('Timeout');},
-            1000
-        );
-      }
-      catch(e) {
-        const msg = (<Error>e).message;
-        expect(msg.includes('Timeout')).toBeTruthy();
-      }
+        try {
+            await waitForConditionAsync(
+                () => value === expected,
+                () => { throw Error('Timeout'); },
+                1000
+            );
+        }
+        catch (e) {
+            const msg = (<Error>e).message;
+            expect(msg.includes('Timeout')).toBeTruthy();
+        }
     });
 
     it('validateDefined should return default if value is undefined', async () => {
@@ -42,7 +42,7 @@ describe('CoreUtils', () => {
     });
 
     it('validateDefined should throw if both value and default are undefined', async () => {
-        expect(() => validateDefined(undefined, 'stringParam', undefined)).toThrowError('stringParam undefined');
+        expect(() => validateDefined(undefined, 'stringParam', undefined)).toThrow('stringParam undefined');
     });
 
     it('validateDefined should return value if value is defined', async () => {
