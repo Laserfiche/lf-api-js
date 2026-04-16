@@ -162,15 +162,15 @@ jobs:
         run: pnpm --filter @laserfiche/lf-api-client-core run test:SelfHosted
 
       - name: Test Report lf-api-client-core
-          uses: dorny/test-reporter@v2
-          if: success() || failure() # run this step even if previous step failed
-          with:
-            name: Client Core Jest Test Results
-            path: ./packages/lf-api-client-core-js/junit-*.xml
-            reporter: jest-junit
-            only-summary: 'false'
-            list-tests: 'failed'
-            fail-on-error: 'false'
+        uses: dorny/test-reporter@v2
+        if: success() || failure() # run this step even if previous step failed
+        with:
+          name: Client Core Jest Test Results
+          path: ./packages/lf-api-client-core-js/junit-*.xml
+          reporter: jest-junit
+          only-summary: 'false'
+          list-tests: 'failed'
+          fail-on-error: 'false'
 
       - name: pnpm test @laserfiche/lf-repository-api-client run all cloud node tests
         env:
