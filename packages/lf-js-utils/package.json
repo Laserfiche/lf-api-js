@@ -13,7 +13,7 @@
     "test": "jest",
     "test:unit": "jest --testPathPatterns='\\.unit\\.spec\\.ts$'",
     "test:ci": "npm run test -- --watchAll=false --reporters=default --reporters=jest-junit",
-    "lint": "NODE_OPTIONS='--import tsx' eslint .",
+    "lint": "cross-env NODE_OPTIONS=--import=tsx eslint .",
     "build": "tsc",
     "postpublish": "git tag lf-js-utils-v$npm_package_version && git push --tags"
   },

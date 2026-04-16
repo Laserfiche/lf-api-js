@@ -10,7 +10,7 @@
     "README.md"
   ],
   "scripts": {
-    "lint": "NODE_OPTIONS='--import tsx' eslint .",
+    "lint": "cross-env NODE_OPTIONS=--import=tsx eslint .",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.node.config.ts",
     "test:all": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.node.config.ts && node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.jsdom.config.ts",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns='\\.unit\\.test\\.ts$' --rootDir=lib --config jest.node.config.ts && node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns='\\.unit\\.test\\.ts$' --rootDir=lib --config jest.jsdom.config.ts",

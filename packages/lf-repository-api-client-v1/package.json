@@ -11,7 +11,7 @@
     "README.md"
   ],
   "scripts": {
-    "lint": "NODE_OPTIONS='--import tsx' eslint .",
+    "lint": "cross-env NODE_OPTIONS=--import=tsx eslint .",
     "test:unit": "echo 'No unit tests in this package'",
     "test:browser": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns='\\.integration\\.test\\.ts$' --rootDir=test --config jest.jsdom.config.ts --runInBand",
     "test:node": "node --experimental-vm-modules --experimental-fetch node_modules/jest/bin/jest.js --testPathPatterns='\\.integration\\.test\\.ts$' --rootDir=test --config jest.node.config.ts --runInBand",

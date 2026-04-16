@@ -22,7 +22,7 @@
     "url": "https://github.com/Laserfiche/lf-api-js"
   },
   "scripts": {
-    "lint": "NODE_OPTIONS='--import tsx' eslint .",
+    "lint": "cross-env NODE_OPTIONS=--import=tsx eslint .",
     "build": "npm run clean && tsc -b && npm run generate-esm-module && npm run generate-types",
     "clean": "tsc -b --clean",
     "generate-esm-module": "npx rollup -c",
