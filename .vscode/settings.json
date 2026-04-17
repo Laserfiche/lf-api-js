@@ -8,32 +8,30 @@
   "jest.runMode": "on-demand",
   "jest.debugMode": true,
   "jest.useJest30": true,
-  "jest.shell": {
-    "path": "/bin/bash",
-    "args": [
-      "--login"
-    ]
-  },
   "jest.virtualFolders": [
     {
       "name": "lf-js-utils",
-      "rootPath": "packages/lf-js-utils"
+      "rootPath": "packages/lf-js-utils",
+      "jestCommandLine": "node node_modules/jest/bin/jest.js --config jest.config.ts --runInBand",
+      "runMode": "on-demand"
     },
     {
       "name": "lf-api-client-core-selfhosted-node",
       "rootPath": "packages/lf-api-client-core-js",
-      "jestCommandLine": "export NVM_DIR=\"$HOME/.nvm\" && . \"$NVM_DIR/nvm.sh\" && nvm use 24 >/dev/null && node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.node.config.ts --testPathPatterns='\\.(unit|selfhosted)\\.test\\.ts$'",
+      "jestCommandLine": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.node.config.ts \"--testPathPatterns=\\.(unit|selfhosted)\\.test\\.ts$\"",
       "runMode": "on-demand"
     },
     {
       "name": "lf-api-client-core-selfhosted-jsdom",
       "rootPath": "packages/lf-api-client-core-js",
-      "jestCommandLine": "export NVM_DIR=\"$HOME/.nvm\" && . \"$NVM_DIR/nvm.sh\" && nvm use 24 >/dev/null && node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.jsdom.config.ts --testPathPatterns='\\.(unit|selfhosted)\\.test\\.ts$'",
+      "jestCommandLine": "node --experimental-vm-modules node_modules/jest/bin/jest.js --rootDir=lib --config jest.jsdom.config.ts \"--testPathPatterns=\\.(unit|selfhosted)\\.test\\.ts$\"",
       "runMode": "on-demand"
     },
     {
       "name": "lf-api-js",
-      "rootPath": "packages/lf-api-js"
+      "rootPath": "packages/lf-api-js",
+      "jestCommandLine": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.node.config.ts --runInBand",
+      "runMode": "on-demand"
     }
   ],
   "powerHeader.commentMode": "line",

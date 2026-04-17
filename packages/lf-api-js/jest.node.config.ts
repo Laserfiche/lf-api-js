@@ -18,10 +18,10 @@ const config: JestConfigWithTsJest = {
     testTimeout: 200000,
     moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1',
-        '^@laserfiche/lf-api-client-core$': '<rootDir>/../../lf-api-client-core-js/dist/index.js',
-        '^@laserfiche/lf-js-utils$': '<rootDir>/../../lf-js-utils/dist/index.js',
-        '^@laserfiche/lf-repository-api-client$': '<rootDir>/../../lf-repository-api-client-v1/dist/index.js',
-        '^@laserfiche/lf-repository-api-client-v2$': '<rootDir>/../../lf-repository-api-client-v2/dist/index.js',
+        '^@laserfiche/lf-api-client-core$': '<rootDir>/../lf-api-client-core-js/dist/index.js',
+        '^@laserfiche/lf-js-utils$': '<rootDir>/../lf-js-utils/dist/index.js',
+        '^@laserfiche/lf-repository-api-client$': '<rootDir>/../lf-repository-api-client-v1/dist/index.js',
+        '^@laserfiche/lf-repository-api-client-v2$': '<rootDir>/../lf-repository-api-client-v2/dist/index.js',
     },
     transformIgnorePatterns: [],
 };

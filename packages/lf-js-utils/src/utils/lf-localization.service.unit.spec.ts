@@ -209,7 +209,7 @@ describe('LfLocalizationService', () => {
     lfLocalizationService = new LfLocalizationService();
     const mockedResponse = new Response(null, { status: 500 });
     const globalFetch = global.fetch;
-    global.fetch = jest.fn(() => Promise.resolve(mockedResponse));
+    global.fetch = (() => Promise.resolve(mockedResponse)) as typeof global.fetch;
     const resUrl = `${resourcesFolder}/en-US.json`;
 
     try {

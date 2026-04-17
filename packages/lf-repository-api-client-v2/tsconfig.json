@@ -93,6 +93,10 @@
   "exclude": [
     "test/",
     "dist/",
-    "eslint.config.ts"
+    "eslint.config.ts",
+    "jest.config.ts",
+    "jest.node.config.ts",
+    "jest.jsdom.config.ts",
+    "jjest.config.ts"
   ]
 }

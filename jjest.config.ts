@@ -3,57 +3,23 @@
 
 import type { Config } from 'jest';
 
+const includeRepositoryIntegrationTests = Boolean(process.env.AUTHORIZATION_TYPE);
+
 const config: Config = {
-    reporters: [
-        'default',
-        [
-            'jest-junit',
-            {
-                outputName: 'junit.xml',
-            },
-        ],
-    ],
     projects: [
-        {
-            displayName: 'lf-js-utils-jsdom',
-            preset: 'ts-jest/presets/default-esm',
-            setupFiles: ['<rootDir>/jest.setup.ts'],
-            moduleDirectories: ['node_modules', '<rootDir>'],
-            moduleFileExtensions: ['ts', 'js'],
-            transform: {
-                '^.+\\.ts$': [
-                    'ts-jest',
-                    {
-                        tsconfig: 'tsconfig.test.json',
-                    },
-                ],
-            },
-            testRegex: '(/__tests__/.*|(\\.|/)(spec))\\.ts$',
-            testEnvironment: 'jsdom',
-            moduleNameMapper: {
-                '^./(.*).js$': './$1',
-            },
-        },
-        {
-            displayName: 'lf-js-utils-node',
-            preset: 'ts-jest/presets/default-esm',
-            setupFiles: ['<rootDir>/jest.setup.ts'],
-            moduleDirectories: ['node_modules', '/src'],
-            moduleFileExtensions: ['ts', 'js'],
-            transform: {
-                '^.+\\.ts$': [
-                    'ts-jest',
-                    {
-                        tsconfig: 'tsconfig.test.json',
-                    },
-                ],
-            },
-            testRegex: '(/__tests__/.*|(\\.|/)(spec))\\.ts$',
-            testEnvironment: 'node',
-            moduleNameMapper: {
-                '^./(.*).js$': './$1',
-            },
-        },
+        '<rootDir>/packages/lf-js-utils/jest.jsdom.config.ts',
+        '<rootDir>/packages/lf-js-utils/jest.node.config.ts',
+        '<rootDir>/packages/lf-api-client-core-js/jest.jsdom.config.ts',
+        '<rootDir>/packages/lf-api-client-core-js/jest.node.config.ts',
+        '<rootDir>/packages/lf-api-js/jest.node.config.ts',
+        ...(includeRepositoryIntegrationTests
+            ? [
+                '<rootDir>/packages/lf-repository-api-client-v1/jest.node.config.ts',
+                '<rootDir>/packages/lf-repository-api-client-v1/jest.jsdom.config.ts',
+                '<rootDir>/packages/lf-repository-api-client-v2/jest.node.config.ts',
+                '<rootDir>/packages/lf-repository-api-client-v2/jest.jsdom.config.ts',
+            ]
+            : []),
     ],
 };
 

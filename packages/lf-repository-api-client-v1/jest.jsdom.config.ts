@@ -26,7 +26,7 @@ const config: JestConfigWithTsJest = {
             },
         ],
     ],
-    setupFiles: ['./CreateSession.ts'],
+    setupFiles: ['./test/CreateSession.ts'],
     testTimeout: 200000,
     moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1',

@@ -46,7 +46,7 @@ Contains the following packages:
 - Run `pnpm --filter ${project_name} run ${script_name}`
 
 - Test scripts for lf-js-utils:
-  - pnpm --filter @laserfiche/lf-js-utils run test:ci
+  - `pnpm --filter @laserfiche/lf-js-utils run test:ci`
 
 - Test scripts for lf-js-utils:
   - `pnpm --filter @laserfiche/lf-js-utils run test`
