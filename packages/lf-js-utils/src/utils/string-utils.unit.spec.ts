@@ -1,6 +1,7 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+/// <reference types="jest" />
 import { arrayBufferToBase64, base64toString, base10ToBase16, formatString, stringToBase64, trimEnd, convertBytesToString } from './string-utils.js';
 
 describe('string-utils', () => {

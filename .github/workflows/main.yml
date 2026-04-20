@@ -49,6 +49,9 @@ jobs:
       - name: PNPM run build
         run: pnpm run build
 
+      - name: PNPM run lint
+        run: pnpm run lint
+
       - name: Upload Build Artifact pnpm-js-utils-publish-artifact
         uses: actions/upload-artifact@v4
         with:
