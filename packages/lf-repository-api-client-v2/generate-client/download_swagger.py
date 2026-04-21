@@ -39,6 +39,18 @@ def replace_with_override_data(json_data, json_override_data):
             json_data[key] = value
     return json_data
 
+def collapse_tags(json_data):
+    '''
+    Collapses hierarchical swagger tags like 'Entries - Metadata' to their root
+    ('Entries') so nswag groups operations into the same client class regardless
+    of server-side swagger UI subsectioning.
+    '''
+    for path_element in json_data['paths'].values():
+        for api_element in path_element.values():
+            if 'tags' in api_element:
+                api_element['tags'] = [t.split(' - ')[0].strip() for t in api_element['tags']]
+    return json_data
+
 def sort_status_codes(json_data):
     '''
     Sorts the status codes for each api route. 
@@ -69,6 +81,7 @@ if __name__ == '__main__':
 
     swagger_json = download_file_to_json(args.swagger_url)
     swagger_json = replace_summary_by_description(swagger_json)
+    swagger_json = collapse_tags(swagger_json)
     swagger_json = sort_status_codes(swagger_json)
 
     if args.swagger_override_filepath is not None:
