@@ -1071,7 +1071,7 @@
         "tags": [
           "Entries"
         ],
-        "summary": "- Imports a new file in the specified folder from previously uploaded parts. The maximum file size allowed is 64 GB.\n- The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.\n- This route does not support partial success.\n- Required OAuth scope: repository.Write",
+        "summary": "- Imports a new document from previously uploaded parts into the specified folder. The parts are assembled server-side into a single file that is then processed like a direct import.\n- The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.\n- The assembled file is imported as either the electronic document or image pages, following the same rules as the synchronous POST /Folder/Import:\n  - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file is stored as the electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).\n  - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.\n- Metadata in the body is assigned to the newly created entry.\n- Supports assembled files up to 64 GB \u2014 use this endpoint when the file exceeds the size or time limits of the synchronous POST /Folder/Import.\n- Returns 202 Accepted with a task ID. Poll the task endpoint for progress and completion. This route does not support partial success.\n- `imageFiles` and `generateImagePagesText` are not supported on this endpoint; use the synchronous POST /Folder/Import to attach image pages alongside the imported file.\n- Required OAuth scope: repository.Write",
         "operationId": "StartImportUploadedParts",
         "parameters": [
           {
@@ -1921,7 +1921,7 @@
         "tags": [
           "Entries"
         ],
-        "summary": "- Import a new document in the specified folder, and optionally assigns metadata.\n- Optional imageFiles: up to 10 image files appended as pages after import. Total size must not exceed 100 MB.\n- Optional generateImagePagesText in request body: when true, triggers OCR for image pages added via imageFiles.\n- The import may fail if the file is greater than 100 MB or time out if it takes longer than 60 seconds. These values are subject to change at anytime. Use the long operation asynchronous import if you run into these restrictions.\n- Required OAuth scope: repository.Write",
+        "summary": "- Imports a new document into the specified folder, optionally with electronic document content, image pages, and metadata.\n- The `file` form field is optional. When provided, it becomes either the electronic document or image pages of the new document:\n  - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file is stored as the electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).\n  - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. A multi-page TIFF produces multiple pages. `pdfOptions.generateText` triggers OCR for the resulting pages.\n  - A zero-byte file creates an empty document with no electronic document and no pages.\n- The optional `imageFiles` form field accepts up to 10 image files (100 MB aggregate) that are appended as image pages. Set `generateImagePagesText=false` in the body to skip OCR for the pages added via `imageFiles` (default: true).\n- `file` and `imageFiles` can be combined whenever the file is imported as the electronic document \u2014 i.e. non-image file types, or image file types with `importAsElectronicDocument=true`. The request returns 400 only when both are provided and the file would itself become image pages (image file type with `importAsElectronicDocument=false`).\n- Metadata in the body is assigned to the newly created entry.\n- Size and time limits: file must be \u2264 100 MB and the request must complete within 60 seconds. These limits may change. Use the asynchronous long-operation import endpoint for larger files or slower imports.\n- Required OAuth scope: repository.Write",
         "operationId": "ImportEntry",
         "parameters": [
           {
@@ -1963,25 +1963,24 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "file",
                   "request"
                 ],
                 "properties": {
                   "file": {
                     "type": "string",
-                    "description": "The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.",
+                    "description": "Optional. The file to import. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it is stored as the electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file creates an empty document with no electronic document and no pages.",
                     "format": "binary"
+                  },
+                  "request": {
+                    "$ref": "#/components/schemas/ImportEntryRequest"
                   },
                   "imageFiles": {
                     "type": "array",
-                    "description": "Optional image files to append as pages after import. Maximum 10 files, 100 MB aggregate.",
+                    "description": "Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).",
                     "items": {
                       "type": "string",
                       "format": "binary"
                     }
-                  },
-                  "request": {
-                    "$ref": "#/components/schemas/ImportEntryRequest"
                   }
                 }
               }
@@ -3749,7 +3748,7 @@
         "tags": [
           "Entries"
         ],
-        "summary": "- Update the electronic document, image pages, and/or metadata of the specified document entry.\n- At least one of file, imageFiles, or metadata must be provided.\n- If a non-zero file is provided, it replaces the electronic document. A zero-length file deletes the edoc.\n- Optional imageFiles: up to 10 image files appended as pages. Total size must not exceed 100 MB.\n- Optional overwriteContent query parameter (default false): when true, metadata is replaced and existing pages are deleted before imageFiles are appended.\n- Optional generateImagePagesText in request body: when true, triggers OCR for image pages.\n- Required OAuth scope: repository.Write",
+        "summary": "- Updates the electronic document, image pages, and/or metadata of the specified document entry.\n- At least one of `file`, `imageFiles`, or `metadata` must be provided.\n- The `file` form field is optional. When provided, it replaces the electronic document or is imported as image pages, following the same rules as the import endpoint:\n  - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file replaces the existing electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).\n  - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.\n  - A zero-byte file is rejected with 400. To delete the electronic document while preserving pages and metadata, use `DELETE /Document/Edoc`.\n- The optional `imageFiles` form field accepts up to 10 image files (100 MB aggregate) that are appended as image pages. Set `generateImagePagesText=false` in the body to skip OCR for the pages added via `imageFiles` (default: true).\n- `file` and `imageFiles` can be combined whenever the file is imported as the electronic document \u2014 i.e. non-image file types, or image file types with `importAsElectronicDocument=true`. The request returns 400 only when both are provided and the file would itself become image pages (image file type with `importAsElectronicDocument=false`).\n- Metadata updates are additive \u2014 only fields, tags, and links specified in the request are changed; everything else is preserved. Use PUT /fields, PUT /tags, or PUT /links for replace semantics.\n- Lock/checkout lifecycle: the endpoint executes all requested mutations inside a single lock scope so that only one version is produced. It detects the caller's starting state and preserves it \u2014 the caller's existing persistent lock and/or checkout are reused, and the endpoint adds only what's missing for atomicity (checking out when the document is under version control but not checked out, persistently locking when no plock is held). On success, anything the endpoint added is released in reverse order (unlock plock, then check in \u2014 creating one version). On error, the endpoint undoes what it acquired (delete plock, undo checkout \u2014 no partial version).\n- If the document is checked out or persistently locked by another user, this endpoint returns 423 Locked.\n- Required OAuth scope: repository.Write",
         "operationId": "UpdateDocument",
         "parameters": [
           {
@@ -3774,16 +3773,6 @@
             "x-position": 2
           },
           {
-            "name": "overwriteContent",
-            "in": "query",
-            "description": "When false (default), metadata is additive and imageFiles are appended. When true, metadata replaces existing values and existing pages are deleted before imageFiles are appended.",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "x-position": 3
-          },
-          {
             "name": "culture",
             "in": "query",
             "description": "An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.",
@@ -3792,7 +3781,7 @@
               "default": "",
               "nullable": true
             },
-            "x-position": 4
+            "x-position": 3
           }
         ],
         "requestBody": {
@@ -3803,19 +3792,19 @@
                 "properties": {
                   "file": {
                     "type": "string",
-                    "description": "The electronic document file. A non-zero file replaces the edoc. A zero-length file deletes the edoc.",
+                    "description": "Optional. The electronic document or image file to apply to the existing document. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it replaces the existing electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file is rejected with 400; use DELETE /Document/Edoc to remove the electronic document.",
                     "format": "binary"
+                  },
+                  "request": {
+                    "$ref": "#/components/schemas/UpdateDocumentRequest"
                   },
                   "imageFiles": {
                     "type": "array",
-                    "description": "Optional image files to append as pages. Maximum 10 files, 100 MB aggregate.",
+                    "description": "Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).",
                     "items": {
                       "type": "string",
                       "format": "binary"
                     }
-                  },
-                  "request": {
-                    "$ref": "#/components/schemas/UpdateDocumentRequest"
                   }
                 }
               }
@@ -3865,6 +3854,16 @@
           },
           "404": {
             "description": "Entry with requested ID was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request is too large.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4004,7 +4003,7 @@
         "tags": [
           "Entries"
         ],
-        "summary": "- Assembles previously uploaded file chunks and writes them as the electronic document on the specified document entry, optionally updating metadata.\n- The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.\n- Use this endpoint for files that exceed the upload size limit of the UpdateDocument (PATCH) endpoint.\n- If metadata is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.\n- Required OAuth scope: repository.Write",
+        "summary": "- Updates a document entry from previously uploaded parts. The parts are assembled server-side into a single file that is then applied to the existing document.\n- The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.\n- Use this endpoint when the file exceeds the upload size or time limits of the synchronous PATCH /Document endpoint.\n- The assembled file is applied as either the electronic document or image pages, following the same rules as the synchronous PATCH /Document:\n  - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file replaces the existing electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).\n  - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.\n- If `metadata` is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.\n- Returns 202 Accepted with a task ID. Poll the task endpoint for progress and completion.\n- `imageFiles`, `generateImagePagesText`, and the `overwriteContent` query parameter are not supported on this endpoint; use the synchronous PATCH /Document to append image pages, OCR them automatically, or replace metadata wholesale.\n- Required OAuth scope: repository.Write",
         "operationId": "UpdateDocumentUploadedParts",
         "parameters": [
           {
@@ -4353,11 +4352,290 @@
           }
         }
       },
+      "post": {
+        "tags": [
+          "Entries"
+        ],
+        "summary": "- Creates one or more new pages in the specified document.\n- Optional imageFiles form field: up to 10 image files, 100 MB aggregate.\n- Optional textPages array in the request JSON part. Aggregate size must be below 100 MB.\n- The two arrays are paired by index: page[i] gets imageFiles[i] and textPages[i].\n- The number of pages created is max(imageFiles.Count, textPages.Count). If one array is shorter, pages beyond its length are created without that part.\n- If neither imageFiles nor textPages is provided, one empty page is created.\n- If pageNumber is omitted, pages are appended to the end. If provided, pages are inserted at that 1-based position; existing pages shift down.\n- generateText triggers OCR when imageFiles are provided. When generateText is true and imageFiles are present, textPages is ignored because OCR-generated text would overwrite any provided text.\n- Required OAuth scope: repository.Write",
+        "operationId": "CreatePages",
+        "parameters": [
+          {
+            "name": "repositoryId",
+            "in": "path",
+            "required": true,
+            "description": "The requested repository ID.",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "description": "The requested document ID.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "description": "Optional 1-based page number. If omitted, pages are appended to the end. If provided, pages are inserted at that position.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "generateText",
+            "in": "query",
+            "description": "If true, triggers server-side text generation (OCR) for image pages. Default is false.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "x-position": 4
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "request": {
+                    "$ref": "#/components/schemas/CreatePagesRequest"
+                  },
+                  "imageFiles": {
+                    "type": "array",
+                    "description": "Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created pages in the specified document. Returned the updated entry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Entry"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or bad request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Access token is invalid or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied for the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entry with requested ID was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Entry is locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit is reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Entries"
+        ],
+        "summary": "- Deletes all existing pages on the document, then creates new pages from the provided content. This is a single operation \u2014 one lock scope, one auto-version if the document is under version control.\n- At least one `imageFile` or `textPage` must be provided. To delete all pages without replacement, use DELETE /Pages.\n- The `imageFiles` and `textPages` arrays are paired by index (same rules as POST /Pages).\n- Required OAuth scope: repository.Write",
+        "operationId": "ReplacePages",
+        "parameters": [
+          {
+            "name": "repositoryId",
+            "in": "path",
+            "required": true,
+            "description": "The requested repository ID.",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "description": "The requested document ID.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "generateText",
+            "in": "query",
+            "description": "If true, triggers server-side text generation (OCR) after creating pages. Default is false.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "x-position": 3
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "imageFiles"
+                ],
+                "properties": {
+                  "imageFiles": {
+                    "type": "array",
+                    "description": "The image files to upload. Maximum 10 files, 100 MB aggregate size.",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created pages in the specified document. Returned the updated entry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Entry"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or bad request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Access token is invalid or expired.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied for the operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entry with requested ID was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Entry is locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit is reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
       "get": {
         "tags": [
           "Entries"
         ],
-        "summary": "- Returns a list of page properties including image dimensions, rotation angle, and content flags.\n- If no pageRange is specified, information for all pages is returned.\n- Required OAuth scope: repository.Read",
+        "summary": "- Returns a list of page properties including image dimensions, rotation angle, and content flags.\n- Optional parameter: pageRange (default empty). If no pageRange is specified, information for all pages is returned. The value should be a comma-separated string which contains non-overlapping single values, or page ranges. Ex: \"1,2,3\", \"1-3,5\", \"2-7,10-12.\"\n- Required OAuth scope: repository.Read",
         "operationId": "ListPageInfos",
         "parameters": [
           {
@@ -4384,7 +4662,7 @@
           {
             "name": "pageRange",
             "in": "query",
-            "description": "The pages to retrieve information for. If not specified, all pages are returned.",
+            "description": "The pages to retrieve information for.",
             "schema": {
               "type": "string",
               "nullable": true
@@ -4399,7 +4677,7 @@
               "type": "string",
               "nullable": true
             },
-            "x-position": 3
+            "x-position": 4
           },
           {
             "name": "$orderby",
@@ -4409,7 +4687,7 @@
               "type": "string",
               "nullable": true
             },
-            "x-position": 5
+            "x-position": 6
           },
           {
             "name": "$count",
@@ -4418,7 +4696,7 @@
             "schema": {
               "type": "boolean"
             },
-            "x-position": 6
+            "x-position": 7
           }
         ],
         "responses": {
@@ -4488,146 +4766,13 @@
         }
       }
     },
-    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Append": {
-      "post": {
+    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})": {
+      "put": {
         "tags": [
           "Entries"
         ],
-        "summary": "- Appends new image pages to the end of the specified document.\n- Provide image files in the imageFiles form field. Maximum 10 files, 100 MB aggregate size.\n- Required OAuth scope: repository.Write",
-        "operationId": "AppendImagePage",
-        "parameters": [
-          {
-            "name": "repositoryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested repository ID.",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested document ID.",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "generateText",
-            "in": "query",
-            "description": "If true, triggers server-side text generation (OCR) after the operation. Default is false.",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "x-position": 3
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "imageFiles"
-                ],
-                "properties": {
-                  "imageFiles": {
-                    "type": "array",
-                    "description": "The image files to upload. Maximum 10 files, 100 MB aggregate size.",
-                    "items": { "type": "string", "format": "binary" }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successfully appended image pages to the specified document. Returned the updated entry.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Entry"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or bad request.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Access token is invalid or expired.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access denied for the operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Entry with requested ID was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "423": {
-            "description": "Entry is locked",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit is reached.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Insert": {
-      "post": {
-        "tags": [
-          "Entries"
-        ],
-        "summary": "- Inserts new image pages at the specified position in the document.\n- Provide image files in the imageFiles form field. Maximum 10 files, 100 MB aggregate size.\n- pageNumber is 1-based. Existing pages at and after this position are shifted down.\n- Required OAuth scope: repository.Write",
-        "operationId": "InsertImagePage",
+        "summary": "- Overwrites the image and/or text part of the specified page. At least one of `imageFile` or `request` (with text) must be provided.\n- Parts not provided are left unchanged \u2014 e.g. providing only `imageFile` replaces the image without affecting existing text.\n- pageNumber is 1-based.\n- Required OAuth scope: repository.Write",
+        "operationId": "WritePage",
         "parameters": [
           {
             "name": "repositoryId",
@@ -4652,8 +4797,9 @@
           },
           {
             "name": "pageNumber",
-            "in": "query",
-            "description": "The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.",
+            "in": "path",
+            "required": true,
+            "description": "The 1-based page number.",
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -4663,7 +4809,7 @@
           {
             "name": "generateText",
             "in": "query",
-            "description": "If true, triggers server-side text generation (OCR) after the operation. Default is false.",
+            "description": "If true, triggers server-side text generation (OCR) after writing. Default is false.",
             "schema": {
               "type": "boolean",
               "default": false
@@ -4676,284 +4822,14 @@
             "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "imageFiles"
-                ],
-                "properties": {
-                  "imageFiles": {
-                    "type": "array",
-                    "description": "The image files to upload. Maximum 10 files, 100 MB aggregate size.",
-                    "items": { "type": "string", "format": "binary" }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successfully inserted image pages into the specified document. Returned the updated entry.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Entry"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or bad request.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Access token is invalid or expired.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access denied for the operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Entry with requested ID was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "423": {
-            "description": "Entry is locked",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit is reached.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Text/Insert": {
-      "post": {
-        "tags": [
-          "Entries"
-        ],
-        "summary": "- Inserts a new text page at the specified position in the document.\n- Provide the text content in the request body.\n- pageNumber is 1-based. Existing pages at and after this position are shifted down.\n- Required OAuth scope: repository.Write",
-        "operationId": "InsertTextPage",
-        "parameters": [
-          {
-            "name": "repositoryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested repository ID.",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested document ID.",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "pageNumber",
-            "in": "query",
-            "description": "The 1-based page number at which to insert the new page. Existing pages at and after this position are shifted.",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 3
-          }
-        ],
-        "requestBody": {
-          "x-name": "request",
-          "description": "The request body containing the text content.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AppendTextPageRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 4
-        },
-        "responses": {
-          "200": {
-            "description": "Successfully inserted a text page into the specified document at the given page number. Returned the updated entry.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Entry"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or bad request.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Access token is invalid or expired.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access denied for the operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Entry with requested ID was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "423": {
-            "description": "Entry is locked",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit is reached.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Image/Replace": {
-      "post": {
-        "tags": [
-          "Entries"
-        ],
-        "summary": "- Replaces the image content of the specified page in the document.\n- The image file should be a supported image format.\n- pageNumber is 1-based.\n- Required OAuth scope: repository.Write",
-        "operationId": "ReplaceImagePage",
-        "parameters": [
-          {
-            "name": "repositoryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested repository ID.",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested document ID.",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "pageNumber",
-            "in": "query",
-            "description": "The 1-based page number of the page to replace.",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 3
-          },
-          {
-            "name": "generateText",
-            "in": "query",
-            "description": "If true, triggers server-side text generation (OCR) after the operation. Default is false.",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "x-position": 4
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "imageFile"
-                ],
                 "properties": {
                   "imageFile": {
                     "type": "string",
-                    "description": "The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.",
+                    "description": "Optional. The image file to upload to replace the page's image content. See https://doc.laserfiche.com/ for supported image file formats. At least one of imageFile or request (with text) must be provided.",
                     "format": "binary"
+                  },
+                  "request": {
+                    "$ref": "#/components/schemas/WritePageTextRequest"
                   }
                 }
               }
@@ -4962,134 +4838,7 @@
         },
         "responses": {
           "200": {
-            "description": "Successfully replaced the image content of the specified page. Returned the updated entry.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Entry"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or bad request.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Access token is invalid or expired.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access denied for the operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Entry with requested ID was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "423": {
-            "description": "Entry is locked",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit is reached.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Text/Replace": {
-      "post": {
-        "tags": [
-          "Entries"
-        ],
-        "summary": "- Replaces the text content of the specified page in the document.\n- pageNumber is 1-based.\n- Required OAuth scope: repository.Write",
-        "operationId": "ReplaceTextPage",
-        "parameters": [
-          {
-            "name": "repositoryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested repository ID.",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested document ID.",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "pageNumber",
-            "in": "query",
-            "description": "The 1-based page number of the page to replace.",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 3
-          }
-        ],
-        "requestBody": {
-          "x-name": "request",
-          "description": "The request body containing the replacement text content.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReplaceTextPageRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 4
-        },
-        "responses": {
-          "200": {
-            "description": "Successfully replaced the text content of the specified page. Returned the updated entry.",
+            "description": "Successfully wrote the image content of the specified page. Returned the updated entry.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5827,123 +5576,6 @@
           },
           "404": {
             "description": "Entry with requested ID was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Rate limit is reached.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Text/Append": {
-      "post": {
-        "tags": [
-          "Entries"
-        ],
-        "summary": "- Appends a new text page to the end of the specified document.\n- Provide the text content in the request body.\n- Required OAuth scope: repository.Write",
-        "operationId": "AppendTextPage",
-        "parameters": [
-          {
-            "name": "repositoryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested repository ID.",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "description": "The requested document ID.",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          }
-        ],
-        "requestBody": {
-          "x-name": "request",
-          "description": "The request body containing the text content.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AppendTextPageRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 3
-        },
-        "responses": {
-          "200": {
-            "description": "Successfully appended a text page to the specified document. Returned the updated entry.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Entry"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or bad request.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Access token is invalid or expired.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access denied for the operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Entry with requested ID was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "423": {
-            "description": "Entry is locked",
             "content": {
               "application/json": {
                 "schema": {
@@ -6898,7 +6530,7 @@
         "tags": [
           "Entries"
         ],
-        "summary": "- Checks in the specified document, creating a new version in the version history.\n- Returns an error if the document is not currently checked out.\n- Required OAuth scope: repository.Write",
+        "summary": "- Checks in the specified document, creating a new version in the version history.\n- By default, releases the persistent lock if one is held. Set unlock to false to keep the lock.\n- Returns an error if the document is not currently checked out.\n- Required OAuth scope: repository.Write",
         "operationId": "CheckInDocument",
         "parameters": [
           {
@@ -6923,9 +6555,21 @@
             "x-position": 2
           }
         ],
+        "requestBody": {
+          "x-name": "request",
+          "description": "Optional request body. If omitted, the persistent lock is released (default behavior).",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckInDocumentRequest"
+              }
+            }
+          },
+          "x-position": 3
+        },
         "responses": {
           "200": {
-            "description": "Successfully checked in the document.",
+            "description": "Successfully checked in the document. If a persistent lock was held and unlock was not set to false, the lock has been released.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7002,7 +6646,7 @@
         "tags": [
           "Entries"
         ],
-        "summary": "- Releases the check-out state without creating a new version in the version history.\n- Returns an error if the document is not under version control.\n- Required OAuth scope: repository.Write",
+        "summary": "- Releases the check-out state without creating a new version in the version history.\n- Always releases the persistent lock if one is held.\n- Returns an error if the document is not under version control.\n- Required OAuth scope: repository.Write",
         "operationId": "UndoCheckOut",
         "parameters": [
           {
@@ -7029,7 +6673,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully undid the document check-out.",
+            "description": "Successfully undid the document check-out. Any persistent lock held on the document has been released.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9644,7 +9288,7 @@
             "default": false
           },
           "pdfOptions": {
-            "description": "The options applied when importing a PDF.",
+            "description": "Server-side processing options applied to the imported file. See ImportEntryRequestPdfOptions for the full contract.",
             "nullable": true,
             "oneOf": [
               {
@@ -9654,7 +9298,7 @@
           },
           "importAsElectronicDocument": {
             "type": "boolean",
-            "description": "Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. This option is only applicable when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.",
+            "description": "Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.\nThis flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.\nFor any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag.",
             "default": false
           },
           "metadata": {
@@ -9675,17 +9319,17 @@
       },
       "ImportEntryRequestPdfOptions": {
         "type": "object",
-        "description": "PDF-related options for importing an entry.",
+        "description": "Server-side processing options for the imported file. Despite the type name, these fields apply to any\nsupported electronic document as well as to files imported as image pages.",
         "additionalProperties": false,
         "properties": {
           "generateText": {
             "type": "boolean",
-            "description": "Indicates if the import operation should generate text. The default value is false.",
+            "description": "Generate searchable text for the imported file. For electronic documents, text is extracted from\nthe document (or OCR'd when the source is image-based). For files imported as image pages\n(image file type with importAsElectronicDocument=false), the pages are OCR'd. Default: false.\nDoes not affect pages added via `imageFiles` \u2014 use `generateImagePagesText` for those.",
             "default": false
           },
           "generatePages": {
             "type": "boolean",
-            "description": "Indicates if the import operation should generate image pages. The default value is false.",
+            "description": "Render server-side image pages from the electronic document. Applicable when the file is imported\nas an electronic document. Default: false.",
             "default": false
           },
           "generatePagesImageType": {
@@ -9699,7 +9343,7 @@
           },
           "keepPdfAfterImport": {
             "type": "boolean",
-            "description": "Indicates if the PDF file should be retained as an electronic document after generating image pages. The default value is true. This option is only applicable when GeneratePages is true.",
+            "description": "When GeneratePages is true, retain the original file as the electronic document.\nWhen false, only the generated image pages remain. Default: true. Ignored when GeneratePages=false.",
             "default": true
           }
         }
@@ -10451,6 +10095,10 @@
                 "description": "The account name of the persistent lock holder. Null if the document is not locked.",
                 "nullable": true
               },
+              "isLockedByAnotherUser": {
+                "type": "boolean",
+                "description": "A boolean indicating if the document is locked by a user other than the authenticated user.\nFalse if the document is not locked or is locked by the authenticated user.\nOnly populated on single-entry GET, not in listing results."
+              },
               "currentVersion": {
                 "type": "integer",
                 "description": "The version number of the document. 0 if the document is not under version control.",
@@ -10460,6 +10108,10 @@
                 "type": "string",
                 "description": "The account name of the user who checked out the document. Null if the document is not checked out.",
                 "nullable": true
+              },
+              "isCheckedOutByAnotherUser": {
+                "type": "boolean",
+                "description": "A boolean indicating if the document is checked out by a user other than the authenticated user.\nFalse if the document is not checked out or is checked out by the authenticated user.\nOnly populated on single-entry GET, not in listing results."
               }
             }
           }
@@ -11050,7 +10702,7 @@
           },
           "importAsElectronicDocument": {
             "type": "boolean",
-            "description": "Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false.",
+            "description": "Whether the assembled file is imported as the electronic document (true) or as image pages (false). Default: false.\nThis flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.\nFor any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag.",
             "default": false
           },
           "metadata": {
@@ -11063,39 +10715,13 @@
             ]
           },
           "pdfOptions": {
-            "description": "The options applied when importing a PDF.",
+            "description": "Server-side processing options applied to the assembled file. See ImportEntryRequestPdfOptions for the full contract.",
             "nullable": true,
             "oneOf": [
               {
                 "$ref": "#/components/schemas/ImportEntryRequestPdfOptions"
               }
             ]
-          }
-        }
-      },
-      "AppendTextPageRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "text"
-        ],
-        "properties": {
-          "text": {
-            "type": "string",
-            "description": "The text content for the new page."
-          }
-        }
-      },
-      "ReplaceTextPageRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "text"
-        ],
-        "properties": {
-          "text": {
-            "type": "string",
-            "description": "The replacement text content for the page."
           }
         }
       },
@@ -11161,7 +10787,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "pageNumber": {
+          "entryId": {
             "type": "integer",
             "format": "int32"
           },
@@ -11169,7 +10795,7 @@
             "type": "integer",
             "format": "int64"
           },
-          "entryId": {
+          "pageNumber": {
             "type": "integer",
             "format": "int32"
           },
@@ -11182,31 +10808,10 @@
           "hasThumbnail": {
             "type": "boolean"
           },
+          "hasWordLocations": {
+            "type": "boolean"
+          },
           "imageRotationAngle": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "imageRotation": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "imageWidth": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "imageHeight": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "imageDepth": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "imageXResolution": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "imageYResolution": {
             "type": "integer",
             "format": "int32"
           },
@@ -11217,6 +10822,34 @@
           "textDataSize": {
             "type": "integer",
             "format": "int64"
+          },
+          "locationsDataSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "thumbnailDataSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "imageDepth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageHeight": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageWidth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageXResolution": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageYResolution": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -11571,6 +11204,10 @@
                 "description": "The account name of the persistent lock holder. Null if the document is not locked.",
                 "nullable": true
               },
+              "isLockedByAnotherUser": {
+                "type": "boolean",
+                "description": "A boolean indicating if the document is locked by a user other than the authenticated user.\nFalse if the document is not locked or is locked by the authenticated user.\nOnly populated on single-entry GET, not in listing results."
+              },
               "currentVersion": {
                 "type": "integer",
                 "description": "The version number of the document. 0 if the document is not under version control.",
@@ -11580,6 +11217,10 @@
                 "type": "string",
                 "description": "The account name of the user who checked out the document. Null if the document is not checked out.",
                 "nullable": true
+              },
+              "isCheckedOutByAnotherUser": {
+                "type": "boolean",
+                "description": "A boolean indicating if the document is checked out by a user other than the authenticated user.\nFalse if the document is not checked out or is checked out by the authenticated user.\nOnly populated on single-entry GET, not in listing results."
               }
             }
           }
@@ -11767,6 +11408,18 @@
             "type": "string",
             "description": "An optional comment for the check-out.",
             "nullable": true
+          }
+        }
+      },
+      "CheckInDocumentRequest": {
+        "type": "object",
+        "description": "Request body for checking in a document.",
+        "additionalProperties": false,
+        "properties": {
+          "unlock": {
+            "type": "boolean",
+            "description": "Whether to automatically release the persistent lock as part of the check-in. Defaults to true.",
+            "default": true
           }
         }
       },
@@ -12592,7 +12245,7 @@
           },
           "importAsElectronicDocument": {
             "type": "boolean",
-            "description": "Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. This option is only applicable when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.",
+            "description": "Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.\nThis flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.\nFor any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag.",
             "default": false
           },
           "metadata": {
@@ -12611,8 +12264,8 @@
           },
           "generateImagePagesText": {
             "type": "boolean",
-            "description": "Whether to generate text (OCR) for image pages added via imageFiles after import. The default value is false.",
-            "default": false
+            "description": "Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.\nDoes not affect pages generated from `file` \u2014 use `pdfOptions.generateText` for those.",
+            "default": true
           }
         }
       },
@@ -12623,7 +12276,7 @@
         "properties": {
           "importAsElectronicDocument": {
             "type": "boolean",
-            "description": "Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false.\nThis option is only applicable when a file is provided and when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.",
+            "description": "Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.\nThis flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.\nFor any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag.",
             "default": false
           },
           "metadata": {
@@ -12644,15 +12297,37 @@
               }
             ]
           },
-          "createVersion": {
-            "type": "boolean",
-            "description": "Whether to create a new version when updating the document with a file.\nWhen true, the document is put under version control (if not already) and a new version is created.\nWhen false (default), the file overwrites the existing content without creating a version.\nOnly applicable when a file is provided.",
-            "default": false
-          },
           "generateImagePagesText": {
             "type": "boolean",
-            "description": "Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is true.",
+            "description": "Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.\nDoes not affect pages generated from `file` \u2014 use `pdfOptions.generateText` for those.",
             "default": true
+          }
+        }
+      },
+      "CreatePagesRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "textPages": {
+            "type": "array",
+            "description": "Optional text content for new pages. Paired by index with imageFiles \u2014\npage[i] gets textPages[i] and imageFiles[i]. If one array is shorter,\nthe corresponding pages are created without that part.",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "WritePageTextRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The text content for the page."
           }
         }
       }

@@ -95,7 +95,7 @@ describe('CreatePages Integration Tests', () => {
     );
 
     const createPagesRequest = new CreatePagesRequest();
-    createPagesRequest.text = 'Hello world integration test';
+    createPagesRequest.textPages = ['Hello world integration test'];
 
     const result = await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
@@ -113,9 +113,12 @@ describe('CreatePages Integration Tests', () => {
       'RepositoryApiClientIntegrationTest JS CreatePages EmptyPage'
     );
 
+    const req = new CreatePagesRequest();
+    req.textPages = [''];
     const result = await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
       entryId: createdEntryId,
+      request: req,
     });
 
     expect(result).not.toBeNull();
@@ -128,10 +131,12 @@ describe('CreatePages Integration Tests', () => {
       'RepositoryApiClientIntegrationTest JS CreatePages EmptyCount3'
     );
 
+    const req = new CreatePagesRequest();
+    req.textPages = ['', '', ''];
     const result = await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
       entryId: createdEntryId,
-      count: 3,
+      request: req,
     });
 
     expect(result).not.toBeNull();
@@ -146,7 +151,7 @@ describe('CreatePages Integration Tests', () => {
 
     // Create an initial text page
     const req = new CreatePagesRequest();
-    req.text = 'Original page';
+    req.textPages = ['Original page'];
     await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
       entryId: createdEntryId,
@@ -171,7 +176,7 @@ describe('CreatePages Integration Tests', () => {
     );
 
     const req = new CreatePagesRequest();
-    req.text = 'Page with both image and text';
+    req.textPages = ['Page with both image and text'];
     const result = await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
       entryId: createdEntryId,

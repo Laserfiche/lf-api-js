@@ -46,19 +46,17 @@ describe('WritePageText Integration Tests', () => {
       'RepositoryApiClientIntegrationTest JS WritePageText'
     );
 
-    // Create a text page first
     const createPagesRequest = new CreatePagesRequest();
-    createPagesRequest.text = 'Original text content';
+    createPagesRequest.textPages = ['Original text content'];
     await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
       entryId: createdEntryId,
       request: createPagesRequest,
     });
 
-    // Replace the text on page 1
     const writeRequest = new WritePageTextRequest();
     writeRequest.text = 'Replaced text content';
-    const result = await _RepositoryApiClient.entriesClient.writePageText({
+    const result = await _RepositoryApiClient.entriesClient.writePage({
       repositoryId,
       entryId: createdEntryId,
       pageNumber: 1,
@@ -69,7 +67,6 @@ describe('WritePageText Integration Tests', () => {
     expect(result.id).toBe(createdEntryId);
     expect((result as Document).pageCount).toBe(1);
 
-    // Verify the text was replaced
     const pageText = await _RepositoryApiClient.entriesClient.getPageText({
       repositoryId,
       entryId: createdEntryId,

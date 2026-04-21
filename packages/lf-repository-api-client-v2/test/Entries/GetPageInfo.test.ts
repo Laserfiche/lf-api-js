@@ -28,7 +28,7 @@ describe('List Page Infos Integration Tests', () => {
 
     for (const text of pageTexts) {
       const createPagesRequest = new CreatePagesRequest();
-      createPagesRequest.text = text;
+      createPagesRequest.textPages = [text];
       await _RepositoryApiClient.entriesClient.createPages({
         repositoryId,
         entryId,

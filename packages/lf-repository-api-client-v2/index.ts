@@ -1110,9 +1110,15 @@ export interface IEntriesClient {
     createMultipartUploadUrls(args: { repositoryId: string, request: CreateMultipartUploadUrlsRequest }): Promise<CreateMultipartUploadUrlsResponse>;
 
     /**
-     * - Imports a new file in the specified folder from previously uploaded parts. The maximum file size allowed is 64 GB.
+     * - Imports a new document from previously uploaded parts into the specified folder. The parts are assembled server-side into a single file that is then processed like a direct import.
     - The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.
-    - This route does not support partial success.
+    - The assembled file is imported as either the electronic document or image pages, following the same rules as the synchronous POST /Folder/Import:
+      - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file is stored as the electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).
+      - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.
+    - Metadata in the body is assigned to the newly created entry.
+    - Supports assembled files up to 64 GB — use this endpoint when the file exceeds the size or time limits of the synchronous POST /Folder/Import.
+    - Returns 202 Accepted with a task ID. Poll the task endpoint for progress and completion. This route does not support partial success.
+    - `imageFiles` and `generateImagePagesText` are not supported on this endpoint; use the synchronous POST /Folder/Import to attach image pages alongside the imported file.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
@@ -1188,20 +1194,25 @@ export interface IEntriesClient {
     updateEntry(args: { repositoryId: string, entryId: number, request: UpdateEntryRequest, culture?: string | null | undefined }): Promise<Entry>;
 
     /**
-     * - Import a new document in the specified folder, and optionally assigns metadata.
-    - Optional imageFiles: up to 10 image files appended as pages after import. Total size must not exceed 100 MB.
-    - Optional generateImagePagesText in request body: when true, triggers OCR for image pages added via imageFiles.
-    - The import may fail if the file is greater than 100 MB or time out if it takes longer than 60 seconds. These values are subject to change at anytime. Use the long operation asynchronous import if you run into these restrictions.
+     * - Imports a new document into the specified folder, optionally with electronic document content, image pages, and metadata.
+    - The `file` form field is optional. When provided, it becomes either the electronic document or image pages of the new document:
+      - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file is stored as the electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).
+      - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. A multi-page TIFF produces multiple pages. `pdfOptions.generateText` triggers OCR for the resulting pages.
+      - A zero-byte file creates an empty document with no electronic document and no pages.
+    - The optional `imageFiles` form field accepts up to 10 image files (100 MB aggregate) that are appended as image pages. Set `generateImagePagesText=false` in the body to skip OCR for the pages added via `imageFiles` (default: true).
+    - `file` and `imageFiles` can be combined whenever the file is imported as the electronic document — i.e. non-image file types, or image file types with `importAsElectronicDocument=true`. The request returns 400 only when both are provided and the file would itself become image pages (image file type with `importAsElectronicDocument=false`).
+    - Metadata in the body is assigned to the newly created entry.
+    - Size and time limits: file must be ≤ 100 MB and the request must complete within 60 seconds. These limits may change. Use the asynchronous long-operation import endpoint for larger files or slower imports.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @param args.file (optional) The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.
-     * @param args.imageFiles (optional) Optional image files to append as pages after import. Maximum 10 files, 100 MB aggregate.
+     * @param args.file (optional) Optional. The file to import. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it is stored as the electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file creates an empty document with no electronic document and no pages.
      * @param args.request (optional) 
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Document was created successfully. Returns created entry.
      */
-    importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: ImportEntryRequest | undefined }): Promise<Entry>;
+    importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
 
     /**
      * - Export an entry.
@@ -1365,23 +1376,27 @@ export interface IEntriesClient {
     copyEntry(args: { repositoryId: string, entryId: number, request: CopyEntryRequest, culture?: string | null | undefined }): Promise<Entry>;
 
     /**
-     * - Update the electronic document, image pages, and/or metadata of the specified document entry.
-    - At least one of file, imageFiles, or metadata must be provided.
-    - If a non-zero file is provided, it replaces the electronic document. A zero-length file deletes the edoc.
-    - Optional imageFiles: up to 10 image files appended as pages. Total size must not exceed 100 MB.
-    - Optional overwriteContent query parameter (default false): when true, metadata is replaced and existing pages are deleted before imageFiles are appended.
-    - Optional generateImagePagesText in request body: when true, triggers OCR for image pages.
+     * - Updates the electronic document, image pages, and/or metadata of the specified document entry.
+    - At least one of `file`, `imageFiles`, or `metadata` must be provided.
+    - The `file` form field is optional. When provided, it replaces the electronic document or is imported as image pages, following the same rules as the import endpoint:
+      - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file replaces the existing electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).
+      - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.
+      - A zero-byte file is rejected with 400. To delete the electronic document while preserving pages and metadata, use `DELETE /Document/Edoc`.
+    - The optional `imageFiles` form field accepts up to 10 image files (100 MB aggregate) that are appended as image pages. Set `generateImagePagesText=false` in the body to skip OCR for the pages added via `imageFiles` (default: true).
+    - `file` and `imageFiles` can be combined whenever the file is imported as the electronic document — i.e. non-image file types, or image file types with `importAsElectronicDocument=true`. The request returns 400 only when both are provided and the file would itself become image pages (image file type with `importAsElectronicDocument=false`).
+    - Metadata updates are additive — only fields, tags, and links specified in the request are changed; everything else is preserved. Use PUT /fields, PUT /tags, or PUT /links for replace semantics.
+    - Lock/checkout lifecycle: the endpoint executes all requested mutations inside a single lock scope so that only one version is produced. It detects the caller's starting state and preserves it — the caller's existing persistent lock and/or checkout are reused, and the endpoint adds only what's missing for atomicity (checking out when the document is under version control but not checked out, persistently locking when no plock is held). On success, anything the endpoint added is released in reverse order (unlock plock, then check in — creating one version). On error, the endpoint undoes what it acquired (delete plock, undo checkout — no partial version).
+    - If the document is checked out or persistently locked by another user, this endpoint returns 423 Locked.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.overwriteContent (optional) When false (default), metadata is additive and imageFiles are appended. When true, metadata replaces existing values and existing pages are deleted before imageFiles are appended.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @param args.file (optional) The electronic document file. A non-zero file replaces the edoc. A zero-length file deletes the edoc.
-     * @param args.imageFiles (optional) Optional image files to append as pages. Maximum 10 files, 100 MB aggregate.
+     * @param args.file (optional) Optional. The electronic document or image file to apply to the existing document. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it replaces the existing electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file is rejected with 400; use DELETE /Document/Edoc to remove the electronic document.
      * @param args.request (optional) 
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Successfully updated the document. Returned the updated entry.
      */
-    updateDocument(args: { repositoryId: string, entryId: number, overwriteContent?: boolean | undefined, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: UpdateDocumentRequest | undefined }): Promise<Entry>;
+    updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: UpdateDocumentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
 
     /**
      * - Returns the electronic document content as a binary stream.
@@ -1395,10 +1410,15 @@ export interface IEntriesClient {
     getDocument(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<FileResponse>;
 
     /**
-     * - Assembles previously uploaded file chunks and writes them as the electronic document on the specified document entry, optionally updating metadata.
+     * - Updates a document entry from previously uploaded parts. The parts are assembled server-side into a single file that is then applied to the existing document.
     - The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.
-    - Use this endpoint for files that exceed the upload size limit of the UpdateDocument (PATCH) endpoint.
-    - If metadata is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
+    - Use this endpoint when the file exceeds the upload size or time limits of the synchronous PATCH /Document endpoint.
+    - The assembled file is applied as either the electronic document or image pages, following the same rules as the synchronous PATCH /Document:
+      - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file replaces the existing electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).
+      - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.
+    - If `metadata` is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
+    - Returns 202 Accepted with a task ID. Poll the task endpoint for progress and completion.
+    - `imageFiles`, `generateImagePagesText`, and the `overwriteContent` query parameter are not supported on this endpoint; use the synchronous PATCH /Document to append image pages, OCR them automatically, or replace metadata wholesale.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
@@ -1428,12 +1448,45 @@ export interface IEntriesClient {
     deletePages(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined }): Promise<Entry>;
 
     /**
+     * - Creates one or more new pages in the specified document.
+    - Optional imageFiles form field: up to 10 image files, 100 MB aggregate.
+    - Optional textPages array in the request JSON part. Aggregate size must be below 100 MB.
+    - The two arrays are paired by index: page[i] gets imageFiles[i] and textPages[i].
+    - The number of pages created is max(imageFiles.Count, textPages.Count). If one array is shorter, pages beyond its length are created without that part.
+    - If neither imageFiles nor textPages is provided, one empty page is created.
+    - If pageNumber is omitted, pages are appended to the end. If provided, pages are inserted at that 1-based position; existing pages shift down.
+    - generateText triggers OCR when imageFiles are provided. When generateText is true and imageFiles are present, textPages is ignored because OCR-generated text would overwrite any provided text.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber (optional) Optional 1-based page number. If omitted, pages are appended to the end. If provided, pages are inserted at that position.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) for image pages. Default is false.
+     * @param args.request (optional) 
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @returns Successfully created pages in the specified document. Returned the updated entry.
+     */
+    createPages(args: { repositoryId: string, entryId: number, pageNumber?: number | null | undefined, generateText?: boolean | undefined, request?: CreatePagesRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
+
+    /**
+     * - Deletes all existing pages on the document, then creates new pages from the provided content. This is a single operation — one lock scope, one auto-version if the document is under version control.
+    - At least one `imageFile` or `textPage` must be provided. To delete all pages without replacement, use DELETE /Pages.
+    - The `imageFiles` and `textPages` arrays are paired by index (same rules as POST /Pages).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after creating pages. Default is false.
+     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
+     * @returns Successfully created pages in the specified document. Returned the updated entry.
+     */
+    replacePages(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
+
+    /**
      * - Returns a list of page properties including image dimensions, rotation angle, and content flags.
-    - If no pageRange is specified, information for all pages is returned.
+    - Optional parameter: pageRange (default empty). If no pageRange is specified, information for all pages is returned. The value should be a comma-separated string which contains non-overlapping single values, or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.pageRange (optional) The pages to retrieve information for. If not specified, all pages are returned.
+     * @param args.pageRange (optional) The pages to retrieve information for.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
@@ -1442,47 +1495,19 @@ export interface IEntriesClient {
     listPageInfos(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]>;
 
     /**
-     * - Creates new pages in the specified document by appending or inserting image files and/or text.
-    - Provide image files in the imageFiles form field and/or text in the request JSON. Maximum 10 files, 100 MB aggregate size.
-    - pageNumber is 1-based. If specified, pages are inserted at that position; otherwise appended.
-    - count creates the specified number of blank pages.
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
-     * @param args.request (optional) The request body containing optional text content.
-     * @param args.pageNumber (optional) The 1-based page number at which to insert. Existing pages at and after this position are shifted.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @param args.count (optional) The number of blank pages to create.
-     * @returns Successfully created pages in the specified document. Returned the updated entry.
-     */
-    createPages(args: { repositoryId: string, entryId: number, imageFiles?: FileParameter[] | undefined, request?: CreatePagesRequest | undefined, pageNumber?: number | undefined, generateText?: boolean | undefined, count?: number | undefined }): Promise<Entry>;
-
-    /**
-     * - Replaces the image content of the specified page in the document.
-    - The image file should be a supported image format.
+     * - Overwrites the image and/or text part of the specified page. At least one of `imageFile` or `request` (with text) must be provided.
+    - Parts not provided are left unchanged — e.g. providing only `imageFile` replaces the image without affecting existing text.
     - pageNumber is 1-based.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.pageNumber The 1-based page number of the page to replace.
-     * @param args.imageFile The image file to upload.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @returns Successfully replaced the image content of the specified page. Returned the updated entry.
+     * @param args.pageNumber The 1-based page number.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after writing. Default is false.
+     * @param args.imageFile (optional) Optional. The image file to upload to replace the page's image content. See https://doc.laserfiche.com/ for supported image file formats. At least one of imageFile or request (with text) must be provided.
+     * @param args.request (optional) 
+     * @returns Successfully wrote the image content of the specified page. Returned the updated entry.
      */
-    writePageImage(args: { repositoryId: string, entryId: number, pageNumber: number, imageFile: FileParameter, generateText?: boolean | undefined }): Promise<Entry>;
-
-    /**
-     * - Replaces the text content of the specified page in the document.
-    - pageNumber is 1-based.
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.pageNumber The 1-based page number of the page to replace.
-     * @param args.request The request body containing the replacement text content.
-     * @returns Successfully replaced the text content of the specified page. Returned the updated entry.
-     */
-    writePageText(args: { repositoryId: string, entryId: number, pageNumber: number, request: WritePageTextRequest }): Promise<Entry>;
+    writePage(args: { repositoryId: string, entryId: number, pageNumber: number, generateText?: boolean | undefined, imageFile?: FileParameter | undefined, request?: WritePageTextRequest | undefined }): Promise<Entry>;
 
     /**
      * - Moves the specified pages within the same document to a new position.
@@ -1517,8 +1542,8 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to rotate.
      * @param args.request The request body containing the rotation angle.
-     * @param args.pageNumber (optional) The 1-based page number of the page to rotate.
      * @returns Successfully rotated the image page. Returned the updated entry.
      */
     rotateImagePage(args: { repositoryId: string, entryId: number, pageNumber: number, request: RotateImagePageRequest }): Promise<Entry>;
@@ -1653,21 +1678,24 @@ export interface IEntriesClient {
 
     /**
      * - Checks in the specified document, creating a new version in the version history.
+    - By default, releases the persistent lock if one is held. Set unlock to false to keep the lock.
     - Returns an error if the document is not currently checked out.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @returns Successfully checked in the document.
+     * @param args.request (optional) Optional request body. If omitted, the persistent lock is released (default behavior).
+     * @returns Successfully checked in the document. If a persistent lock was held and unlock was not set to false, the lock has been released.
      */
     checkInDocument(args: { repositoryId: string, entryId: number, request?: CheckInDocumentRequest | undefined }): Promise<Entry2>;
 
     /**
      * - Releases the check-out state without creating a new version in the version history.
+    - Always releases the persistent lock if one is held.
     - Returns an error if the document is not under version control.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @returns Successfully undid the document check-out.
+     * @returns Successfully undid the document check-out. Any persistent lock held on the document has been released.
      */
     undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry2>;
 }
@@ -2098,9 +2126,15 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Imports a new file in the specified folder from previously uploaded parts. The maximum file size allowed is 64 GB.
+     * - Imports a new document from previously uploaded parts into the specified folder. The parts are assembled server-side into a single file that is then processed like a direct import.
     - The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.
-    - This route does not support partial success.
+    - The assembled file is imported as either the electronic document or image pages, following the same rules as the synchronous POST /Folder/Import:
+      - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file is stored as the electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).
+      - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.
+    - Metadata in the body is assigned to the newly created entry.
+    - Supports assembled files up to 64 GB — use this endpoint when the file exceeds the size or time limits of the synchronous POST /Folder/Import.
+    - Returns 202 Accepted with a task ID. Poll the task endpoint for progress and completion. This route does not support partial success.
+    - `imageFiles` and `generateImagePagesText` are not supported on this endpoint; use the synchronous POST /Folder/Import to attach image pages alongside the imported file.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
@@ -2713,21 +2747,26 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Import a new document in the specified folder, and optionally assigns metadata.
-    - Optional imageFiles: up to 10 image files appended as pages after import. Total size must not exceed 100 MB.
-    - Optional generateImagePagesText in request body: when true, triggers OCR for image pages added via imageFiles.
-    - The import may fail if the file is greater than 100 MB or time out if it takes longer than 60 seconds. These values are subject to change at anytime. Use the long operation asynchronous import if you run into these restrictions.
+     * - Imports a new document into the specified folder, optionally with electronic document content, image pages, and metadata.
+    - The `file` form field is optional. When provided, it becomes either the electronic document or image pages of the new document:
+      - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file is stored as the electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).
+      - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. A multi-page TIFF produces multiple pages. `pdfOptions.generateText` triggers OCR for the resulting pages.
+      - A zero-byte file creates an empty document with no electronic document and no pages.
+    - The optional `imageFiles` form field accepts up to 10 image files (100 MB aggregate) that are appended as image pages. Set `generateImagePagesText=false` in the body to skip OCR for the pages added via `imageFiles` (default: true).
+    - `file` and `imageFiles` can be combined whenever the file is imported as the electronic document — i.e. non-image file types, or image file types with `importAsElectronicDocument=true`. The request returns 400 only when both are provided and the file would itself become image pages (image file type with `importAsElectronicDocument=false`).
+    - Metadata in the body is assigned to the newly created entry.
+    - Size and time limits: file must be ≤ 100 MB and the request must complete within 60 seconds. These limits may change. Use the asynchronous long-operation import endpoint for larger files or slower imports.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @param args.file (optional) The file to import. If an empty file of zero bytes is provided, an empty document will be created in the repository with no electronic document and no pages.
-     * @param args.imageFiles (optional) Optional image files to append as pages after import. Maximum 10 files, 100 MB aggregate.
+     * @param args.file (optional) Optional. The file to import. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it is stored as the electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file creates an empty document with no electronic document and no pages.
      * @param args.request (optional) 
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Document was created successfully. Returns created entry.
      */
-    importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: ImportEntryRequest | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, culture, file, imageFiles, request } = args;
+    importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, culture, file, request, imageFiles } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Folder/Import?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -2740,16 +2779,14 @@ export class EntriesClient implements IEntriesClient {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file === null || file === undefined)
-            throw new Error("The parameter 'file' cannot be null.");
-        else
+        if (file !== null && file !== undefined)
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
-        if (imageFiles !== null && imageFiles !== undefined && imageFiles.length > 0)
-            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
         if (request === null || request === undefined)
             throw new Error("The parameter 'request' cannot be null.");
         else
             content_.append("request", JSON.stringify(request));
+        if (imageFiles !== null && imageFiles !== undefined)
+            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
 
         let options_: RequestInit = {
             body: content_,
@@ -4029,24 +4066,28 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Update the electronic document, image pages, and/or metadata of the specified document entry.
-    - At least one of file, imageFiles, or metadata must be provided.
-    - If a non-zero file is provided, it replaces the electronic document. A zero-length file deletes the edoc.
-    - Optional imageFiles: up to 10 image files appended as pages. Total size must not exceed 100 MB.
-    - Optional overwriteContent query parameter (default false): when true, metadata is replaced and existing pages are deleted before imageFiles are appended.
-    - Optional generateImagePagesText in request body: when true, triggers OCR for image pages.
+     * - Updates the electronic document, image pages, and/or metadata of the specified document entry.
+    - At least one of `file`, `imageFiles`, or `metadata` must be provided.
+    - The `file` form field is optional. When provided, it replaces the electronic document or is imported as image pages, following the same rules as the import endpoint:
+      - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file replaces the existing electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).
+      - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.
+      - A zero-byte file is rejected with 400. To delete the electronic document while preserving pages and metadata, use `DELETE /Document/Edoc`.
+    - The optional `imageFiles` form field accepts up to 10 image files (100 MB aggregate) that are appended as image pages. Set `generateImagePagesText=false` in the body to skip OCR for the pages added via `imageFiles` (default: true).
+    - `file` and `imageFiles` can be combined whenever the file is imported as the electronic document — i.e. non-image file types, or image file types with `importAsElectronicDocument=true`. The request returns 400 only when both are provided and the file would itself become image pages (image file type with `importAsElectronicDocument=false`).
+    - Metadata updates are additive — only fields, tags, and links specified in the request are changed; everything else is preserved. Use PUT /fields, PUT /tags, or PUT /links for replace semantics.
+    - Lock/checkout lifecycle: the endpoint executes all requested mutations inside a single lock scope so that only one version is produced. It detects the caller's starting state and preserves it — the caller's existing persistent lock and/or checkout are reused, and the endpoint adds only what's missing for atomicity (checking out when the document is under version control but not checked out, persistently locking when no plock is held). On success, anything the endpoint added is released in reverse order (unlock plock, then check in — creating one version). On error, the endpoint undoes what it acquired (delete plock, undo checkout — no partial version).
+    - If the document is checked out or persistently locked by another user, this endpoint returns 423 Locked.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.overwriteContent (optional) When false (default), metadata is additive and imageFiles are appended. When true, metadata replaces existing values and existing pages are deleted before imageFiles are appended.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
-     * @param args.file (optional) The electronic document file. A non-zero file replaces the edoc. A zero-length file deletes the edoc.
-     * @param args.imageFiles (optional) Optional image files to append as pages. Maximum 10 files, 100 MB aggregate.
+     * @param args.file (optional) Optional. The electronic document or image file to apply to the existing document. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it replaces the existing electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file is rejected with 400; use DELETE /Document/Edoc to remove the electronic document.
      * @param args.request (optional) 
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Successfully updated the document. Returned the updated entry.
      */
-    updateDocument(args: { repositoryId: string, entryId: number, overwriteContent?: boolean | undefined, culture?: string | null | undefined, file?: FileParameter | undefined, imageFiles?: FileParameter[] | undefined, request?: UpdateDocumentRequest | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, overwriteContent, culture, file, imageFiles, request } = args;
+    updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: UpdateDocumentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, culture, file, request, imageFiles } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -4054,25 +4095,17 @@ export class EntriesClient implements IEntriesClient {
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (overwriteContent === null)
-            throw new Error("The parameter 'overwriteContent' cannot be null.");
-        else if (overwriteContent !== undefined)
-            url_ += "overwriteContent=" + encodeURIComponent("" + overwriteContent) + "&";
         if (culture !== undefined && culture !== null)
             url_ += "culture=" + encodeURIComponent("" + culture) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file === null || file === undefined)
-            throw new Error("The parameter 'file' cannot be null.");
-        else
+        if (file !== null && file !== undefined)
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
-        if (imageFiles !== null && imageFiles !== undefined && imageFiles.length > 0)
-            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
-        if (request === null || request === undefined)
-            throw new Error("The parameter 'request' cannot be null.");
-        else
+        if (request !== null && request !== undefined)
             content_.append("request", JSON.stringify(request));
+        if (imageFiles !== null && imageFiles !== undefined)
+            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
 
         let options_: RequestInit = {
             body: content_,
@@ -4124,6 +4157,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 413) {
+            return response.text().then((_responseText) => {
+            let result413: any = null;
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result413 = ProblemDetails.fromJS(resultData413);
+            return throwException("Request is too large.", status, _responseText, _headers, result413);
             });
         } else if (status === 423) {
             return response.text().then((_responseText) => {
@@ -4239,10 +4279,15 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Assembles previously uploaded file chunks and writes them as the electronic document on the specified document entry, optionally updating metadata.
+     * - Updates a document entry from previously uploaded parts. The parts are assembled server-side into a single file that is then applied to the existing document.
     - The uploadId is obtained from the CreateMultipartUploadUrls response. The partETags are the ETag values returned by S3 when uploading each file chunk to the pre-signed upload URLs, and should be provided in the order of their associated upload URLs.
-    - Use this endpoint for files that exceed the upload size limit of the UpdateDocument (PATCH) endpoint.
-    - If metadata is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
+    - Use this endpoint when the file exceeds the upload size or time limits of the synchronous PATCH /Document endpoint.
+    - The assembled file is applied as either the electronic document or image pages, following the same rules as the synchronous PATCH /Document:
+      - If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if `importAsElectronicDocument=true`, the file replaces the existing electronic document. For supported edoc formats, `pdfOptions.generatePages` additionally produces server-rendered image pages, and `pdfOptions.generateText` triggers text extraction from the document (or OCR when the source is image-based).
+      - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.
+    - If `metadata` is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
+    - Returns 202 Accepted with a task ID. Poll the task endpoint for progress and completion.
+    - `imageFiles`, `generateImagePagesText`, and the `overwriteContent` query parameter are not supported on this endpoint; use the synchronous PATCH /Document to append image pages, OCR them automatically, or replace metadata wholesale.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
@@ -4535,12 +4580,231 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
+     * - Creates one or more new pages in the specified document.
+    - Optional imageFiles form field: up to 10 image files, 100 MB aggregate.
+    - Optional textPages array in the request JSON part. Aggregate size must be below 100 MB.
+    - The two arrays are paired by index: page[i] gets imageFiles[i] and textPages[i].
+    - The number of pages created is max(imageFiles.Count, textPages.Count). If one array is shorter, pages beyond its length are created without that part.
+    - If neither imageFiles nor textPages is provided, one empty page is created.
+    - If pageNumber is omitted, pages are appended to the end. If provided, pages are inserted at that 1-based position; existing pages shift down.
+    - generateText triggers OCR when imageFiles are provided. When generateText is true and imageFiles are present, textPages is ignored because OCR-generated text would overwrite any provided text.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber (optional) Optional 1-based page number. If omitted, pages are appended to the end. If provided, pages are inserted at that position.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) for image pages. Default is false.
+     * @param args.request (optional) 
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @returns Successfully created pages in the specified document. Returned the updated entry.
+     */
+    createPages(args: { repositoryId: string, entryId: number, pageNumber?: number | null | undefined, generateText?: boolean | undefined, request?: CreatePagesRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, pageNumber, generateText, request, imageFiles } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber !== undefined && pageNumber !== null)
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (generateText === null)
+            throw new Error("The parameter 'generateText' cannot be null.");
+        else if (generateText !== undefined)
+            url_ += "generateText=" + encodeURIComponent("" + generateText) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (request !== null && request !== undefined)
+            content_.append("request", JSON.stringify(request));
+        if (imageFiles !== null && imageFiles !== undefined)
+            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreatePages(_response);
+        });
+    }
+
+    protected processCreatePages(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Deletes all existing pages on the document, then creates new pages from the provided content. This is a single operation — one lock scope, one auto-version if the document is under version control.
+    - At least one `imageFile` or `textPage` must be provided. To delete all pages without replacement, use DELETE /Pages.
+    - The `imageFiles` and `textPages` arrays are paired by index (same rules as POST /Pages).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after creating pages. Default is false.
+     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
+     * @returns Successfully created pages in the specified document. Returned the updated entry.
+     */
+    replacePages(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, generateText, imageFiles } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (generateText === null)
+            throw new Error("The parameter 'generateText' cannot be null.");
+        else if (generateText !== undefined)
+            url_ += "generateText=" + encodeURIComponent("" + generateText) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (imageFiles === null || imageFiles === undefined)
+            throw new Error("The parameter 'imageFiles' cannot be null.");
+        else
+            imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processReplacePages(_response);
+        });
+    }
+
+    protected processReplacePages(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Entry.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
      * - Returns a list of page properties including image dimensions, rotation angle, and content flags.
-    - If no pageRange is specified, information for all pages is returned.
+    - Optional parameter: pageRange (default empty). If no pageRange is specified, information for all pages is returned. The value should be a comma-separated string which contains non-overlapping single values, or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.pageRange (optional) The pages to retrieve information for. If not specified, all pages are returned.
+     * @param args.pageRange (optional) The pages to retrieve information for.
      * @param args.select (optional) Limits the properties returned in the result.
      * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
@@ -4640,89 +4904,21 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Creates new pages in the specified document by appending or inserting image files and/or text.
-    - Provide image files in the imageFiles form field and/or text in the request JSON. Maximum 10 files, 100 MB aggregate size.
-    - pageNumber is 1-based. If specified, pages are inserted at that position; otherwise appended.
-    - count creates the specified number of blank pages.
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
-     * @param args.request (optional) The request body containing optional text content.
-     * @param args.pageNumber (optional) The 1-based page number at which to insert. Existing pages at and after this position are shifted.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @param args.count (optional) The number of blank pages to create.
-     * @returns Successfully created pages in the specified document. Returned the updated entry.
-     */
-    createPages(args: { repositoryId: string, entryId: number, imageFiles?: FileParameter[] | undefined, request?: CreatePagesRequest | undefined, pageNumber?: number | undefined, generateText?: boolean | undefined, count?: number | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, imageFiles, request, pageNumber, generateText, count } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/Create?";
-        if (repositoryId === undefined || repositoryId === null)
-            throw new Error("The parameter 'repositoryId' must be defined.");
-        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
-        if (entryId === undefined || entryId === null)
-            throw new Error("The parameter 'entryId' must be defined.");
-        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (pageNumber === null)
-            throw new Error("The parameter 'pageNumber' cannot be null.");
-        else if (pageNumber !== undefined)
-            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
-        if (generateText === null)
-            throw new Error("The parameter 'generateText' cannot be null.");
-        else if (generateText !== undefined)
-            url_ += "generateText=" + encodeURIComponent("" + generateText) + "&";
-        if (count === null)
-            throw new Error("The parameter 'count' cannot be null.");
-        else if (count !== undefined)
-            url_ += "count=" + encodeURIComponent("" + count) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const hasFiles = imageFiles !== null && imageFiles !== undefined && imageFiles.length > 0;
-        const hasRequest = request !== null && request !== undefined;
-
-        let options_: RequestInit;
-        if (hasFiles || hasRequest) {
-            const content_ = new FormData();
-            if (hasFiles)
-                imageFiles!.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
-            if (hasRequest)
-                content_.append("request", new Blob([JSON.stringify(request)], { type: "application/json" }));
-            options_ = {
-                body: content_,
-                method: "POST",
-                headers: {
-                    "Accept": "application/json"
-                }
-            };
-        } else {
-            options_ = {
-                method: "POST",
-                headers: {
-                    "Accept": "application/json"
-                }
-            };
-        }
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPageOperationResponse(_response);
-        });
-    }
-
-    /**
-     * - Replaces the image content of the specified page in the document.
-    - The image file should be a supported image format.
+     * - Overwrites the image and/or text part of the specified page. At least one of `imageFile` or `request` (with text) must be provided.
+    - Parts not provided are left unchanged — e.g. providing only `imageFile` replaces the image without affecting existing text.
     - pageNumber is 1-based.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.pageNumber The 1-based page number of the page to replace.
-     * @param args.imageFile The image file to upload.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after the operation. Default is false.
-     * @returns Successfully replaced the image content of the specified page. Returned the updated entry.
+     * @param args.pageNumber The 1-based page number.
+     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after writing. Default is false.
+     * @param args.imageFile (optional) Optional. The image file to upload to replace the page's image content. See https://doc.laserfiche.com/ for supported image file formats. At least one of imageFile or request (with text) must be provided.
+     * @param args.request (optional) 
+     * @returns Successfully wrote the image content of the specified page. Returned the updated entry.
      */
-    writePageImage(args: { repositoryId: string, entryId: number, pageNumber: number, imageFile: FileParameter, generateText?: boolean | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, pageNumber, imageFile, generateText } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Image?";
+    writePage(args: { repositoryId: string, entryId: number, pageNumber: number, generateText?: boolean | undefined, imageFile?: FileParameter | undefined, request?: WritePageTextRequest | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, pageNumber, generateText, imageFile, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
@@ -4739,10 +4935,10 @@ export class EntriesClient implements IEntriesClient {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (imageFile === null || imageFile === undefined)
-            throw new Error("The parameter 'imageFile' cannot be null.");
-        else
+        if (imageFile !== null && imageFile !== undefined)
             content_.append("imageFile", imageFile.data, imageFile.fileName ? imageFile.fileName : "imageFile");
+        if (request !== null && request !== undefined)
+            content_.append("request", JSON.stringify(request));
 
         let options_: RequestInit = {
             body: content_,
@@ -4753,51 +4949,11 @@ export class EntriesClient implements IEntriesClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPageOperationResponse(_response);
+            return this.processWritePage(_response);
         });
     }
 
-    /**
-     * - Replaces the text content of the specified page in the document.
-    - pageNumber is 1-based.
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The requested document ID.
-     * @param args.pageNumber The 1-based page number of the page to replace.
-     * @param args.request The request body containing the replacement text content.
-     * @returns Successfully replaced the text content of the specified page. Returned the updated entry.
-     */
-    writePageText(args: { repositoryId: string, entryId: number, pageNumber: number, request: WritePageTextRequest }): Promise<Entry> {
-        let { repositoryId, entryId, pageNumber, request } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Text";
-        if (repositoryId === undefined || repositoryId === null)
-            throw new Error("The parameter 'repositoryId' must be defined.");
-        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
-        if (entryId === undefined || entryId === null)
-            throw new Error("The parameter 'entryId' must be defined.");
-        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (pageNumber === undefined || pageNumber === null)
-            throw new Error("The parameter 'pageNumber' must be defined.");
-        url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(request);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPageOperationResponse(_response);
-        });
-    }
-
-    protected processPageOperationResponse(response: Response): Promise<Entry> {
+    protected processWritePage(response: Response): Promise<Entry> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -5060,8 +5216,8 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to rotate.
      * @param args.request The request body containing the rotation angle.
-     * @param args.pageNumber (optional) The 1-based page number of the page to rotate.
      * @returns Successfully rotated the image page. Returned the updated entry.
      */
     rotateImagePage(args: { repositoryId: string, entryId: number, pageNumber: number, request: RotateImagePageRequest }): Promise<Entry> {
@@ -5076,6 +5232,7 @@ export class EntriesClient implements IEntriesClient {
         if (pageNumber === undefined || pageNumber === null)
             throw new Error("The parameter 'pageNumber' must be defined.");
         url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
+        url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(request);
 
@@ -6187,13 +6344,13 @@ export class EntriesClient implements IEntriesClient {
 
     /**
      * - Checks in the specified document, creating a new version in the version history.
-    - By default, the persistent lock is automatically released (unlock=true). Set unlock=false to retain the lock after check-in.
+    - By default, releases the persistent lock if one is held. Set unlock to false to keep the lock.
     - Returns an error if the document is not currently checked out.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.request (optional) The request body containing an optional unlock parameter.
-     * @returns Successfully checked in the document.
+     * @param args.request (optional) Optional request body. If omitted, the persistent lock is released (default behavior).
+     * @returns Successfully checked in the document. If a persistent lock was held and unlock was not set to false, the lock has been released.
      */
     checkInDocument(args: { repositoryId: string, entryId: number, request?: CheckInDocumentRequest | undefined }): Promise<Entry2> {
         let { repositoryId, entryId, request } = args;
@@ -6284,11 +6441,12 @@ export class EntriesClient implements IEntriesClient {
 
     /**
      * - Releases the check-out state without creating a new version in the version history.
+    - Always releases the persistent lock if one is held.
     - Returns an error if the document is not under version control.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @returns Successfully undid the document check-out.
+     * @returns Successfully undid the document check-out. Any persistent lock held on the document has been released.
      */
     undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry2> {
         let { repositoryId, entryId } = args;
@@ -9465,9 +9623,11 @@ export class StartImportUploadedPartsRequest implements IStartImportUploadedPart
     name!: string;
     /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
     autoRename?: boolean;
-    /** The options applied when importing a PDF. */
+    /** Server-side processing options applied to the imported file. See ImportEntryRequestPdfOptions for the full contract. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. This option is only applicable when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
+    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
     importAsElectronicDocument?: boolean;
     /** The metadata that will be assigned to the entry. */
     metadata?: ImportEntryRequestMetadata | undefined;
@@ -9542,9 +9702,11 @@ export interface IStartImportUploadedPartsRequest {
     name: string;
     /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
     autoRename?: boolean;
-    /** The options applied when importing a PDF. */
+    /** Server-side processing options applied to the imported file. See ImportEntryRequestPdfOptions for the full contract. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. This option is only applicable when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
+    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
     importAsElectronicDocument?: boolean;
     /** The metadata that will be assigned to the entry. */
     metadata?: ImportEntryRequestMetadata | undefined;
@@ -9552,15 +9714,20 @@ export interface IStartImportUploadedPartsRequest {
     volumeName?: string | undefined;
 }
 
-/** PDF-related options for importing an entry. */
+/** Server-side processing options for the imported file. Despite the type name, these fields apply to any supported electronic document as well as to files imported as image pages. */
 export class ImportEntryRequestPdfOptions implements IImportEntryRequestPdfOptions {
-    /** Indicates if the import operation should generate text. The default value is false. */
+    /** Generate searchable text for the imported file. For electronic documents, text is extracted from
+the document (or OCR'd when the source is image-based). For files imported as image pages
+(image file type with importAsElectronicDocument=false), the pages are OCR'd. Default: false.
+Does not affect pages added via `imageFiles` — use `generateImagePagesText` for those. */
     generateText?: boolean;
-    /** Indicates if the import operation should generate image pages. The default value is false. */
+    /** Render server-side image pages from the electronic document. Applicable when the file is imported
+as an electronic document. Default: false. */
     generatePages?: boolean;
     /** The image type used when generating image pages. The default value is StandardColor. This option is only applicable when GeneratePages is true. */
     generatePagesImageType?: GeneratePagesImageType;
-    /** Indicates if the PDF file should be retained as an electronic document after generating image pages. The default value is true. This option is only applicable when GeneratePages is true. */
+    /** When GeneratePages is true, retain the original file as the electronic document.
+When false, only the generated image pages remain. Default: true. Ignored when GeneratePages=false. */
     keepPdfAfterImport?: boolean;
 
     
@@ -9606,15 +9773,20 @@ export class ImportEntryRequestPdfOptions implements IImportEntryRequestPdfOptio
     }
 }
 
-/** PDF-related options for importing an entry. */
+/** Server-side processing options for the imported file. Despite the type name, these fields apply to any supported electronic document as well as to files imported as image pages. */
 export interface IImportEntryRequestPdfOptions {
-    /** Indicates if the import operation should generate text. The default value is false. */
+    /** Generate searchable text for the imported file. For electronic documents, text is extracted from
+the document (or OCR'd when the source is image-based). For files imported as image pages
+(image file type with importAsElectronicDocument=false), the pages are OCR'd. Default: false.
+Does not affect pages added via `imageFiles` — use `generateImagePagesText` for those. */
     generateText?: boolean;
-    /** Indicates if the import operation should generate image pages. The default value is false. */
+    /** Render server-side image pages from the electronic document. Applicable when the file is imported
+as an electronic document. Default: false. */
     generatePages?: boolean;
     /** The image type used when generating image pages. The default value is StandardColor. This option is only applicable when GeneratePages is true. */
     generatePagesImageType?: GeneratePagesImageType;
-    /** Indicates if the PDF file should be retained as an electronic document after generating image pages. The default value is true. This option is only applicable when GeneratePages is true. */
+    /** When GeneratePages is true, retain the original file as the electronic document.
+When false, only the generated image pages remain. Default: true. Ignored when GeneratePages=false. */
     keepPdfAfterImport?: boolean;
 }
 
@@ -10586,17 +10758,21 @@ export class Document extends Entry implements IDocument {
     isLocked?: boolean;
     /** The account name of the persistent lock holder. Null if the document is not locked. */
     lockedBy?: string | undefined;
-    /** A boolean indicating if the document is locked by a user other than the authenticated user. */
+    /** A boolean indicating if the document is locked by a user other than the authenticated user.
+False if the document is not locked or is locked by the authenticated user.
+Only populated on single-entry GET, not in listing results. */
     isLockedByAnotherUser?: boolean;
     /** The version number of the document. 0 if the document is not under version control. */
     currentVersion?: number;
     /** The account name of the user who checked out the document. Null if the document is not checked out. */
     checkedOutBy?: string | undefined;
-    /** A boolean indicating if the document is checked out by a user other than the authenticated user. */
+    /** A boolean indicating if the document is checked out by a user other than the authenticated user.
+False if the document is not checked out or is checked out by the authenticated user.
+Only populated on single-entry GET, not in listing results. */
     isCheckedOutByAnotherUser?: boolean;
 
-
-
+    
+    
     constructor(data?: IDocument) {
         super(data);
         if (data) {
@@ -10678,13 +10854,17 @@ export interface IDocument extends IEntry {
     isLocked?: boolean;
     /** The account name of the persistent lock holder. Null if the document is not locked. */
     lockedBy?: string | undefined;
-    /** A boolean indicating if the document is locked by a user other than the authenticated user. */
+    /** A boolean indicating if the document is locked by a user other than the authenticated user.
+False if the document is not locked or is locked by the authenticated user.
+Only populated on single-entry GET, not in listing results. */
     isLockedByAnotherUser?: boolean;
     /** The version number of the document. 0 if the document is not under version control. */
     currentVersion?: number;
     /** The account name of the user who checked out the document. Null if the document is not checked out. */
     checkedOutBy?: string | undefined;
-    /** A boolean indicating if the document is checked out by a user other than the authenticated user. */
+    /** A boolean indicating if the document is checked out by a user other than the authenticated user.
+False if the document is not checked out or is checked out by the authenticated user.
+Only populated on single-entry GET, not in listing results. */
     isCheckedOutByAnotherUser?: boolean;
 }
 
@@ -11826,11 +12006,13 @@ export class UpdateDocumentUploadedPartsRequest implements IUpdateDocumentUpload
     uploadId!: string;
     /** The array of the ETag values received when writing the file chunks into the upload URLs. The ETag values should be in the order of their associated upload URLs. */
     partETags!: string[];
-    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. */
+    /** Whether the assembled file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
     importAsElectronicDocument?: boolean;
     /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
     metadata?: ImportEntryRequestMetadata | undefined;
-    /** The options applied when importing a PDF. */
+    /** Server-side processing options applied to the assembled file. See ImportEntryRequestPdfOptions for the full contract. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
 
     
@@ -11890,172 +12072,14 @@ export interface IUpdateDocumentUploadedPartsRequest {
     uploadId: string;
     /** The array of the ETag values received when writing the file chunks into the upload URLs. The ETag values should be in the order of their associated upload URLs. */
     partETags: string[];
-    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. */
+    /** Whether the assembled file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
     importAsElectronicDocument?: boolean;
     /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
     metadata?: ImportEntryRequestMetadata | undefined;
-    /** The options applied when importing a PDF. */
+    /** Server-side processing options applied to the assembled file. See ImportEntryRequestPdfOptions for the full contract. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-}
-
-export class AppendTextPageRequest implements IAppendTextPageRequest {
-    /** The text content for the new page. */
-    text!: string;
-
-    
-    
-    constructor(data?: IAppendTextPageRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.text = _data["text"];
-        }
-    }
-
-    static fromJS(data: any): AppendTextPageRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new AppendTextPageRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["text"] = this.text;
-        return data;
-    }
-}
-
-export interface IAppendTextPageRequest {
-    /** The text content for the new page. */
-    text: string;
-}
-
-export class ReplaceTextPageRequest implements IReplaceTextPageRequest {
-    /** The replacement text content for the page. */
-    text!: string;
-
-    
-    
-    constructor(data?: IReplaceTextPageRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.text = _data["text"];
-        }
-    }
-
-    static fromJS(data: any): ReplaceTextPageRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new ReplaceTextPageRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["text"] = this.text;
-        return data;
-    }
-}
-
-export interface IReplaceTextPageRequest {
-    /** The replacement text content for the page. */
-    text: string;
-}
-
-export class CreatePagesRequest implements ICreatePagesRequest {
-    /** The text content for the new page. */
-    text?: string | undefined;
-
-
-
-    constructor(data?: ICreatePagesRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.text = _data["text"];
-        }
-    }
-
-    static fromJS(data: any): CreatePagesRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreatePagesRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["text"] = this.text;
-        return data;
-    }
-}
-
-export interface ICreatePagesRequest {
-    /** The text content for the new page. */
-    text?: string | undefined;
-}
-
-export class WritePageTextRequest implements IWritePageTextRequest {
-    /** The replacement text content for the page. */
-    text!: string;
-
-
-
-    constructor(data?: IWritePageTextRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.text = _data["text"];
-        }
-    }
-
-    static fromJS(data: any): WritePageTextRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new WritePageTextRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["text"] = this.text;
-        return data;
-    }
-}
-
-export interface IWritePageTextRequest {
-    /** The replacement text content for the page. */
-    text: string;
 }
 
 export class MovePagesRequest implements IMovePagesRequest {
@@ -12197,21 +12221,23 @@ export interface IRotateImagePageRequest {
 }
 
 export class PageInfoResponse implements IPageInfoResponse {
-    pageNumber?: number;
-    pageId?: number;
     entryId?: number;
+    pageId?: number;
+    pageNumber?: number;
     hasImage?: boolean;
     hasText?: boolean;
     hasThumbnail?: boolean;
+    hasWordLocations?: boolean;
     imageRotationAngle?: number;
-    imageRotation?: number;
-    imageWidth?: number;
-    imageHeight?: number;
-    imageDepth?: number;
-    imageXResolution?: number;
-    imageYResolution?: number;
     imageDataSize?: number;
     textDataSize?: number;
+    locationsDataSize?: number;
+    thumbnailDataSize?: number;
+    imageDepth?: number;
+    imageHeight?: number;
+    imageWidth?: number;
+    imageXResolution?: number;
+    imageYResolution?: number;
 
     
     
@@ -12226,21 +12252,23 @@ export class PageInfoResponse implements IPageInfoResponse {
 
     init(_data?: any) {
         if (_data) {
-            this.pageNumber = _data["pageNumber"];
-            this.pageId = _data["pageId"];
             this.entryId = _data["entryId"];
+            this.pageId = _data["pageId"];
+            this.pageNumber = _data["pageNumber"];
             this.hasImage = _data["hasImage"];
             this.hasText = _data["hasText"];
             this.hasThumbnail = _data["hasThumbnail"];
+            this.hasWordLocations = _data["hasWordLocations"];
             this.imageRotationAngle = _data["imageRotationAngle"];
-            this.imageRotation = _data["imageRotation"];
-            this.imageWidth = _data["imageWidth"];
-            this.imageHeight = _data["imageHeight"];
-            this.imageDepth = _data["imageDepth"];
-            this.imageXResolution = _data["imageXResolution"];
-            this.imageYResolution = _data["imageYResolution"];
             this.imageDataSize = _data["imageDataSize"];
             this.textDataSize = _data["textDataSize"];
+            this.locationsDataSize = _data["locationsDataSize"];
+            this.thumbnailDataSize = _data["thumbnailDataSize"];
+            this.imageDepth = _data["imageDepth"];
+            this.imageHeight = _data["imageHeight"];
+            this.imageWidth = _data["imageWidth"];
+            this.imageXResolution = _data["imageXResolution"];
+            this.imageYResolution = _data["imageYResolution"];
         }
     }
 
@@ -12253,41 +12281,45 @@ export class PageInfoResponse implements IPageInfoResponse {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["pageNumber"] = this.pageNumber;
-        data["pageId"] = this.pageId;
         data["entryId"] = this.entryId;
+        data["pageId"] = this.pageId;
+        data["pageNumber"] = this.pageNumber;
         data["hasImage"] = this.hasImage;
         data["hasText"] = this.hasText;
         data["hasThumbnail"] = this.hasThumbnail;
+        data["hasWordLocations"] = this.hasWordLocations;
         data["imageRotationAngle"] = this.imageRotationAngle;
-        data["imageRotation"] = this.imageRotation;
-        data["imageWidth"] = this.imageWidth;
-        data["imageHeight"] = this.imageHeight;
-        data["imageDepth"] = this.imageDepth;
-        data["imageXResolution"] = this.imageXResolution;
-        data["imageYResolution"] = this.imageYResolution;
         data["imageDataSize"] = this.imageDataSize;
         data["textDataSize"] = this.textDataSize;
+        data["locationsDataSize"] = this.locationsDataSize;
+        data["thumbnailDataSize"] = this.thumbnailDataSize;
+        data["imageDepth"] = this.imageDepth;
+        data["imageHeight"] = this.imageHeight;
+        data["imageWidth"] = this.imageWidth;
+        data["imageXResolution"] = this.imageXResolution;
+        data["imageYResolution"] = this.imageYResolution;
         return data;
     }
 }
 
 export interface IPageInfoResponse {
-    pageNumber?: number;
-    pageId?: number;
     entryId?: number;
+    pageId?: number;
+    pageNumber?: number;
     hasImage?: boolean;
     hasText?: boolean;
     hasThumbnail?: boolean;
+    hasWordLocations?: boolean;
     imageRotationAngle?: number;
-    imageRotation?: number;
-    imageWidth?: number;
-    imageHeight?: number;
-    imageDepth?: number;
-    imageXResolution?: number;
-    imageYResolution?: number;
     imageDataSize?: number;
     textDataSize?: number;
+    locationsDataSize?: number;
+    thumbnailDataSize?: number;
+    imageDepth?: number;
+    imageHeight?: number;
+    imageWidth?: number;
+    imageXResolution?: number;
+    imageYResolution?: number;
 }
 
 export class PageTextResponse implements IPageTextResponse {
@@ -12664,17 +12696,21 @@ if there is one, in bytes. */
     isLocked?: boolean;
     /** The account name of the persistent lock holder. Null if the document is not locked. */
     lockedBy?: string | undefined;
-    /** A boolean indicating if the document is locked by a user other than the authenticated user. */
+    /** A boolean indicating if the document is locked by a user other than the authenticated user.
+False if the document is not locked or is locked by the authenticated user.
+Only populated on single-entry GET, not in listing results. */
     isLockedByAnotherUser?: boolean;
     /** The version number of the document. 0 if the document is not under version control. */
     currentVersion?: number;
     /** The account name of the user who checked out the document. Null if the document is not checked out. */
     checkedOutBy?: string | undefined;
-    /** A boolean indicating if the document is checked out by a user other than the authenticated user. */
+    /** A boolean indicating if the document is checked out by a user other than the authenticated user.
+False if the document is not checked out or is checked out by the authenticated user.
+Only populated on single-entry GET, not in listing results. */
     isCheckedOutByAnotherUser?: boolean;
 
-
-
+    
+    
     constructor(data?: IDocument2) {
         super(data);
         if (data) {
@@ -12760,13 +12796,17 @@ if there is one, in bytes. */
     isLocked?: boolean;
     /** The account name of the persistent lock holder. Null if the document is not locked. */
     lockedBy?: string | undefined;
-    /** A boolean indicating if the document is locked by a user other than the authenticated user. */
+    /** A boolean indicating if the document is locked by a user other than the authenticated user.
+False if the document is not locked or is locked by the authenticated user.
+Only populated on single-entry GET, not in listing results. */
     isLockedByAnotherUser?: boolean;
     /** The version number of the document. 0 if the document is not under version control. */
     currentVersion?: number;
     /** The account name of the user who checked out the document. Null if the document is not checked out. */
     checkedOutBy?: string | undefined;
-    /** A boolean indicating if the document is checked out by a user other than the authenticated user. */
+    /** A boolean indicating if the document is checked out by a user other than the authenticated user.
+False if the document is not checked out or is checked out by the authenticated user.
+Only populated on single-entry GET, not in listing results. */
     isCheckedOutByAnotherUser?: boolean;
 }
 
@@ -13222,8 +13262,8 @@ export class CheckInDocumentRequest implements ICheckInDocumentRequest {
     /** Whether to automatically release the persistent lock as part of the check-in. Defaults to true. */
     unlock?: boolean;
 
-
-
+    
+    
     constructor(data?: ICheckInDocumentRequest) {
         if (data) {
             for (var property in data) {
@@ -14493,13 +14533,16 @@ export class ImportEntryRequest implements IImportEntryRequest {
     autoRename?: boolean;
     /** The options applied when importing a PDF. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. This option is only applicable when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
+    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
     importAsElectronicDocument?: boolean;
     /** The metadata that will be assigned to the entry. */
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
     volumeName?: string | undefined;
-    /** Whether to generate text (OCR) for image pages added via imageFiles after import. The default value is false. */
+    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
     generateImagePagesText?: boolean;
 
     
@@ -14514,7 +14557,7 @@ export class ImportEntryRequest implements IImportEntryRequest {
         if (!data) {
             this.autoRename = false;
             this.importAsElectronicDocument = false;
-            this.generateImagePagesText = false;
+            this.generateImagePagesText = true;
         }
     }
 
@@ -14526,7 +14569,7 @@ export class ImportEntryRequest implements IImportEntryRequest {
             this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
             this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
             this.volumeName = _data["volumeName"];
-            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : false;
+            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
         }
     }
 
@@ -14558,35 +14601,35 @@ export interface IImportEntryRequest {
     autoRename?: boolean;
     /** The options applied when importing a PDF. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false. This option is only applicable when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
+    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
     importAsElectronicDocument?: boolean;
     /** The metadata that will be assigned to the entry. */
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
     volumeName?: string | undefined;
-    /** Whether to generate text (OCR) for image pages added via imageFiles after import. The default value is false. */
+    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
     generateImagePagesText?: boolean;
 }
 
 /** Request body for updating a document's electronic document and/or metadata. */
 export class UpdateDocumentRequest implements IUpdateDocumentRequest {
-    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false.
-This option is only applicable when a file is provided and when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
+    /** Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
     importAsElectronicDocument?: boolean;
     /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The options applied when importing a PDF. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether to create a new version when updating the document with a file.
-When true, the document is put under version control (if not already) and a new version is created.
-When false (default), the file overwrites the existing content without creating a version.
-Only applicable when a file is provided. */
-    createVersion?: boolean;
-    /** Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is true. */
+    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
     generateImagePagesText?: boolean;
 
-
-
+    
+    
     constructor(data?: IUpdateDocumentRequest) {
         if (data) {
             for (var property in data) {
@@ -14596,7 +14639,6 @@ Only applicable when a file is provided. */
         }
         if (!data) {
             this.importAsElectronicDocument = false;
-            this.createVersion = false;
             this.generateImagePagesText = true;
         }
     }
@@ -14606,7 +14648,6 @@ Only applicable when a file is provided. */
             this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
             this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
             this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
-            this.createVersion = _data["createVersion"] !== undefined ? _data["createVersion"] : false;
             this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
         }
     }
@@ -14623,7 +14664,6 @@ Only applicable when a file is provided. */
         data["importAsElectronicDocument"] = this.importAsElectronicDocument;
         data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
         data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
-        data["createVersion"] = this.createVersion;
         data["generateImagePagesText"] = this.generateImagePagesText;
         return data;
     }
@@ -14631,20 +14671,109 @@ Only applicable when a file is provided. */
 
 /** Request body for updating a document's electronic document and/or metadata. */
 export interface IUpdateDocumentRequest {
-    /** Indicates if the document should be imported as an electronic document (true) or as image pages (false). The default value is false.
-This option is only applicable when a file is provided and when importing the following document types: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png. */
+    /** Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
     importAsElectronicDocument?: boolean;
     /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The options applied when importing a PDF. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether to create a new version when updating the document with a file.
-When true, the document is put under version control (if not already) and a new version is created.
-When false (default), the file overwrites the existing content without creating a version.
-Only applicable when a file is provided. */
-    createVersion?: boolean;
-    /** Whether to generate text (OCR) for image pages added via imageFiles after update. The default value is true. */
+    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
     generateImagePagesText?: boolean;
+}
+
+export class CreatePagesRequest implements ICreatePagesRequest {
+    /** Optional text content for new pages. Paired by index with imageFiles —
+page[i] gets textPages[i] and imageFiles[i]. If one array is shorter,
+the corresponding pages are created without that part. */
+    textPages?: string[] | undefined;
+
+    
+    
+    constructor(data?: ICreatePagesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["textPages"])) {
+                this.textPages = [] as any;
+                for (let item of _data["textPages"])
+                    this.textPages!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CreatePagesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePagesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.textPages)) {
+            data["textPages"] = [];
+            for (let item of this.textPages)
+                data["textPages"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICreatePagesRequest {
+    /** Optional text content for new pages. Paired by index with imageFiles —
+page[i] gets textPages[i] and imageFiles[i]. If one array is shorter,
+the corresponding pages are created without that part. */
+    textPages?: string[] | undefined;
+}
+
+export class WritePageTextRequest implements IWritePageTextRequest {
+    /** The text content for the page. */
+    text!: string;
+
+    
+    
+    constructor(data?: IWritePageTextRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): WritePageTextRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new WritePageTextRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface IWritePageTextRequest {
+    /** The text content for the page. */
+    text: string;
 }
 
 export interface FileParameter {

@@ -65,7 +65,7 @@ describe('WritePageImage Integration Tests', () => {
     });
 
     // Replace the image on page 1
-    const result = await _RepositoryApiClient.entriesClient.writePageImage({
+    const result = await _RepositoryApiClient.entriesClient.writePage({
       repositoryId,
       entryId: createdEntryId,
       pageNumber: 1,
@@ -100,7 +100,7 @@ describe('WritePageImage Integration Tests', () => {
     });
 
     // Replace with generateText
-    const result = await _RepositoryApiClient.entriesClient.writePageImage({
+    const result = await _RepositoryApiClient.entriesClient.writePage({
       repositoryId,
       entryId: createdEntryId,
       pageNumber: 1,
