@@ -3,7 +3,7 @@
 import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import {
-  CreatePagesRequest,
+  PagesContentRequest,
   ImportEntryRequest,
   FileParameter,
   StartDeleteEntryRequest,
@@ -26,7 +26,7 @@ describe('Get Page Content Integration Tests', () => {
     });
     const entryId = entry.id!;
 
-    const createPagesRequest = new CreatePagesRequest();
+    const createPagesRequest = new PagesContentRequest();
     createPagesRequest.textPages = [text];
     await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,

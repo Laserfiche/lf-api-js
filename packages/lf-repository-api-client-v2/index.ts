@@ -235,6 +235,13 @@ export class AttributesClient implements IAttributesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -323,6 +330,13 @@ export class AttributesClient implements IAttributesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -459,6 +473,13 @@ export class AuditReasonsClient implements IAuditReasonsClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -668,6 +689,13 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -776,6 +804,13 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -994,6 +1029,13 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1081,6 +1123,13 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -1465,7 +1514,7 @@ export interface IEntriesClient {
      * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Successfully created pages in the specified document. Returned the updated entry.
      */
-    createPages(args: { repositoryId: string, entryId: number, pageNumber?: number | null | undefined, generateText?: boolean | undefined, request?: CreatePagesRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
+    createPages(args: { repositoryId: string, entryId: number, pageNumber?: number | null | undefined, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
 
     /**
      * - Deletes all existing pages on the document, then creates new pages from the provided content. This is a single operation — one lock scope, one auto-version if the document is under version control.
@@ -1475,10 +1524,11 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after creating pages. Default is false.
-     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
-     * @returns Successfully created pages in the specified document. Returned the updated entry.
+     * @param args.request (optional) 
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @returns Successfully replaced all pages in the specified document. Returned the updated entry.
      */
-    replacePages(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
+    replacePages(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
 
     /**
      * - Returns a list of page properties including image dimensions, rotation angle, and content flags.
@@ -1524,7 +1574,7 @@ export interface IEntriesClient {
     /**
      * - Copies the specified pages from the source document to the destination document.
     - The source document retains its pages; copies are inserted into the destination.
-    - pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
+    - pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12." The total number of distinct pages cannot exceed 500.
     - destinationEntryId: The entry ID of the destination document.
     - destinationPageNumber: The 1-based page number in the destination document where pages will be inserted before.
     - Required OAuth scope: repository.Write
@@ -1581,7 +1631,7 @@ export interface IEntriesClient {
      * @param args.entryId The requested document ID.
      * @returns Successfully triggered text generation for the document. Returned the updated entry.
      */
-    generateText(args: { repositoryId: string, entryId: number }): Promise<Entry2>;
+    generateText(args: { repositoryId: string, entryId: number }): Promise<Entry>;
 
     /**
      * - Returns dynamic field logic values with the current values of the fields in the template.
@@ -1661,7 +1711,7 @@ export interface IEntriesClient {
      * @param args.entryId The requested document ID.
      * @returns Successfully put the document under version control.
      */
-    putUnderVersionControl(args: { repositoryId: string, entryId: number }): Promise<Entry2>;
+    putUnderVersionControl(args: { repositoryId: string, entryId: number }): Promise<Entry>;
 
     /**
      * - Checks out the specified document for editing. The document must be under version control.
@@ -1674,7 +1724,7 @@ export interface IEntriesClient {
      * @param args.request (optional) The request body containing optional lock and comment parameters.
      * @returns Successfully checked out the document.
      */
-    checkOutDocument(args: { repositoryId: string, entryId: number, request?: CheckOutDocumentRequest | undefined }): Promise<Entry2>;
+    checkOutDocument(args: { repositoryId: string, entryId: number, request?: CheckOutDocumentRequest | undefined }): Promise<Entry>;
 
     /**
      * - Checks in the specified document, creating a new version in the version history.
@@ -1686,7 +1736,7 @@ export interface IEntriesClient {
      * @param args.request (optional) Optional request body. If omitted, the persistent lock is released (default behavior).
      * @returns Successfully checked in the document. If a persistent lock was held and unlock was not set to false, the lock has been released.
      */
-    checkInDocument(args: { repositoryId: string, entryId: number, request?: CheckInDocumentRequest | undefined }): Promise<Entry2>;
+    checkInDocument(args: { repositoryId: string, entryId: number, request?: CheckInDocumentRequest | undefined }): Promise<Entry>;
 
     /**
      * - Releases the check-out state without creating a new version in the version history.
@@ -1697,7 +1747,7 @@ export interface IEntriesClient {
      * @param args.entryId The requested document ID.
      * @returns Successfully undid the document check-out. Any persistent lock held on the document has been released.
      */
-    undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry2>;
+    undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry>;
 }
 
 export class EntriesClient implements IEntriesClient {
@@ -2117,6 +2167,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2437,6 +2494,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Operation limit or request limit has been reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2534,6 +2598,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Operation limit or request limit has been reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2623,6 +2694,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -2737,6 +2815,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -3063,6 +3148,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3192,6 +3284,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3297,6 +3396,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -3416,6 +3522,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3522,6 +3635,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -3633,6 +3753,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3737,6 +3864,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -3840,6 +3974,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -3951,6 +4092,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4056,6 +4204,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -4179,6 +4334,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4269,6 +4431,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -4477,6 +4646,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4571,6 +4747,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4597,7 +4780,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Successfully created pages in the specified document. Returned the updated entry.
      */
-    createPages(args: { repositoryId: string, entryId: number, pageNumber?: number | null | undefined, generateText?: boolean | undefined, request?: CreatePagesRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
+    createPages(args: { repositoryId: string, entryId: number, pageNumber?: number | null | undefined, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
         let { repositoryId, entryId, pageNumber, generateText, request, imageFiles } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages?";
         if (repositoryId === undefined || repositoryId === null)
@@ -4685,6 +4868,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4701,11 +4891,12 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after creating pages. Default is false.
-     * @param args.imageFiles (optional) The image files to upload. Maximum 10 files, 100 MB aggregate size.
-     * @returns Successfully created pages in the specified document. Returned the updated entry.
+     * @param args.request (optional) 
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @returns Successfully replaced all pages in the specified document. Returned the updated entry.
      */
-    replacePages(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, generateText, imageFiles } = args;
+    replacePages(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, generateText, request, imageFiles } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -4720,9 +4911,9 @@ export class EntriesClient implements IEntriesClient {
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (imageFiles === null || imageFiles === undefined)
-            throw new Error("The parameter 'imageFiles' cannot be null.");
-        else
+        if (request !== null && request !== undefined)
+            content_.append("request", JSON.stringify(request));
+        if (imageFiles !== null && imageFiles !== undefined)
             imageFiles.forEach(item_ => content_.append("imageFiles", item_.data, item_.fileName ? item_.fileName : "imageFiles") );
 
         let options_: RequestInit = {
@@ -4789,6 +4980,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -4895,6 +5093,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -4918,7 +5123,7 @@ export class EntriesClient implements IEntriesClient {
      */
     writePage(args: { repositoryId: string, entryId: number, pageNumber: number, generateText?: boolean | undefined, imageFile?: FileParameter | undefined, request?: WritePageTextRequest | undefined }): Promise<Entry> {
         let { repositoryId, entryId, pageNumber, generateText, imageFile, request } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})?";
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/{pageNumber}?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
@@ -5004,6 +5209,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -5102,6 +5314,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5113,7 +5332,7 @@ export class EntriesClient implements IEntriesClient {
     /**
      * - Copies the specified pages from the source document to the destination document.
     - The source document retains its pages; copies are inserted into the destination.
-    - pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
+    - pageRange: A comma-separated string of non-overlapping single values or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12." The total number of distinct pages cannot exceed 500.
     - destinationEntryId: The entry ID of the destination document.
     - destinationPageNumber: The 1-based page number in the destination document where pages will be inserted before.
     - Required OAuth scope: repository.Write
@@ -5201,6 +5420,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5222,7 +5448,7 @@ export class EntriesClient implements IEntriesClient {
      */
     rotateImagePage(args: { repositoryId: string, entryId: number, pageNumber: number, request: RotateImagePageRequest }): Promise<Entry> {
         let { repositoryId, entryId, pageNumber, request } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Image/Rotate";
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/{pageNumber}/Image/Rotate";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
@@ -5302,6 +5528,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5322,7 +5555,7 @@ export class EntriesClient implements IEntriesClient {
      */
     getPageImage(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<FileResponse> {
         let { repositoryId, entryId, pageNumber, select } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Image?";
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/{pageNumber}/Image?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
@@ -5397,6 +5630,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5417,7 +5657,7 @@ export class EntriesClient implements IEntriesClient {
      */
     getPageText(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageTextResponse> {
         let { repositoryId, entryId, pageNumber, select } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages({pageNumber})/Text?";
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/{pageNumber}/Text?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
@@ -5488,6 +5728,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5505,7 +5752,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The requested document ID.
      * @returns Successfully triggered text generation for the document. Returned the updated entry.
      */
-    generateText(args: { repositoryId: string, entryId: number }): Promise<Entry2> {
+    generateText(args: { repositoryId: string, entryId: number }): Promise<Entry> {
         let { repositoryId, entryId } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/GenerateText";
         if (repositoryId === undefined || repositoryId === null)
@@ -5528,14 +5775,14 @@ export class EntriesClient implements IEntriesClient {
         });
     }
 
-    protected processGenerateText(response: Response): Promise<Entry2> {
+    protected processGenerateText(response: Response): Promise<Entry> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Entry2.fromJS(resultData200);
+            result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
@@ -5573,12 +5820,19 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Entry2>(null as any);
+        return Promise.resolve<Entry>(null as any);
     }
 
     /**
@@ -5679,6 +5933,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5770,6 +6031,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -5878,6 +6146,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -5975,6 +6250,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -6062,6 +6344,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -6106,7 +6395,7 @@ export class EntriesClient implements IEntriesClient {
     protected processUnlockDocument(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
+        if (status === 204) {
             return response.text().then((_responseText) => {
             return;
             });
@@ -6145,6 +6434,13 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -6161,7 +6457,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The requested document ID.
      * @returns Successfully put the document under version control.
      */
-    putUnderVersionControl(args: { repositoryId: string, entryId: number }): Promise<Entry2> {
+    putUnderVersionControl(args: { repositoryId: string, entryId: number }): Promise<Entry> {
         let { repositoryId, entryId } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/VersionControl";
         if (repositoryId === undefined || repositoryId === null)
@@ -6184,14 +6480,14 @@ export class EntriesClient implements IEntriesClient {
         });
     }
 
-    protected processPutUnderVersionControl(response: Response): Promise<Entry2> {
+    protected processPutUnderVersionControl(response: Response): Promise<Entry> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Entry2.fromJS(resultData200);
+            result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
@@ -6229,12 +6525,19 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Entry2>(null as any);
+        return Promise.resolve<Entry>(null as any);
     }
 
     /**
@@ -6248,7 +6551,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.request (optional) The request body containing optional lock and comment parameters.
      * @returns Successfully checked out the document.
      */
-    checkOutDocument(args: { repositoryId: string, entryId: number, request?: CheckOutDocumentRequest | undefined }): Promise<Entry2> {
+    checkOutDocument(args: { repositoryId: string, entryId: number, request?: CheckOutDocumentRequest | undefined }): Promise<Entry> {
         let { repositoryId, entryId, request } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/CheckOut";
         if (repositoryId === undefined || repositoryId === null)
@@ -6275,14 +6578,14 @@ export class EntriesClient implements IEntriesClient {
         });
     }
 
-    protected processCheckOutDocument(response: Response): Promise<Entry2> {
+    protected processCheckOutDocument(response: Response): Promise<Entry> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Entry2.fromJS(resultData200);
+            result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
@@ -6334,12 +6637,19 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Entry2>(null as any);
+        return Promise.resolve<Entry>(null as any);
     }
 
     /**
@@ -6352,7 +6662,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.request (optional) Optional request body. If omitted, the persistent lock is released (default behavior).
      * @returns Successfully checked in the document. If a persistent lock was held and unlock was not set to false, the lock has been released.
      */
-    checkInDocument(args: { repositoryId: string, entryId: number, request?: CheckInDocumentRequest | undefined }): Promise<Entry2> {
+    checkInDocument(args: { repositoryId: string, entryId: number, request?: CheckInDocumentRequest | undefined }): Promise<Entry> {
         let { repositoryId, entryId, request } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/CheckIn";
         if (repositoryId === undefined || repositoryId === null)
@@ -6379,14 +6689,14 @@ export class EntriesClient implements IEntriesClient {
         });
     }
 
-    protected processCheckInDocument(response: Response): Promise<Entry2> {
+    protected processCheckInDocument(response: Response): Promise<Entry> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Entry2.fromJS(resultData200);
+            result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
@@ -6431,12 +6741,19 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Entry2>(null as any);
+        return Promise.resolve<Entry>(null as any);
     }
 
     /**
@@ -6448,7 +6765,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The requested document ID.
      * @returns Successfully undid the document check-out. Any persistent lock held on the document has been released.
      */
-    undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry2> {
+    undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry> {
         let { repositoryId, entryId } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/UndoCheckOut";
         if (repositoryId === undefined || repositoryId === null)
@@ -6471,14 +6788,14 @@ export class EntriesClient implements IEntriesClient {
         });
     }
 
-    protected processUndoCheckOut(response: Response): Promise<Entry2> {
+    protected processUndoCheckOut(response: Response): Promise<Entry> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Entry2.fromJS(resultData200);
+            result200 = Entry.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
@@ -6523,12 +6840,19 @@ export class EntriesClient implements IEntriesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Entry2>(null as any);
+        return Promise.resolve<Entry>(null as any);
     }
 }
 
@@ -6627,6 +6951,13 @@ export class RepositoriesClient implements IRepositoriesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -6968,6 +7299,13 @@ export class SearchesClient implements ISearchesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Operation limit or request limit has been reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -7103,6 +7441,13 @@ export class SearchesClient implements ISearchesClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -7216,6 +7561,13 @@ export class SearchesClient implements ISearchesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -7379,6 +7731,13 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Operation limit or request limit has been reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -7606,6 +7965,13 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -7696,6 +8062,13 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -7833,6 +8206,13 @@ export class TasksClient implements ITasksClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -7918,6 +8298,13 @@ export class TasksClient implements ITasksClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -8011,6 +8398,13 @@ export class TasksClient implements ITasksClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -8429,6 +8823,13 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -8519,6 +8920,13 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -8633,6 +9041,13 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
             });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -8746,6 +9161,13 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
             let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result429 = ProblemDetails.fromJS(resultData429);
             return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -8866,7 +9288,7 @@ export interface IAttribute {
     value?: string | undefined;
 }
 
-/** A machine-readable format for specifying errors in HTTP API responses based on https://tools.ietf.org/html/rfc7807. */
+/** A machine-readable format for specifying errors in HTTP API responses, per RFC 9457 (https://www.rfc-editor.org/rfc/rfc9457). Supersedes RFC 7807. */
 export class ProblemDetails implements IProblemDetails {
     /** The problem type. */
     type?: string | undefined;
@@ -8950,7 +9372,7 @@ export class ProblemDetails implements IProblemDetails {
     }
 }
 
-/** A machine-readable format for specifying errors in HTTP API responses based on https://tools.ietf.org/html/rfc7807. */
+/** A machine-readable format for specifying errors in HTTP API responses, per RFC 9457 (https://www.rfc-editor.org/rfc/rfc9457). Supersedes RFC 7807. */
 export interface IProblemDetails {
     /** The problem type. */
     type?: string | undefined;
@@ -9509,10 +9931,13 @@ export class CreateMultipartUploadUrlsRequest implements ICreateMultipartUploadU
     startingPartNumber?: number;
     /** The value must be in the range [1, 100], meaning that in each call to the CreateMultipartUploadUrls api, a maximum of 100 Upload URLs can be requested. Further, each file chunk written to an Upload URL should be at least 5 MB. There is no minimum size limit for the last chunk. */
     numberOfParts!: number;
-    /** The name of the file to be uploaded. The file extension in the name will be used as the extension of the imported entry. */
-    fileName?: string | undefined;
-    /** The mime-type of the file to be uploaded. */
-    mimeType?: string | undefined;
+    /** The name of the file to be uploaded. The file extension in the name will be used as the
+extension of the imported entry. Required when startingPartNumber is 1 (first batch);
+ignored on subsequent batches. */
+    fileName!: string;
+    /** The mime-type of the file to be uploaded. Required when startingPartNumber is 1
+(first batch); ignored on subsequent batches. */
+    mimeType!: string;
 
     
     
@@ -9565,10 +9990,13 @@ export interface ICreateMultipartUploadUrlsRequest {
     startingPartNumber?: number;
     /** The value must be in the range [1, 100], meaning that in each call to the CreateMultipartUploadUrls api, a maximum of 100 Upload URLs can be requested. Further, each file chunk written to an Upload URL should be at least 5 MB. There is no minimum size limit for the last chunk. */
     numberOfParts: number;
-    /** The name of the file to be uploaded. The file extension in the name will be used as the extension of the imported entry. */
-    fileName?: string | undefined;
-    /** The mime-type of the file to be uploaded. */
-    mimeType?: string | undefined;
+    /** The name of the file to be uploaded. The file extension in the name will be used as the
+extension of the imported entry. Required when startingPartNumber is 1 (first batch);
+ignored on subsequent batches. */
+    fileName: string;
+    /** The mime-type of the file to be uploaded. Required when startingPartNumber is 1
+(first batch); ignored on subsequent batches. */
+    mimeType: string;
 }
 
 /** Response containing a long operation task id. */
@@ -10978,6 +11406,95 @@ export interface IFolder extends IEntry {
     isUnderRecordSeries?: boolean;
 }
 
+/** Request body for importing an entry. */
+export class ImportEntryRequest implements IImportEntryRequest {
+    /** The name for the imported entry. */
+    name!: string;
+    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
+    autoRename?: boolean;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
+    volumeName?: string | undefined;
+    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
+    generateImagePagesText?: boolean;
+
+    
+    
+    constructor(data?: IImportEntryRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.autoRename = false;
+            this.importAsElectronicDocument = false;
+            this.generateImagePagesText = true;
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.autoRename = _data["autoRename"] !== undefined ? _data["autoRename"] : false;
+            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
+            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
+            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
+            this.volumeName = _data["volumeName"];
+            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
+        }
+    }
+
+    static fromJS(data: any): ImportEntryRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportEntryRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["autoRename"] = this.autoRename;
+        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
+        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
+        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
+        data["volumeName"] = this.volumeName;
+        data["generateImagePagesText"] = this.generateImagePagesText;
+        return data;
+    }
+}
+
+/** Request body for importing an entry. */
+export interface IImportEntryRequest {
+    /** The name for the imported entry. */
+    name: string;
+    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
+    autoRename?: boolean;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
+    volumeName?: string | undefined;
+    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
+    generateImagePagesText?: boolean;
+}
+
 /** Response containing a link to download the exported entry. */
 export class ExportEntryResponse implements IExportEntryResponse {
     /** Gets or sets the OData response content in the "value". */
@@ -12000,6 +12517,76 @@ export enum CreateEntryRequestEntryType {
     Shortcut = "Shortcut",
 }
 
+/** Request body for updating a document's electronic document and/or metadata. */
+export class UpdateDocumentRequest implements IUpdateDocumentRequest {
+    /** Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
+    generateImagePagesText?: boolean;
+
+    
+    
+    constructor(data?: IUpdateDocumentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.importAsElectronicDocument = false;
+            this.generateImagePagesText = true;
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
+            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
+            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
+            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
+        }
+    }
+
+    static fromJS(data: any): UpdateDocumentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDocumentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
+        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
+        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
+        data["generateImagePagesText"] = this.generateImagePagesText;
+        return data;
+    }
+}
+
+/** Request body for updating a document's electronic document and/or metadata. */
+export interface IUpdateDocumentRequest {
+    /** Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
+    generateImagePagesText?: boolean;
+}
+
 /** Request body for updating a document's electronic document and/or metadata from previously uploaded parts. */
 export class UpdateDocumentUploadedPartsRequest implements IUpdateDocumentUploadedPartsRequest {
     /** The UploadId received when calling the CreateMultipartUploadUrls API to request upload URLs. */
@@ -12082,6 +12669,100 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
 }
 
+/** Request body for POST /Document/Pages (CreatePages) and PUT /Document/Pages (ReplacePages). Carries the textual page content alongside any uploaded image files. */
+export class PagesContentRequest implements IPagesContentRequest {
+    /** Optional text content for new pages. Paired by index with imageFiles —
+page[i] gets textPages[i] and imageFiles[i]. If one array is shorter,
+the corresponding pages are created without that part. */
+    textPages?: string[] | undefined;
+
+    
+    
+    constructor(data?: IPagesContentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["textPages"])) {
+                this.textPages = [] as any;
+                for (let item of _data["textPages"])
+                    this.textPages!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): PagesContentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagesContentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.textPages)) {
+            data["textPages"] = [];
+            for (let item of this.textPages)
+                data["textPages"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Request body for POST /Document/Pages (CreatePages) and PUT /Document/Pages (ReplacePages). Carries the textual page content alongside any uploaded image files. */
+export interface IPagesContentRequest {
+    /** Optional text content for new pages. Paired by index with imageFiles —
+page[i] gets textPages[i] and imageFiles[i]. If one array is shorter,
+the corresponding pages are created without that part. */
+    textPages?: string[] | undefined;
+}
+
+export class WritePageTextRequest implements IWritePageTextRequest {
+    /** The text content for the page. */
+    text!: string;
+
+    
+    
+    constructor(data?: IWritePageTextRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): WritePageTextRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new WritePageTextRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface IWritePageTextRequest {
+    /** The text content for the page. */
+    text: string;
+}
+
 export class MovePagesRequest implements IMovePagesRequest {
     /** The page range to move (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
     pageRange!: string;
@@ -12129,7 +12810,8 @@ export interface IMovePagesRequest {
 }
 
 export class CopyPagesRequest implements ICopyPagesRequest {
-    /** The page range to copy (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
+    /** The page range to copy (e.g., "1-3" or "2,4,6"). 1-based page numbers.
+The total number of distinct pages in the range cannot exceed 500. */
     pageRange!: string;
     /** The entry ID of the destination document. */
     destinationEntryId!: number;
@@ -12172,7 +12854,8 @@ export class CopyPagesRequest implements ICopyPagesRequest {
 }
 
 export interface ICopyPagesRequest {
-    /** The page range to copy (e.g., "1-3" or "2,4,6"). 1-based page numbers. */
+    /** The page range to copy (e.g., "1-3" or "2,4,6"). 1-based page numbers.
+The total number of distinct pages in the range cannot exceed 500. */
     pageRange: string;
     /** The entry ID of the destination document. */
     destinationEntryId: number;
@@ -12358,612 +13041,6 @@ export class PageTextResponse implements IPageTextResponse {
 
 export interface IPageTextResponse {
     text?: string | undefined;
-}
-
-export abstract class Entry2 implements IEntry2 {
-    /** The ID of the entry. */
-    id?: number;
-    /** The name of the entry. */
-    name?: string | undefined;
-    /** The ID of the parent entry. */
-    parentId?: number | undefined;
-    /** The full path in the Laserfiche repository to the entry. */
-    fullPath?: string | undefined;
-    /** The path in the Laserfiche repository to the parent folder. */
-    folderPath?: string | undefined;
-    /** The name of the user that created this entry. */
-    creator?: string | undefined;
-    /** The creation time of the entry. */
-    creationTime?: Date;
-    /** The last modification time of the entry. */
-    lastModifiedTime?: Date;
-    /** The type of the entry. */
-    entryType?: EntryType2;
-    /** A boolean indicating if this entry is a container object; it can have other entries as children. */
-    isContainer?: boolean;
-    /** A boolean indicating if this entry is a leaf object; it cannot have other entries as children. */
-    isLeaf?: boolean;
-    /** The name of the template assigned to this entry. */
-    templateName?: string | undefined;
-    /** The id of the template assigned to this entry. */
-    templateId?: number;
-    /** The names of the fields assigned to the template assigned to this entry. */
-    templateFieldNames?: string[] | undefined;
-    /** The name of the volume that this entry is associated with. */
-    volumeName?: string | undefined;
-    /** Row number assigned to this entry in the listing. */
-    rowNumber?: number | undefined;
-    /** The fields assigned to this entry. */
-    fields?: EntryFieldValue[] | undefined;
-    protected _discriminator: string;
-
-    
-    
-    constructor(data?: IEntry2) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        this._discriminator = "Entry2";
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.parentId = _data["parentId"];
-            this.fullPath = _data["fullPath"];
-            this.folderPath = _data["folderPath"];
-            this.creator = _data["creator"];
-            this.creationTime = _data["creationTime"] ? new Date(_data["creationTime"].toString()) : <any>undefined;
-            this.lastModifiedTime = _data["lastModifiedTime"] ? new Date(_data["lastModifiedTime"].toString()) : <any>undefined;
-            this.entryType = _data["entryType"];
-            this.isContainer = _data["isContainer"];
-            this.isLeaf = _data["isLeaf"];
-            this.templateName = _data["templateName"];
-            this.templateId = _data["templateId"];
-            if (Array.isArray(_data["templateFieldNames"])) {
-                this.templateFieldNames = [] as any;
-                for (let item of _data["templateFieldNames"])
-                    this.templateFieldNames!.push(item);
-            }
-            this.volumeName = _data["volumeName"];
-            this.rowNumber = _data["rowNumber"];
-            if (Array.isArray(_data["fields"])) {
-                this.fields = [] as any;
-                for (let item of _data["fields"])
-                    this.fields!.push(EntryFieldValue.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Entry2 {
-        data = typeof data === 'object' ? data : {};
-        if (data["entryType"] === "Document") {
-            let result = new Document2();
-            result.init(data);
-            return result;
-        }
-        if (data["entryType"] === "Shortcut") {
-            let result = new Shortcut2();
-            result.init(data);
-            return result;
-        }
-        if (data["entryType"] === "Folder") {
-            let result = new Folder2();
-            result.init(data);
-            return result;
-        }
-        if (data["entryType"] === "RecordSeries2") {
-            let result = new RecordSeries2();
-            result.init(data);
-            return result;
-        }
-        throw new Error("The abstract class 'Entry2' cannot be instantiated.");
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["entryType"] = this._discriminator;
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["parentId"] = this.parentId;
-        data["fullPath"] = this.fullPath;
-        data["folderPath"] = this.folderPath;
-        data["creator"] = this.creator;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["lastModifiedTime"] = this.lastModifiedTime ? this.lastModifiedTime.toISOString() : <any>undefined;
-        data["entryType"] = this.entryType;
-        data["isContainer"] = this.isContainer;
-        data["isLeaf"] = this.isLeaf;
-        data["templateName"] = this.templateName;
-        data["templateId"] = this.templateId;
-        if (Array.isArray(this.templateFieldNames)) {
-            data["templateFieldNames"] = [];
-            for (let item of this.templateFieldNames)
-                data["templateFieldNames"].push(item);
-        }
-        data["volumeName"] = this.volumeName;
-        data["rowNumber"] = this.rowNumber;
-        if (Array.isArray(this.fields)) {
-            data["fields"] = [];
-            for (let item of this.fields)
-                data["fields"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IEntry2 {
-    /** The ID of the entry. */
-    id?: number;
-    /** The name of the entry. */
-    name?: string | undefined;
-    /** The ID of the parent entry. */
-    parentId?: number | undefined;
-    /** The full path in the Laserfiche repository to the entry. */
-    fullPath?: string | undefined;
-    /** The path in the Laserfiche repository to the parent folder. */
-    folderPath?: string | undefined;
-    /** The name of the user that created this entry. */
-    creator?: string | undefined;
-    /** The creation time of the entry. */
-    creationTime?: Date;
-    /** The last modification time of the entry. */
-    lastModifiedTime?: Date;
-    /** The type of the entry. */
-    entryType?: EntryType2;
-    /** A boolean indicating if this entry is a container object; it can have other entries as children. */
-    isContainer?: boolean;
-    /** A boolean indicating if this entry is a leaf object; it cannot have other entries as children. */
-    isLeaf?: boolean;
-    /** The name of the template assigned to this entry. */
-    templateName?: string | undefined;
-    /** The id of the template assigned to this entry. */
-    templateId?: number;
-    /** The names of the fields assigned to the template assigned to this entry. */
-    templateFieldNames?: string[] | undefined;
-    /** The name of the volume that this entry is associated with. */
-    volumeName?: string | undefined;
-    /** Row number assigned to this entry in the listing. */
-    rowNumber?: number | undefined;
-    /** The fields assigned to this entry. */
-    fields?: EntryFieldValue[] | undefined;
-}
-
-export enum EntryType2 {
-    Folder = "Folder",
-    RecordSeries = "RecordSeries",
-    Document = "Document",
-    Shortcut = "Shortcut",
-}
-
-export class EntryFieldValue implements IEntryFieldValue {
-    /** The name of the field. */
-    fieldName?: string | undefined;
-    /** The values assigned to the field. */
-    values?: { [key: string]: any; }[] | undefined;
-    /** The type of the field. The possible field types are listed below. */
-    fieldType?: WFieldType;
-    /** The ID of the field. */
-    fieldId?: number;
-    /** A boolean indicating if the represented field supports multiple values. */
-    isMultiValue?: boolean;
-    /** A boolean indicating if the represented field must have a value set on entries assigned to a template that the field is a member of. */
-    isRequired?: boolean;
-    /** A boolean indicating if there are more field values. */
-    hasMoreValues?: boolean;
-
-    
-    
-    constructor(data?: IEntryFieldValue) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.fieldName = _data["fieldName"];
-            if (Array.isArray(_data["values"])) {
-                this.values = [] as any;
-                for (let item of _data["values"])
-                    this.values!.push(item);
-            }
-            this.fieldType = _data["fieldType"];
-            this.fieldId = _data["fieldId"];
-            this.isMultiValue = _data["isMultiValue"];
-            this.isRequired = _data["isRequired"];
-            this.hasMoreValues = _data["hasMoreValues"];
-        }
-    }
-
-    static fromJS(data: any): EntryFieldValue {
-        data = typeof data === 'object' ? data : {};
-        let result = new EntryFieldValue();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["fieldName"] = this.fieldName;
-        if (Array.isArray(this.values)) {
-            data["values"] = [];
-            for (let item of this.values)
-                data["values"].push(item);
-        }
-        data["fieldType"] = this.fieldType;
-        data["fieldId"] = this.fieldId;
-        data["isMultiValue"] = this.isMultiValue;
-        data["isRequired"] = this.isRequired;
-        data["hasMoreValues"] = this.hasMoreValues;
-        return data;
-    }
-}
-
-export interface IEntryFieldValue {
-    /** The name of the field. */
-    fieldName?: string | undefined;
-    /** The values assigned to the field. */
-    values?: { [key: string]: any; }[] | undefined;
-    /** The type of the field. The possible field types are listed below. */
-    fieldType?: WFieldType;
-    /** The ID of the field. */
-    fieldId?: number;
-    /** A boolean indicating if the represented field supports multiple values. */
-    isMultiValue?: boolean;
-    /** A boolean indicating if the represented field must have a value set on entries assigned to a template that the field is a member of. */
-    isRequired?: boolean;
-    /** A boolean indicating if there are more field values. */
-    hasMoreValues?: boolean;
-}
-
-export enum WFieldType {
-    DateTime = "DateTime",
-    Blob = "Blob",
-    Date = "Date",
-    ShortInteger = "ShortInteger",
-    LongInteger = "LongInteger",
-    List = "List",
-    Number = "Number",
-    String = "String",
-    Time = "Time",
-}
-
-export class RecordSeries2 extends Entry2 implements IRecordSeries2 {
-
-    
-    
-    constructor(data?: IRecordSeries2) {
-        super(data);
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        this._discriminator = "RecordSeries2";
-    }
-
-    init(_data?: any) {
-        super.init(_data);
-    }
-
-    static fromJS(data: any): RecordSeries2 {
-        data = typeof data === 'object' ? data : {};
-        let result = new RecordSeries2();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IRecordSeries2 extends IEntry2 {
-}
-
-export class Document2 extends Entry2 implements IDocument2 {
-    /** The size of the electronic document attached to the represented document,
-if there is one, in bytes. */
-    elecDocumentSize?: number;
-    /** The extension for the document. */
-    extension?: string | undefined;
-    /** A boolean indicating if there is an electronic document attached to the represented document. */
-    isElectronicDocument?: boolean;
-    /** A boolean indicating if the represented document is a record. */
-    isRecord?: boolean;
-    /** The MIME type of the electronic document. */
-    mimeType?: string | undefined;
-    /** The page count of the represented document. */
-    pageCount?: number;
-    /** A boolean indicating if the represented document is checked out. */
-    isCheckedOut?: boolean;
-    /** A boolean indicating if the represented document is under version control. */
-    isUnderVersionControl?: boolean;
-    /** The electronic document attached to the represented document. */
-    edoc?: Edoc | undefined;
-    /** A boolean indicating if the represented document has a persistent lock. */
-    isLocked?: boolean;
-    /** The account name of the persistent lock holder. Null if the document is not locked. */
-    lockedBy?: string | undefined;
-    /** A boolean indicating if the document is locked by a user other than the authenticated user.
-False if the document is not locked or is locked by the authenticated user.
-Only populated on single-entry GET, not in listing results. */
-    isLockedByAnotherUser?: boolean;
-    /** The version number of the document. 0 if the document is not under version control. */
-    currentVersion?: number;
-    /** The account name of the user who checked out the document. Null if the document is not checked out. */
-    checkedOutBy?: string | undefined;
-    /** A boolean indicating if the document is checked out by a user other than the authenticated user.
-False if the document is not checked out or is checked out by the authenticated user.
-Only populated on single-entry GET, not in listing results. */
-    isCheckedOutByAnotherUser?: boolean;
-
-    
-    
-    constructor(data?: IDocument2) {
-        super(data);
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        this._discriminator = "Document";
-    }
-
-    init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.elecDocumentSize = _data["elecDocumentSize"];
-            this.extension = _data["extension"];
-            this.isElectronicDocument = _data["isElectronicDocument"];
-            this.isRecord = _data["isRecord"];
-            this.mimeType = _data["mimeType"];
-            this.pageCount = _data["pageCount"];
-            this.isCheckedOut = _data["isCheckedOut"];
-            this.isUnderVersionControl = _data["isUnderVersionControl"];
-            this.edoc = _data["edoc"] ? Edoc.fromJS(_data["edoc"]) : <any>undefined;
-            this.isLocked = _data["isLocked"];
-            this.lockedBy = _data["lockedBy"];
-            this.isLockedByAnotherUser = _data["isLockedByAnotherUser"];
-            this.currentVersion = _data["currentVersion"];
-            this.checkedOutBy = _data["checkedOutBy"];
-            this.isCheckedOutByAnotherUser = _data["isCheckedOutByAnotherUser"];
-        }
-    }
-
-    static fromJS(data: any): Document2 {
-        data = typeof data === 'object' ? data : {};
-        let result = new Document2();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["elecDocumentSize"] = this.elecDocumentSize;
-        data["extension"] = this.extension;
-        data["isElectronicDocument"] = this.isElectronicDocument;
-        data["isRecord"] = this.isRecord;
-        data["mimeType"] = this.mimeType;
-        data["pageCount"] = this.pageCount;
-        data["isCheckedOut"] = this.isCheckedOut;
-        data["isUnderVersionControl"] = this.isUnderVersionControl;
-        data["edoc"] = this.edoc ? this.edoc.toJSON() : <any>undefined;
-        data["isLocked"] = this.isLocked;
-        data["lockedBy"] = this.lockedBy;
-        data["isLockedByAnotherUser"] = this.isLockedByAnotherUser;
-        data["currentVersion"] = this.currentVersion;
-        data["checkedOutBy"] = this.checkedOutBy;
-        data["isCheckedOutByAnotherUser"] = this.isCheckedOutByAnotherUser;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IDocument2 extends IEntry2 {
-    /** The size of the electronic document attached to the represented document,
-if there is one, in bytes. */
-    elecDocumentSize?: number;
-    /** The extension for the document. */
-    extension?: string | undefined;
-    /** A boolean indicating if there is an electronic document attached to the represented document. */
-    isElectronicDocument?: boolean;
-    /** A boolean indicating if the represented document is a record. */
-    isRecord?: boolean;
-    /** The MIME type of the electronic document. */
-    mimeType?: string | undefined;
-    /** The page count of the represented document. */
-    pageCount?: number;
-    /** A boolean indicating if the represented document is checked out. */
-    isCheckedOut?: boolean;
-    /** A boolean indicating if the represented document is under version control. */
-    isUnderVersionControl?: boolean;
-    /** The electronic document attached to the represented document. */
-    edoc?: Edoc | undefined;
-    /** A boolean indicating if the represented document has a persistent lock. */
-    isLocked?: boolean;
-    /** The account name of the persistent lock holder. Null if the document is not locked. */
-    lockedBy?: string | undefined;
-    /** A boolean indicating if the document is locked by a user other than the authenticated user.
-False if the document is not locked or is locked by the authenticated user.
-Only populated on single-entry GET, not in listing results. */
-    isLockedByAnotherUser?: boolean;
-    /** The version number of the document. 0 if the document is not under version control. */
-    currentVersion?: number;
-    /** The account name of the user who checked out the document. Null if the document is not checked out. */
-    checkedOutBy?: string | undefined;
-    /** A boolean indicating if the document is checked out by a user other than the authenticated user.
-False if the document is not checked out or is checked out by the authenticated user.
-Only populated on single-entry GET, not in listing results. */
-    isCheckedOutByAnotherUser?: boolean;
-}
-
-export class Edoc implements IEdoc {
-
-    
-    
-    constructor(data?: IEdoc) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): Edoc {
-        data = typeof data === 'object' ? data : {};
-        let result = new Edoc();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        return data;
-    }
-}
-
-export interface IEdoc {
-}
-
-export class Shortcut2 extends Entry2 implements IShortcut2 {
-    /** The entry ID of the shortcut target. */
-    targetId?: number;
-    /** The extension of the shortcut target. */
-    extension?: string | undefined;
-    /** The entry type of the shortcut target. */
-    targetType?: EntryType2;
-
-    
-    
-    constructor(data?: IShortcut2) {
-        super(data);
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        this._discriminator = "Shortcut";
-    }
-
-    init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.targetId = _data["targetId"];
-            this.extension = _data["extension"];
-            this.targetType = _data["targetType"];
-        }
-    }
-
-    static fromJS(data: any): Shortcut2 {
-        data = typeof data === 'object' ? data : {};
-        let result = new Shortcut2();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["targetId"] = this.targetId;
-        data["extension"] = this.extension;
-        data["targetType"] = this.targetType;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IShortcut2 extends IEntry2 {
-    /** The entry ID of the shortcut target. */
-    targetId?: number;
-    /** The extension of the shortcut target. */
-    extension?: string | undefined;
-    /** The entry type of the shortcut target. */
-    targetType?: EntryType2;
-}
-
-export class Folder2 extends Entry2 implements IFolder2 {
-    /** A boolean indicating if the folder that this instance represents is known
-to be a record folder. */
-    isRecordFolder?: boolean;
-    /** A boolean indicating if the folder that this instance represents is known
-to directly or indirectly under a record series in the repository. */
-    isUnderRecordSeries?: boolean;
-    /** The entries in this folder. */
-    children?: Entry2[] | undefined;
-
-    
-    
-    constructor(data?: IFolder2) {
-        super(data);
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        this._discriminator = "Folder";
-    }
-
-    init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.isRecordFolder = _data["isRecordFolder"];
-            this.isUnderRecordSeries = _data["isUnderRecordSeries"];
-            if (Array.isArray(_data["children"])) {
-                this.children = [] as any;
-                for (let item of _data["children"])
-                    this.children!.push(Entry2.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Folder2 {
-        data = typeof data === 'object' ? data : {};
-        let result = new Folder2();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["isRecordFolder"] = this.isRecordFolder;
-        data["isUnderRecordSeries"] = this.isUnderRecordSeries;
-        if (Array.isArray(this.children)) {
-            data["children"] = [];
-            for (let item of this.children)
-                data["children"].push(item.toJSON());
-        }
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IFolder2 extends IEntry2 {
-    /** A boolean indicating if the folder that this instance represents is known
-to be a record folder. */
-    isRecordFolder?: boolean;
-    /** A boolean indicating if the folder that this instance represents is known
-to directly or indirectly under a record series in the repository. */
-    isUnderRecordSeries?: boolean;
-    /** The entries in this folder. */
-    children?: Entry2[] | undefined;
 }
 
 /** Request body for listing dynamic field values for an entry. */
@@ -14523,257 +14600,6 @@ export class Rule implements IRule {
 export interface IRule {
     /** The IDs of the parent fields in the template according to the form logic rule. */
     ancestors?: number[] | undefined;
-}
-
-/** Request body for importing an entry. */
-export class ImportEntryRequest implements IImportEntryRequest {
-    /** The name for the imported entry. */
-    name!: string;
-    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
-    autoRename?: boolean;
-    /** The options applied when importing a PDF. */
-    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
-This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
-For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
-    importAsElectronicDocument?: boolean;
-    /** The metadata that will be assigned to the entry. */
-    metadata?: ImportEntryRequestMetadata | undefined;
-    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
-    volumeName?: string | undefined;
-    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
-Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
-    generateImagePagesText?: boolean;
-
-    
-    
-    constructor(data?: IImportEntryRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.autoRename = false;
-            this.importAsElectronicDocument = false;
-            this.generateImagePagesText = true;
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.autoRename = _data["autoRename"] !== undefined ? _data["autoRename"] : false;
-            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
-            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
-            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
-            this.volumeName = _data["volumeName"];
-            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
-        }
-    }
-
-    static fromJS(data: any): ImportEntryRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new ImportEntryRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["autoRename"] = this.autoRename;
-        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
-        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
-        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
-        data["volumeName"] = this.volumeName;
-        data["generateImagePagesText"] = this.generateImagePagesText;
-        return data;
-    }
-}
-
-/** Request body for importing an entry. */
-export interface IImportEntryRequest {
-    /** The name for the imported entry. */
-    name: string;
-    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
-    autoRename?: boolean;
-    /** The options applied when importing a PDF. */
-    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
-This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
-For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
-    importAsElectronicDocument?: boolean;
-    /** The metadata that will be assigned to the entry. */
-    metadata?: ImportEntryRequestMetadata | undefined;
-    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
-    volumeName?: string | undefined;
-    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
-Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
-    generateImagePagesText?: boolean;
-}
-
-/** Request body for updating a document's electronic document and/or metadata. */
-export class UpdateDocumentRequest implements IUpdateDocumentRequest {
-    /** Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.
-This flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
-For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
-    importAsElectronicDocument?: boolean;
-    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
-    metadata?: ImportEntryRequestMetadata | undefined;
-    /** The options applied when importing a PDF. */
-    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
-Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
-    generateImagePagesText?: boolean;
-
-    
-    
-    constructor(data?: IUpdateDocumentRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.importAsElectronicDocument = false;
-            this.generateImagePagesText = true;
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
-            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
-            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
-            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
-        }
-    }
-
-    static fromJS(data: any): UpdateDocumentRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateDocumentRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
-        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
-        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
-        data["generateImagePagesText"] = this.generateImagePagesText;
-        return data;
-    }
-}
-
-/** Request body for updating a document's electronic document and/or metadata. */
-export interface IUpdateDocumentRequest {
-    /** Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.
-This flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
-For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
-    importAsElectronicDocument?: boolean;
-    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
-    metadata?: ImportEntryRequestMetadata | undefined;
-    /** The options applied when importing a PDF. */
-    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
-Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
-    generateImagePagesText?: boolean;
-}
-
-export class CreatePagesRequest implements ICreatePagesRequest {
-    /** Optional text content for new pages. Paired by index with imageFiles —
-page[i] gets textPages[i] and imageFiles[i]. If one array is shorter,
-the corresponding pages are created without that part. */
-    textPages?: string[] | undefined;
-
-    
-    
-    constructor(data?: ICreatePagesRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["textPages"])) {
-                this.textPages = [] as any;
-                for (let item of _data["textPages"])
-                    this.textPages!.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): CreatePagesRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreatePagesRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.textPages)) {
-            data["textPages"] = [];
-            for (let item of this.textPages)
-                data["textPages"].push(item);
-        }
-        return data;
-    }
-}
-
-export interface ICreatePagesRequest {
-    /** Optional text content for new pages. Paired by index with imageFiles —
-page[i] gets textPages[i] and imageFiles[i]. If one array is shorter,
-the corresponding pages are created without that part. */
-    textPages?: string[] | undefined;
-}
-
-export class WritePageTextRequest implements IWritePageTextRequest {
-    /** The text content for the page. */
-    text!: string;
-
-    
-    
-    constructor(data?: IWritePageTextRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.text = _data["text"];
-        }
-    }
-
-    static fromJS(data: any): WritePageTextRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new WritePageTextRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["text"] = this.text;
-        return data;
-    }
-}
-
-export interface IWritePageTextRequest {
-    /** The text content for the page. */
-    text: string;
 }
 
 export interface FileParameter {

@@ -4,7 +4,7 @@ import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import {
   Document,
-  CreatePagesRequest,
+  PagesContentRequest,
   WritePageTextRequest,
   ImportEntryRequest,
   FileParameter,
@@ -46,7 +46,7 @@ describe('WritePageText Integration Tests', () => {
       'RepositoryApiClientIntegrationTest JS WritePageText'
     );
 
-    const createPagesRequest = new CreatePagesRequest();
+    const createPagesRequest = new PagesContentRequest();
     createPagesRequest.textPages = ['Original text content'];
     await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,

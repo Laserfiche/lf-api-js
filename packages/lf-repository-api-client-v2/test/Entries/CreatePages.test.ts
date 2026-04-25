@@ -4,7 +4,7 @@ import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import {
   Document,
-  CreatePagesRequest,
+  PagesContentRequest,
   ImportEntryRequest,
   FileParameter,
   StartDeleteEntryRequest,
@@ -94,7 +94,7 @@ describe('CreatePages Integration Tests', () => {
       'RepositoryApiClientIntegrationTest JS CreatePages TextOnly'
     );
 
-    const createPagesRequest = new CreatePagesRequest();
+    const createPagesRequest = new PagesContentRequest();
     createPagesRequest.textPages = ['Hello world integration test'];
 
     const result = await _RepositoryApiClient.entriesClient.createPages({
@@ -113,7 +113,7 @@ describe('CreatePages Integration Tests', () => {
       'RepositoryApiClientIntegrationTest JS CreatePages EmptyPage'
     );
 
-    const req = new CreatePagesRequest();
+    const req = new PagesContentRequest();
     req.textPages = [''];
     const result = await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
@@ -131,7 +131,7 @@ describe('CreatePages Integration Tests', () => {
       'RepositoryApiClientIntegrationTest JS CreatePages EmptyCount3'
     );
 
-    const req = new CreatePagesRequest();
+    const req = new PagesContentRequest();
     req.textPages = ['', '', ''];
     const result = await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
@@ -150,7 +150,7 @@ describe('CreatePages Integration Tests', () => {
     );
 
     // Create an initial text page
-    const req = new CreatePagesRequest();
+    const req = new PagesContentRequest();
     req.textPages = ['Original page'];
     await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
@@ -175,7 +175,7 @@ describe('CreatePages Integration Tests', () => {
       'RepositoryApiClientIntegrationTest JS CreatePages ImageAndText'
     );
 
-    const req = new CreatePagesRequest();
+    const req = new PagesContentRequest();
     req.textPages = ['Page with both image and text'];
     const result = await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
