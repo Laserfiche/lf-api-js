@@ -3,15 +3,13 @@
 import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import {
-  Document,
-  PagesContentRequest,
-  WritePageTextRequest,
+  RotateImagePageRequest,
   ImportEntryRequest,
   FileParameter,
   StartDeleteEntryRequest,
 } from '../../index.js';
 
-describe('WritePageText Integration Tests', () => {
+describe('rotateImagePage Integration Tests', () => {
   let createdEntryId: number = 0;
 
   async function createEmptyDocument(name: string): Promise<number> {
@@ -29,6 +27,19 @@ describe('WritePageText Integration Tests', () => {
     return entry.id!;
   }
 
+  function createPngFileParameter(name: string): FileParameter {
+    const pngBytes = new Uint8Array([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+      0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+      0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xde, 0x00, 0x00, 0x00,
+      0x0c, 0x49, 0x44, 0x41, 0x54, 0x08, 0xd7, 0x63, 0xf8, 0xcf, 0xc0, 0x00,
+      0x00, 0x00, 0x02, 0x00, 0x01, 0xe2, 0x21, 0xbc, 0x33, 0x00, 0x00, 0x00,
+      0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+    ]);
+    const blob = new Blob([pngBytes], { type: 'image/png' });
+    return { fileName: name, data: blob };
+  }
+
   afterEach(async () => {
     if (createdEntryId !== 0) {
       const request = new StartDeleteEntryRequest();
@@ -41,39 +52,35 @@ describe('WritePageText Integration Tests', () => {
     }
   });
 
-  test('WritePageText replaces text', async () => {
+  test('rotateImagePage rotates by 90 degrees and page survives rotation', async () => {
     createdEntryId = await createEmptyDocument(
-      'RepositoryApiClientIntegrationTest JS WritePageText'
+      'RepositoryApiClientIntegrationTest JS RotateImagePage'
     );
 
-    const createPagesRequest = new PagesContentRequest();
-    createPagesRequest.textPages = ['Original text content'];
     await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
       entryId: createdEntryId,
-      request: createPagesRequest,
+      imageFiles: [createPngFileParameter('rotate.png')],
     });
 
-    const writeRequest = new WritePageTextRequest();
-    writeRequest.text = 'Replaced text content';
-    const result = await _RepositoryApiClient.entriesClient.writePage({
+    const rotateRequest = new RotateImagePageRequest();
+    rotateRequest.rotationAngle = 90;
+
+    const result = await _RepositoryApiClient.entriesClient.rotateImagePage({
       repositoryId,
       entryId: createdEntryId,
       pageNumber: 1,
-      request: writeRequest,
+      request: rotateRequest,
     });
 
     expect(result).not.toBeNull();
     expect(result.id).toBe(createdEntryId);
-    expect((result as Document).pageCount).toBe(1);
 
-    const pageText = await _RepositoryApiClient.entriesClient.getPageText({
+    const pages = await _RepositoryApiClient.entriesClient.listPageInfos({
       repositoryId,
       entryId: createdEntryId,
-      pageNumber: 1,
     });
-
-    expect(pageText).not.toBeNull();
-    expect(pageText.text).toBe('Replaced text content');
+    expect(pages.length).toBe(1);
+    expect(pages[0].hasImage).toBe(true);
   });
 });

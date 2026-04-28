@@ -70,8 +70,11 @@ NULL_CHECK = re.compile(
 
 # Match TypeScript method signatures so we can attribute each null-check to
 # its enclosing method. Signatures appear on a single line and end with "{".
+# `.+` (greedy) terminates at the line-end `\{\s*$` anchor, so it correctly
+# captures nested generic return types like Promise<IList<Entry>> without
+# stopping at the first inner `>`.
 METHOD_SIG = re.compile(
-    r"^[ \t]+(?P<name>\w+)\(args:.*\): Promise<[^>]+>\s*\{\s*$", re.MULTILINE
+    r"^[ \t]+(?P<name>\w+)\(args:.*\): Promise<.+>\s*\{\s*$", re.MULTILINE
 )
 
 

@@ -4,12 +4,13 @@ import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import {
   Document,
+  PagesContentRequest,
   ImportEntryRequest,
   FileParameter,
   StartDeleteEntryRequest,
 } from '../../index.js';
 
-describe('WritePageImage Integration Tests', () => {
+describe('replacePages Integration Tests', () => {
   let createdEntryId: number = 0;
 
   async function createEmptyDocument(name: string): Promise<number> {
@@ -52,64 +53,40 @@ describe('WritePageImage Integration Tests', () => {
     }
   });
 
-  test('WritePageImage replaces image', async () => {
+  test('replacePages replaces all existing pages with new content', async () => {
     createdEntryId = await createEmptyDocument(
-      'RepositoryApiClientIntegrationTest JS WritePageImage'
+      'RepositoryApiClientIntegrationTest JS ReplacePages'
     );
 
-    // Create an image page first
+    // Seed 2 text pages
+    const seed = new PagesContentRequest();
+    seed.textPages = ['Original A', 'Original B'];
     await _RepositoryApiClient.entriesClient.createPages({
       repositoryId,
       entryId: createdEntryId,
-      imageFiles: [createPngFileParameter('original.png')],
+      request: seed,
     });
 
-    // Replace the image on page 1
-    const result = await _RepositoryApiClient.entriesClient.writePage({
+    // Replace all pages with 1 image page + 1 text page
+    const replacement = new PagesContentRequest();
+    replacement.textPages = ['', 'Replacement text'];
+    const result = await _RepositoryApiClient.entriesClient.replacePages({
       repositoryId,
       entryId: createdEntryId,
-      pageNumber: 1,
-      imageFile: createPngFileParameter('replacement.png'),
+      imageFiles: [createPngFileParameter('replacement.png')],
+      request: replacement,
     });
 
     expect(result).not.toBeNull();
     expect(result.id).toBe(createdEntryId);
-    expect((result as Document).pageCount).toBe(1);
+    expect((result as Document).pageCount).toBe(2);
 
-    // Verify image can be retrieved
-    const imageResult = await _RepositoryApiClient.entriesClient.getPageImage({
+    // The replacement text on page 2 is set; page 1's image was replaced
+    const pageText = await _RepositoryApiClient.entriesClient.getPageText({
       repositoryId,
       entryId: createdEntryId,
-      pageNumber: 1,
+      pageNumber: 2,
     });
-    expect(imageResult).not.toBeNull();
-    expect(imageResult.data).toBeDefined();
-    expect(imageResult.data.size).toBeGreaterThan(0);
-  });
-
-  test('WritePageImage with generateText', async () => {
-    createdEntryId = await createEmptyDocument(
-      'RepositoryApiClientIntegrationTest JS WritePageImage GenerateText'
-    );
-
-    // Create an image page first
-    await _RepositoryApiClient.entriesClient.createPages({
-      repositoryId,
-      entryId: createdEntryId,
-      imageFiles: [createPngFileParameter('original.png')],
-    });
-
-    // Replace with generateText
-    const result = await _RepositoryApiClient.entriesClient.writePage({
-      repositoryId,
-      entryId: createdEntryId,
-      pageNumber: 1,
-      imageFile: createPngFileParameter('replacement.png'),
-      generateText: true,
-    });
-
-    expect(result).not.toBeNull();
-    expect(result.id).toBe(createdEntryId);
-    expect((result as Document).pageCount).toBe(1);
+    expect(pageText.text).toBe('Replacement text');
   });
 });
