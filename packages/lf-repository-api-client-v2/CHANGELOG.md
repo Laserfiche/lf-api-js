@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add electronic document methods: `getDocument`, `updateDocument`, `updateDocumentUploadedParts`.
+- Add electronic document methods: `updateDocument`, `updateDocumentUploadedParts`.
 - Add page manipulation methods: `createPages`, `replacePages`, `writePage`, `listPageInfos`, `movePages`, `copyPages`, `rotateImagePage`, `getPageImage`, `getPageText`, `generateText`.
 - Add check-in/check-out and lock methods: `lockDocument`, `getDocumentLockInfo`, `unlockDocument`, `putUnderVersionControl`, `checkOutDocument`, `checkInDocument`, `undoCheckOut`.
 - `importEntry` accepts an optional `imageFiles` parameter for combined edoc + image-page imports (additive, non-breaking).
