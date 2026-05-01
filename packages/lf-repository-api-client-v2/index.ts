@@ -1521,17 +1521,20 @@ export interface IEntriesClient {
 
     /**
      * - Returns a list of page properties including image dimensions, rotation angle, and content flags.
-    - Optional parameter: pageRange (default empty). If no pageRange is specified, information for all pages is returned. The value should be a comma-separated string which contains non-overlapping single values, or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
+    - Pages are returned in ascending pageNumber order; that order is fixed and not configurable.
+    - Default page size: 150. Allowed OData query options: Select | Count | SkipToken | Top | Prefer.
+    - pageRange filters which pages are returned before paging is applied. Combine pageRange with $top/$skiptoken to paginate within a known range.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.pageRange (optional) The pages to retrieve information for.
+     * @param args.pageRange (optional) Optional comma-separated page numbers and ranges (e.g., "1,3-5,8-10"). Ranges must not overlap. When omitted, all pages are returned (subject to paging).
+     * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns Successfully retrieved page information for the specified pages in the document.
+     * @returns Successfully retrieved a paged listing of page information for the document.
      */
-    listPageInfos(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]>;
+    listPageInfos(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined, prefer?: string | null | undefined, select?: string | null | undefined, top?: number | undefined, count?: boolean | undefined }): Promise<PageInfoCollectionResponse>;
 
     /**
      * - Overwrites the image and/or text part of the specified page. At least one of `imageFile` or `request` (with text) must be provided.
@@ -4889,18 +4892,21 @@ export class EntriesClient implements IEntriesClient {
 
     /**
      * - Returns a list of page properties including image dimensions, rotation angle, and content flags.
-    - Optional parameter: pageRange (default empty). If no pageRange is specified, information for all pages is returned. The value should be a comma-separated string which contains non-overlapping single values, or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
+    - Pages are returned in ascending pageNumber order; that order is fixed and not configurable.
+    - Default page size: 150. Allowed OData query options: Select | Count | SkipToken | Top | Prefer.
+    - pageRange filters which pages are returned before paging is applied. Combine pageRange with $top/$skiptoken to paginate within a known range.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.pageRange (optional) The pages to retrieve information for.
+     * @param args.pageRange (optional) Optional comma-separated page numbers and ranges (e.g., "1,3-5,8-10"). Ranges must not overlap. When omitted, all pages are returned (subject to paging).
+     * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
      * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
-     * @returns Successfully retrieved page information for the specified pages in the document.
+     * @returns Successfully retrieved a paged listing of page information for the document.
      */
-    listPageInfos(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<PageInfoResponse[]> {
-        let { repositoryId, entryId, pageRange, select, orderby, count } = args;
+    listPageInfos(args: { repositoryId: string, entryId: number, pageRange?: string | null | undefined, prefer?: string | null | undefined, select?: string | null | undefined, top?: number | undefined, count?: boolean | undefined }): Promise<PageInfoCollectionResponse> {
+        let { repositoryId, entryId, pageRange, prefer, select, top, count } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -4912,8 +4918,10 @@ export class EntriesClient implements IEntriesClient {
             url_ += "pageRange=" + encodeURIComponent("" + pageRange) + "&";
         if (select !== undefined && select !== null)
             url_ += "$select=" + encodeURIComponent("" + select) + "&";
-        if (orderby !== undefined && orderby !== null)
-            url_ += "$orderby=" + encodeURIComponent("" + orderby) + "&";
+        if (top === null)
+            throw new Error("The parameter 'top' cannot be null.");
+        else if (top !== undefined)
+            url_ += "$top=" + encodeURIComponent("" + top) + "&";
         if (count === null)
             throw new Error("The parameter 'count' cannot be null.");
         else if (count !== undefined)
@@ -4927,26 +4935,22 @@ export class EntriesClient implements IEntriesClient {
             }
         };
 
+        if (prefer !== null && prefer !== undefined)
+            options_.headers = Object.assign({}, options_.headers, {"Prefer": prefer !== undefined && prefer !== null ? "" + prefer : null});
+
         return this.http.fetch(url_, options_).then((_response: Response) => {
             return this.processListPageInfos(_response);
         });
     }
 
-    protected processListPageInfos(response: Response): Promise<PageInfoResponse[]> {
+    protected processListPageInfos(response: Response): Promise<PageInfoCollectionResponse> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(PageInfoResponse.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
+            result200 = PageInfoCollectionResponse.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
@@ -4996,7 +5000,7 @@ export class EntriesClient implements IEntriesClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<PageInfoResponse[]>(null as any);
+        return Promise.resolve<PageInfoCollectionResponse>(null as any);
     }
 
     /**
@@ -6146,7 +6150,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            return throwException("Operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -6240,7 +6244,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            return throwException("Operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -6330,7 +6334,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            return throwException("Operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -6409,6 +6413,20 @@ export class EntriesClient implements IEntriesClient {
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
             });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Conflict. The request could not be completed due to the current state of the resource.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
@@ -6421,7 +6439,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            return throwException("Operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -6533,7 +6551,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            return throwException("Operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -6625,6 +6643,13 @@ export class EntriesClient implements IEntriesClient {
             result409 = ProblemDetails.fromJS(resultData409);
             return throwException("Conflict. The request could not be completed due to the current state of the resource.", status, _responseText, _headers, result409);
             });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
             let result429: any = null;
@@ -6637,7 +6662,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            return throwException("Operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -6736,7 +6761,7 @@ export class EntriesClient implements IEntriesClient {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            return throwException("Operation failed due to an internal server error. See error for details.", status, _responseText, _headers, result500);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -12794,6 +12819,68 @@ export interface IRotateImagePageRequest {
     rotationAngle: number;
 }
 
+/** Response containing a collection of PageInfoResponse. */
+export class PageInfoCollectionResponse implements IPageInfoCollectionResponse {
+    /** A URL to retrieve the next page of the requested collection. */
+    odataNextLink?: string | undefined;
+    /** The total count of items within a collection. */
+    odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
+    value?: PageInfoResponse[] | undefined;
+
+    
+    
+    constructor(data?: IPageInfoCollectionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.odataNextLink = _data["@odata.nextLink"];
+            this.odataCount = _data["@odata.count"];
+            if (Array.isArray(_data["value"])) {
+                this.value = [] as any;
+                for (let item of _data["value"])
+                    this.value!.push(PageInfoResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): PageInfoCollectionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PageInfoCollectionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["@odata.nextLink"] = this.odataNextLink;
+        data["@odata.count"] = this.odataCount;
+        if (Array.isArray(this.value)) {
+            data["value"] = [];
+            for (let item of this.value)
+                data["value"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** Response containing a collection of PageInfoResponse. */
+export interface IPageInfoCollectionResponse {
+    /** A URL to retrieve the next page of the requested collection. */
+    odataNextLink?: string | undefined;
+    /** The total count of items within a collection. */
+    odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
+    value?: PageInfoResponse[] | undefined;
+}
+
 export class PageInfoResponse implements IPageInfoResponse {
     entryId?: number;
     pageId?: number;
@@ -13130,8 +13217,8 @@ export interface ILockInfo {
 export class LockDocumentRequest implements ILockDocumentRequest {
     /** An optional comment for the persistent lock. */
     comment?: string | undefined;
-    /** The lock extent. Valid values: "Page", "Edoc", "Metadata", "All". Defaults to "All". */
-    extent?: string | undefined;
+    /** The lock extent. Defaults to All when omitted. */
+    extent?: LockExtent | undefined;
 
     
     
@@ -13170,8 +13257,16 @@ export class LockDocumentRequest implements ILockDocumentRequest {
 export interface ILockDocumentRequest {
     /** An optional comment for the persistent lock. */
     comment?: string | undefined;
-    /** The lock extent. Valid values: "Page", "Edoc", "Metadata", "All". Defaults to "All". */
-    extent?: string | undefined;
+    /** The lock extent. Defaults to All when omitted. */
+    extent?: LockExtent | undefined;
+}
+
+/** The portion of a document that a persistent lock covers. */
+export enum LockExtent {
+    Page = "Page",
+    Edoc = "Edoc",
+    Metadata = "Metadata",
+    All = "All",
 }
 
 /** Request body for checking out a document. */

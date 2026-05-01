@@ -76,10 +76,10 @@ describe('rotateImagePage Integration Tests', () => {
     expect(result).not.toBeNull();
     expect(result.id).toBe(createdEntryId);
 
-    const pages = await _RepositoryApiClient.entriesClient.listPageInfos({
+    const pages = (await _RepositoryApiClient.entriesClient.listPageInfos({
       repositoryId,
       entryId: createdEntryId,
-    });
+    })).value!;
     expect(pages.length).toBe(1);
     expect(pages[0].hasImage).toBe(true);
   });

@@ -70,10 +70,10 @@ describe('movePages Integration Tests', () => {
     expect(result.id).toBe(createdEntryId);
     expect((result as Document).pageCount).toBe(3);
 
-    const pages = await _RepositoryApiClient.entriesClient.listPageInfos({
+    const pages = (await _RepositoryApiClient.entriesClient.listPageInfos({
       repositoryId,
       entryId: createdEntryId,
-    });
+    })).value!;
     expect(pages.length).toBe(3);
   });
 });

@@ -78,18 +78,18 @@ describe('copyPages Integration Tests', () => {
     expect(result).not.toBeNull();
 
     // Destination has the 2 copied pages
-    const destPages = await _RepositoryApiClient.entriesClient.listPageInfos({
+    const destPages = (await _RepositoryApiClient.entriesClient.listPageInfos({
       repositoryId,
       entryId: destId,
-    });
+    })).value!;
     expect(destPages.length).toBe(2);
 
     // Source still has its 2 pages — copyPages does NOT transfer (renamed
     // from TransferPages with this behavior change)
-    const sourcePages = await _RepositoryApiClient.entriesClient.listPageInfos({
+    const sourcePages = (await _RepositoryApiClient.entriesClient.listPageInfos({
       repositoryId,
       entryId: sourceId,
-    });
+    })).value!;
     expect(sourcePages.length).toBe(2);
   });
 });

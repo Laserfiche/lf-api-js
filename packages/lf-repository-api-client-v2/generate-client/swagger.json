@@ -4802,7 +4802,7 @@
         "tags": [
           "Entries"
         ],
-        "summary": "- Returns a list of page properties including image dimensions, rotation angle, and content flags.\n- Optional parameter: pageRange (default empty). If no pageRange is specified, information for all pages is returned. The value should be a comma-separated string which contains non-overlapping single values, or page ranges. Ex: \"1,2,3\", \"1-3,5\", \"2-7,10-12.\"\n- Required OAuth scope: repository.Read",
+        "summary": "- Returns a list of page properties including image dimensions, rotation angle, and content flags.\n- Pages are returned in ascending pageNumber order; that order is fixed and not configurable.\n- Default page size: 150. Allowed OData query options: Select | Count | SkipToken | Top | Prefer.\n- pageRange filters which pages are returned before paging is applied. Combine pageRange with $top/$skiptoken to paginate within a known range.\n- Required OAuth scope: repository.Read",
         "operationId": "ListPageInfos",
         "parameters": [
           {
@@ -4829,12 +4829,23 @@
           {
             "name": "pageRange",
             "in": "query",
-            "description": "The pages to retrieve information for.",
+            "description": "Optional comma-separated page numbers and ranges (e.g., \"1,3-5,8-10\"). Ranges must not overlap. When omitted, all pages are returned (subject to paging).",
             "schema": {
               "type": "string",
               "nullable": true
             },
             "x-position": 3
+          },
+          {
+            "name": "Prefer",
+            "x-originalName": "prefer",
+            "in": "header",
+            "description": "An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
           },
           {
             "name": "$select",
@@ -4844,15 +4855,15 @@
               "type": "string",
               "nullable": true
             },
-            "x-position": 4
+            "x-position": 5
           },
           {
-            "name": "$orderby",
+            "name": "$top",
             "in": "query",
-            "description": "Specifies the order in which items are returned. The maximum number of expressions is 5.",
+            "description": "Limits the number of items returned from a collection. The maximum value is 150.",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "integer",
+              "format": "int32"
             },
             "x-position": 6
           },
@@ -4868,14 +4879,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved page information for the specified pages in the document.",
+            "description": "Successfully retrieved a paged listing of page information for the document.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PageInfoResponse"
-                  }
+                  "$ref": "#/components/schemas/PageInfoCollectionResponse"
                 }
               }
             }
@@ -6383,7 +6391,7 @@
             }
           },
           "500": {
-            "description": "An unexpected server-side error occurred.",
+            "description": "Operation failed due to an internal server error. See error for details.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -6495,7 +6503,7 @@
             }
           },
           "500": {
-            "description": "An unexpected server-side error occurred.",
+            "description": "Operation failed due to an internal server error. See error for details.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -6600,7 +6608,7 @@
             }
           },
           "500": {
-            "description": "An unexpected server-side error occurred.",
+            "description": "Operation failed due to an internal server error. See error for details.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -6693,6 +6701,26 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict. The request could not be completed due to the current state of the resource.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Entry is locked",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Rate limit is reached.",
             "content": {
@@ -6704,7 +6732,7 @@
             }
           },
           "500": {
-            "description": "An unexpected server-side error occurred.",
+            "description": "Operation failed due to an internal server error. See error for details.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -6840,7 +6868,7 @@
             }
           },
           "500": {
-            "description": "An unexpected server-side error occurred.",
+            "description": "Operation failed due to an internal server error. See error for details.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -6955,6 +6983,16 @@
               }
             }
           },
+          "423": {
+            "description": "Entry is locked",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Rate limit is reached.",
             "content": {
@@ -6966,7 +7004,7 @@
             }
           },
           "500": {
-            "description": "An unexpected server-side error occurred.",
+            "description": "Operation failed due to an internal server error. See error for details.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -7080,7 +7118,7 @@
             }
           },
           "500": {
-            "description": "An unexpected server-side error occurred.",
+            "description": "Operation failed due to an internal server error. See error for details.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -11387,6 +11425,32 @@
           }
         }
       },
+      "PageInfoCollectionResponse": {
+        "type": "object",
+        "description": "Response containing a collection of PageInfoResponse.",
+        "additionalProperties": false,
+        "properties": {
+          "@odata.nextLink": {
+            "type": "string",
+            "description": "A URL to retrieve the next page of the requested collection.",
+            "nullable": true
+          },
+          "@odata.count": {
+            "type": "integer",
+            "description": "The total count of items within a collection.",
+            "format": "int32",
+            "nullable": true
+          },
+          "value": {
+            "type": "array",
+            "description": "Gets or sets the OData response content in the \"value\".",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PageInfoResponse"
+            }
+          }
+        }
+      },
       "PageInfoResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -11565,11 +11629,55 @@
             "nullable": true
           },
           "extent": {
-            "type": "string",
-            "description": "The lock extent. Valid values: \"Page\", \"Edoc\", \"Metadata\", \"All\". Defaults to \"All\".",
-            "nullable": true
+            "description": "The lock extent. Defaults to All when omitted.",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LockExtent"
+              }
+            ]
           }
         }
+      },
+      "LockExtent": {
+        "type": "string",
+        "description": "The portion of a document that a persistent lock covers.",
+        "x-enum-names": [
+          "Page",
+          "Edoc",
+          "Metadata",
+          "All"
+        ],
+        "x-enum-varnames": [
+          "Page",
+          "Edoc",
+          "Metadata",
+          "All"
+        ],
+        "x-enumNames": [
+          "Page",
+          "Edoc",
+          "Metadata",
+          "All"
+        ],
+        "x-enum-descriptions": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "x-enumDescriptions": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "enum": [
+          "Page",
+          "Edoc",
+          "Metadata",
+          "All"
+        ]
       },
       "CheckOutDocumentRequest": {
         "type": "object",

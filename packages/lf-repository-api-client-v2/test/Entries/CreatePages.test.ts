@@ -188,10 +188,10 @@ describe('CreatePages Integration Tests', () => {
     expect((result as Document).pageCount).toBe(1);
 
     // Verify page has both parts
-    const pages = await _RepositoryApiClient.entriesClient.listPageInfos({
+    const pages = (await _RepositoryApiClient.entriesClient.listPageInfos({
       repositoryId,
       entryId: createdEntryId,
-    });
+    })).value!;
     expect(pages.length).toBe(1);
     expect(pages[0].hasImage).toBe(true);
     expect(pages[0].hasText).toBe(true);
