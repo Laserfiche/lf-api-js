@@ -12,6 +12,7 @@ export default defineConfig({
     root: 'test',
     setupFiles: ['./CreateSession.ts'],
     testTimeout: 200_000,
+    hookTimeout: 200_000,
     fileParallelism: false,
     sequence: { concurrent: false },
     reporters: ['default', ['junit', { outputFile }]],
