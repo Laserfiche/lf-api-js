@@ -7,12 +7,6 @@ import { AccessKey } from '../OAuth/AccessKey.js';
 import 'isomorphic-fetch';
 import { accessKey, envServicePrincipalKey } from '../../testHelpers/cloudTestHelpers.js';
 
-/**
- * Cloud Integration Tests
- *
- * @group IntegrationTests/Cloud
- */
-
 describe('OAuthClientCredentialsHandler', () => {
   test('Empty service principal key throws exception', () => {
     expect(

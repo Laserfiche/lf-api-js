@@ -3,12 +3,6 @@
 import { ProblemDetails } from "./ProblemDetails";
 import { ApiException } from "./ApiException";
 
-/**
- * Unit Tests
- *
- * @group UnitTests
- */
-
 describe('ApiException', () => {
     const statusCode: number = 404;
     const operationId: string = "123456789";
