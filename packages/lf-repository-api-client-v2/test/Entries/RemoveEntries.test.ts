@@ -4,7 +4,6 @@ import { repositoryId } from '../TestHelper.js';
 import { Entry, SetTemplateRequest, StartDeleteEntryRequest } from '../../index.js';
 import { allFalse, CreateEntry } from '../BaseTest.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Remove Entries Integration Tests', () => {
   let entry: Entry;

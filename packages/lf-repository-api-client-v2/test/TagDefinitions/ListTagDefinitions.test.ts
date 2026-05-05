@@ -3,7 +3,6 @@
 import { repositoryId } from '../TestHelper.js';
 import { TagDefinitionCollectionResponse } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Tag Definitions Integration Tests', () => {
   test('Get Tag Definitions', async () => {

@@ -8,7 +8,6 @@ import {
   TagDefinitionCollectionResponse
 } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('List Entry Tests', () => {
   let entryId: number = 1;

@@ -6,7 +6,6 @@ import {
 
 } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Link Definitions Integration Tests', () => {
   test('Get Link Definition', async () => {

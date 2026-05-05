@@ -3,7 +3,6 @@
 import { repositoryId } from '../TestHelper.js';
 import { FieldDefinitionCollectionResponse } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Field Definitions Integration Tests', () => {
   test('Get Field Definitions', async () => {

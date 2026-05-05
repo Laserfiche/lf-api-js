@@ -19,6 +19,7 @@ if (authorizationType === authType.CloudAccessKey) {
   testServicePrincipalKey = process.env.SERVICE_PRINCIPAL_KEY ?? '';
   accessKeyBase64 = process.env.ACCESS_KEY ?? '';
   OAuthAccessKey = createFromBase64EncodedAccessKey(accessKeyBase64 ?? '');
+  baseUrl = process.env.APISERVER_REPOSITORY_API_BASE_URL ?? '';
 } else if (authorizationType === authType.APIServerUsernamePassword) {
   username = process.env.APISERVER_USERNAME ?? '';
   password = process.env.APISERVER_PASSWORD ?? '';

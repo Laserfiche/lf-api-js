@@ -2,23 +2,12 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
-import { Blob as NodeBlob } from 'buffer';
 import { FileParameter, ImportEntryRequest } from '../../index.js';
-import { isBrowser } from '@laserfiche/lf-js-utils/dist/utils/core-utils.js';
+import { SKIP_UNDER_JSDOM } from '../BaseTest.js';
 
-describe('Import Document Integration Tests', () => {
+describe.skipIf(SKIP_UNDER_JSDOM)('Import Document Integration Tests', () => {
     test('Import Document Throws Exception', async () => {
-        let blob: any;
-        if (isBrowser()){
-            blob = new Blob([""], {
-                type: "application/json",
-              });
-        } else {
-            blob = new NodeBlob([""], {
-                type: "application/json",
-              });
-        }
+        const blob = new Blob([""], { type: "application/json" });
         const request = new ImportEntryRequest();
         request.autoRename = true;
         const edoc : FileParameter = {

@@ -3,7 +3,6 @@
 import { repositoryId } from '../TestHelper.js';
 import { CreateEntry } from '../BaseTest.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 import { StartDeleteEntryRequest } from '../../index.js';
 
 describe('Delete Entries Integration Tests', () => {

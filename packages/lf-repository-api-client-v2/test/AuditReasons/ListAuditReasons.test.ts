@@ -3,7 +3,6 @@
 import { repositoryId } from '../TestHelper.js';
 import { AuditReasonCollectionResponse } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Audit Reasons Integration Test', () => {
   test('Get the Audit Reasons', async () => {

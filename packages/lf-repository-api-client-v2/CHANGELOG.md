@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.0
+
+### Features
+
+- Add electronic document methods: `updateDocument`, `updateDocumentUploadedParts`.
+- Add page manipulation methods: `createPages`, `replacePages`, `writePage`, `listPageInfos`, `movePages`, `copyPages`, `rotateImagePage`, `getPageImage`, `getPageText`, `generateText`.
+- `listPageInfos` returns a paginated `PageInfoCollectionResponse` (OData envelope with `value`/`odataCount`/`odataNextLink`); accepts `top`, `select`, `count`, `pageRange`, and the `Prefer: odata.maxpagesize=...` header. Default page size 150; clients follow `odataNextLink` for further pages.
+- Add check-in/check-out and lock methods: `lockDocument`, `getDocumentLockInfo`, `unlockDocument`, `putUnderVersionControl`, `checkOutDocument`, `checkInDocument`, `undoCheckOut`.
+- `importEntry` accepts an optional `imageFiles` parameter for combined edoc + image-page imports (additive, non-breaking).
+- New types: `FileResponse`, `PageInfoResponse`, `PageInfoCollectionResponse`, `LockInfo`, plus request DTOs for the new methods.
+
+### Maintenance
+
+- Migrate test framework from Jest to Vitest.
+
 ## 1.0.9
 
 ### Maintenance

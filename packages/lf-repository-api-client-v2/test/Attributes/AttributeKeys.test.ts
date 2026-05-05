@@ -3,7 +3,6 @@
 import { repositoryId } from '../TestHelper.js';
 import { AttributeCollectionResponse } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Attribute Key Integration Tests', () => {
   test('Get the attribute keys', async () => {

@@ -6,7 +6,6 @@ import {
   TemplateDefinitionCollectionResponse,
 } from '../../index.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Template Definitions Integration Tests', () => {
   test('Get Template Definition', async () => {

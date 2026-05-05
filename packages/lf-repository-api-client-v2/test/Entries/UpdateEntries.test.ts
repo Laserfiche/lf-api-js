@@ -4,7 +4,6 @@ import { repositoryId } from '../TestHelper.js';
 import { Entry, StartDeleteEntryRequest, UpdateEntryRequest } from '../../index.js';
 import { CreateEntry } from '../BaseTest.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
-import 'isomorphic-fetch';
 
 describe('Update Entries Integration Tests', () => {
   let createdEntries: Array<Entry> = new Array();

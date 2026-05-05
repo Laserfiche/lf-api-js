@@ -19,6 +19,16 @@ import {
 } from './TestHelper.js';
 import { IRepositoryApiClient, RepositoryApiClient } from '../index.js';
 import { authorizationTypeEnum as authType } from './AuthorizationType.js';
+import { isBrowser } from '@laserfiche/lf-js-utils/dist/utils/core-utils.js';
+
+// Shared skip predicate for V2 tests that hit the vitest+jsdom multipart-Blob fetch hang.
+// See TFS #658052 — vitest+jsdom regression vs jest+jsdom: a Blob-bearing FormData body sent
+// through importEntry (and the rest of the page-manipulation surface) hangs in fetch before
+// reaching the server, so every affected test sits at its testTimeout. Passes under
+// vitest+node and was passing under jest+jsdom on origin/main. When #658052 closes, drop
+// this constant and remove every `describe.skipIf(SKIP_UNDER_JSDOM)` wrapper that gates on
+// it (one cleanup pass).
+export const SKIP_UNDER_JSDOM = isBrowser();
 
 export async function CreateEntry(
   client: IRepositoryApiClient,
@@ -60,7 +70,8 @@ export function createClient(): IRepositoryApiClient {
       _RepositoryApiClient = RepositoryApiClient.createFromAccessKey(
         testServicePrincipalKey,
         OAuthAccessKey,
-        'repository.ReadWrite'
+        'repository.ReadWrite',
+        baseUrl || undefined
       );
     } else if (authorizationType === authType.APIServerUsernamePassword) {
       if (!repositoryId || !username || !password || !baseUrl)
