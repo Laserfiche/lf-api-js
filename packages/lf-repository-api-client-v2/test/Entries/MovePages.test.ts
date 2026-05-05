@@ -10,8 +10,9 @@ import {
   FileParameter,
   StartDeleteEntryRequest,
 } from '../../index.js';
+import { SKIP_UNDER_JSDOM } from '../BaseTest.js';
 
-describe('movePages Integration Tests', () => {
+describe.skipIf(SKIP_UNDER_JSDOM)('movePages Integration Tests', () => {
   let createdEntryId: number = 0;
 
   async function createEmptyDocument(name: string): Promise<number> {

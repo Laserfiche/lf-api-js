@@ -10,8 +10,9 @@ import {
   FileParameter,
   StartDeleteEntryRequest,
 } from '../../index.js';
+import { SKIP_UNDER_JSDOM } from '../BaseTest.js';
 
-describe('Check In Check Out Integration Tests', () => {
+describe.skipIf(SKIP_UNDER_JSDOM)('Check In Check Out Integration Tests', () => {
   let createdEntryId: number = 0;
 
   async function createDocument(name: string): Promise<number> {

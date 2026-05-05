@@ -8,8 +8,9 @@ import {
   FileParameter,
   StartDeleteEntryRequest,
 } from '../../index.js';
+import { SKIP_UNDER_JSDOM } from '../BaseTest.js';
 
-describe('rotateImagePage Integration Tests', () => {
+describe.skipIf(SKIP_UNDER_JSDOM)('rotateImagePage Integration Tests', () => {
   let createdEntryId: number = 0;
 
   async function createEmptyDocument(name: string): Promise<number> {

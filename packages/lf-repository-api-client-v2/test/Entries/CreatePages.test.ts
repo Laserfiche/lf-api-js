@@ -9,8 +9,9 @@ import {
   FileParameter,
   StartDeleteEntryRequest,
 } from '../../index.js';
+import { SKIP_UNDER_JSDOM } from '../BaseTest.js';
 
-describe('CreatePages Integration Tests', () => {
+describe.skipIf(SKIP_UNDER_JSDOM)('CreatePages Integration Tests', () => {
   let createdEntryId: number = 0;
 
   async function createEmptyDocument(name: string): Promise<number> {

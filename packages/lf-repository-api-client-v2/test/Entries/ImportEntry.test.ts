@@ -3,8 +3,9 @@
 import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import { FileParameter, ImportEntryRequest } from '../../index.js';
+import { SKIP_UNDER_JSDOM } from '../BaseTest.js';
 
-describe('Import Document Integration Tests', () => {
+describe.skipIf(SKIP_UNDER_JSDOM)('Import Document Integration Tests', () => {
     test('Import Document Throws Exception', async () => {
         const blob = new Blob([""], { type: "application/json" });
         const request = new ImportEntryRequest();
