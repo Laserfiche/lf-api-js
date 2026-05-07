@@ -1,0 +1,13 @@
+// Copyright Laserfiche.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    root: 'test',
+    testTimeout: 200_000,
+    include: ['**/*.test.ts'],
+  },
+});

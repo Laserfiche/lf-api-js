@@ -6,12 +6,6 @@ import 'isomorphic-fetch';
 import { CreateConnectionRequest } from './CreateConnectionRequest.js';
 import { SessionKeyInfo } from './SessionKeyInfo.js';
 
-/**
- * SelfHosted Integration Tests
- *
- * @group IntegrationTests/SelfHosted
- */
-
 describe('getAccessTokenFromAPIServer', () => {
   let inst: TokenClient;
   let body: CreateConnectionRequest = {

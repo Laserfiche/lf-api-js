@@ -10,12 +10,6 @@ import { AccessKey } from '../OAuth/AccessKey.js';
 import 'isomorphic-fetch';
 import { GetAccessTokenResponse } from '../OAuth/GetAccessTokenResponse.js';
 
-/**
- * UnitTests Tests
- *
- * @group UnitTests
- */
-
 describe('OAuthClientCredentialsHandler', () => {
   test('beforeFetchRequestAsync throws with invalid access token', () => {
     // Arrange

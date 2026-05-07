@@ -146,7 +146,7 @@ jobs:
         with:
           name: JS Utils Jest Test Results
           path: ./packages/lf-js-utils/*.xml
-          reporter: jest-junit
+          reporter: java-junit
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
@@ -174,7 +174,7 @@ jobs:
         with:
           name: Client Core Jest Test Results
           path: ./packages/lf-api-client-core-js/*.xml
-          reporter: jest-junit
+          reporter: java-junit
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
@@ -205,8 +205,8 @@ jobs:
         if: success() || failure() # run this step even if previous step failed
         with:
           name: Api Client v1 Jest Test Results
-          path: ./packages/lf-repository-api-client-v1/*.xml
-          reporter: jest-junit
+          path: ./packages/lf-repository-api-client-v1/test/*.xml
+          reporter: java-junit
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
@@ -237,7 +237,7 @@ jobs:
         with:
           name: Api Client v2 Jest Test Results
           path: ./packages/lf-repository-api-client-v2/*.xml
-          reporter: jest-junit
+          reporter: java-junit
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'
@@ -250,8 +250,8 @@ jobs:
         if: success() || failure() # run this step even if previous step failed
         with:
           name: Api JS Jest Test Results
-          path: ./packages/lf-api-js/*.xml
-          reporter: jest-junit
+          path: ./packages/lf-api-js/test/*.xml
+          reporter: java-junit
           only-summary: 'false'
           list-tests: 'failed'
           fail-on-error: 'false'

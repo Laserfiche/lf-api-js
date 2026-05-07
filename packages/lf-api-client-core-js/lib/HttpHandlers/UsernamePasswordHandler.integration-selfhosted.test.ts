@@ -5,12 +5,6 @@ import { BeforeFetchResult } from './BeforeFetchResult.js';
 import { UsernamePasswordHandler } from './UsernamePasswordHandler.js';
 import 'isomorphic-fetch';
 
-/**
- * SelfHosted Integration Tests
- *
- * @group IntegrationTests/SelfHosted
- */
-
 describe('UsernamePasswordHandler', () => {
   test('Correct config returns handler', () => {
     let httpRequestHandler = new UsernamePasswordHandler(repositoryId, username, password, baseUrl);

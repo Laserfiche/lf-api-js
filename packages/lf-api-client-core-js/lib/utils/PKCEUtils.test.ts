@@ -2,12 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 import * as PKCEUtils from './PKCEUtils';
 
-/**
- * Unit Tests
- *
- * @group UnitTests
- */
-
 describe('PKCEUtils', () => {
 
   // TODO: the tests are excluded from jest.jsdom.config.js
