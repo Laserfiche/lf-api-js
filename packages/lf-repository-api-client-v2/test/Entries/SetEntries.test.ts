@@ -69,35 +69,46 @@ describe('Set Entries Integration Tests', () => {
     expect(fields![0].name!).toBe(field.name);
   });
 
-  // Skipped: tracked by TFS #657997. The CI's test repo (DEV_CA_PUBLIC_USE_REPOSITORY_ID_1) has a
-  // tag-definition configuration that returns an empty value array from setTags. The patch below
-  // (filter to isSecure=false) is the suspected fix, mirroring the dotnet SetAndReturnTags test,
-  // but it could not be reproduced/validated against dev-CA locally. Un-skip and validate when
-  // closing #657997.
-  test.skip('Set Tags', async () => {
+  test('Set Tags', async (ctx) => {
     let tagDefinitionsResponse = await _RepositoryApiClient.tagDefinitionsClient.listTagDefinitions({ repositoryId });
     let tagDefinitions = tagDefinitionsResponse.value!;
 
     expect(tagDefinitions).not.toBeNull();
     expect(tagDefinitions.length).toBeGreaterThan(0);
 
-    // Pick an informational tag (isSecure=false). Security tags require the caller's trustee to
-    // hold that specific tag; the test service principal typically doesn't, so AssignTag would
-    // silently no-op server-side and the response would come back with an empty value array.
-    let informationalTag = tagDefinitions.find(t => !t.isSecure);
-    expect(informationalTag).toBeDefined();
-    let tag = informationalTag!.name!;
+    // Pick an informational tag (isSecure=false). Filter out the "Automatically select tags"
+    // pseudo-tag — it has isSecure=false but isn't applicable to entries, so assigning it
+    // silently no-ops server-side. Security tags require the caller's trustee to hold the
+    // specific tag, which the test service principal typically doesn't.
+    let informationalTag = tagDefinitions.find(t => t.isSecure === false && !t.name?.includes('Automatically select tags'));
+    if (!informationalTag) {
+      ctx.skip();
+      return;
+    }
+    let tag = informationalTag.name!;
     let request = new SetTagsRequest();
     request.tags = [tag];
     entry = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS SetTags');
-    
+
     let entryId = entry.id!;
-    let response = await _RepositoryApiClient.entriesClient.setTags({ repositoryId, entryId: entryId, request });
-    let tags = response.value!;
-    
-    expect(tags).not.toBeNull();
-    expect(response?.value?.length).toBe(tags?.length);
-    expect(tag).toBe(tags[0].name);
+    let setResponse = await _RepositoryApiClient.entriesClient.setTags({ repositoryId, entryId, request });
+    let setTags = setResponse.value!;
+
+    // Independently verify the tag was actually applied by listing the entry's tags. This
+    // guards against the PUT response being empty even when the tag was set, and gives a
+    // clearer failure mode if the SP cannot apply the tag despite it being informational.
+    let listResponse = await _RepositoryApiClient.entriesClient.listTags({ repositoryId, entryId });
+    let listedTags = listResponse.value!;
+
+    expect(listedTags).not.toBeNull();
+    expect(listedTags.length).toBe(1);
+    expect(listedTags[0]?.name).toBe(tag);
+
+    // Then assert on the setTags PUT response itself. If listedTags above is correct but
+    // these fail, the tag was applied but the PUT response is wrong.
+    expect(setTags).not.toBeNull();
+    expect(setTags.length).toBe(1);
+    expect(setTags[0]?.name).toBe(tag);
   });
 
   test('Set Templates', async () => {

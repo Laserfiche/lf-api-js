@@ -8,8 +8,9 @@ import {
   FileParameter,
   StartDeleteEntryRequest,
 } from '../../index.js';
+import { SKIP_UNDER_JSDOM } from '../BaseTest.js';
 
-describe('List Page Infos Integration Tests', () => {
+describe.skipIf(SKIP_UNDER_JSDOM)('List Page Infos Integration Tests', () => {
   let createdEntryId: number = 0;
 
   async function createDocumentWithPages(name: string, pageTexts: string[]): Promise<number> {

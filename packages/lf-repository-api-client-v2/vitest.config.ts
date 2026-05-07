@@ -11,7 +11,8 @@ export default defineConfig({
     testTimeout: 200_000,
     fileParallelism: false,
     sequence: { concurrent: false },
-    reporters: ['default'],
+    reporters: ['default', 'junit'],
+    outputFile: { junit: '../junit-node.xml' },
     include: ['**/*.test.ts'],
   },
 });

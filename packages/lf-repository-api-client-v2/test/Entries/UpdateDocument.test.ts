@@ -9,8 +9,9 @@ import {
   UpdateDocumentRequest,
   EntryType,
 } from '../../index.js';
+import { SKIP_UNDER_JSDOM } from '../BaseTest.js';
 
-describe('Update Document Integration Tests', () => {
+describe.skipIf(SKIP_UNDER_JSDOM)('Update Document Integration Tests', () => {
   let createdEntryId: number = 0;
 
   async function createDocument(name: string): Promise<number> {

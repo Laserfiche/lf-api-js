@@ -10,11 +10,12 @@ import {
   FileParameter,
   StartDeleteEntryRequest,
 } from '../../index.js';
+import { SKIP_UNDER_JSDOM } from '../BaseTest.js';
 
 // All cases exercise the unified `writePage()` method. The split between
 // image and text below is by argument shape (imageFile vs request), not by
 // separate client methods.
-describe('writePage Integration Tests', () => {
+describe.skipIf(SKIP_UNDER_JSDOM)('writePage Integration Tests', () => {
   let createdEntryId: number = 0;
 
   async function createEmptyDocument(name: string): Promise<number> {
