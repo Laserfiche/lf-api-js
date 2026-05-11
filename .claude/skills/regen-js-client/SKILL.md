@@ -117,7 +117,7 @@ The dotnet client (`lf-repository-api-client-dotnet`) uses a different NSwag con
 
 - The package version lives in `package.json`. Bump per semver based on the surface change (additive minor; breaking major; etc.).
 - Update the changelog in this package's `CHANGELOG.md`.
-- Publish is via the package's `publish` workflow on GitHub Actions — feature-branch previews and main releases follow distinct paths. The companion server-repo memory `project_preview_nuget_workflow_userstory.md` covers the dotnet client publish workflow; JS parity is on the roadmap as a follow-up to that work.
+- Publish is via the package's `publish` workflow on GitHub Actions — feature-branch previews and main releases follow distinct paths. The companion [`regen-dotnet-client` skill](../../../lf-repository-api-client-dotnet/.claude/skills/regen-dotnet-client/SKILL.md) covers the dotnet client publish workflow and the in-flight per-branch preview work (work item #659276 Phase 2); JS parity is on the roadmap as a follow-up to that work.
 
 ## Reference
 
