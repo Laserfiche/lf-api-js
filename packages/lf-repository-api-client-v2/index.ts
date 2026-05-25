@@ -59,7 +59,7 @@ export class AttributesClient implements IAttributesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -373,7 +373,7 @@ export class AuditReasonsClient implements IAuditReasonsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -506,6 +506,27 @@ export interface IFieldDefinitionsClient {
     getFieldDefinition(args: { repositoryId: string, fieldId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<FieldDefinition>;
 
     /**
+     * - Partial-update merge semantics. null = leave unchanged; "" = clear a string property.
+    - FieldType cannot be changed via this endpoint — use the dedicated ChangeFieldType endpoint.
+    - ListValues cannot be changed via this endpoint — use the dedicated ListValues endpoints.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition to update.
+     * @param args.request The properties to change. Only non-null properties are applied; null leaves the property unchanged. Empty string clears a string property.
+     * @returns Successfully updated the field definition.
+     */
+    updateFieldDefinition(args: { repositoryId: string, fieldId: number, request: UpdateFieldDefinitionRequest }): Promise<FieldDefinition>;
+
+    /**
+     * - Deletes the specified field definition. Behavior when the field is referenced by templates or assigned to entries mirrors the underlying repository server response — if rejected by the server, the response surfaces the server error.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition to delete.
+     * @returns Successfully deleted the field definition.
+     */
+    deleteFieldDefinition(args: { repositoryId: string, fieldId: number }): Promise<void>;
+
+    /**
      * - Returns a paged listing of field definitions available in the specified repository.
     - Useful when trying to find a list of all field definitions available, rather than only those assigned to a specific entry/template.
     - Default page size: 100. Allowed OData query options: Select | Count | OrderBy | Skip | Top | SkipToken | Prefer.
@@ -521,6 +542,60 @@ export interface IFieldDefinitionsClient {
      * @returns Successfully returned field definitions.
      */
     listFieldDefinitions(args: { repositoryId: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<FieldDefinitionCollectionResponse>;
+
+    /**
+     * - Creates a new metadata field definition with the supplied core attributes, flags, and (optionally) initial list values for list-backed fields.
+    - Names must be unique within the repository; duplicate-name failures return 400.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The field definition to create. Name and FieldType are required.
+     * @returns Successfully created the field definition.
+     */
+    createFieldDefinition(args: { repositoryId: string, request: CreateFieldDefinitionRequest }): Promise<FieldDefinition>;
+
+    /**
+     * - Returns the field's configured list-item values in repository-configured order.
+    - Applies only to list-backed fields; non-list fields return an empty array.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the list values for the field definition.
+     */
+    getFieldListValues(args: { repositoryId: string, fieldId: number, select?: string | null | undefined }): Promise<ListValuesResponse>;
+
+    /**
+     * - Replaces the field's full list-item set wholesale. No partial add/remove endpoints are exposed.
+    - Duplicates and empty-string values are rejected with 400.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.request The new list of values. Order is preserved. Empty array clears the list.
+     * @returns Successfully replaced the list values for the field definition.
+     */
+    replaceFieldListValues(args: { repositoryId: string, fieldId: number, request: ReplaceListValuesRequest }): Promise<ListValuesResponse>;
+
+    /**
+     * - Lists template definitions that include the specified field. Useful before performing destructive operations on the field.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
+     * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
+     * @returns Successfully returned the templates that contain the field definition.
+     */
+    getFieldContainingTemplates(args: { repositoryId: string, fieldId: number, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<TemplateDefinition[]>;
+
+    /**
+     * - Useful for impact analysis before performing destructive operations such as type changes or deletion.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the count of entries assigned to the field definition.
+     */
+    getFieldAssignedEntryCount(args: { repositoryId: string, fieldId: number, select?: string | null | undefined }): Promise<AssignedEntryCountResponse>;
 }
 
 export class FieldDefinitionsClient implements IFieldDefinitionsClient {
@@ -530,7 +605,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -705,6 +780,189 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
     }
 
     /**
+     * - Partial-update merge semantics. null = leave unchanged; "" = clear a string property.
+    - FieldType cannot be changed via this endpoint — use the dedicated ChangeFieldType endpoint.
+    - ListValues cannot be changed via this endpoint — use the dedicated ListValues endpoints.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition to update.
+     * @param args.request The properties to change. Only non-null properties are applied; null leaves the property unchanged. Empty string clears a string property.
+     * @returns Successfully updated the field definition.
+     */
+    updateFieldDefinition(args: { repositoryId: string, fieldId: number, request: UpdateFieldDefinitionRequest }): Promise<FieldDefinition> {
+        let { repositoryId, fieldId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateFieldDefinition(_response);
+        });
+    }
+
+    protected processUpdateFieldDefinition(response: Response): Promise<FieldDefinition> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldDefinition.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldDefinition>(null as any);
+    }
+
+    /**
+     * - Deletes the specified field definition. Behavior when the field is referenced by templates or assigned to entries mirrors the underlying repository server response — if rejected by the server, the response surfaces the server error.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition to delete.
+     * @returns Successfully deleted the field definition.
+     */
+    deleteFieldDefinition(args: { repositoryId: string, fieldId: number }): Promise<void> {
+        let { repositoryId, fieldId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteFieldDefinition(_response);
+        });
+    }
+
+    protected processDeleteFieldDefinition(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
      * - Returns a paged listing of field definitions available in the specified repository.
     - Useful when trying to find a list of all field definitions available, rather than only those assigned to a specific entry/template.
     - Default page size: 100. Allowed OData query options: Select | Count | OrderBy | Skip | Top | SkipToken | Prefer.
@@ -819,6 +1077,482 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
         }
         return Promise.resolve<FieldDefinitionCollectionResponse>(null as any);
     }
+
+    /**
+     * - Creates a new metadata field definition with the supplied core attributes, flags, and (optionally) initial list values for list-backed fields.
+    - Names must be unique within the repository; duplicate-name failures return 400.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The field definition to create. Name and FieldType are required.
+     * @returns Successfully created the field definition.
+     */
+    createFieldDefinition(args: { repositoryId: string, request: CreateFieldDefinitionRequest }): Promise<FieldDefinition> {
+        let { repositoryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateFieldDefinition(_response);
+        });
+    }
+
+    protected processCreateFieldDefinition(response: Response): Promise<FieldDefinition> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldDefinition.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldDefinition>(null as any);
+    }
+
+    /**
+     * - Returns the field's configured list-item values in repository-configured order.
+    - Applies only to list-backed fields; non-list fields return an empty array.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the list values for the field definition.
+     */
+    getFieldListValues(args: { repositoryId: string, fieldId: number, select?: string | null | undefined }): Promise<ListValuesResponse> {
+        let { repositoryId, fieldId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}/ListValues?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetFieldListValues(_response);
+        });
+    }
+
+    protected processGetFieldListValues(response: Response): Promise<ListValuesResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListValuesResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ListValuesResponse>(null as any);
+    }
+
+    /**
+     * - Replaces the field's full list-item set wholesale. No partial add/remove endpoints are exposed.
+    - Duplicates and empty-string values are rejected with 400.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.request The new list of values. Order is preserved. Empty array clears the list.
+     * @returns Successfully replaced the list values for the field definition.
+     */
+    replaceFieldListValues(args: { repositoryId: string, fieldId: number, request: ReplaceListValuesRequest }): Promise<ListValuesResponse> {
+        let { repositoryId, fieldId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}/ListValues";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processReplaceFieldListValues(_response);
+        });
+    }
+
+    protected processReplaceFieldListValues(response: Response): Promise<ListValuesResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListValuesResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ListValuesResponse>(null as any);
+    }
+
+    /**
+     * - Lists template definitions that include the specified field. Useful before performing destructive operations on the field.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @param args.orderby (optional) Specifies the order in which items are returned. The maximum number of expressions is 5.
+     * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
+     * @returns Successfully returned the templates that contain the field definition.
+     */
+    getFieldContainingTemplates(args: { repositoryId: string, fieldId: number, select?: string | null | undefined, orderby?: string | null | undefined, count?: boolean | undefined }): Promise<TemplateDefinition[]> {
+        let { repositoryId, fieldId, select, orderby, count } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}/ContainingTemplates?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        if (orderby !== undefined && orderby !== null)
+            url_ += "$orderby=" + encodeURIComponent("" + orderby) + "&";
+        if (count === null)
+            throw new Error("The parameter 'count' cannot be null.");
+        else if (count !== undefined)
+            url_ += "$count=" + encodeURIComponent("" + count) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetFieldContainingTemplates(_response);
+        });
+    }
+
+    protected processGetFieldContainingTemplates(response: Response): Promise<TemplateDefinition[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TemplateDefinition.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TemplateDefinition[]>(null as any);
+    }
+
+    /**
+     * - Useful for impact analysis before performing destructive operations such as type changes or deletion.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the count of entries assigned to the field definition.
+     */
+    getFieldAssignedEntryCount(args: { repositoryId: string, fieldId: number, select?: string | null | undefined }): Promise<AssignedEntryCountResponse> {
+        let { repositoryId, fieldId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}/AssignedEntryCount?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetFieldAssignedEntryCount(_response);
+        });
+    }
+
+    protected processGetFieldAssignedEntryCount(response: Response): Promise<AssignedEntryCountResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AssignedEntryCountResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AssignedEntryCountResponse>(null as any);
+    }
 }
 
 export interface ILinkDefinitionsClient {
@@ -859,7 +1593,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -1258,7 +1992,7 @@ export interface IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) Optional. The file to import. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it is stored as the electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file creates an empty document with no electronic document and no pages.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Document was created successfully. Returns created entry.
      */
     importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
@@ -1442,7 +2176,7 @@ export interface IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) Optional. The electronic document or image file to apply to the existing document. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it replaces the existing electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file is rejected with 400; use DELETE /Document/Edoc to remove the electronic document.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Successfully updated the document. Returned the updated entry.
      */
     updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: UpdateDocumentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
@@ -1456,7 +2190,7 @@ export interface IEntriesClient {
       - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.
     - If `metadata` is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
     - Returns 202 Accepted with a task ID. Poll the task endpoint for progress and completion.
-    - `imageFiles`, `generateImagePagesText`, and the `overwriteContent` query parameter are not supported on this endpoint; use the synchronous PATCH /Document to append image pages, OCR them automatically, or replace metadata wholesale.
+    - `imageFiles` and `generateImagePagesText` are not supported on this endpoint; use the synchronous PATCH /Document to append image pages or OCR them automatically. Use PUT /Document/Pages to replace existing pages.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
@@ -1500,7 +2234,7 @@ export interface IEntriesClient {
      * @param args.pageNumber (optional) Optional 1-based page number. If omitted, pages are appended to the end. If provided, pages are inserted at that position.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) for image pages. Default is false.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Successfully created pages in the specified document. Returned the updated entry.
      */
     createPages(args: { repositoryId: string, entryId: number, pageNumber?: number | null | undefined, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
@@ -1514,7 +2248,7 @@ export interface IEntriesClient {
      * @param args.entryId The requested document ID.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after creating pages. Default is false.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Successfully replaced all pages in the specified document. Returned the updated entry.
      */
     replacePages(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
@@ -1749,7 +2483,7 @@ export class EntriesClient implements IEntriesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -2839,7 +3573,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) Optional. The file to import. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it is stored as the electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file creates an empty document with no electronic document and no pages.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Document was created successfully. Returns created entry.
      */
     importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
@@ -4230,7 +4964,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) Optional. The electronic document or image file to apply to the existing document. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it replaces the existing electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file is rejected with 400; use DELETE /Document/Edoc to remove the electronic document.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Successfully updated the document. Returned the updated entry.
      */
     updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: UpdateDocumentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
@@ -4350,7 +5084,7 @@ export class EntriesClient implements IEntriesClient {
       - Otherwise (image extension with `importAsElectronicDocument=false`), the file is imported as image pages. `pdfOptions.generateText` triggers OCR for the resulting pages.
     - If `metadata` is provided, it additively updates the template, fields, tags, and links. Existing values not mentioned in the request are preserved.
     - Returns 202 Accepted with a task ID. Poll the task endpoint for progress and completion.
-    - `imageFiles`, `generateImagePagesText`, and the `overwriteContent` query parameter are not supported on this endpoint; use the synchronous PATCH /Document to append image pages, OCR them automatically, or replace metadata wholesale.
+    - `imageFiles` and `generateImagePagesText` are not supported on this endpoint; use the synchronous PATCH /Document to append image pages or OCR them automatically. Use PUT /Document/Pages to replace existing pages.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
@@ -4671,7 +5405,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.pageNumber (optional) Optional 1-based page number. If omitted, pages are appended to the end. If provided, pages are inserted at that position.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) for image pages. Default is false.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Successfully created pages in the specified document. Returned the updated entry.
      */
     createPages(args: { repositoryId: string, entryId: number, pageNumber?: number | null | undefined, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
@@ -4786,7 +5520,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.entryId The requested document ID.
      * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after creating pages. Default is false.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. On UpdateDocument, existing pages are preserved by default and deleted first when overwriteContent=true. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Successfully replaced all pages in the specified document. Returned the updated entry.
      */
     replacePages(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
@@ -6789,7 +7523,7 @@ export class RepositoriesClient implements IRepositoriesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -6950,7 +7684,7 @@ export class SearchesClient implements ISearchesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -7524,7 +8258,7 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -7704,7 +8438,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -8041,7 +8775,7 @@ export class TasksClient implements ITasksClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -8408,7 +9142,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -9468,6 +10202,17 @@ export class FieldDefinition implements IFieldDefinition {
     currency?: string | undefined;
     /** The custom format pattern for fields that are configured to use a custom format. */
     formatPattern?: string | undefined;
+    /** A boolean indicating whether the field is indexed for searching. */
+    isIndexed?: boolean;
+    /** A boolean indicating whether the field is indexed for reporting. */
+    isIndexedForReporting?: boolean;
+    /** A boolean indicating whether the user should be warned when leaving the field blank. */
+    warnIfBlank?: boolean;
+    /** A boolean indicating whether the field's list values should be hidden in the UI.
+Applies only to list-backed fields. */
+    hideListValues?: boolean;
+    /** A boolean indicating whether values for this field can be automatically extracted by AI/OCR services. */
+    autoExtract?: boolean;
 
     
     
@@ -9501,6 +10246,11 @@ export class FieldDefinition implements IFieldDefinition {
             this.format = _data["format"];
             this.currency = _data["currency"];
             this.formatPattern = _data["formatPattern"];
+            this.isIndexed = _data["isIndexed"];
+            this.isIndexedForReporting = _data["isIndexedForReporting"];
+            this.warnIfBlank = _data["warnIfBlank"];
+            this.hideListValues = _data["hideListValues"];
+            this.autoExtract = _data["autoExtract"];
         }
     }
 
@@ -9532,6 +10282,11 @@ export class FieldDefinition implements IFieldDefinition {
         data["format"] = this.format;
         data["currency"] = this.currency;
         data["formatPattern"] = this.formatPattern;
+        data["isIndexed"] = this.isIndexed;
+        data["isIndexedForReporting"] = this.isIndexedForReporting;
+        data["warnIfBlank"] = this.warnIfBlank;
+        data["hideListValues"] = this.hideListValues;
+        data["autoExtract"] = this.autoExtract;
         return data;
     }
 }
@@ -9568,6 +10323,17 @@ export interface IFieldDefinition {
     currency?: string | undefined;
     /** The custom format pattern for fields that are configured to use a custom format. */
     formatPattern?: string | undefined;
+    /** A boolean indicating whether the field is indexed for searching. */
+    isIndexed?: boolean;
+    /** A boolean indicating whether the field is indexed for reporting. */
+    isIndexedForReporting?: boolean;
+    /** A boolean indicating whether the user should be warned when leaving the field blank. */
+    warnIfBlank?: boolean;
+    /** A boolean indicating whether the field's list values should be hidden in the UI.
+Applies only to list-backed fields. */
+    hideListValues?: boolean;
+    /** A boolean indicating whether values for this field can be automatically extracted by AI/OCR services. */
+    autoExtract?: boolean;
 }
 
 /** Enumeration of Laserfiche template field types. */
@@ -9659,6 +10425,571 @@ export interface IFieldDefinitionCollectionResponse {
     odataCount?: number | undefined;
     /** Gets or sets the OData response content in the "value". */
     value?: FieldDefinition[] | undefined;
+}
+
+/** Request body for creating a new field definition. Name and FieldType are required; all other properties are optional and fall back to repository defaults when omitted. */
+export class CreateFieldDefinitionRequest implements ICreateFieldDefinitionRequest {
+    /** The name of the field. Required. Must be unique within the repository. */
+    name!: string;
+    /** The type of the field. Required. Cannot be changed via UpdateFieldDefinition;
+use the ChangeFieldType endpoint to convert between types. */
+    fieldType!: FieldType;
+    /** The description of the field. */
+    description?: string | undefined;
+    /** The maximum length of the field for variable-length data types. */
+    length?: number | undefined;
+    /** The default value applied to entries assigned to a template containing this field. */
+    defaultValue?: string | undefined;
+    /** The display format for the field. Defaults to None when omitted. */
+    format?: FieldFormat | undefined;
+    /** The custom format pattern. Only meaningful when Format is set to a value that supports custom patterns. */
+    formatPattern?: string | undefined;
+    /** The currency for numeric fields when Format is Currency. */
+    currency?: string | undefined;
+    /** A validation constraint expression for values stored in this field. */
+    constraint?: string | undefined;
+    /** The error message returned when the constraint is violated. */
+    constraintError?: string | undefined;
+    /** Whether the field supports multiple values. */
+    isMultiValue?: boolean | undefined;
+    /** Whether the field is required on entries assigned to a template containing it. */
+    isRequired?: boolean | undefined;
+    /** Whether the field is indexed for searching. */
+    isIndexed?: boolean | undefined;
+    /** Whether the field is indexed for reporting. */
+    isIndexedForReporting?: boolean | undefined;
+    /** Whether the user should be warned when leaving the field blank. */
+    warnIfBlank?: boolean | undefined;
+    /** Whether list values should be hidden in the UI. Applies only to list-backed fields. */
+    hideListValues?: boolean | undefined;
+    /** Whether values for this field can be automatically extracted by AI/OCR services. */
+    autoExtract?: boolean | undefined;
+    /** Initial list values to populate. Applies only when FieldType is List.
+Order is preserved. Use the dedicated ListValues endpoints to manage list values after creation. */
+    listValues?: string[] | undefined;
+
+    
+    
+    constructor(data?: ICreateFieldDefinitionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.fieldType = _data["fieldType"];
+            this.description = _data["description"];
+            this.length = _data["length"];
+            this.defaultValue = _data["defaultValue"];
+            this.format = _data["format"];
+            this.formatPattern = _data["formatPattern"];
+            this.currency = _data["currency"];
+            this.constraint = _data["constraint"];
+            this.constraintError = _data["constraintError"];
+            this.isMultiValue = _data["isMultiValue"];
+            this.isRequired = _data["isRequired"];
+            this.isIndexed = _data["isIndexed"];
+            this.isIndexedForReporting = _data["isIndexedForReporting"];
+            this.warnIfBlank = _data["warnIfBlank"];
+            this.hideListValues = _data["hideListValues"];
+            this.autoExtract = _data["autoExtract"];
+            if (Array.isArray(_data["listValues"])) {
+                this.listValues = [] as any;
+                for (let item of _data["listValues"])
+                    this.listValues!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateFieldDefinitionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateFieldDefinitionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["fieldType"] = this.fieldType;
+        data["description"] = this.description;
+        data["length"] = this.length;
+        data["defaultValue"] = this.defaultValue;
+        data["format"] = this.format;
+        data["formatPattern"] = this.formatPattern;
+        data["currency"] = this.currency;
+        data["constraint"] = this.constraint;
+        data["constraintError"] = this.constraintError;
+        data["isMultiValue"] = this.isMultiValue;
+        data["isRequired"] = this.isRequired;
+        data["isIndexed"] = this.isIndexed;
+        data["isIndexedForReporting"] = this.isIndexedForReporting;
+        data["warnIfBlank"] = this.warnIfBlank;
+        data["hideListValues"] = this.hideListValues;
+        data["autoExtract"] = this.autoExtract;
+        if (Array.isArray(this.listValues)) {
+            data["listValues"] = [];
+            for (let item of this.listValues)
+                data["listValues"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Request body for creating a new field definition. Name and FieldType are required; all other properties are optional and fall back to repository defaults when omitted. */
+export interface ICreateFieldDefinitionRequest {
+    /** The name of the field. Required. Must be unique within the repository. */
+    name: string;
+    /** The type of the field. Required. Cannot be changed via UpdateFieldDefinition;
+use the ChangeFieldType endpoint to convert between types. */
+    fieldType: FieldType;
+    /** The description of the field. */
+    description?: string | undefined;
+    /** The maximum length of the field for variable-length data types. */
+    length?: number | undefined;
+    /** The default value applied to entries assigned to a template containing this field. */
+    defaultValue?: string | undefined;
+    /** The display format for the field. Defaults to None when omitted. */
+    format?: FieldFormat | undefined;
+    /** The custom format pattern. Only meaningful when Format is set to a value that supports custom patterns. */
+    formatPattern?: string | undefined;
+    /** The currency for numeric fields when Format is Currency. */
+    currency?: string | undefined;
+    /** A validation constraint expression for values stored in this field. */
+    constraint?: string | undefined;
+    /** The error message returned when the constraint is violated. */
+    constraintError?: string | undefined;
+    /** Whether the field supports multiple values. */
+    isMultiValue?: boolean | undefined;
+    /** Whether the field is required on entries assigned to a template containing it. */
+    isRequired?: boolean | undefined;
+    /** Whether the field is indexed for searching. */
+    isIndexed?: boolean | undefined;
+    /** Whether the field is indexed for reporting. */
+    isIndexedForReporting?: boolean | undefined;
+    /** Whether the user should be warned when leaving the field blank. */
+    warnIfBlank?: boolean | undefined;
+    /** Whether list values should be hidden in the UI. Applies only to list-backed fields. */
+    hideListValues?: boolean | undefined;
+    /** Whether values for this field can be automatically extracted by AI/OCR services. */
+    autoExtract?: boolean | undefined;
+    /** Initial list values to populate. Applies only when FieldType is List.
+Order is preserved. Use the dedicated ListValues endpoints to manage list values after creation. */
+    listValues?: string[] | undefined;
+}
+
+/** Request body for partial-update of an existing field definition. Every property is optional. null = leave the property unchanged. Empty string ("") on a string property = clear the value. FieldType cannot be changed via this endpoint — use the ChangeFieldType endpoint. ListValues cannot be changed via this endpoint — use the dedicated ListValues endpoints. */
+export class UpdateFieldDefinitionRequest implements IUpdateFieldDefinitionRequest {
+    /** The new name of the field. Must be unique within the repository. */
+    name?: string | undefined;
+    /** The description of the field. */
+    description?: string | undefined;
+    /** The maximum length of the field for variable-length data types. */
+    length?: number | undefined;
+    /** The default value applied to entries assigned to a template containing this field. */
+    defaultValue?: string | undefined;
+    /** The display format for the field. */
+    format?: FieldFormat | undefined;
+    /** The custom format pattern. */
+    formatPattern?: string | undefined;
+    /** The currency for numeric fields when Format is Currency. */
+    currency?: string | undefined;
+    /** A validation constraint expression for values stored in this field. */
+    constraint?: string | undefined;
+    /** The error message returned when the constraint is violated. */
+    constraintError?: string | undefined;
+    /** Whether the field supports multiple values. */
+    isMultiValue?: boolean | undefined;
+    /** Whether the field is required on entries assigned to a template containing it. */
+    isRequired?: boolean | undefined;
+    /** Whether the field is indexed for searching. */
+    isIndexed?: boolean | undefined;
+    /** Whether the field is indexed for reporting. */
+    isIndexedForReporting?: boolean | undefined;
+    /** Whether the user should be warned when leaving the field blank. */
+    warnIfBlank?: boolean | undefined;
+    /** Whether list values should be hidden in the UI. Applies only to list-backed fields. */
+    hideListValues?: boolean | undefined;
+    /** Whether values for this field can be automatically extracted by AI/OCR services. */
+    autoExtract?: boolean | undefined;
+
+    
+    
+    constructor(data?: IUpdateFieldDefinitionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.length = _data["length"];
+            this.defaultValue = _data["defaultValue"];
+            this.format = _data["format"];
+            this.formatPattern = _data["formatPattern"];
+            this.currency = _data["currency"];
+            this.constraint = _data["constraint"];
+            this.constraintError = _data["constraintError"];
+            this.isMultiValue = _data["isMultiValue"];
+            this.isRequired = _data["isRequired"];
+            this.isIndexed = _data["isIndexed"];
+            this.isIndexedForReporting = _data["isIndexedForReporting"];
+            this.warnIfBlank = _data["warnIfBlank"];
+            this.hideListValues = _data["hideListValues"];
+            this.autoExtract = _data["autoExtract"];
+        }
+    }
+
+    static fromJS(data: any): UpdateFieldDefinitionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateFieldDefinitionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["length"] = this.length;
+        data["defaultValue"] = this.defaultValue;
+        data["format"] = this.format;
+        data["formatPattern"] = this.formatPattern;
+        data["currency"] = this.currency;
+        data["constraint"] = this.constraint;
+        data["constraintError"] = this.constraintError;
+        data["isMultiValue"] = this.isMultiValue;
+        data["isRequired"] = this.isRequired;
+        data["isIndexed"] = this.isIndexed;
+        data["isIndexedForReporting"] = this.isIndexedForReporting;
+        data["warnIfBlank"] = this.warnIfBlank;
+        data["hideListValues"] = this.hideListValues;
+        data["autoExtract"] = this.autoExtract;
+        return data;
+    }
+}
+
+/** Request body for partial-update of an existing field definition. Every property is optional. null = leave the property unchanged. Empty string ("") on a string property = clear the value. FieldType cannot be changed via this endpoint — use the ChangeFieldType endpoint. ListValues cannot be changed via this endpoint — use the dedicated ListValues endpoints. */
+export interface IUpdateFieldDefinitionRequest {
+    /** The new name of the field. Must be unique within the repository. */
+    name?: string | undefined;
+    /** The description of the field. */
+    description?: string | undefined;
+    /** The maximum length of the field for variable-length data types. */
+    length?: number | undefined;
+    /** The default value applied to entries assigned to a template containing this field. */
+    defaultValue?: string | undefined;
+    /** The display format for the field. */
+    format?: FieldFormat | undefined;
+    /** The custom format pattern. */
+    formatPattern?: string | undefined;
+    /** The currency for numeric fields when Format is Currency. */
+    currency?: string | undefined;
+    /** A validation constraint expression for values stored in this field. */
+    constraint?: string | undefined;
+    /** The error message returned when the constraint is violated. */
+    constraintError?: string | undefined;
+    /** Whether the field supports multiple values. */
+    isMultiValue?: boolean | undefined;
+    /** Whether the field is required on entries assigned to a template containing it. */
+    isRequired?: boolean | undefined;
+    /** Whether the field is indexed for searching. */
+    isIndexed?: boolean | undefined;
+    /** Whether the field is indexed for reporting. */
+    isIndexedForReporting?: boolean | undefined;
+    /** Whether the user should be warned when leaving the field blank. */
+    warnIfBlank?: boolean | undefined;
+    /** Whether list values should be hidden in the UI. Applies only to list-backed fields. */
+    hideListValues?: boolean | undefined;
+    /** Whether values for this field can be automatically extracted by AI/OCR services. */
+    autoExtract?: boolean | undefined;
+}
+
+/** Response containing the list values of a field definition, in the order configured on the server. */
+export class ListValuesResponse implements IListValuesResponse {
+    /** The ordered list of list-item values. */
+    values?: string[] | undefined;
+
+    
+    
+    constructor(data?: IListValuesResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["values"])) {
+                this.values = [] as any;
+                for (let item of _data["values"])
+                    this.values!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): ListValuesResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListValuesResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.values)) {
+            data["values"] = [];
+            for (let item of this.values)
+                data["values"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Response containing the list values of a field definition, in the order configured on the server. */
+export interface IListValuesResponse {
+    /** The ordered list of list-item values. */
+    values?: string[] | undefined;
+}
+
+/** Request body for replacing the list values of a list-backed field definition. The provided values replace the field's full list-item set wholesale, preserving the supplied order. An empty array clears the list. */
+export class ReplaceListValuesRequest implements IReplaceListValuesRequest {
+    /** The ordered list of list-item values to apply. Duplicates and empty strings are rejected with 400. */
+    values!: string[];
+
+    
+    
+    constructor(data?: IReplaceListValuesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.values = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["values"])) {
+                this.values = [] as any;
+                for (let item of _data["values"])
+                    this.values!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): ReplaceListValuesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReplaceListValuesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.values)) {
+            data["values"] = [];
+            for (let item of this.values)
+                data["values"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Request body for replacing the list values of a list-backed field definition. The provided values replace the field's full list-item set wholesale, preserving the supplied order. An empty array clears the list. */
+export interface IReplaceListValuesRequest {
+    /** The ordered list of list-item values to apply. Duplicates and empty strings are rejected with 400. */
+    values: string[];
+}
+
+/** Represents a template definition. */
+export class TemplateDefinition implements ITemplateDefinition {
+    /** The ID of the template definition. */
+    id?: number;
+    /** The name of the template definition. */
+    name?: string | undefined;
+    /** The localized name of the template definition. */
+    displayName?: string | undefined;
+    /** The description of the template definition. */
+    description?: string | undefined;
+    /** The color assigned to the template definition. */
+    color?: LFColor | undefined;
+    /** The number of field definitions assigned to the template definition. */
+    fieldCount?: number;
+
+    
+    
+    constructor(data?: ITemplateDefinition) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.displayName = _data["displayName"];
+            this.description = _data["description"];
+            this.color = _data["color"] ? LFColor.fromJS(_data["color"]) : <any>undefined;
+            this.fieldCount = _data["fieldCount"];
+        }
+    }
+
+    static fromJS(data: any): TemplateDefinition {
+        data = typeof data === 'object' ? data : {};
+        let result = new TemplateDefinition();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["displayName"] = this.displayName;
+        data["description"] = this.description;
+        data["color"] = this.color ? this.color.toJSON() : <any>undefined;
+        data["fieldCount"] = this.fieldCount;
+        return data;
+    }
+}
+
+/** Represents a template definition. */
+export interface ITemplateDefinition {
+    /** The ID of the template definition. */
+    id?: number;
+    /** The name of the template definition. */
+    name?: string | undefined;
+    /** The localized name of the template definition. */
+    displayName?: string | undefined;
+    /** The description of the template definition. */
+    description?: string | undefined;
+    /** The color assigned to the template definition. */
+    color?: LFColor | undefined;
+    /** The number of field definitions assigned to the template definition. */
+    fieldCount?: number;
+}
+
+/** Represents an RGB color value with alpha channel. */
+export class LFColor implements ILFColor {
+    /** The alpha channel component, from 0-255. */
+    a?: number;
+    /** The red channel component, from 0-255. */
+    r?: number;
+    /** The green channel component, from 0-255. */
+    g?: number;
+    /** The blue channel component from 0-255. */
+    b?: number;
+
+    
+    
+    constructor(data?: ILFColor) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.a = _data["a"];
+            this.r = _data["r"];
+            this.g = _data["g"];
+            this.b = _data["b"];
+        }
+    }
+
+    static fromJS(data: any): LFColor {
+        data = typeof data === 'object' ? data : {};
+        let result = new LFColor();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["a"] = this.a;
+        data["r"] = this.r;
+        data["g"] = this.g;
+        data["b"] = this.b;
+        return data;
+    }
+}
+
+/** Represents an RGB color value with alpha channel. */
+export interface ILFColor {
+    /** The alpha channel component, from 0-255. */
+    a?: number;
+    /** The red channel component, from 0-255. */
+    r?: number;
+    /** The green channel component, from 0-255. */
+    g?: number;
+    /** The blue channel component from 0-255. */
+    b?: number;
+}
+
+/** The number of entries that have a value assigned for a given field definition. */
+export class AssignedEntryCountResponse implements IAssignedEntryCountResponse {
+    /** The count of entries currently using this field. */
+    count?: number;
+
+    
+    
+    constructor(data?: IAssignedEntryCountResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+        }
+    }
+
+    static fromJS(data: any): AssignedEntryCountResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AssignedEntryCountResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        return data;
+    }
+}
+
+/** The number of entries that have a value assigned for a given field definition. */
+export interface IAssignedEntryCountResponse {
+    /** The count of entries currently using this field. */
+    count?: number;
 }
 
 /** Response containing a collection of LinkDefinition. */
@@ -11100,18 +12431,24 @@ export class Document extends Entry implements IDocument {
     isUnderVersionControl?: boolean;
     /** A boolean indicating if the represented document has a persistent lock. */
     isLocked?: boolean;
-    /** The account name of the persistent lock holder. Null if the document is not locked. */
+    /** Display name (account name, e.g. "DOMAIN\user") of the persistent lock holder. Null if the document is not locked.
+Account renames change this value over time — do not use for stable identity comparisons.
+To test whether the current authenticated user holds the lock, use IsLockedByAnotherUser; it compares stable principal identifiers internally. */
     lockedBy?: string | undefined;
     /** A boolean indicating if the document is locked by a user other than the authenticated user.
 False if the document is not locked or is locked by the authenticated user.
+Computed from a stable principal identifier comparison, not from LockedBy.
 Only populated on single-entry GET, not in listing results. */
     isLockedByAnotherUser?: boolean;
     /** The version number of the document. 0 if the document is not under version control. */
     currentVersion?: number;
-    /** The account name of the user who checked out the document. Null if the document is not checked out. */
+    /** Display name (account name, e.g. "DOMAIN\user") of the user who checked out the document. Null if the document is not checked out.
+Account renames change this value over time — do not use for stable identity comparisons.
+To test whether the current authenticated user holds the checkout, use IsCheckedOutByAnotherUser; it compares stable principal identifiers internally. */
     checkedOutBy?: string | undefined;
     /** A boolean indicating if the document is checked out by a user other than the authenticated user.
 False if the document is not checked out or is checked out by the authenticated user.
+Computed from a stable principal identifier comparison, not from CheckedOutBy.
 Only populated on single-entry GET, not in listing results. */
     isCheckedOutByAnotherUser?: boolean;
 
@@ -11196,18 +12533,24 @@ export interface IDocument extends IEntry {
     isUnderVersionControl?: boolean;
     /** A boolean indicating if the represented document has a persistent lock. */
     isLocked?: boolean;
-    /** The account name of the persistent lock holder. Null if the document is not locked. */
+    /** Display name (account name, e.g. "DOMAIN\user") of the persistent lock holder. Null if the document is not locked.
+Account renames change this value over time — do not use for stable identity comparisons.
+To test whether the current authenticated user holds the lock, use IsLockedByAnotherUser; it compares stable principal identifiers internally. */
     lockedBy?: string | undefined;
     /** A boolean indicating if the document is locked by a user other than the authenticated user.
 False if the document is not locked or is locked by the authenticated user.
+Computed from a stable principal identifier comparison, not from LockedBy.
 Only populated on single-entry GET, not in listing results. */
     isLockedByAnotherUser?: boolean;
     /** The version number of the document. 0 if the document is not under version control. */
     currentVersion?: number;
-    /** The account name of the user who checked out the document. Null if the document is not checked out. */
+    /** Display name (account name, e.g. "DOMAIN\user") of the user who checked out the document. Null if the document is not checked out.
+Account renames change this value over time — do not use for stable identity comparisons.
+To test whether the current authenticated user holds the checkout, use IsCheckedOutByAnotherUser; it compares stable principal identifiers internally. */
     checkedOutBy?: string | undefined;
     /** A boolean indicating if the document is checked out by a user other than the authenticated user.
 False if the document is not checked out or is checked out by the authenticated user.
+Computed from a stable principal identifier comparison, not from CheckedOutBy.
 Only populated on single-entry GET, not in listing results. */
     isCheckedOutByAnotherUser?: boolean;
 }
@@ -13140,7 +14483,9 @@ export interface ISetTemplateRequest {
 export class LockInfo implements ILockInfo {
     /** The unique lock token. */
     lockToken?: string | undefined;
-    /** The account name of the lock owner (e.g., "DOMAIN\user"). */
+    /** Display name (account name, e.g. "DOMAIN\user") of the lock owner.
+Same value reported as lockedBy on Document for the same lock.
+Account renames change this value over time — do not use for stable identity comparisons. */
     owner?: string | undefined;
     /** The user-defined comment for the lock. */
     comment?: string | undefined;
@@ -13199,7 +14544,9 @@ export class LockInfo implements ILockInfo {
 export interface ILockInfo {
     /** The unique lock token. */
     lockToken?: string | undefined;
-    /** The account name of the lock owner (e.g., "DOMAIN\user"). */
+    /** Display name (account name, e.g. "DOMAIN\user") of the lock owner.
+Same value reported as lockedBy on Document for the same lock.
+Account renames change this value over time — do not use for stable identity comparisons. */
     owner?: string | undefined;
     /** The user-defined comment for the lock. */
     comment?: string | undefined;
@@ -14285,138 +15632,6 @@ export interface ITemplateDefinitionCollectionResponse {
     odataCount?: number | undefined;
     /** Gets or sets the OData response content in the "value". */
     value?: TemplateDefinition[] | undefined;
-}
-
-/** Represents a template definition. */
-export class TemplateDefinition implements ITemplateDefinition {
-    /** The ID of the template definition. */
-    id?: number;
-    /** The name of the template definition. */
-    name?: string | undefined;
-    /** The localized name of the template definition. */
-    displayName?: string | undefined;
-    /** The description of the template definition. */
-    description?: string | undefined;
-    /** The color assigned to the template definition. */
-    color?: LFColor | undefined;
-    /** The number of field definitions assigned to the template definition. */
-    fieldCount?: number;
-
-    
-    
-    constructor(data?: ITemplateDefinition) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.displayName = _data["displayName"];
-            this.description = _data["description"];
-            this.color = _data["color"] ? LFColor.fromJS(_data["color"]) : <any>undefined;
-            this.fieldCount = _data["fieldCount"];
-        }
-    }
-
-    static fromJS(data: any): TemplateDefinition {
-        data = typeof data === 'object' ? data : {};
-        let result = new TemplateDefinition();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["displayName"] = this.displayName;
-        data["description"] = this.description;
-        data["color"] = this.color ? this.color.toJSON() : <any>undefined;
-        data["fieldCount"] = this.fieldCount;
-        return data;
-    }
-}
-
-/** Represents a template definition. */
-export interface ITemplateDefinition {
-    /** The ID of the template definition. */
-    id?: number;
-    /** The name of the template definition. */
-    name?: string | undefined;
-    /** The localized name of the template definition. */
-    displayName?: string | undefined;
-    /** The description of the template definition. */
-    description?: string | undefined;
-    /** The color assigned to the template definition. */
-    color?: LFColor | undefined;
-    /** The number of field definitions assigned to the template definition. */
-    fieldCount?: number;
-}
-
-/** Represents an RGB color value with alpha channel. */
-export class LFColor implements ILFColor {
-    /** The alpha channel component, from 0-255. */
-    a?: number;
-    /** The red channel component, from 0-255. */
-    r?: number;
-    /** The green channel component, from 0-255. */
-    g?: number;
-    /** The blue channel component from 0-255. */
-    b?: number;
-
-    
-    
-    constructor(data?: ILFColor) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.a = _data["a"];
-            this.r = _data["r"];
-            this.g = _data["g"];
-            this.b = _data["b"];
-        }
-    }
-
-    static fromJS(data: any): LFColor {
-        data = typeof data === 'object' ? data : {};
-        let result = new LFColor();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["a"] = this.a;
-        data["r"] = this.r;
-        data["g"] = this.g;
-        data["b"] = this.b;
-        return data;
-    }
-}
-
-/** Represents an RGB color value with alpha channel. */
-export interface ILFColor {
-    /** The alpha channel component, from 0-255. */
-    a?: number;
-    /** The red channel component, from 0-255. */
-    r?: number;
-    /** The green channel component, from 0-255. */
-    g?: number;
-    /** The blue channel component from 0-255. */
-    b?: number;
 }
 
 /** Response containing a collection of TemplateFieldDefinition. */
