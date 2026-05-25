@@ -95,12 +95,25 @@ describe('Field Definition Admin Integration Tests', () => {
       });
       expect(afterReplace.values).toEqual(replacement);
 
+      // Independent GET — proves the PUT persisted; same-request reads can mask a missing Save() (Trap 4).
+      const afterReplaceReread = await _RepositoryApiClient.fieldDefinitionsClient.getFieldListValues({
+        repositoryId,
+        fieldId: createdId,
+      });
+      expect(afterReplaceReread.values).toEqual(replacement);
+
       const afterClear = await _RepositoryApiClient.fieldDefinitionsClient.replaceFieldListValues({
         repositoryId,
         fieldId: createdId,
         request: new ReplaceListValuesRequest({ values: [] }),
       });
       expect(afterClear.values?.length ?? -1).toBe(0);
+
+      const afterClearReread = await _RepositoryApiClient.fieldDefinitionsClient.getFieldListValues({
+        repositoryId,
+        fieldId: createdId,
+      });
+      expect(afterClearReread.values?.length ?? -1).toBe(0);
     } finally {
       if (createdId > 0) {
         await _RepositoryApiClient.fieldDefinitionsClient.deleteFieldDefinition({
