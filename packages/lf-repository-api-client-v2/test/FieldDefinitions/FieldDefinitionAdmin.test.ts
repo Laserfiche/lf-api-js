@@ -7,6 +7,7 @@ import {
   FieldType,
   ReplaceListValuesRequest,
   UpdateFieldDefinitionRequest,
+  UpdateFieldPropertiesRequest,
 } from '../../index.js';
 
 function uniqueName(prefix: string): string {
@@ -145,6 +146,64 @@ describe('Field Definition Admin Integration Tests', () => {
 
       expect(containing).not.toBeNull();
       expect(containing.length).toBe(0);
+    } finally {
+      if (createdId > 0) {
+        await _RepositoryApiClient.fieldDefinitionsClient.deleteFieldDefinition({
+          repositoryId,
+          fieldId: createdId,
+        });
+      }
+    }
+  });
+
+  test('Extended properties — create / get / update round-trip', async () => {
+    const fieldName = uniqueName('client_test_props_field');
+    let createdId = 0;
+    try {
+      // Create with an initial property set — atomic with the create call.
+      const initialProps: { [key: string]: string } = {
+        'lf-cli-test-key1': 'alpha',
+        'lf-cli-test-key2': 'beta',
+      };
+      const created = await _RepositoryApiClient.fieldDefinitionsClient.createFieldDefinition({
+        repositoryId,
+        request: new CreateFieldDefinitionRequest({
+          name: fieldName,
+          fieldType: FieldType.String,
+          length: 25,
+          properties: initialProps,
+        }),
+      });
+      createdId = created.id!;
+
+      // GET — bag should include the two keys we set on Create.
+      const bag = await _RepositoryApiClient.fieldDefinitionsClient.getFieldProperties({
+        repositoryId,
+        fieldId: createdId,
+      });
+      expect(bag.properties?.['lf-cli-test-key1']).toBe('alpha');
+      expect(bag.properties?.['lf-cli-test-key2']).toBe('beta');
+
+      // PATCH — set one new key, remove one of the existing keys.
+      const afterUpdate = await _RepositoryApiClient.fieldDefinitionsClient.updateFieldProperties({
+        repositoryId,
+        fieldId: createdId,
+        request: new UpdateFieldPropertiesRequest({
+          set: { 'lf-cli-test-key3': 'gamma' },
+          remove: ['lf-cli-test-key1'],
+        }),
+      });
+      expect(afterUpdate.properties?.['lf-cli-test-key1']).toBeUndefined();
+      expect(afterUpdate.properties?.['lf-cli-test-key2']).toBe('beta');
+      expect(afterUpdate.properties?.['lf-cli-test-key3']).toBe('gamma');
+
+      // Independent GET — verify the PATCH persisted (defense against same-request masking).
+      const afterUpdateReread = await _RepositoryApiClient.fieldDefinitionsClient.getFieldProperties({
+        repositoryId,
+        fieldId: createdId,
+      });
+      expect(afterUpdateReread.properties?.['lf-cli-test-key1']).toBeUndefined();
+      expect(afterUpdateReread.properties?.['lf-cli-test-key3']).toBe('gamma');
     } finally {
       if (createdId > 0) {
         await _RepositoryApiClient.fieldDefinitionsClient.deleteFieldDefinition({

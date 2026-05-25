@@ -596,6 +596,28 @@ export interface IFieldDefinitionsClient {
      * @returns Successfully returned the count of entries assigned to the field definition.
      */
     getFieldAssignedEntryCount(args: { repositoryId: string, fieldId: number, select?: string | null | undefined }): Promise<AssignedEntryCountResponse>;
+
+    /**
+     * - The bag is opaque: keys are WebDAV-style identifiers used by the Cloud admin UI (e.g. to encode list-field sort order, add-blank, add-Other, display-as), and values are strings the UI interprets.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the extended properties for the field definition.
+     */
+    getFieldProperties(args: { repositoryId: string, fieldId: number, select?: string | null | undefined }): Promise<FieldPropertiesResponse>;
+
+    /**
+     * - Entries in set are written (creating or overwriting). Entries in remove are deleted. Properties not mentioned in either are left unchanged.
+    - Empty set and empty remove is a no-op and returns the current bag.
+    - Returns the full property bag after the change.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.request Set and/or remove entries on the property bag. Keys not mentioned are left unchanged.
+     * @returns Successfully updated the extended properties for the field definition.
+     */
+    updateFieldProperties(args: { repositoryId: string, fieldId: number, request: UpdateFieldPropertiesRequest }): Promise<FieldPropertiesResponse>;
 }
 
 export class FieldDefinitionsClient implements IFieldDefinitionsClient {
@@ -1552,6 +1574,196 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
             });
         }
         return Promise.resolve<AssignedEntryCountResponse>(null as any);
+    }
+
+    /**
+     * - The bag is opaque: keys are WebDAV-style identifiers used by the Cloud admin UI (e.g. to encode list-field sort order, add-blank, add-Other, display-as), and values are strings the UI interprets.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the extended properties for the field definition.
+     */
+    getFieldProperties(args: { repositoryId: string, fieldId: number, select?: string | null | undefined }): Promise<FieldPropertiesResponse> {
+        let { repositoryId, fieldId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}/Properties?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetFieldProperties(_response);
+        });
+    }
+
+    protected processGetFieldProperties(response: Response): Promise<FieldPropertiesResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldPropertiesResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldPropertiesResponse>(null as any);
+    }
+
+    /**
+     * - Entries in set are written (creating or overwriting). Entries in remove are deleted. Properties not mentioned in either are left unchanged.
+    - Empty set and empty remove is a no-op and returns the current bag.
+    - Returns the full property bag after the change.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition.
+     * @param args.request Set and/or remove entries on the property bag. Keys not mentioned are left unchanged.
+     * @returns Successfully updated the extended properties for the field definition.
+     */
+    updateFieldProperties(args: { repositoryId: string, fieldId: number, request: UpdateFieldPropertiesRequest }): Promise<FieldPropertiesResponse> {
+        let { repositoryId, fieldId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}/Properties";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateFieldProperties(_response);
+        });
+    }
+
+    protected processUpdateFieldProperties(response: Response): Promise<FieldPropertiesResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldPropertiesResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldPropertiesResponse>(null as any);
     }
 }
 
@@ -10467,6 +10679,11 @@ use the ChangeFieldType endpoint to convert between types. */
     /** Initial list values to populate. Applies only when FieldType is List.
 Order is preserved. Use the dedicated ListValues endpoints to manage list values after creation. */
     listValues?: string[] | undefined;
+    /** Initial extended properties (opaque WebDAV-keyed bag) to persist atomically with the field.
+Use the dedicated /FieldDefinitions/{id}/Properties endpoints to manage after creation.
+For list fields, this is where the admin UI stores sort order, add-blank, add-Other,
+display-as-dropdown, and similar UI-display options. */
+    properties?: { [key: string]: string; } | undefined;
 
     
     
@@ -10503,6 +10720,13 @@ Order is preserved. Use the dedicated ListValues endpoints to manage list values
                 for (let item of _data["listValues"])
                     this.listValues!.push(item);
             }
+            if (_data["properties"]) {
+                this.properties = {} as any;
+                for (let key in _data["properties"]) {
+                    if (_data["properties"].hasOwnProperty(key))
+                        (<any>this.properties)![key] = _data["properties"][key];
+                }
+            }
         }
     }
 
@@ -10536,6 +10760,13 @@ Order is preserved. Use the dedicated ListValues endpoints to manage list values
             data["listValues"] = [];
             for (let item of this.listValues)
                 data["listValues"].push(item);
+        }
+        if (this.properties) {
+            data["properties"] = {};
+            for (let key in this.properties) {
+                if (this.properties.hasOwnProperty(key))
+                    (<any>data["properties"])[key] = (<any>this.properties)[key];
+            }
         }
         return data;
     }
@@ -10581,6 +10812,11 @@ use the ChangeFieldType endpoint to convert between types. */
     /** Initial list values to populate. Applies only when FieldType is List.
 Order is preserved. Use the dedicated ListValues endpoints to manage list values after creation. */
     listValues?: string[] | undefined;
+    /** Initial extended properties (opaque WebDAV-keyed bag) to persist atomically with the field.
+Use the dedicated /FieldDefinitions/{id}/Properties endpoints to manage after creation.
+For list fields, this is where the admin UI stores sort order, add-blank, add-Other,
+display-as-dropdown, and similar UI-display options. */
+    properties?: { [key: string]: string; } | undefined;
 }
 
 /** Request body for partial-update of an existing field definition. Every property is optional. null = leave the property unchanged. Empty string ("") on a string property = clear the value. FieldType cannot be changed via this endpoint — use the ChangeFieldType endpoint. ListValues cannot be changed via this endpoint — use the dedicated ListValues endpoints. */
@@ -10990,6 +11226,128 @@ export class AssignedEntryCountResponse implements IAssignedEntryCountResponse {
 export interface IAssignedEntryCountResponse {
     /** The count of entries currently using this field. */
     count?: number;
+}
+
+/** Response body for the extended-properties bag on a field definition. The bag is opaque: keys are WebDAV-style identifiers used by the Cloud admin UI (e.g. to encode list-field sort order, add-blank, add-Other, display-as), and values are strings the UI interprets. */
+export class FieldPropertiesResponse implements IFieldPropertiesResponse {
+    /** The full set of extended properties currently set on the field. */
+    properties?: { [key: string]: string; } | undefined;
+
+    
+    
+    constructor(data?: IFieldPropertiesResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (_data["properties"]) {
+                this.properties = {} as any;
+                for (let key in _data["properties"]) {
+                    if (_data["properties"].hasOwnProperty(key))
+                        (<any>this.properties)![key] = _data["properties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): FieldPropertiesResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new FieldPropertiesResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.properties) {
+            data["properties"] = {};
+            for (let key in this.properties) {
+                if (this.properties.hasOwnProperty(key))
+                    (<any>data["properties"])[key] = (<any>this.properties)[key];
+            }
+        }
+        return data;
+    }
+}
+
+/** Response body for the extended-properties bag on a field definition. The bag is opaque: keys are WebDAV-style identifiers used by the Cloud admin UI (e.g. to encode list-field sort order, add-blank, add-Other, display-as), and values are strings the UI interprets. */
+export interface IFieldPropertiesResponse {
+    /** The full set of extended properties currently set on the field. */
+    properties?: { [key: string]: string; } | undefined;
+}
+
+/** Request body for partially updating the extended-properties bag on a field definition. Entries in Set are written (creating or overwriting). Entries in Remove are deleted. Properties not mentioned in either are left unchanged. */
+export class UpdateFieldPropertiesRequest implements IUpdateFieldPropertiesRequest {
+    /** Properties to set. Keys absent here are not modified. */
+    set?: { [key: string]: string; } | undefined;
+    /** Property keys to remove. Keys not currently set are ignored. */
+    remove?: string[] | undefined;
+
+    
+    
+    constructor(data?: IUpdateFieldPropertiesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (_data["set"]) {
+                this.set = {} as any;
+                for (let key in _data["set"]) {
+                    if (_data["set"].hasOwnProperty(key))
+                        (<any>this.set)![key] = _data["set"][key];
+                }
+            }
+            if (Array.isArray(_data["remove"])) {
+                this.remove = [] as any;
+                for (let item of _data["remove"])
+                    this.remove!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): UpdateFieldPropertiesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateFieldPropertiesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.set) {
+            data["set"] = {};
+            for (let key in this.set) {
+                if (this.set.hasOwnProperty(key))
+                    (<any>data["set"])[key] = (<any>this.set)[key];
+            }
+        }
+        if (Array.isArray(this.remove)) {
+            data["remove"] = [];
+            for (let item of this.remove)
+                data["remove"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Request body for partially updating the extended-properties bag on a field definition. Entries in Set are written (creating or overwriting). Entries in Remove are deleted. Properties not mentioned in either are left unchanged. */
+export interface IUpdateFieldPropertiesRequest {
+    /** Properties to set. Keys absent here are not modified. */
+    set?: { [key: string]: string; } | undefined;
+    /** Property keys to remove. Keys not currently set are ignored. */
+    remove?: string[] | undefined;
 }
 
 /** Response containing a collection of LinkDefinition. */
