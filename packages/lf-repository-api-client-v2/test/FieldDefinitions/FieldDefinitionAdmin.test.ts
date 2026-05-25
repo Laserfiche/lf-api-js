@@ -244,4 +244,187 @@ describe('Field Definition Admin Integration Tests', () => {
       }
     }
   });
+
+  // ---- Coverage tests added during pre-PR review ----
+
+  // Test #1: end-to-end round-trip for every FieldType, mirrors the dotnet integration test.
+  // Iterates 8 types (Blob skipped — historically not exercised via the admin API).
+  test('All FieldTypes — create / describe / update round-trip', async () => {
+    const types = [
+      FieldType.String,
+      FieldType.List,
+      FieldType.Number,
+      FieldType.Date,
+      FieldType.DateTime,
+      FieldType.Time,
+      FieldType.ShortInteger,
+      FieldType.LongInteger,
+    ];
+
+    for (const fieldType of types) {
+      const fieldName = uniqueName(`client_test_type_${fieldType}`);
+      let createdId = 0;
+      try {
+        const reqInit: any = {
+          name: fieldName,
+          fieldType,
+          description: `Round-trip test for ${fieldType}`,
+        };
+        if (fieldType === FieldType.String || fieldType === FieldType.List) {
+          reqInit.length = 25;
+        }
+        if (fieldType === FieldType.List) {
+          reqInit.listValues = ['Alpha', 'Beta'];
+        }
+        const created = await _RepositoryApiClient.fieldDefinitionsClient.createFieldDefinition({
+          repositoryId,
+          request: new CreateFieldDefinitionRequest(reqInit),
+        });
+        expect(created.id ?? 0, `${fieldType}: id`).toBeGreaterThan(0);
+        expect(created.fieldType, `${fieldType}: round-tripped type`).toBe(fieldType);
+        createdId = created.id!;
+
+        // Independent GET — defense against same-request masking (Trap 4).
+        const fetched = await _RepositoryApiClient.fieldDefinitionsClient.getFieldDefinition({
+          repositoryId,
+          fieldId: createdId,
+        });
+        expect(fetched.fieldType).toBe(fieldType);
+        expect(fetched.description).toBe(`Round-trip test for ${fieldType}`);
+
+        // PATCH description; verify regardless of type.
+        const updated = await _RepositoryApiClient.fieldDefinitionsClient.updateFieldDefinition({
+          repositoryId,
+          fieldId: createdId,
+          request: new UpdateFieldDefinitionRequest({
+            description: `Updated for ${fieldType}`,
+          }),
+        });
+        expect(updated.description, `${fieldType}: PATCH didn't stick`).toBe(`Updated for ${fieldType}`);
+      } finally {
+        if (createdId > 0) {
+          await _RepositoryApiClient.fieldDefinitionsClient.deleteFieldDefinition({
+            repositoryId,
+            fieldId: createdId,
+          });
+        }
+      }
+    }
+  });
+
+  // Test #2: GET /Properties on a fresh field with no caller-set properties.
+  // Surfaces what LFS-internal keys (if any) come back — closes Codex round-3
+  // finding #4 with empirical evidence.
+  test('GetFieldProperties — fresh field documents LFS-internal entries', async () => {
+    const fieldName = uniqueName('client_test_props_probe');
+    let createdId = 0;
+    try {
+      const created = await _RepositoryApiClient.fieldDefinitionsClient.createFieldDefinition({
+        repositoryId,
+        request: new CreateFieldDefinitionRequest({
+          name: fieldName,
+          fieldType: FieldType.String,
+          length: 10,
+          // no properties supplied
+        }),
+      });
+      createdId = created.id!;
+
+      const bag = await _RepositoryApiClient.fieldDefinitionsClient.getFieldProperties({
+        repositoryId,
+        fieldId: createdId,
+      });
+      expect(bag).not.toBeNull();
+      expect(bag.properties).not.toBeUndefined();
+
+      // Record entries for triage — visible in vitest output on verbose mode.
+      const entries = Object.entries(bag.properties ?? {});
+      console.log(`GetFieldProperties on fresh field returned ${entries.length} entries:`);
+      for (const [k, v] of entries) {
+        console.log(`  [${k}] = [${v}]`);
+      }
+      for (const [k] of entries) {
+        expect(k.length, `LFS returned an empty property key`).toBeGreaterThan(0);
+        expect(k.length, `LFS returned an oversized property key: '${k}'`).toBeLessThanOrEqual(256);
+      }
+    } finally {
+      if (createdId > 0) {
+        await _RepositoryApiClient.fieldDefinitionsClient.deleteFieldDefinition({
+          repositoryId,
+          fieldId: createdId,
+        });
+      }
+    }
+  });
+
+  // Test #3: server-side 400 validations surface through the JS client as ApiException
+  // with parseable problemDetails. Covers a sample of round-1/2/3 validation tightenings.
+  test('Validation — round-trips as 400 problemDetails', async () => {
+    // length=0 on Create → 400
+    await expect(
+      _RepositoryApiClient.fieldDefinitionsClient.createFieldDefinition({
+        repositoryId,
+        request: new CreateFieldDefinitionRequest({
+          name: uniqueName('client_test_invalid'),
+          fieldType: FieldType.String,
+          length: 0,
+        }),
+      })
+    ).rejects.toMatchObject({ status: 400 });
+
+    // listValues on a non-List type → 400
+    await expect(
+      _RepositoryApiClient.fieldDefinitionsClient.createFieldDefinition({
+        repositoryId,
+        request: new CreateFieldDefinitionRequest({
+          name: uniqueName('client_test_invalid'),
+          fieldType: FieldType.String,
+          length: 10,
+          listValues: ['A', 'B'],
+        }),
+      })
+    ).rejects.toMatchObject({ status: 400 });
+
+    const fieldName = uniqueName('client_test_props_validation');
+    let createdId = 0;
+    try {
+      const created = await _RepositoryApiClient.fieldDefinitionsClient.createFieldDefinition({
+        repositoryId,
+        request: new CreateFieldDefinitionRequest({
+          name: fieldName,
+          fieldType: FieldType.String,
+          length: 10,
+        }),
+      });
+      createdId = created.id!;
+
+      // PATCH /Properties empty-key → 400
+      await expect(
+        _RepositoryApiClient.fieldDefinitionsClient.updateFieldProperties({
+          repositoryId,
+          fieldId: createdId,
+          request: new UpdateFieldPropertiesRequest({ set: { '': 'v' } }),
+        })
+      ).rejects.toMatchObject({ status: 400 });
+
+      // PATCH /Properties same key in set + remove → 400
+      await expect(
+        _RepositoryApiClient.fieldDefinitionsClient.updateFieldProperties({
+          repositoryId,
+          fieldId: createdId,
+          request: new UpdateFieldPropertiesRequest({
+            set: { shared: 'v' },
+            remove: ['shared'],
+          }),
+        })
+      ).rejects.toMatchObject({ status: 400 });
+    } finally {
+      if (createdId > 0) {
+        await _RepositoryApiClient.fieldDefinitionsClient.deleteFieldDefinition({
+          repositoryId,
+          fieldId: createdId,
+        });
+      }
+    }
+  });
 });
