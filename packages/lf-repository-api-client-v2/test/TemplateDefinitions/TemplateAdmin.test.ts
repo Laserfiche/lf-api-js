@@ -82,8 +82,22 @@ describe('Template Definition Admin Integration Tests', () => {
       expect(readBack.name).toBe(renamed);
       expect(readBack.isAutoAssignable).toBe(true);
 
+      const deletedId = createdId;
       await _RepositoryApiClient.templateDefinitionsClient.deleteTemplate({ repositoryId, templateId: createdId });
       createdId = 0;
+
+      // 404 after delete — verify the just-deleted template is actually gone.
+      // Mirrors the dotnet client's CreateUpdateDelete_Template_Lifecycle assertion
+      // added in response to Codex round-2 dotnet review.
+      try {
+        await _RepositoryApiClient.templateDefinitionsClient.getTemplateDefinition({
+          repositoryId,
+          templateId: deletedId,
+        });
+        throw new Error('Should have thrown 404 after delete');
+      } catch (e: any) {
+        expect(e.status).toBe(404);
+      }
     } finally {
       await safeDeleteTemplate(createdId);
     }
@@ -213,6 +227,12 @@ describe('Template Definition Admin Integration Tests', () => {
       await safeDeleteTemplate(createdId);
     }
   });
+
+  // LocalDescription branch — skipped explicitly so it shows up in CI output as
+  // an outstanding test rather than living silently in a comment. RA
+  // SetFieldLocalDescription requires LFS ≥ 12.0.2; dev-CA runs older. Server
+  // unit tests cover the LocalDescription path; re-enable when dev-CA upgrades.
+  test.skip('UpdateTemplateFieldProperties LocalDescription round-trip (requires LFS >= 12.0.2)', async () => {});
 
   test('Properties round-trip', async () => {
     const templateName = uniqueName('client_test_tmpl');
