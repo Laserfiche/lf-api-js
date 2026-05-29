@@ -8,10 +8,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:11211/repository"
-    },
-    {
-      "url": "https://localhost:11211/repository"
+      "url": "https://api.laserfiche.com/repository"
     }
   ],
   "paths": {
