@@ -1,6 +1,17 @@
 <!--Copyright Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
+## 1.2.0
+
+### Features
+
+- Updated version of `lf-repository-api-client-v2` to `1.2.0`:
+  - Add field definition administration methods: `createFieldDefinition`, `updateFieldDefinition`, `deleteFieldDefinition`, `getFieldListValues`, `replaceFieldListValues`, `getFieldContainingTemplates`, `getFieldAssignedEntryCount`, `getFieldProperties`, `updateFieldProperties`.
+  - Add destructive field operations: `mergeFields` and `changeFieldType`, both gated by an explicit `allowDataLoss` flag.
+  - Add template definition administration methods: `createTemplate`, `updateTemplate`, `deleteTemplate`, `getTemplateAssignedEntryCount`, `getTemplateProperties`, `updateTemplateProperties`, `addTemplateField`, `updateTemplateFieldProperties`, `removeTemplateField`, `moveTemplateField`.
+  - `getEntry` accepts opt-in `includeChildInfo` (folder immediate-children counts) and `includeTotalSize` (document total stored size); both omitted unless requested.
+  - New types: request/response DTOs for field and template definition administration, and the `childInfo` object on the entry response.
+
 ## 1.1.0
 
 ### Features
