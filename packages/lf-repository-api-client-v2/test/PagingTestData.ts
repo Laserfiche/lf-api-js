@@ -9,9 +9,8 @@
 // them with >= 2 children / fields / links / tags so that maxpagesize=1 paging reliably
 // produces a next link.
 import { repositoryId } from './TestHelper.js';
-import { CreateEntry } from './BaseTest.js';
+import { CreateEntry, getDeleteEntryAuditReasonId } from './BaseTest.js';
 import {
-  Entry,
   FieldType,
   FieldToUpdate,
   SetFieldsRequest,
@@ -34,30 +33,38 @@ export interface PagingTestEntries {
   linksEntryId: number;
   /** Entry with >= MIN_ITEMS tags (for listTags). */
   tagsEntryId: number;
-  /** Deletes every top-level entry created here (children/targets cascade). */
+  /** Deletes the top-level entry created here (children/targets cascade). */
   cleanup: () => Promise<void>;
 }
 
 async function deleteEntry(client: IRepositoryApiClient, entryId: number): Promise<void> {
   try {
-    await client.entriesClient.startDeleteEntry({ repositoryId, entryId, request: new StartDeleteEntryRequest() });
+    const request = new StartDeleteEntryRequest();
+    // The repository requires an audit reason for DeleteEntry; without it the delete silently
+    // fails and these cleanup entries accumulate in the shared repository.
+    request.auditReasonId = await getDeleteEntryAuditReasonId(client);
+    await client.entriesClient.startDeleteEntry({ repositoryId, entryId, request });
   } catch {
     // best-effort cleanup
   }
 }
 
 export async function setupPagingEntries(client: IRepositoryApiClient): Promise<PagingTestEntries> {
-  const topLevel: number[] = [];
-  const stamp = 'JS PagingSetup';
+  // A single folder serves every list type: its >= MIN_ITEMS children cover listEntries and
+  // double as link targets, and its own metadata covers listFields/listTags/listLinks. This
+  // keeps the write volume low so back-to-back node + browser runs don't trip the repository
+  // rate limiter.
+  const folder = await CreateEntry(client, 'RepositoryApiClientIntegrationTest JS PagingSetup');
+  const folderId = folder.id!;
 
-  // --- Entries: a folder with MIN_ITEMS children ---
-  const entriesFolder = await CreateEntry(client, `RepositoryApiClientIntegrationTest ${stamp} Entries`);
-  topLevel.push(entriesFolder.id!);
+  // Children — listed by listEntries and reused as link targets.
+  const childIds: number[] = [];
   for (let i = 0; i < MIN_ITEMS; i++) {
-    await CreateEntry(client, `child${i}`, entriesFolder.id!);
+    const child = await CreateEntry(client, `child${i}`, folderId);
+    childIds.push(child.id!);
   }
 
-  // --- Fields: an entry with MIN_ITEMS independent string-field values ---
+  // Fields — MIN_ITEMS independent string-field values on the folder.
   const fieldDefs = (await client.fieldDefinitionsClient.listFieldDefinitions({ repositoryId })).value ?? [];
   const usableFields = fieldDefs.filter(
     (f) => f.fieldType === FieldType.String && !f.constraint && (f.length ?? 0) >= 1
@@ -65,8 +72,6 @@ export async function setupPagingEntries(client: IRepositoryApiClient): Promise<
   if (usableFields.length < MIN_ITEMS) {
     throw new Error(`Need >= ${MIN_ITEMS} unconstrained string field definitions; found ${usableFields.length}`);
   }
-  const fieldsEntry = await CreateEntry(client, `RepositoryApiClientIntegrationTest ${stamp} Fields`);
-  topLevel.push(fieldsEntry.id!);
   const setFieldsRequest = new SetFieldsRequest();
   setFieldsRequest.fields = usableFields.slice(0, MIN_ITEMS).map((f) => {
     const u = new FieldToUpdate();
@@ -74,9 +79,9 @@ export async function setupPagingEntries(client: IRepositoryApiClient): Promise<
     u.values = ['a'];
     return u;
   });
-  await client.entriesClient.setFields({ repositoryId, entryId: fieldsEntry.id!, request: setFieldsRequest });
+  await client.entriesClient.setFields({ repositoryId, entryId: folderId, request: setFieldsRequest });
 
-  // --- Tags: an entry with MIN_ITEMS informational tags ---
+  // Tags — MIN_ITEMS informational tags on the folder.
   const tagDefs = (await client.tagDefinitionsClient.listTagDefinitions({ repositoryId })).value ?? [];
   const usableTags = tagDefs.filter(
     (t) => t.isSecure === false && !(t.name ?? '').includes('Automatically select tags')
@@ -84,41 +89,33 @@ export async function setupPagingEntries(client: IRepositoryApiClient): Promise<
   if (usableTags.length < MIN_ITEMS) {
     throw new Error(`Need >= ${MIN_ITEMS} informational tag definitions; found ${usableTags.length}`);
   }
-  const tagsEntry = await CreateEntry(client, `RepositoryApiClientIntegrationTest ${stamp} Tags`);
-  topLevel.push(tagsEntry.id!);
   const setTagsRequest = new SetTagsRequest();
   setTagsRequest.tags = usableTags.slice(0, MIN_ITEMS).map((t) => t.name!);
-  await client.entriesClient.setTags({ repositoryId, entryId: tagsEntry.id!, request: setTagsRequest });
+  await client.entriesClient.setTags({ repositoryId, entryId: folderId, request: setTagsRequest });
 
-  // --- Links: a folder linking to MIN_ITEMS target children ---
+  // Links — link the folder to each of its children.
   const linkDefs = (await client.linkDefinitionsClient.listLinkDefinitions({ repositoryId })).value ?? [];
   if (linkDefs.length === 0) {
     throw new Error('Need >= 1 link definition');
   }
-  const linksEntry = await CreateEntry(client, `RepositoryApiClientIntegrationTest ${stamp} Links`);
-  topLevel.push(linksEntry.id!);
   const setLinksRequest = new SetLinksRequest();
-  setLinksRequest.links = [];
-  for (let i = 0; i < MIN_ITEMS; i++) {
-    const target = await CreateEntry(client, `linkTarget${i}`, linksEntry.id!);
+  setLinksRequest.links = childIds.map((childId, i) => {
     const link = new LinkToUpdate();
     // Reuse a single link definition across distinct targets; fall back to distinct
     // definitions if the repo offers them (covers one-to-one link definitions).
     link.linkDefinitionId = (linkDefs[i] ?? linkDefs[0]).id!;
-    link.otherEntryId = target.id!;
-    setLinksRequest.links.push(link);
-  }
-  await client.entriesClient.setLinks({ repositoryId, entryId: linksEntry.id!, request: setLinksRequest });
+    link.otherEntryId = childId;
+    return link;
+  });
+  await client.entriesClient.setLinks({ repositoryId, entryId: folderId, request: setLinksRequest });
 
   return {
-    entriesFolderId: entriesFolder.id!,
-    fieldsEntryId: fieldsEntry.id!,
-    linksEntryId: linksEntry.id!,
-    tagsEntryId: tagsEntry.id!,
+    entriesFolderId: folderId,
+    fieldsEntryId: folderId,
+    linksEntryId: folderId,
+    tagsEntryId: folderId,
     cleanup: async () => {
-      for (const id of topLevel) {
-        await deleteEntry(client, id);
-      }
+      await deleteEntry(client, folderId);
     },
   };
 }
