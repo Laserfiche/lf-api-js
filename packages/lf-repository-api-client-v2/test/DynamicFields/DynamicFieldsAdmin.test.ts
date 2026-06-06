@@ -16,9 +16,17 @@ import {
 
 // Integration tests for the Dynamic Fields admin endpoints (PRD REQ-ADMIN-008):
 // external-table registration (RA-direct) and template form-logic rules (RWS-reuse).
-// Self-sufficient: reuses an existing external-table fixture's coordinates and creates its own
-// throwaway alias / template / field, cleaning up afterward. Skips when the dev repository has
-// no external data source registered (mirrors the dotnet suite's Assert.Inconclusive).
+// Self-sufficient: reuses the shared PMT_LoadTest_LT external-table fixture's coordinates and
+// creates its own throwaway alias / template / field, cleaning up afterward. Skips when that
+// fixture is not registered on the target account (mirrors the dotnet suite's Assert.Inconclusive).
+//
+// Fixture provisioning (Option 1, manual / account-level — same fixture the RA cloud test
+// TemplateTest.FormLogicParentFieldTest uses): import RepositoryAccess
+// src/SharedTest/TestFiles/data.csv (columns City, State, Company, Fname, Lname, Email) into the
+// account's Process Automation "data management" as a lookup table named PMT_LoadTest_LT.
+
+// Shared cross-suite fixture name (RA TemplateTest.FormLogicParentFieldTest, RWS, API Server).
+const EXTERNAL_TABLE_FIXTURE_NAME = 'PMT_LoadTest_LT';
 
 function uniqueName(prefix: string): string {
   const stamp = new Date()
@@ -31,7 +39,14 @@ function uniqueName(prefix: string): string {
 
 async function findExistingExternalTable(): Promise<ExternalTable | undefined> {
   const list = await _RepositoryApiClient.dynamicFieldsClient.listExternalTables({ repositoryId });
-  return list && list.length > 0 ? list[0] : undefined;
+  if (!list || list.length === 0) {
+    return undefined;
+  }
+  // Prefer the shared PMT_LoadTest_LT fixture; fall back to any registration so the suite still
+  // exercises the surface on accounts that registered a differently-named table.
+  return (
+    list.find((t) => (t.laserficheName ?? '').toLowerCase() === EXTERNAL_TABLE_FIXTURE_NAME.toLowerCase()) ?? list[0]
+  );
 }
 
 describe('Dynamic Fields Admin Integration Tests', () => {
