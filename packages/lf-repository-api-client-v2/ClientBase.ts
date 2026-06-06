@@ -16,6 +16,7 @@ class ClientBase {}
 export interface IRepositoryApiClient {
   attributesClient: IAttributesClient;
   auditReasonsClient: generated.IAuditReasonsClient;
+  dynamicFieldsClient: generated.IDynamicFieldsClient;
   entriesClient: IEntriesClient;
   fieldDefinitionsClient: IFieldDefinitionsClient;
   repositoriesClient: generated.IRepositoriesClient;
@@ -34,6 +35,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
 
   public attributesClient: IAttributesClient;
   public auditReasonsClient: generated.IAuditReasonsClient;
+  public dynamicFieldsClient: generated.IDynamicFieldsClient;
   public entriesClient: IEntriesClient;
   public fieldDefinitionsClient: IFieldDefinitionsClient;
   public repositoriesClient: generated.IRepositoriesClient;
@@ -73,6 +75,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
     this.baseUrl = baseUrlDebug ?? '';
     this.attributesClient = new AttributesClient(this.baseUrl, http);
     this.auditReasonsClient = new generated.AuditReasonsClient(this.baseUrl, http);
+    this.dynamicFieldsClient = new generated.DynamicFieldsClient(this.baseUrl, http);
     this.entriesClient = new EntriesClient(this.baseUrl, http);
     this.fieldDefinitionsClient = new FieldDefinitionsClient(this.baseUrl, http);
     this.repositoriesClient = new generated.RepositoriesClient(this.baseUrl, http);
