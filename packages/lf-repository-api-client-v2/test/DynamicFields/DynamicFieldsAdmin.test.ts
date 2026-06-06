@@ -6,7 +6,6 @@ import {
   CreateFieldDefinitionRequest,
   CreateTemplateRequest,
   ExternalTable,
-  ExternalTableRequest,
   FieldType,
   FormLogicRule,
   SetFormLogicRulesRequest,
@@ -15,18 +14,23 @@ import {
 } from '../../index.js';
 
 // Integration tests for the Dynamic Fields admin endpoints (PRD REQ-ADMIN-008):
-// external-table registration (RA-direct) and template form-logic rules (RWS-reuse).
-// Self-sufficient: reuses the shared PMT_LoadTest_LT external-table fixture's coordinates and
-// creates its own throwaway alias / template / field, cleaning up afterward. Skips when that
-// fixture is not registered on the target account (mirrors the dotnet suite's Assert.Inconclusive).
+// external-table reads (RA-direct) and template form-logic rules (RWS-reuse).
+// Self-sufficient: reads the external-table fixture and creates its own throwaway template / field
+// to bind a form-logic rule, cleaning up afterward. Skips when the fixture is not registered on
+// the target account (mirrors the dotnet suite's Assert.Inconclusive).
 //
-// Fixture provisioning (Option 1, manual / account-level — same fixture the RA cloud test
-// TemplateTest.FormLogicParentFieldTest uses): import RepositoryAccess
-// src/SharedTest/TestFiles/data.csv (columns City, State, Company, Fname, Lname, Email) into the
-// account's Process Automation "data management" as a lookup table named PMT_LoadTest_LT.
+// External tables are READ-ONLY here: on cloud the LFS hard-denies register/update/unregister
+// (LFCR_E_ACCESS_DENIED / 9013), so they are provisioned out-of-band via Process Automation "data
+// management" and surfaced read-only. The write client methods are gated out of the cloud build
+// (EXTERNAL_TABLE_WRITE) and are absent from this client.
+//
+// Fixture provisioning: import a CSV (columns City, State, Company, Fname, Lname, Email — e.g.
+// RepositoryAccess src/SharedTest/TestFiles/data.csv) into the account's PA "data management" as a
+// lookup table named APIServer_DynamicFields_Integration_Tests.
 
-// Shared cross-suite fixture name (RA TemplateTest.FormLogicParentFieldTest, RWS, API Server).
-const EXTERNAL_TABLE_FIXTURE_NAME = 'PMT_LoadTest_LT';
+// Lookup table provisioned on the dev account's PA "data management" for these tests
+// (City, State, Company, Fname, Lname, Email — same shape as RA TestFiles/data.csv).
+const EXTERNAL_TABLE_FIXTURE_NAME = 'APIServer_DynamicFields_Integration_Tests';
 
 function uniqueName(prefix: string): string {
   const stamp = new Date()
@@ -50,71 +54,32 @@ async function findExistingExternalTable(): Promise<ExternalTable | undefined> {
 }
 
 describe('Dynamic Fields Admin Integration Tests', () => {
-  test('ExternalTable register / list / get / columns / update / unregister lifecycle', async (ctx) => {
+  test('ExternalTable list / get / columns (read-only)', async (ctx) => {
     const existing = await findExistingExternalTable();
     if (!existing) {
       ctx.skip(); // No external data source registered on the dev repository.
       return;
     }
 
-    const alias = uniqueName('client_test_exttable');
-    let newId = 0;
-    try {
-      const created = await _RepositoryApiClient.dynamicFieldsClient.registerExternalTable({
-        repositoryId,
-        request: new ExternalTableRequest({
-          laserficheName: alias,
-          database: existing.database,
-          schema: existing.schema,
-          table: existing.table,
-        }),
-      });
-      expect(created).not.toBeNull();
-      expect(created.id ?? 0).toBeGreaterThan(0);
-      expect(created.laserficheName).toBe(alias);
-      expect(created.laserficheSchema).toBe('lfe');
-      newId = created.id!;
+    // List surfaces the fixture with the expected lfe schema.
+    expect(existing.id ?? 0).toBeGreaterThan(0);
+    expect(existing.laserficheSchema).toBe('lfe');
 
-      const list = await _RepositoryApiClient.dynamicFieldsClient.listExternalTables({ repositoryId });
-      expect(list.some((t) => t.id === newId)).toBe(true);
+    // Get by id round-trips the same registration.
+    const got = await _RepositoryApiClient.dynamicFieldsClient.getExternalTable({
+      repositoryId,
+      externalTableId: existing.id!,
+    });
+    expect(got.id).toBe(existing.id);
+    expect(got.laserficheName).toBe(existing.laserficheName);
 
-      const got = await _RepositoryApiClient.dynamicFieldsClient.getExternalTable({
-        repositoryId,
-        externalTableId: newId,
-      });
-      expect(got.laserficheName).toBe(alias);
-      expect(got.table).toBe(existing.table);
-
-      const columns = await _RepositoryApiClient.dynamicFieldsClient.listExternalTableColumns({
-        repositoryId,
-        externalTableId: newId,
-      });
-      expect(columns).not.toBeNull();
-      expect(columns.length).toBeGreaterThan(0);
-
-      const updated = await _RepositoryApiClient.dynamicFieldsClient.updateExternalTable({
-        repositoryId,
-        externalTableId: newId,
-        request: new ExternalTableRequest({
-          laserficheName: alias,
-          database: existing.database,
-          schema: existing.schema,
-          table: existing.table,
-        }),
-      });
-      expect(updated.id).toBe(newId);
-    } finally {
-      if (newId > 0) {
-        try {
-          await _RepositoryApiClient.dynamicFieldsClient.unregisterExternalTable({
-            repositoryId,
-            externalTableId: newId,
-          });
-        } catch {
-          /* best-effort cleanup */
-        }
-      }
-    }
+    // Columns hit the backing external data source and return at least one column.
+    const columns = await _RepositoryApiClient.dynamicFieldsClient.listExternalTableColumns({
+      repositoryId,
+      externalTableId: existing.id!,
+    });
+    expect(columns).not.toBeNull();
+    expect(columns.length).toBeGreaterThan(0);
   });
 
   test('FormLogic set / get / clear lifecycle', async (ctx) => {
