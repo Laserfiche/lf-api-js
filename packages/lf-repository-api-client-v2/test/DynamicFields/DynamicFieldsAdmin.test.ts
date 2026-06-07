@@ -42,7 +42,17 @@ function uniqueName(prefix: string): string {
 }
 
 async function findExistingExternalTable(): Promise<ExternalTable | undefined> {
-  const list = await _RepositoryApiClient.dynamicFieldsClient.listExternalTables({ repositoryId });
+  let list;
+  try {
+    list = await _RepositoryApiClient.dynamicFieldsClient.listExternalTables({ repositoryId });
+  } catch (e: any) {
+    // Endpoint not deployed on the target account yet (e.g. server change not yet released):
+    // treat as "no fixture" so the suite skips instead of erroring (mirrors [SkipIfEndpointMissing]).
+    if (e?.status === 404) {
+      return undefined;
+    }
+    throw e;
+  }
   if (!list || list.length === 0) {
     return undefined;
   }
