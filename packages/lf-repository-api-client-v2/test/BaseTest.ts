@@ -6,6 +6,8 @@ import {
   EntryType,
   FieldDefinition,
   CreateEntryRequestEntryType,
+  StartDeleteEntryRequest,
+  AuditEventType,
 } from '../index.js';
 import {
   OAuthAccessKey,
@@ -49,6 +51,37 @@ export async function CreateEntry(
   expect(newEntry.parentId).toBe(parentEntryId);
   expect(newEntry.entryType).toBe(EntryType.Folder);
   return newEntry;
+}
+
+// Cached per test run; the repository's audit-reason list is static test fixture data.
+let _deleteEntryAuditReasonId: number | undefined;
+let _deleteEntryAuditReasonResolved = false;
+
+/**
+ * Returns the id of a DeleteEntry audit reason, or undefined if the repository has none.
+ * The shared test repository's audit policy requires a reason for DeleteEntry — without one
+ * the async delete task deterministically reports Failed (400 invalidRequest,
+ * "Need to provide correct audit reason for DeleteEntry").
+ */
+export async function getDeleteEntryAuditReasonId(
+  client: IRepositoryApiClient
+): Promise<number | undefined> {
+  if (!_deleteEntryAuditReasonResolved) {
+    const auditReasons = (await client.auditReasonsClient.listAuditReasons({ repositoryId })).value ?? [];
+    _deleteEntryAuditReasonId = auditReasons.find((r) => r.auditEventType === AuditEventType.DeleteEntry)?.id;
+    _deleteEntryAuditReasonResolved = true;
+  }
+  return _deleteEntryAuditReasonId;
+}
+
+/**
+ * Deletes an entry, supplying a valid DeleteEntry audit reason when the repository requires
+ * one. Use for test teardown so cleanup entries do not accumulate in the shared repository.
+ */
+export async function deleteEntry(client: IRepositoryApiClient, entryId: number): Promise<void> {
+  const request = new StartDeleteEntryRequest();
+  request.auditReasonId = await getDeleteEntryAuditReasonId(client);
+  await client.entriesClient.startDeleteEntry({ repositoryId, entryId, request });
 }
 
 export async function allFalse(arr: FieldDefinition[]): Promise<boolean> {

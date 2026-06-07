@@ -598,7 +598,9 @@ export interface IFieldDefinitionsClient {
     getFieldAssignedEntryCount(args: { repositoryId: string, fieldId: number, select?: string | null | undefined }): Promise<AssignedEntryCountResponse>;
 
     /**
-     * - The bag is opaque: keys are WebDAV-style identifiers used by the Cloud admin UI (e.g. to encode list-field sort order, add-blank, add-Other, display-as), and values are strings the UI interprets.
+     * - Returns the custom-properties bag persisted on the field definition. The bag is an opaque application-defined string → string map scoped to the definition itself (not to a user), useful for attaching integration metadata or application-specific configuration that belongs with the field — for example to encode list-field display preferences such as sort order, or to record an external system's identifier for the field.
+    - Keys are application-defined; recommend a namespace prefix (e.g. com.acme.workflow.stage, myapp.kind) to avoid collisions across applications.
+    - The response may include entries written by other applications or by system-managed tooling. Callers should leave unrecognized keys untouched on subsequent UpdateFieldProperties calls — round-tripping them in set preserves them, including them in remove deletes them.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.fieldId The ID of the field definition.
@@ -610,7 +612,8 @@ export interface IFieldDefinitionsClient {
     /**
      * - Entries in set are written (creating or overwriting). Entries in remove are deleted. Properties not mentioned in either are left unchanged.
     - Empty set and empty remove is a no-op and returns the current bag.
-    - Returns the full property bag after the change.
+    - Returns the full custom-properties bag after the change.
+    - The bag is application-defined; the API does not validate key semantics. Recommend namespaced keys (e.g. com.acme.invoice.region, myapp.kind) to avoid collisions.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.fieldId The ID of the field definition.
@@ -618,6 +621,30 @@ export interface IFieldDefinitionsClient {
      * @returns Successfully updated the extended properties for the field definition.
      */
     updateFieldProperties(args: { repositoryId: string, fieldId: number, request: UpdateFieldPropertiesRequest }): Promise<FieldPropertiesResponse>;
+
+    /**
+     * - Combines the values of the source fields into a new field. onConflict controls per-entry value conflicts: Fail (default) aborts on conflict, MakeMultivalue keeps all values, UseFirstField keeps the first and discards the rest.
+    - UseFirstField is lossy and requires allowDataLoss = true; otherwise the request is rejected with 400.
+    - removeFromTemplates (default false) also removes the source fields from any templates that contain them. The source field definitions themselves are preserved regardless — the merge creates a new field, it does not delete the originals. Callers that want the sources gone must call DeleteFieldDefinition on each after the merge succeeds.
+    - autoRename (default false) asks the repository to auto-select a non-conflicting name on collision; whether the repository honors this for merges is version-dependent, so callers should pre-validate newFieldName and treat an "already exists" error as a genuine collision.
+    - At least two source fields are required.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The source field IDs (two or more), the new field name, and merge options.
+     * @returns Successfully merged the source fields into the new field definition.
+     */
+    mergeFields(args: { repositoryId: string, request: MergeFieldsRequest }): Promise<FieldDefinition>;
+
+    /**
+     * - Converts the field to newFieldType. The conversion can reset type-specific configuration (length, constraint, format), clear list items when leaving the List type, and clear a default value that cannot be reinterpreted in the new type. Entries already assigned the field may have their values dropped if the existing data cannot survive the new type's domain.
+    - When the conversion would lose data, allowDataLoss = true is required; otherwise the request is rejected with 400. The server treats the conversion as lossy unless it is one of the explicit safe widenings (Date → DateTime, ShortInteger → LongInteger, ShortInteger → Number, LongInteger → Number) and clearing list items / resetting a constraint / dropping a default would not actually discard data. A field with assigned entries that is not undergoing one of the safe widenings is always treated as lossy.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition to convert.
+     * @param args.request The target field type and the data-loss acknowledgement.
+     * @returns Successfully changed the field definition's type.
+     */
+    changeFieldType(args: { repositoryId: string, fieldId: number, request: ChangeFieldTypeRequest }): Promise<FieldDefinition>;
 }
 
 export class FieldDefinitionsClient implements IFieldDefinitionsClient {
@@ -1577,7 +1604,9 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
     }
 
     /**
-     * - The bag is opaque: keys are WebDAV-style identifiers used by the Cloud admin UI (e.g. to encode list-field sort order, add-blank, add-Other, display-as), and values are strings the UI interprets.
+     * - Returns the custom-properties bag persisted on the field definition. The bag is an opaque application-defined string → string map scoped to the definition itself (not to a user), useful for attaching integration metadata or application-specific configuration that belongs with the field — for example to encode list-field display preferences such as sort order, or to record an external system's identifier for the field.
+    - Keys are application-defined; recommend a namespace prefix (e.g. com.acme.workflow.stage, myapp.kind) to avoid collisions across applications.
+    - The response may include entries written by other applications or by system-managed tooling. Callers should leave unrecognized keys untouched on subsequent UpdateFieldProperties calls — round-tripping them in set preserves them, including them in remove deletes them.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.fieldId The ID of the field definition.
@@ -1672,7 +1701,8 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
     /**
      * - Entries in set are written (creating or overwriting). Entries in remove are deleted. Properties not mentioned in either are left unchanged.
     - Empty set and empty remove is a no-op and returns the current bag.
-    - Returns the full property bag after the change.
+    - Returns the full custom-properties bag after the change.
+    - The bag is application-defined; the API does not validate key semantics. Recommend namespaced keys (e.g. com.acme.invoice.region, myapp.kind) to avoid collisions.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.fieldId The ID of the field definition.
@@ -1764,6 +1794,197 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
             });
         }
         return Promise.resolve<FieldPropertiesResponse>(null as any);
+    }
+
+    /**
+     * - Combines the values of the source fields into a new field. onConflict controls per-entry value conflicts: Fail (default) aborts on conflict, MakeMultivalue keeps all values, UseFirstField keeps the first and discards the rest.
+    - UseFirstField is lossy and requires allowDataLoss = true; otherwise the request is rejected with 400.
+    - removeFromTemplates (default false) also removes the source fields from any templates that contain them. The source field definitions themselves are preserved regardless — the merge creates a new field, it does not delete the originals. Callers that want the sources gone must call DeleteFieldDefinition on each after the merge succeeds.
+    - autoRename (default false) asks the repository to auto-select a non-conflicting name on collision; whether the repository honors this for merges is version-dependent, so callers should pre-validate newFieldName and treat an "already exists" error as a genuine collision.
+    - At least two source fields are required.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The source field IDs (two or more), the new field name, and merge options.
+     * @returns Successfully merged the source fields into the new field definition.
+     */
+    mergeFields(args: { repositoryId: string, request: MergeFieldsRequest }): Promise<FieldDefinition> {
+        let { repositoryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/Merge";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processMergeFields(_response);
+        });
+    }
+
+    protected processMergeFields(response: Response): Promise<FieldDefinition> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldDefinition.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldDefinition>(null as any);
+    }
+
+    /**
+     * - Converts the field to newFieldType. The conversion can reset type-specific configuration (length, constraint, format), clear list items when leaving the List type, and clear a default value that cannot be reinterpreted in the new type. Entries already assigned the field may have their values dropped if the existing data cannot survive the new type's domain.
+    - When the conversion would lose data, allowDataLoss = true is required; otherwise the request is rejected with 400. The server treats the conversion as lossy unless it is one of the explicit safe widenings (Date → DateTime, ShortInteger → LongInteger, ShortInteger → Number, LongInteger → Number) and clearing list items / resetting a constraint / dropping a default would not actually discard data. A field with assigned entries that is not undergoing one of the safe widenings is always treated as lossy.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The ID of the field definition to convert.
+     * @param args.request The target field type and the data-loss acknowledgement.
+     * @returns Successfully changed the field definition's type.
+     */
+    changeFieldType(args: { repositoryId: string, fieldId: number, request: ChangeFieldTypeRequest }): Promise<FieldDefinition> {
+        let { repositoryId, fieldId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}/ChangeType";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processChangeFieldType(_response);
+        });
+    }
+
+    protected processChangeFieldType(response: Response): Promise<FieldDefinition> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldDefinition.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldDefinition>(null as any);
     }
 }
 
@@ -2165,15 +2386,19 @@ export interface IEntriesClient {
      * - Returns a single entry object.
     - Provide an entry ID, and get the entry associated with that ID. Useful when detailed information about the entry is required, such as metadata, path information, etc.
     - If the entry is a subtype (Folder, Document, or Shortcut), the response will automatically include properties specific to that entry type. For example, Document entries include page-related properties such as the number of image pages and whether an electronic document is attached. Entries with an electronic document component include the electronic document size (in bytes). Folder entries include whether the folder is a record series. Shortcut entries include the target entry ID.
+    - Optionally pass 'includeChildInfo=true' on a folder to retrieve, on demand, a 'childInfo' object with whether the folder has immediate children, the total immediate-child count, and a per-type breakdown (folder/document/shortcut). Immediate children only — recursive subtree counts are deliberately not supported here (unbounded, DoS-prone on a public API). This is opt-in because it is comparatively expensive; lazy expansion is the recommended pattern for folder tree navigation.
+    - Optionally pass 'includeTotalSize=true' on a document to retrieve 'totalDocumentSize' — the full stored size including rendered pages, OCR text, thumbnails, and attachments — in addition to the electronic-document size. Opt-in because it aggregates across all pages.
     - Allowed OData query options: Select.
     - When OData Select query option is used, 'entryType' is always included in the result.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
+     * @param args.includeChildInfo (optional) Optional. When true and the entry is a folder, includes a childInfo object reporting whether the folder has immediate children, the total count, and a per-type breakdown (folderCount, documentCount, shortcutCount). Counts are for immediate children only — never recursive/whole-subtree (a recursive count is intentionally not offered here; it would be an unbounded, DoS-prone operation on a public API). Omitted by default because the calculation is comparatively expensive — for tree UIs prefer lazy expansion (load children on demand) over requesting this per node. Ignored for non-folder entries.
+     * @param args.includeTotalSize (optional) Optional. When true and the entry is a document, includes totalDocumentSize — the document's full stored size (electronic document plus page image/text/locations/thumbnail data and attachments), as opposed to electronicDocumentSize which is just the source file. Omitted by default because it aggregates across all of the document's pages. Ignored for non-document entries.
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully retrieved requested entry.
      */
-    getEntry(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<Entry>;
+    getEntry(args: { repositoryId: string, entryId: number, includeChildInfo?: boolean | undefined, includeTotalSize?: boolean | undefined, select?: string | null | undefined }): Promise<Entry>;
 
     /**
      * - Update an entry. (Move and/or Rename)
@@ -3555,16 +3780,20 @@ export class EntriesClient implements IEntriesClient {
      * - Returns a single entry object.
     - Provide an entry ID, and get the entry associated with that ID. Useful when detailed information about the entry is required, such as metadata, path information, etc.
     - If the entry is a subtype (Folder, Document, or Shortcut), the response will automatically include properties specific to that entry type. For example, Document entries include page-related properties such as the number of image pages and whether an electronic document is attached. Entries with an electronic document component include the electronic document size (in bytes). Folder entries include whether the folder is a record series. Shortcut entries include the target entry ID.
+    - Optionally pass 'includeChildInfo=true' on a folder to retrieve, on demand, a 'childInfo' object with whether the folder has immediate children, the total immediate-child count, and a per-type breakdown (folder/document/shortcut). Immediate children only — recursive subtree counts are deliberately not supported here (unbounded, DoS-prone on a public API). This is opt-in because it is comparatively expensive; lazy expansion is the recommended pattern for folder tree navigation.
+    - Optionally pass 'includeTotalSize=true' on a document to retrieve 'totalDocumentSize' — the full stored size including rendered pages, OCR text, thumbnails, and attachments — in addition to the electronic-document size. Opt-in because it aggregates across all pages.
     - Allowed OData query options: Select.
     - When OData Select query option is used, 'entryType' is always included in the result.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
+     * @param args.includeChildInfo (optional) Optional. When true and the entry is a folder, includes a childInfo object reporting whether the folder has immediate children, the total count, and a per-type breakdown (folderCount, documentCount, shortcutCount). Counts are for immediate children only — never recursive/whole-subtree (a recursive count is intentionally not offered here; it would be an unbounded, DoS-prone operation on a public API). Omitted by default because the calculation is comparatively expensive — for tree UIs prefer lazy expansion (load children on demand) over requesting this per node. Ignored for non-folder entries.
+     * @param args.includeTotalSize (optional) Optional. When true and the entry is a document, includes totalDocumentSize — the document's full stored size (electronic document plus page image/text/locations/thumbnail data and attachments), as opposed to electronicDocumentSize which is just the source file. Omitted by default because it aggregates across all of the document's pages. Ignored for non-document entries.
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully retrieved requested entry.
      */
-    getEntry(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, select } = args;
+    getEntry(args: { repositoryId: string, entryId: number, includeChildInfo?: boolean | undefined, includeTotalSize?: boolean | undefined, select?: string | null | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, includeChildInfo, includeTotalSize, select } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -3572,6 +3801,14 @@ export class EntriesClient implements IEntriesClient {
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (includeChildInfo === null)
+            throw new Error("The parameter 'includeChildInfo' cannot be null.");
+        else if (includeChildInfo !== undefined)
+            url_ += "includeChildInfo=" + encodeURIComponent("" + includeChildInfo) + "&";
+        if (includeTotalSize === null)
+            throw new Error("The parameter 'includeTotalSize' cannot be null.");
+        else if (includeTotalSize !== undefined)
+            url_ += "includeTotalSize=" + encodeURIComponent("" + includeTotalSize) + "&";
         if (select !== undefined && select !== null)
             url_ += "$select=" + encodeURIComponent("" + select) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -9298,6 +9535,19 @@ export interface ITemplateDefinitionsClient {
     listTemplateDefinitions(args: { repositoryId: string, templateName?: string | null | undefined, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateDefinitionCollectionResponse>;
 
     /**
+     * - Creates a new metadata template with the supplied scalar properties and (optionally) an initial set of field assignments.
+    - Names must be unique within the repository; duplicate-name failures surface as 409 Conflict from the underlying repository server.
+    - Initial fields are appended in array order; each may carry per-template isRequired and localDescription. The repository-level field-definition properties are unaffected.
+    - If the scalar template is successfully created but a subsequent AddField mid-loop fails, the template is left in place with the partial field set — there is no implicit rollback. Callers should treat the failure as transactional only at the scalar level and clean up via DeleteTemplate if needed.
+    - The template extended-properties bag (REQ-ADMIN-006B) cannot be set during create — follow up with PATCH /Properties.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The template definition to create. Name is required.
+     * @returns Successfully created the template definition.
+     */
+    createTemplate(args: { repositoryId: string, request: CreateTemplateRequest }): Promise<TemplateDefinition>;
+
+    /**
      * - Returns a single template definition (including field definitions, if relevant).
     - Provide a template definition ID, and get the single template definition associated with that ID. Useful when a route provides a minimal amount of details, and more information about the specific template is needed.
     - Allowed OData query options: Select
@@ -9309,6 +9559,27 @@ export interface ITemplateDefinitionsClient {
      * @returns Successfully found and returned specified template.
      */
     getTemplateDefinition(args: { repositoryId: string, templateId: number, culture?: string | null | undefined, select?: string | null | undefined }): Promise<TemplateDefinition>;
+
+    /**
+     * - Partial-update merge semantics. null = leave unchanged; "" = clear a string property.
+    - To clear an existing color, set clearColor to true and leave color null. Supplying both is rejected with 400.
+    - Field membership is managed via the AddTemplateField / RemoveTemplateField / MoveTemplateField endpoints.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template to update.
+     * @param args.request The properties to change. Only non-null properties are applied; null leaves the property unchanged.
+     * @returns Successfully updated the template definition.
+     */
+    updateTemplate(args: { repositoryId: string, templateId: number, request: UpdateTemplateRequest }): Promise<TemplateDefinition>;
+
+    /**
+     * - Deletes the specified template definition. If the template is currently assigned to entries, the underlying repository server rejects the request and the response surfaces as 409 Conflict.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template to delete.
+     * @returns Successfully deleted the template definition.
+     */
+    deleteTemplate(args: { repositoryId: string, templateId: number }): Promise<void>;
 
     /**
      * - Returns the field definitions assigned to a template definition.
@@ -9345,6 +9616,86 @@ export interface ITemplateDefinitionsClient {
      * @returns Returned list of field definitions for specified template.
      */
     listTemplateFieldDefinitionsByTemplateName(args: { repositoryId: string, templateName: string, prefer?: string | null | undefined, culture?: string | null | undefined, select?: string | null | undefined, orderby?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<TemplateFieldDefinitionCollectionResponse>;
+
+    /**
+     * - Useful for impact analysis before performing destructive operations on the template.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the assigned entry count for the template.
+     */
+    getTemplateAssignedEntryCount(args: { repositoryId: string, templateId: number, select?: string | null | undefined }): Promise<AssignedEntryCountResponse>;
+
+    /**
+     * - Returns the custom-properties bag persisted on the template definition. The bag is an opaque application-defined string → string map scoped to the definition itself (not to a user), useful for attaching integration metadata or application-specific configuration that belongs with the template — for example to record an external system's identifier for the template, or to encode display preferences such as field ordering hints.
+    - Keys are application-defined; recommend a namespace prefix (e.g. com.acme.workflow.stage, myapp.template.category) to avoid collisions across applications.
+    - The response may include entries written by other applications or by system-managed tooling. Callers should leave unrecognized keys untouched on subsequent UpdateTemplateProperties calls — round-tripping them in set preserves them, including them in remove deletes them.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the template extended-properties bag.
+     */
+    getTemplateProperties(args: { repositoryId: string, templateId: number, select?: string | null | undefined }): Promise<TemplatePropertiesResponse>;
+
+    /**
+     * - Entries in set are written (creating or overwriting). Entries in remove are deleted. Properties not mentioned in either are left unchanged.
+    - Empty set and empty remove is a no-op and returns the current bag.
+    - Returns the full custom-properties bag after the change.
+    - The bag is application-defined; the API does not validate key semantics. Recommend namespaced keys (e.g. com.acme.workflow.stage, myapp.template.category) to avoid collisions.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.request Set and/or remove entries on the property bag. Keys not mentioned are left unchanged.
+     * @returns Successfully updated the template extended-properties bag.
+     */
+    updateTemplateProperties(args: { repositoryId: string, templateId: number, request: UpdateTemplatePropertiesRequest }): Promise<TemplatePropertiesResponse>;
+
+    /**
+     * - The field definition must already exist in the repository.
+    - Per-template properties do not affect the repository-level field-definition properties.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.request The field to add. fieldName is required. Optional position (1-based) inserts at that position; omit to append. Optional per-template isRequired and localDescription apply only to this template.
+     * @returns Successfully added the field to the template.
+     */
+    addTemplateField(args: { repositoryId: string, templateId: number, request: AddTemplateFieldRequest }): Promise<void>;
+
+    /**
+     * - Affects only the field's behavior on this specific template.
+    - The repository-level field-definition properties are unchanged; use the FieldDefinitions admin endpoints for those.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.fieldName The name of the field whose per-template properties to update. URL-decoded server-side.
+     * @param args.request The per-template properties to change. Null = leave unchanged; empty string clears localDescription.
+     * @returns Successfully updated the per-template properties for the field assignment.
+     */
+    updateTemplateFieldProperties(args: { repositoryId: string, templateId: number, fieldName: string, request: UpdateTemplateFieldPropertiesRequest }): Promise<void>;
+
+    /**
+     * - Field values already assigned to entries using this template are not affected — RA removes only the binding of the field to the template definition.
+    - The field definition itself is not deleted; only the template assignment is removed.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.fieldName The name of the field to remove. URL-decoded server-side.
+     * @returns Successfully removed the field from the template.
+     */
+    removeTemplateField(args: { repositoryId: string, templateId: number, fieldName: string }): Promise<void>;
+
+    /**
+     * - The field must already be part of the template.
+    - newPosition must be between 1 and the current field count, inclusive.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.request The field to move and the new 1-based position.
+     * @returns Successfully moved the field to the new position in the template.
+     */
+    moveTemplateField(args: { repositoryId: string, templateId: number, request: MoveTemplateFieldRequest }): Promise<void>;
 }
 
 export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
@@ -9701,6 +10052,101 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
     }
 
     /**
+     * - Creates a new metadata template with the supplied scalar properties and (optionally) an initial set of field assignments.
+    - Names must be unique within the repository; duplicate-name failures surface as 409 Conflict from the underlying repository server.
+    - Initial fields are appended in array order; each may carry per-template isRequired and localDescription. The repository-level field-definition properties are unaffected.
+    - If the scalar template is successfully created but a subsequent AddField mid-loop fails, the template is left in place with the partial field set — there is no implicit rollback. Callers should treat the failure as transactional only at the scalar level and clean up via DeleteTemplate if needed.
+    - The template extended-properties bag (REQ-ADMIN-006B) cannot be set during create — follow up with PATCH /Properties.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The template definition to create. Name is required.
+     * @returns Successfully created the template definition.
+     */
+    createTemplate(args: { repositoryId: string, request: CreateTemplateRequest }): Promise<TemplateDefinition> {
+        let { repositoryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateTemplate(_response);
+        });
+    }
+
+    protected processCreateTemplate(response: Response): Promise<TemplateDefinition> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplateDefinition.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Conflict. The request could not be completed due to the current state of the resource.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TemplateDefinition>(null as any);
+    }
+
+    /**
      * - Returns a single template definition (including field definitions, if relevant).
     - Provide a template definition ID, and get the single template definition associated with that ID. Useful when a route provides a minimal amount of details, and more information about the specific template is needed.
     - Allowed OData query options: Select
@@ -9796,6 +10242,203 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
             });
         }
         return Promise.resolve<TemplateDefinition>(null as any);
+    }
+
+    /**
+     * - Partial-update merge semantics. null = leave unchanged; "" = clear a string property.
+    - To clear an existing color, set clearColor to true and leave color null. Supplying both is rejected with 400.
+    - Field membership is managed via the AddTemplateField / RemoveTemplateField / MoveTemplateField endpoints.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template to update.
+     * @param args.request The properties to change. Only non-null properties are applied; null leaves the property unchanged.
+     * @returns Successfully updated the template definition.
+     */
+    updateTemplate(args: { repositoryId: string, templateId: number, request: UpdateTemplateRequest }): Promise<TemplateDefinition> {
+        let { repositoryId, templateId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateTemplate(_response);
+        });
+    }
+
+    protected processUpdateTemplate(response: Response): Promise<TemplateDefinition> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplateDefinition.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Conflict. The request could not be completed due to the current state of the resource.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TemplateDefinition>(null as any);
+    }
+
+    /**
+     * - Deletes the specified template definition. If the template is currently assigned to entries, the underlying repository server rejects the request and the response surfaces as 409 Conflict.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template to delete.
+     * @returns Successfully deleted the template definition.
+     */
+    deleteTemplate(args: { repositoryId: string, templateId: number }): Promise<void> {
+        let { repositoryId, templateId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteTemplate(_response);
+        });
+    }
+
+    protected processDeleteTemplate(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Conflict. The request could not be completed due to the current state of the resource.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 
     /**
@@ -10038,6 +10681,663 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
         }
         return Promise.resolve<TemplateFieldDefinitionCollectionResponse>(null as any);
     }
+
+    /**
+     * - Useful for impact analysis before performing destructive operations on the template.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the assigned entry count for the template.
+     */
+    getTemplateAssignedEntryCount(args: { repositoryId: string, templateId: number, select?: string | null | undefined }): Promise<AssignedEntryCountResponse> {
+        let { repositoryId, templateId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}/AssignedEntryCount?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTemplateAssignedEntryCount(_response);
+        });
+    }
+
+    protected processGetTemplateAssignedEntryCount(response: Response): Promise<AssignedEntryCountResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AssignedEntryCountResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AssignedEntryCountResponse>(null as any);
+    }
+
+    /**
+     * - Returns the custom-properties bag persisted on the template definition. The bag is an opaque application-defined string → string map scoped to the definition itself (not to a user), useful for attaching integration metadata or application-specific configuration that belongs with the template — for example to record an external system's identifier for the template, or to encode display preferences such as field ordering hints.
+    - Keys are application-defined; recommend a namespace prefix (e.g. com.acme.workflow.stage, myapp.template.category) to avoid collisions across applications.
+    - The response may include entries written by other applications or by system-managed tooling. Callers should leave unrecognized keys untouched on subsequent UpdateTemplateProperties calls — round-tripping them in set preserves them, including them in remove deletes them.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the template extended-properties bag.
+     */
+    getTemplateProperties(args: { repositoryId: string, templateId: number, select?: string | null | undefined }): Promise<TemplatePropertiesResponse> {
+        let { repositoryId, templateId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}/Properties?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTemplateProperties(_response);
+        });
+    }
+
+    protected processGetTemplateProperties(response: Response): Promise<TemplatePropertiesResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplatePropertiesResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TemplatePropertiesResponse>(null as any);
+    }
+
+    /**
+     * - Entries in set are written (creating or overwriting). Entries in remove are deleted. Properties not mentioned in either are left unchanged.
+    - Empty set and empty remove is a no-op and returns the current bag.
+    - Returns the full custom-properties bag after the change.
+    - The bag is application-defined; the API does not validate key semantics. Recommend namespaced keys (e.g. com.acme.workflow.stage, myapp.template.category) to avoid collisions.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.request Set and/or remove entries on the property bag. Keys not mentioned are left unchanged.
+     * @returns Successfully updated the template extended-properties bag.
+     */
+    updateTemplateProperties(args: { repositoryId: string, templateId: number, request: UpdateTemplatePropertiesRequest }): Promise<TemplatePropertiesResponse> {
+        let { repositoryId, templateId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}/Properties";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateTemplateProperties(_response);
+        });
+    }
+
+    protected processUpdateTemplateProperties(response: Response): Promise<TemplatePropertiesResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplatePropertiesResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TemplatePropertiesResponse>(null as any);
+    }
+
+    /**
+     * - The field definition must already exist in the repository.
+    - Per-template properties do not affect the repository-level field-definition properties.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.request The field to add. fieldName is required. Optional position (1-based) inserts at that position; omit to append. Optional per-template isRequired and localDescription apply only to this template.
+     * @returns Successfully added the field to the template.
+     */
+    addTemplateField(args: { repositoryId: string, templateId: number, request: AddTemplateFieldRequest }): Promise<void> {
+        let { repositoryId, templateId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}/Fields";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAddTemplateField(_response);
+        });
+    }
+
+    protected processAddTemplateField(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * - Affects only the field's behavior on this specific template.
+    - The repository-level field-definition properties are unchanged; use the FieldDefinitions admin endpoints for those.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.fieldName The name of the field whose per-template properties to update. URL-decoded server-side.
+     * @param args.request The per-template properties to change. Null = leave unchanged; empty string clears localDescription.
+     * @returns Successfully updated the per-template properties for the field assignment.
+     */
+    updateTemplateFieldProperties(args: { repositoryId: string, templateId: number, fieldName: string, request: UpdateTemplateFieldPropertiesRequest }): Promise<void> {
+        let { repositoryId, templateId, fieldName, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}/Fields/{fieldName}";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        if (fieldName === undefined || fieldName === null)
+            throw new Error("The parameter 'fieldName' must be defined.");
+        url_ = url_.replace("{fieldName}", encodeURIComponent("" + fieldName));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateTemplateFieldProperties(_response);
+        });
+    }
+
+    protected processUpdateTemplateFieldProperties(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * - Field values already assigned to entries using this template are not affected — RA removes only the binding of the field to the template definition.
+    - The field definition itself is not deleted; only the template assignment is removed.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.fieldName The name of the field to remove. URL-decoded server-side.
+     * @returns Successfully removed the field from the template.
+     */
+    removeTemplateField(args: { repositoryId: string, templateId: number, fieldName: string }): Promise<void> {
+        let { repositoryId, templateId, fieldName } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}/Fields/{fieldName}";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        if (fieldName === undefined || fieldName === null)
+            throw new Error("The parameter 'fieldName' must be defined.");
+        url_ = url_.replace("{fieldName}", encodeURIComponent("" + fieldName));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRemoveTemplateField(_response);
+        });
+    }
+
+    protected processRemoveTemplateField(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * - The field must already be part of the template.
+    - newPosition must be between 1 and the current field count, inclusive.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The ID of the template.
+     * @param args.request The field to move and the new 1-based position.
+     * @returns Successfully moved the field to the new position in the template.
+     */
+    moveTemplateField(args: { repositoryId: string, templateId: number, request: MoveTemplateFieldRequest }): Promise<void> {
+        let { repositoryId, templateId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}/Fields/Move";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processMoveTemplateField(_response);
+        });
+    }
+
+    protected processMoveTemplateField(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
 }
 
 /** Response containing a collection of Attribute. */
@@ -10046,7 +11346,6 @@ export class AttributeCollectionResponse implements IAttributeCollectionResponse
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: Attribute[] | undefined;
 
     
@@ -10098,7 +11397,6 @@ export interface IAttributeCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: Attribute[] | undefined;
 }
 
@@ -10266,7 +11564,6 @@ export class AuditReasonCollectionResponse implements IAuditReasonCollectionResp
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: AuditReason[] | undefined;
 
     
@@ -10318,7 +11615,6 @@ export interface IAuditReasonCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: AuditReason[] | undefined;
 }
 
@@ -10583,7 +11879,6 @@ export class FieldDefinitionCollectionResponse implements IFieldDefinitionCollec
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: FieldDefinition[] | undefined;
 
     
@@ -10635,7 +11930,6 @@ export interface IFieldDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: FieldDefinition[] | undefined;
 }
 
@@ -10679,10 +11973,16 @@ use the ChangeFieldType endpoint to convert between types. */
     /** Initial list values to populate. Applies only when FieldType is List.
 Order is preserved. Use the dedicated ListValues endpoints to manage list values after creation. */
     listValues?: string[] | undefined;
-    /** Initial extended properties (opaque WebDAV-keyed bag) to persist atomically with the field.
-Use the dedicated /FieldDefinitions/{id}/Properties endpoints to manage after creation.
-For list fields, this is where the admin UI stores sort order, add-blank, add-Other,
-display-as-dropdown, and similar UI-display options. */
+    /** Initial custom properties to persist atomically with the field. The bag is an opaque
+application-defined string → string map scoped to the field definition; use it
+to attach integration metadata or application-specific configuration that should be
+created together with the field — for example to encode list-field display preferences
+such as sort order, or to record an external system's identifier for the field.
+Keys are application-defined; recommend namespaced keys (e.g. myapp.kind,
+com.acme.field.source) to avoid collisions. Manage after creation via the
+dedicated /FieldDefinitions/{id}/Properties endpoints. Constraints: empty keys,
+null values, and control characters are rejected with 400. Maximum 500 entries,
+256 chars per key, 1000 chars per value. */
     properties?: { [key: string]: string; } | undefined;
 
     
@@ -10812,10 +12112,16 @@ use the ChangeFieldType endpoint to convert between types. */
     /** Initial list values to populate. Applies only when FieldType is List.
 Order is preserved. Use the dedicated ListValues endpoints to manage list values after creation. */
     listValues?: string[] | undefined;
-    /** Initial extended properties (opaque WebDAV-keyed bag) to persist atomically with the field.
-Use the dedicated /FieldDefinitions/{id}/Properties endpoints to manage after creation.
-For list fields, this is where the admin UI stores sort order, add-blank, add-Other,
-display-as-dropdown, and similar UI-display options. */
+    /** Initial custom properties to persist atomically with the field. The bag is an opaque
+application-defined string → string map scoped to the field definition; use it
+to attach integration metadata or application-specific configuration that should be
+created together with the field — for example to encode list-field display preferences
+such as sort order, or to record an external system's identifier for the field.
+Keys are application-defined; recommend namespaced keys (e.g. myapp.kind,
+com.acme.field.source) to avoid collisions. Manage after creation via the
+dedicated /FieldDefinitions/{id}/Properties endpoints. Constraints: empty keys,
+null values, and control characters are rejected with 400. Maximum 500 entries,
+256 chars per key, 1000 chars per value. */
     properties?: { [key: string]: string; } | undefined;
 }
 
@@ -11068,6 +12374,8 @@ export class TemplateDefinition implements ITemplateDefinition {
     color?: LFColor | undefined;
     /** The number of field definitions assigned to the template definition. */
     fieldCount?: number;
+    /** Whether the template is eligible for automatic assignment by Cloud auto-classification. */
+    isAutoAssignable?: boolean;
 
     
     
@@ -11088,6 +12396,7 @@ export class TemplateDefinition implements ITemplateDefinition {
             this.description = _data["description"];
             this.color = _data["color"] ? LFColor.fromJS(_data["color"]) : <any>undefined;
             this.fieldCount = _data["fieldCount"];
+            this.isAutoAssignable = _data["isAutoAssignable"];
         }
     }
 
@@ -11106,6 +12415,7 @@ export class TemplateDefinition implements ITemplateDefinition {
         data["description"] = this.description;
         data["color"] = this.color ? this.color.toJSON() : <any>undefined;
         data["fieldCount"] = this.fieldCount;
+        data["isAutoAssignable"] = this.isAutoAssignable;
         return data;
     }
 }
@@ -11124,6 +12434,8 @@ export interface ITemplateDefinition {
     color?: LFColor | undefined;
     /** The number of field definitions assigned to the template definition. */
     fieldCount?: number;
+    /** Whether the template is eligible for automatic assignment by Cloud auto-classification. */
+    isAutoAssignable?: boolean;
 }
 
 /** Represents an RGB color value with alpha channel. */
@@ -11186,9 +12498,9 @@ export interface ILFColor {
     b?: number;
 }
 
-/** The number of entries that have a value assigned for a given field definition. */
+/** The number of entries that have a value assigned for a given field definition, or that are currently assigned to a given template definition. */
 export class AssignedEntryCountResponse implements IAssignedEntryCountResponse {
-    /** The count of entries currently using this field. */
+    /** The count of entries currently using this field or template. */
     count?: number;
 
     
@@ -11222,15 +12534,15 @@ export class AssignedEntryCountResponse implements IAssignedEntryCountResponse {
     }
 }
 
-/** The number of entries that have a value assigned for a given field definition. */
+/** The number of entries that have a value assigned for a given field definition, or that are currently assigned to a given template definition. */
 export interface IAssignedEntryCountResponse {
-    /** The count of entries currently using this field. */
+    /** The count of entries currently using this field or template. */
     count?: number;
 }
 
-/** Response body for the extended-properties bag on a field definition. The bag is opaque: keys are WebDAV-style identifiers used by the Cloud admin UI (e.g. to encode list-field sort order, add-blank, add-Other, display-as), and values are strings the UI interprets. */
+/** Response body for the custom-properties bag on a field definition. The bag is an opaque application-defined string → string map persisted on the field definition itself (scoped to the definition, not to a user). Use it to attach integration metadata or application-specific configuration that belongs with the field — for example to encode list-field display preferences such as sort order, or to record an external system's identifier for the field. Keys are application-defined; the API does not validate semantic meaning. Recommend namespaced keys to avoid collisions, e.g. com.acme.invoice.region or myapp.ingest.batch_id. The response may include entries written by other applications or by system-managed tooling; callers should leave unrecognized keys untouched on subsequent updates. */
 export class FieldPropertiesResponse implements IFieldPropertiesResponse {
-    /** The full set of extended properties currently set on the field. */
+    /** The full set of custom properties currently set on the field. */
     properties?: { [key: string]: string; } | undefined;
 
     
@@ -11276,13 +12588,13 @@ export class FieldPropertiesResponse implements IFieldPropertiesResponse {
     }
 }
 
-/** Response body for the extended-properties bag on a field definition. The bag is opaque: keys are WebDAV-style identifiers used by the Cloud admin UI (e.g. to encode list-field sort order, add-blank, add-Other, display-as), and values are strings the UI interprets. */
+/** Response body for the custom-properties bag on a field definition. The bag is an opaque application-defined string → string map persisted on the field definition itself (scoped to the definition, not to a user). Use it to attach integration metadata or application-specific configuration that belongs with the field — for example to encode list-field display preferences such as sort order, or to record an external system's identifier for the field. Keys are application-defined; the API does not validate semantic meaning. Recommend namespaced keys to avoid collisions, e.g. com.acme.invoice.region or myapp.ingest.batch_id. The response may include entries written by other applications or by system-managed tooling; callers should leave unrecognized keys untouched on subsequent updates. */
 export interface IFieldPropertiesResponse {
-    /** The full set of extended properties currently set on the field. */
+    /** The full set of custom properties currently set on the field. */
     properties?: { [key: string]: string; } | undefined;
 }
 
-/** Request body for partially updating the extended-properties bag on a field definition. Entries in Set are written (creating or overwriting). Entries in Remove are deleted. Properties not mentioned in either are left unchanged. */
+/** Request body for partially updating the custom-properties bag on a field definition. Entries in Set are written (creating or overwriting). Entries in Remove are deleted. Properties not mentioned in either are left unchanged. The bag is application-defined; the API does not validate key semantics. Recommend namespaced keys (e.g. com.acme.invoice.region, myapp.kind) to avoid collisions. */
 export class UpdateFieldPropertiesRequest implements IUpdateFieldPropertiesRequest {
     /** Properties to set. Keys absent here are not modified. */
     set?: { [key: string]: string; } | undefined;
@@ -11342,12 +12654,196 @@ export class UpdateFieldPropertiesRequest implements IUpdateFieldPropertiesReque
     }
 }
 
-/** Request body for partially updating the extended-properties bag on a field definition. Entries in Set are written (creating or overwriting). Entries in Remove are deleted. Properties not mentioned in either are left unchanged. */
+/** Request body for partially updating the custom-properties bag on a field definition. Entries in Set are written (creating or overwriting). Entries in Remove are deleted. Properties not mentioned in either are left unchanged. The bag is application-defined; the API does not validate key semantics. Recommend namespaced keys (e.g. com.acme.invoice.region, myapp.kind) to avoid collisions. */
 export interface IUpdateFieldPropertiesRequest {
     /** Properties to set. Keys absent here are not modified. */
     set?: { [key: string]: string; } | undefined;
     /** Property keys to remove. Keys not currently set are ignored. */
     remove?: string[] | undefined;
+}
+
+/** Request body for merging two or more field definitions into a new field definition. */
+export class MergeFieldsRequest implements IMergeFieldsRequest {
+    /** The IDs of the field definitions to merge. At least two are required. Their values are
+combined into a new field; see onConflict for how per-entry value conflicts are resolved.
+The source field definitions are preserved by this operation — only their per-entry values
+are migrated to the new merged field. Use DeleteFieldDefinition on each source after
+the merge if the originals are no longer needed. */
+    sourceFieldIds!: number[];
+    /** The name of the new merged field definition. Required. Must be unique within the repository
+unless autoRename is set. */
+    newFieldName!: string;
+    /** How to resolve per-entry value conflicts across the source fields. Defaults to Fail
+(abort on conflict — nothing is discarded). UseFirstField discards conflicting values
+and therefore requires allowDataLoss = true. */
+    onConflict?: FieldMergeConflictStrategy;
+    /** When true, removes the source fields from every template that contains them as part of the
+merge. Defaults to false. This is a destructive side effect on template definitions; opt in explicitly. */
+    removeFromTemplates?: boolean;
+    /** When true, requests that the repository auto-select a non-conflicting name if
+newFieldName collides with an existing field. Defaults to false. Whether the
+repository actually rewrites the name on collision is repository-version-dependent;
+callers should not rely on it. The safe pattern is to ensure newFieldName is unique
+before calling, and to treat an "already exists" error response as a genuine collision. */
+    autoRename?: boolean;
+    /** Acknowledges that the requested merge will lose data and authorizes it to proceed. Required
+(must be true) only when the merge is lossy — i.e. onConflict = UseFirstField, which
+discards conflicting values. When the merge is lossless (Fail or MakeMultivalue)
+this flag is ignored. A lossy merge without this flag returns 400 (data_loss_expected). */
+    allowDataLoss?: boolean;
+
+    
+    
+    constructor(data?: IMergeFieldsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.sourceFieldIds = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["sourceFieldIds"])) {
+                this.sourceFieldIds = [] as any;
+                for (let item of _data["sourceFieldIds"])
+                    this.sourceFieldIds!.push(item);
+            }
+            this.newFieldName = _data["newFieldName"];
+            this.onConflict = _data["onConflict"];
+            this.removeFromTemplates = _data["removeFromTemplates"];
+            this.autoRename = _data["autoRename"];
+            this.allowDataLoss = _data["allowDataLoss"];
+        }
+    }
+
+    static fromJS(data: any): MergeFieldsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new MergeFieldsRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.sourceFieldIds)) {
+            data["sourceFieldIds"] = [];
+            for (let item of this.sourceFieldIds)
+                data["sourceFieldIds"].push(item);
+        }
+        data["newFieldName"] = this.newFieldName;
+        data["onConflict"] = this.onConflict;
+        data["removeFromTemplates"] = this.removeFromTemplates;
+        data["autoRename"] = this.autoRename;
+        data["allowDataLoss"] = this.allowDataLoss;
+        return data;
+    }
+}
+
+/** Request body for merging two or more field definitions into a new field definition. */
+export interface IMergeFieldsRequest {
+    /** The IDs of the field definitions to merge. At least two are required. Their values are
+combined into a new field; see onConflict for how per-entry value conflicts are resolved.
+The source field definitions are preserved by this operation — only their per-entry values
+are migrated to the new merged field. Use DeleteFieldDefinition on each source after
+the merge if the originals are no longer needed. */
+    sourceFieldIds: number[];
+    /** The name of the new merged field definition. Required. Must be unique within the repository
+unless autoRename is set. */
+    newFieldName: string;
+    /** How to resolve per-entry value conflicts across the source fields. Defaults to Fail
+(abort on conflict — nothing is discarded). UseFirstField discards conflicting values
+and therefore requires allowDataLoss = true. */
+    onConflict?: FieldMergeConflictStrategy;
+    /** When true, removes the source fields from every template that contains them as part of the
+merge. Defaults to false. This is a destructive side effect on template definitions; opt in explicitly. */
+    removeFromTemplates?: boolean;
+    /** When true, requests that the repository auto-select a non-conflicting name if
+newFieldName collides with an existing field. Defaults to false. Whether the
+repository actually rewrites the name on collision is repository-version-dependent;
+callers should not rely on it. The safe pattern is to ensure newFieldName is unique
+before calling, and to treat an "already exists" error response as a genuine collision. */
+    autoRename?: boolean;
+    /** Acknowledges that the requested merge will lose data and authorizes it to proceed. Required
+(must be true) only when the merge is lossy — i.e. onConflict = UseFirstField, which
+discards conflicting values. When the merge is lossless (Fail or MakeMultivalue)
+this flag is ignored. A lossy merge without this flag returns 400 (data_loss_expected). */
+    allowDataLoss?: boolean;
+}
+
+/** Strategy for resolving per-entry value conflicts when merging multiple field definitions into one. Applies when entries carry differing values across the source fields. */
+export enum FieldMergeConflictStrategy {
+    Fail = "Fail",
+    MakeMultivalue = "MakeMultivalue",
+    UseFirstField = "UseFirstField",
+}
+
+/** Request body for changing the data type of an existing field definition. */
+export class ChangeFieldTypeRequest implements IChangeFieldTypeRequest {
+    /** The target field type. Required. Changing type can reset type-specific configuration
+(length, constraint, format), clear list items when leaving the List type, and clear a
+default value that cannot be reinterpreted in the new type. */
+    newFieldType!: FieldType;
+    /** Acknowledges that the requested conversion will lose data and authorizes it to proceed.
+Required (must be true) when any of the following hold: leaving the List type
+(clears list items); the field has a non-empty constraint, a defaultValue,
+or any assigned entries, AND the conversion is not one of the explicit safe widenings
+(Date → DateTime, ShortInteger → LongInteger, ShortInteger → Number,
+LongInteger → Number). A lossy conversion without this flag returns 400
+(data_loss_expected). Lossless conversions ignore this flag. */
+    allowDataLoss?: boolean;
+
+    
+    
+    constructor(data?: IChangeFieldTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.newFieldType = _data["newFieldType"];
+            this.allowDataLoss = _data["allowDataLoss"];
+        }
+    }
+
+    static fromJS(data: any): ChangeFieldTypeRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangeFieldTypeRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["newFieldType"] = this.newFieldType;
+        data["allowDataLoss"] = this.allowDataLoss;
+        return data;
+    }
+}
+
+/** Request body for changing the data type of an existing field definition. */
+export interface IChangeFieldTypeRequest {
+    /** The target field type. Required. Changing type can reset type-specific configuration
+(length, constraint, format), clear list items when leaving the List type, and clear a
+default value that cannot be reinterpreted in the new type. */
+    newFieldType: FieldType;
+    /** Acknowledges that the requested conversion will lose data and authorizes it to proceed.
+Required (must be true) when any of the following hold: leaving the List type
+(clears list items); the field has a non-empty constraint, a defaultValue,
+or any assigned entries, AND the conversion is not one of the explicit safe widenings
+(Date → DateTime, ShortInteger → LongInteger, ShortInteger → Number,
+LongInteger → Number). A lossy conversion without this flag returns 400
+(data_loss_expected). Lossless conversions ignore this flag. */
+    allowDataLoss?: boolean;
 }
 
 /** Response containing a collection of LinkDefinition. */
@@ -11356,7 +12852,6 @@ export class LinkDefinitionCollectionResponse implements ILinkDefinitionCollecti
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: LinkDefinition[] | undefined;
 
     
@@ -11408,7 +12903,6 @@ export interface ILinkDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: LinkDefinition[] | undefined;
 }
 
@@ -12773,6 +14267,12 @@ export interface IRecordSeries extends IEntry {
 export class Document extends Entry implements IDocument {
     /** The size of the electronic document attached to the represented document, if there is one, in bytes. */
     electronicDocumentSize?: number;
+    /** The total size in bytes of the document's stored components — electronic document plus
+image/text/locations/thumbnail page data and attachments — as opposed to
+ElectronicDocumentSize, which is just the source file. Present only when
+requested via the includeTotalSize query parameter; otherwise null. Opt-in because
+it aggregates across all of the document's pages. */
+    totalDocumentSize?: number | undefined;
     /** The extension for the document. */
     extension?: string | undefined;
     /** A boolean indicating if there is an electronic document attached to the represented document. */
@@ -12827,6 +14327,7 @@ Only populated on single-entry GET, not in listing results. */
         super.init(_data);
         if (_data) {
             this.electronicDocumentSize = _data["electronicDocumentSize"];
+            this.totalDocumentSize = _data["totalDocumentSize"];
             this.extension = _data["extension"];
             this.isElectronicDocument = _data["isElectronicDocument"];
             this.isRecord = _data["isRecord"];
@@ -12853,6 +14354,7 @@ Only populated on single-entry GET, not in listing results. */
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["electronicDocumentSize"] = this.electronicDocumentSize;
+        data["totalDocumentSize"] = this.totalDocumentSize;
         data["extension"] = this.extension;
         data["isElectronicDocument"] = this.isElectronicDocument;
         data["isRecord"] = this.isRecord;
@@ -12875,6 +14377,12 @@ Only populated on single-entry GET, not in listing results. */
 export interface IDocument extends IEntry {
     /** The size of the electronic document attached to the represented document, if there is one, in bytes. */
     electronicDocumentSize?: number;
+    /** The total size in bytes of the document's stored components — electronic document plus
+image/text/locations/thumbnail page data and attachments — as opposed to
+ElectronicDocumentSize, which is just the source file. Present only when
+requested via the includeTotalSize query parameter; otherwise null. Opt-in because
+it aggregates across all of the document's pages. */
+    totalDocumentSize?: number | undefined;
     /** The extension for the document. */
     extension?: string | undefined;
     /** A boolean indicating if there is an electronic document attached to the represented document. */
@@ -12977,6 +14485,9 @@ export class Folder extends Entry implements IFolder {
     isRecordFolder?: boolean;
     /** A boolean indicating if the folder that this instance represents is known to directly or indirectly under a record series in the repository. */
     isUnderRecordSeries?: boolean;
+    /** Opt-in introspection about the folder's immediate children (total + per-type counts).
+Present only when includeChildInfo=true is supplied; otherwise null. */
+    childInfo?: ChildInfo | undefined;
 
     
     
@@ -12996,6 +14507,7 @@ export class Folder extends Entry implements IFolder {
         if (_data) {
             this.isRecordFolder = _data["isRecordFolder"];
             this.isUnderRecordSeries = _data["isUnderRecordSeries"];
+            this.childInfo = _data["childInfo"] ? ChildInfo.fromJS(_data["childInfo"]) : <any>undefined;
         }
     }
 
@@ -13010,6 +14522,7 @@ export class Folder extends Entry implements IFolder {
         data = typeof data === 'object' ? data : {};
         data["isRecordFolder"] = this.isRecordFolder;
         data["isUnderRecordSeries"] = this.isUnderRecordSeries;
+        data["childInfo"] = this.childInfo ? this.childInfo.toJSON() : <any>undefined;
         super.toJSON(data);
         return data;
     }
@@ -13021,6 +14534,75 @@ export interface IFolder extends IEntry {
     isRecordFolder?: boolean;
     /** A boolean indicating if the folder that this instance represents is known to directly or indirectly under a record series in the repository. */
     isUnderRecordSeries?: boolean;
+    /** Opt-in introspection about the folder's immediate children (total + per-type counts).
+Present only when includeChildInfo=true is supplied; otherwise null. */
+    childInfo?: ChildInfo | undefined;
+}
+
+/** Opt-in introspection about a folder's immediate children — a total count plus a per-type breakdown. Returned only when explicitly requested via includeChildInfo=true, because the underlying repository calculation is comparatively expensive. Counts are for immediate children only (never recursive/whole-subtree). For folder tree UIs, prefer optimistic lazy expansion (load children on demand) over requesting this for every node. */
+export class ChildInfo implements IChildInfo {
+    /** Whether the folder has at least one immediate child of any type. */
+    hasChildren?: boolean;
+    /** Total number of immediate children across all entry types. */
+    childCount?: number;
+    /** Number of immediate child folders. */
+    folderCount?: number;
+    /** Number of immediate child documents. */
+    documentCount?: number;
+    /** Number of immediate child shortcuts. */
+    shortcutCount?: number;
+
+    
+    
+    constructor(data?: IChildInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.hasChildren = _data["hasChildren"];
+            this.childCount = _data["childCount"];
+            this.folderCount = _data["folderCount"];
+            this.documentCount = _data["documentCount"];
+            this.shortcutCount = _data["shortcutCount"];
+        }
+    }
+
+    static fromJS(data: any): ChildInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChildInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["hasChildren"] = this.hasChildren;
+        data["childCount"] = this.childCount;
+        data["folderCount"] = this.folderCount;
+        data["documentCount"] = this.documentCount;
+        data["shortcutCount"] = this.shortcutCount;
+        return data;
+    }
+}
+
+/** Opt-in introspection about a folder's immediate children — a total count plus a per-type breakdown. Returned only when explicitly requested via includeChildInfo=true, because the underlying repository calculation is comparatively expensive. Counts are for immediate children only (never recursive/whole-subtree). For folder tree UIs, prefer optimistic lazy expansion (load children on demand) over requesting this for every node. */
+export interface IChildInfo {
+    /** Whether the folder has at least one immediate child of any type. */
+    hasChildren?: boolean;
+    /** Total number of immediate children across all entry types. */
+    childCount?: number;
+    /** Number of immediate child folders. */
+    folderCount?: number;
+    /** Number of immediate child documents. */
+    documentCount?: number;
+    /** Number of immediate child shortcuts. */
+    shortcutCount?: number;
 }
 
 /** Request body for importing an entry. */
@@ -13114,7 +14696,6 @@ Does not affect pages generated from `file` — use `pdfOptions.generateText` fo
 
 /** Response containing a link to download the exported entry. */
 export class ExportEntryResponse implements IExportEntryResponse {
-    /** Gets or sets the OData response content in the "value". */
     value?: string | undefined;
 
     
@@ -13150,7 +14731,6 @@ export class ExportEntryResponse implements IExportEntryResponse {
 
 /** Response containing a link to download the exported entry. */
 export interface IExportEntryResponse {
-    /** Gets or sets the OData response content in the "value". */
     value?: string | undefined;
 }
 
@@ -13334,7 +14914,6 @@ export class EntryCollectionResponse implements IEntryCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: Entry[] | undefined;
 
     
@@ -13386,7 +14965,6 @@ export interface IEntryCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: Entry[] | undefined;
 }
 
@@ -13396,7 +14974,6 @@ export class FieldCollectionResponse implements IFieldCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: Field[] | undefined;
 
     
@@ -13448,7 +15025,6 @@ export interface IFieldCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: Field[] | undefined;
 }
 
@@ -13508,7 +15084,6 @@ export class TagCollectionResponse implements ITagCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: Tag[] | undefined;
 
     
@@ -13560,7 +15135,6 @@ export interface ITagCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: Tag[] | undefined;
 }
 
@@ -13764,7 +15338,6 @@ export class LinkCollectionResponse implements ILinkCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: Link[] | undefined;
 
     
@@ -13816,7 +15389,6 @@ export interface ILinkCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: Link[] | undefined;
 }
 
@@ -14526,7 +16098,6 @@ export class PageInfoCollectionResponse implements IPageInfoCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: PageInfoResponse[] | undefined;
 
     
@@ -14578,7 +16149,6 @@ export interface IPageInfoCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: PageInfoResponse[] | undefined;
 }
 
@@ -15072,7 +16642,6 @@ export interface ICheckInDocumentRequest {
 
 /** Response containing a collection of Repository. */
 export class RepositoryCollectionResponse implements IRepositoryCollectionResponse {
-    /** Gets or sets the OData response content in the "value". */
     value?: Repository[] | undefined;
 
     
@@ -15116,7 +16685,6 @@ export class RepositoryCollectionResponse implements IRepositoryCollectionRespon
 
 /** Response containing a collection of Repository. */
 export interface IRepositoryCollectionResponse {
-    /** Gets or sets the OData response content in the "value". */
     value?: Repository[] | undefined;
 }
 
@@ -15240,7 +16808,6 @@ export class SearchContextHitCollectionResponse implements ISearchContextHitColl
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: SearchContextHit[] | undefined;
 
     
@@ -15292,7 +16859,6 @@ export interface ISearchContextHitCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: SearchContextHit[] | undefined;
 }
 
@@ -15490,7 +17056,6 @@ export class TagDefinitionCollectionResponse implements ITagDefinitionCollection
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: TagDefinition[] | undefined;
 
     
@@ -15542,7 +17107,6 @@ export interface ITagDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: TagDefinition[] | undefined;
 }
 
@@ -15620,7 +17184,6 @@ export interface ITagDefinition {
 
 /** Response containing a collection of TaskProgress. */
 export class TaskCollectionResponse implements ITaskCollectionResponse {
-    /** Gets or sets the OData response content in the "value". */
     value?: TaskProgress[] | undefined;
 
     
@@ -15664,7 +17227,6 @@ export class TaskCollectionResponse implements ITaskCollectionResponse {
 
 /** Response containing a collection of TaskProgress. */
 export interface ITaskCollectionResponse {
-    /** Gets or sets the OData response content in the "value". */
     value?: TaskProgress[] | undefined;
 }
 
@@ -15828,7 +17390,6 @@ export interface ITaskResult {
 
 /** Response containing a collection of CancelTaskResult. */
 export class CancelTasksResponse implements ICancelTasksResponse {
-    /** Gets or sets the OData response content in the "value". */
     value?: CancelTaskResult[] | undefined;
 
     
@@ -15872,7 +17433,6 @@ export class CancelTasksResponse implements ICancelTasksResponse {
 
 /** Response containing a collection of CancelTaskResult. */
 export interface ICancelTasksResponse {
-    /** Gets or sets the OData response content in the "value". */
     value?: CancelTaskResult[] | undefined;
 }
 
@@ -15936,7 +17496,6 @@ export class TemplateDefinitionCollectionResponse implements ITemplateDefinition
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: TemplateDefinition[] | undefined;
 
     
@@ -15988,7 +17547,6 @@ export interface ITemplateDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: TemplateDefinition[] | undefined;
 }
 
@@ -15998,7 +17556,6 @@ export class TemplateFieldDefinitionCollectionResponse implements ITemplateField
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: TemplateFieldDefinition[] | undefined;
 
     
@@ -16050,7 +17607,6 @@ export interface ITemplateFieldDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
-    /** Gets or sets the OData response content in the "value". */
     value?: TemplateFieldDefinition[] | undefined;
 }
 
@@ -16062,6 +17618,10 @@ export class TemplateFieldDefinition extends FieldDefinition implements ITemplat
     groupId?: number;
     /** The name of field group. */
     groupName?: string | undefined;
+    /** The per-template description for this field assignment. Distinct from the field
+definition's repository-level description; set via AddTemplateField /
+UpdateTemplateFieldProperties. */
+    localDescription?: string | undefined;
 
     
     
@@ -16081,6 +17641,7 @@ export class TemplateFieldDefinition extends FieldDefinition implements ITemplat
             this.rule = _data["rule"] ? Rule.fromJS(_data["rule"]) : <any>undefined;
             this.groupId = _data["groupId"];
             this.groupName = _data["groupName"];
+            this.localDescription = _data["localDescription"];
         }
     }
 
@@ -16096,6 +17657,7 @@ export class TemplateFieldDefinition extends FieldDefinition implements ITemplat
         data["rule"] = this.rule ? this.rule.toJSON() : <any>undefined;
         data["groupId"] = this.groupId;
         data["groupName"] = this.groupName;
+        data["localDescription"] = this.localDescription;
         super.toJSON(data);
         return data;
     }
@@ -16109,6 +17671,10 @@ export interface ITemplateFieldDefinition extends IFieldDefinition {
     groupId?: number;
     /** The name of field group. */
     groupName?: string | undefined;
+    /** The per-template description for this field assignment. Distinct from the field
+definition's repository-level description; set via AddTemplateField /
+UpdateTemplateFieldProperties. */
+    localDescription?: string | undefined;
 }
 
 /** Represents a form logic rule associated with a Laserfiche template and field definition. */
@@ -16159,6 +17725,504 @@ export class Rule implements IRule {
 export interface IRule {
     /** The IDs of the parent fields in the template according to the form logic rule. */
     ancestors?: number[] | undefined;
+}
+
+/** Request body for creating a new template definition. Name is required; all other properties are optional and fall back to repository defaults when omitted. */
+export class CreateTemplateRequest implements ICreateTemplateRequest {
+    /** The name of the template. Required. Must be unique within the repository. */
+    name!: string;
+    /** The description of the template. */
+    description?: string | undefined;
+    /** The color assigned to the template. Omit (or set null) for no color. */
+    color?: LFColor | undefined;
+    /** Whether the template is eligible for automatic assignment by Cloud auto-classification.
+Defaults to false when omitted. */
+    isAutoAssignable?: boolean | undefined;
+    /** Optional initial field assignments. Order is preserved (each entry is appended
+in array order; the resulting position is 1-based). Each entry may carry the
+per-template isRequired and localDescription properties.
+Note: extended properties (the WebDAV-keyed bag) cannot be set during create
+because RepositoryAccess does not expose an atomic create-with-properties path
+for templates. To set initial properties, follow Create with a PATCH /Properties
+call against the returned template ID. */
+    fields?: TemplateFieldAssignment[] | undefined;
+
+    
+    
+    constructor(data?: ICreateTemplateRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.color = _data["color"] ? LFColor.fromJS(_data["color"]) : <any>undefined;
+            this.isAutoAssignable = _data["isAutoAssignable"];
+            if (Array.isArray(_data["fields"])) {
+                this.fields = [] as any;
+                for (let item of _data["fields"])
+                    this.fields!.push(TemplateFieldAssignment.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateTemplateRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateTemplateRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["color"] = this.color ? this.color.toJSON() : <any>undefined;
+        data["isAutoAssignable"] = this.isAutoAssignable;
+        if (Array.isArray(this.fields)) {
+            data["fields"] = [];
+            for (let item of this.fields)
+                data["fields"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** Request body for creating a new template definition. Name is required; all other properties are optional and fall back to repository defaults when omitted. */
+export interface ICreateTemplateRequest {
+    /** The name of the template. Required. Must be unique within the repository. */
+    name: string;
+    /** The description of the template. */
+    description?: string | undefined;
+    /** The color assigned to the template. Omit (or set null) for no color. */
+    color?: LFColor | undefined;
+    /** Whether the template is eligible for automatic assignment by Cloud auto-classification.
+Defaults to false when omitted. */
+    isAutoAssignable?: boolean | undefined;
+    /** Optional initial field assignments. Order is preserved (each entry is appended
+in array order; the resulting position is 1-based). Each entry may carry the
+per-template isRequired and localDescription properties.
+Note: extended properties (the WebDAV-keyed bag) cannot be set during create
+because RepositoryAccess does not expose an atomic create-with-properties path
+for templates. To set initial properties, follow Create with a PATCH /Properties
+call against the returned template ID. */
+    fields?: TemplateFieldAssignment[] | undefined;
+}
+
+/** A single field assignment used in Fields. */
+export class TemplateFieldAssignment implements ITemplateFieldAssignment {
+    /** The name of an existing field definition to assign to the template. Required. */
+    fieldName!: string;
+    /** Whether the field is required for entries assigned to this template specifically.
+Distinct from the repository-level IsRequired on the field definition. */
+    isRequired?: boolean | undefined;
+    /** The per-template description for this field assignment. */
+    localDescription?: string | undefined;
+
+    
+    
+    constructor(data?: ITemplateFieldAssignment) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fieldName = _data["fieldName"];
+            this.isRequired = _data["isRequired"];
+            this.localDescription = _data["localDescription"];
+        }
+    }
+
+    static fromJS(data: any): TemplateFieldAssignment {
+        data = typeof data === 'object' ? data : {};
+        let result = new TemplateFieldAssignment();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fieldName"] = this.fieldName;
+        data["isRequired"] = this.isRequired;
+        data["localDescription"] = this.localDescription;
+        return data;
+    }
+}
+
+/** A single field assignment used in Fields. */
+export interface ITemplateFieldAssignment {
+    /** The name of an existing field definition to assign to the template. Required. */
+    fieldName: string;
+    /** Whether the field is required for entries assigned to this template specifically.
+Distinct from the repository-level IsRequired on the field definition. */
+    isRequired?: boolean | undefined;
+    /** The per-template description for this field assignment. */
+    localDescription?: string | undefined;
+}
+
+/** Request body for partial-update of an existing template definition. Every property is optional. null = leave the property unchanged. Empty string ("") on a string property = clear the value. To clear an existing color, set ClearColor to true and leave Color null. Supplying both Color and ClearColor=true is rejected with 400. */
+export class UpdateTemplateRequest implements IUpdateTemplateRequest {
+    /** The new name of the template. Must be unique within the repository. */
+    name?: string | undefined;
+    /** The description of the template. */
+    description?: string | undefined;
+    /** The new color for the template. Omit to leave unchanged. */
+    color?: LFColor | undefined;
+    /** Set to true to clear the template's existing color. Mutually exclusive with Color. */
+    clearColor?: boolean | undefined;
+    /** Whether the template is eligible for automatic assignment by Cloud auto-classification. */
+    isAutoAssignable?: boolean | undefined;
+
+    
+    
+    constructor(data?: IUpdateTemplateRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.color = _data["color"] ? LFColor.fromJS(_data["color"]) : <any>undefined;
+            this.clearColor = _data["clearColor"];
+            this.isAutoAssignable = _data["isAutoAssignable"];
+        }
+    }
+
+    static fromJS(data: any): UpdateTemplateRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTemplateRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["color"] = this.color ? this.color.toJSON() : <any>undefined;
+        data["clearColor"] = this.clearColor;
+        data["isAutoAssignable"] = this.isAutoAssignable;
+        return data;
+    }
+}
+
+/** Request body for partial-update of an existing template definition. Every property is optional. null = leave the property unchanged. Empty string ("") on a string property = clear the value. To clear an existing color, set ClearColor to true and leave Color null. Supplying both Color and ClearColor=true is rejected with 400. */
+export interface IUpdateTemplateRequest {
+    /** The new name of the template. Must be unique within the repository. */
+    name?: string | undefined;
+    /** The description of the template. */
+    description?: string | undefined;
+    /** The new color for the template. Omit to leave unchanged. */
+    color?: LFColor | undefined;
+    /** Set to true to clear the template's existing color. Mutually exclusive with Color. */
+    clearColor?: boolean | undefined;
+    /** Whether the template is eligible for automatic assignment by Cloud auto-classification. */
+    isAutoAssignable?: boolean | undefined;
+}
+
+/** Response body for the custom-properties bag on a template definition. The bag is an opaque application-defined string → string map persisted on the template definition itself (scoped to the definition, not to a user). Use it to attach integration metadata or application-specific configuration that belongs with the template — for example to record an external system's identifier for the template, or to encode display preferences such as field ordering hints. Keys are application-defined; the API does not validate semantic meaning. Recommend namespaced keys to avoid collisions, e.g. com.acme.workflow.stage or myapp.template.category. The response may include entries written by other applications or by system-managed tooling; callers should leave unrecognized keys untouched on subsequent updates. */
+export class TemplatePropertiesResponse implements ITemplatePropertiesResponse {
+    /** The full set of custom properties currently set on the template. */
+    properties?: { [key: string]: string; } | undefined;
+
+    
+    
+    constructor(data?: ITemplatePropertiesResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (_data["properties"]) {
+                this.properties = {} as any;
+                for (let key in _data["properties"]) {
+                    if (_data["properties"].hasOwnProperty(key))
+                        (<any>this.properties)![key] = _data["properties"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): TemplatePropertiesResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new TemplatePropertiesResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.properties) {
+            data["properties"] = {};
+            for (let key in this.properties) {
+                if (this.properties.hasOwnProperty(key))
+                    (<any>data["properties"])[key] = (<any>this.properties)[key];
+            }
+        }
+        return data;
+    }
+}
+
+/** Response body for the custom-properties bag on a template definition. The bag is an opaque application-defined string → string map persisted on the template definition itself (scoped to the definition, not to a user). Use it to attach integration metadata or application-specific configuration that belongs with the template — for example to record an external system's identifier for the template, or to encode display preferences such as field ordering hints. Keys are application-defined; the API does not validate semantic meaning. Recommend namespaced keys to avoid collisions, e.g. com.acme.workflow.stage or myapp.template.category. The response may include entries written by other applications or by system-managed tooling; callers should leave unrecognized keys untouched on subsequent updates. */
+export interface ITemplatePropertiesResponse {
+    /** The full set of custom properties currently set on the template. */
+    properties?: { [key: string]: string; } | undefined;
+}
+
+/** Request body for partially updating the custom-properties bag on a template definition. Entries in Set are written (creating or overwriting). Entries in Remove are deleted. Properties not mentioned in either are left unchanged. The bag is application-defined; the API does not validate key semantics. Recommend namespaced keys (e.g. com.acme.workflow.stage, myapp.template.category) to avoid collisions. */
+export class UpdateTemplatePropertiesRequest implements IUpdateTemplatePropertiesRequest {
+    /** Properties to set. Keys absent here are not modified. */
+    set?: { [key: string]: string; } | undefined;
+    /** Property keys to remove. Keys not currently set are ignored. */
+    remove?: string[] | undefined;
+
+    
+    
+    constructor(data?: IUpdateTemplatePropertiesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (_data["set"]) {
+                this.set = {} as any;
+                for (let key in _data["set"]) {
+                    if (_data["set"].hasOwnProperty(key))
+                        (<any>this.set)![key] = _data["set"][key];
+                }
+            }
+            if (Array.isArray(_data["remove"])) {
+                this.remove = [] as any;
+                for (let item of _data["remove"])
+                    this.remove!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): UpdateTemplatePropertiesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTemplatePropertiesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.set) {
+            data["set"] = {};
+            for (let key in this.set) {
+                if (this.set.hasOwnProperty(key))
+                    (<any>data["set"])[key] = (<any>this.set)[key];
+            }
+        }
+        if (Array.isArray(this.remove)) {
+            data["remove"] = [];
+            for (let item of this.remove)
+                data["remove"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Request body for partially updating the custom-properties bag on a template definition. Entries in Set are written (creating or overwriting). Entries in Remove are deleted. Properties not mentioned in either are left unchanged. The bag is application-defined; the API does not validate key semantics. Recommend namespaced keys (e.g. com.acme.workflow.stage, myapp.template.category) to avoid collisions. */
+export interface IUpdateTemplatePropertiesRequest {
+    /** Properties to set. Keys absent here are not modified. */
+    set?: { [key: string]: string; } | undefined;
+    /** Property keys to remove. Keys not currently set are ignored. */
+    remove?: string[] | undefined;
+}
+
+/** Request body for adding an existing field definition to a template. */
+export class AddTemplateFieldRequest implements IAddTemplateFieldRequest {
+    /** The name of an existing field definition to assign to the template. Required. */
+    fieldName!: string;
+    /** The 1-based position at which to insert the field. Omit (or set null) to append
+to the end of the template. Values less than 1 or greater than the current
+field count + 1 are rejected with 400. */
+    position?: number | undefined;
+    /** Whether the field is required for entries assigned to this template specifically.
+Distinct from the repository-level IsRequired on the field definition. */
+    isRequired?: boolean | undefined;
+    /** The per-template description for this field assignment. Distinct from the
+field definition's repository-level description. */
+    localDescription?: string | undefined;
+
+    
+    
+    constructor(data?: IAddTemplateFieldRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fieldName = _data["fieldName"];
+            this.position = _data["position"];
+            this.isRequired = _data["isRequired"];
+            this.localDescription = _data["localDescription"];
+        }
+    }
+
+    static fromJS(data: any): AddTemplateFieldRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddTemplateFieldRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fieldName"] = this.fieldName;
+        data["position"] = this.position;
+        data["isRequired"] = this.isRequired;
+        data["localDescription"] = this.localDescription;
+        return data;
+    }
+}
+
+/** Request body for adding an existing field definition to a template. */
+export interface IAddTemplateFieldRequest {
+    /** The name of an existing field definition to assign to the template. Required. */
+    fieldName: string;
+    /** The 1-based position at which to insert the field. Omit (or set null) to append
+to the end of the template. Values less than 1 or greater than the current
+field count + 1 are rejected with 400. */
+    position?: number | undefined;
+    /** Whether the field is required for entries assigned to this template specifically.
+Distinct from the repository-level IsRequired on the field definition. */
+    isRequired?: boolean | undefined;
+    /** The per-template description for this field assignment. Distinct from the
+field definition's repository-level description. */
+    localDescription?: string | undefined;
+}
+
+/** Request body for updating per-template properties on a field assignment that is already part of a template. Repository-level field-definition properties are unaffected by this endpoint — those go through the FieldDefinitions admin endpoints. null = leave the property unchanged. Empty string ("") on LocalDescription clears the value. */
+export class UpdateTemplateFieldPropertiesRequest implements IUpdateTemplateFieldPropertiesRequest {
+    /** Whether the field is required for entries assigned to this template specifically. */
+    isRequired?: boolean | undefined;
+    /** The per-template description for this field assignment. */
+    localDescription?: string | undefined;
+
+    
+    
+    constructor(data?: IUpdateTemplateFieldPropertiesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isRequired = _data["isRequired"];
+            this.localDescription = _data["localDescription"];
+        }
+    }
+
+    static fromJS(data: any): UpdateTemplateFieldPropertiesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateTemplateFieldPropertiesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isRequired"] = this.isRequired;
+        data["localDescription"] = this.localDescription;
+        return data;
+    }
+}
+
+/** Request body for updating per-template properties on a field assignment that is already part of a template. Repository-level field-definition properties are unaffected by this endpoint — those go through the FieldDefinitions admin endpoints. null = leave the property unchanged. Empty string ("") on LocalDescription clears the value. */
+export interface IUpdateTemplateFieldPropertiesRequest {
+    /** Whether the field is required for entries assigned to this template specifically. */
+    isRequired?: boolean | undefined;
+    /** The per-template description for this field assignment. */
+    localDescription?: string | undefined;
+}
+
+/** Request body for moving an existing field within a template to a new position. */
+export class MoveTemplateFieldRequest implements IMoveTemplateFieldRequest {
+    /** The name of the field to move. Required. Must already be part of the template. */
+    fieldName!: string;
+    /** The 1-based target position. Required. Values less than 1 or greater than the
+current field count are rejected with 400. */
+    newPosition!: number;
+
+    
+    
+    constructor(data?: IMoveTemplateFieldRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fieldName = _data["fieldName"];
+            this.newPosition = _data["newPosition"];
+        }
+    }
+
+    static fromJS(data: any): MoveTemplateFieldRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new MoveTemplateFieldRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fieldName"] = this.fieldName;
+        data["newPosition"] = this.newPosition;
+        return data;
+    }
+}
+
+/** Request body for moving an existing field within a template to a new position. */
+export interface IMoveTemplateFieldRequest {
+    /** The name of the field to move. Required. Must already be part of the template. */
+    fieldName: string;
+    /** The 1-based target position. Required. Values less than 1 or greater than the
+current field count are rejected with 400. */
+    newPosition: number;
 }
 
 export interface FileParameter {
