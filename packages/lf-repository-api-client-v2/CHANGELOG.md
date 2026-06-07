@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0
+
+### Features
+
+- Add field definition administration methods: `createFieldDefinition`, `updateFieldDefinition`, `deleteFieldDefinition`, `getFieldListValues`, `replaceFieldListValues`, `getFieldContainingTemplates`, `getFieldAssignedEntryCount`, `getFieldProperties`, `updateFieldProperties`.
+- Add destructive field operations: `mergeFields` and `changeFieldType`, both gated by an explicit `allowDataLoss` flag — a request that would lose data is rejected unless `allowDataLoss` is `true`.
+- Add template definition administration methods: `createTemplate`, `updateTemplate`, `deleteTemplate`, `getTemplateAssignedEntryCount`, `getTemplateProperties`, `updateTemplateProperties`, `addTemplateField`, `updateTemplateFieldProperties`, `removeTemplateField`, `moveTemplateField`.
+- `getEntry` accepts opt-in `includeChildInfo` (folder entries — immediate-children counts: `hasChildren`, `childCount`, `folderCount`, `documentCount`, `shortcutCount`) and `includeTotalSize` (document entries — full stored size including page data, distinct from `electronicDocumentSize`). Both are omitted from the response unless requested.
+- New types: request/response DTOs for field and template definition administration, and the `childInfo` object on the entry response.
+
 ## 1.1.0
 
 ### Features
