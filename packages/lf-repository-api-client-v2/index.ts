@@ -2927,7 +2927,7 @@ export interface IEntriesClient {
     /**
      * - Full replace of the entry's explicit ACEs: the supplied entries become the entry's complete set of explicit ACEs, and any explicit ACE not included is removed. An empty entries array clears all explicit ACEs.
     - Inherited ACEs cannot be supplied (entries flagged isInherited = true are rejected with 400); inheritance is controlled via inheritParents. When inheritParents is omitted, the entry's current inheritance setting is preserved.
-    - Each ACE is keyed by trustee.sid; trustee.accountName is optional and resolved server-side. A trustee that needs both allowed and denied rights is expressed as two ACEs.
+    - Each ACE identifies its trustee by trustee.sid or trustee.accountName (an account name is resolved to a SID server-side; the SID takes precedence when both are supplied). A trustee that needs both allowed and denied rights is expressed as two ACEs.
     - The repository session enforces the underlying permission: changing an ACL requires the ChangePermissions right on the entry, and a 403 is returned when it is lacking. The repository.Write OAuth scope is necessary but not sufficient.
     - Returns the entry's full ACL after the change.
     - Required OAuth scope: repository.Write
@@ -2940,16 +2940,17 @@ export interface IEntriesClient {
 
     /**
      * - Returns the net rights a trustee effectively has on the entry after inheritance, group membership, and allow/deny resolution are applied by the repository server. This is the same effective-rights calculation the Laserfiche applications use.
-    - Pass trusteeId (a SID) to compute the effective rights for another trustee; omit it for the calling session.
+    - Identify the trustee by trusteeId (a SID) or trusteeName (an account name); omit both for the calling session.
     - isReadOnly reports whether the session is read-only, in which case no write operations are possible regardless of the granted rights.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry whose effective rights are computed.
-     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute effective rights for. When omitted, the effective rights of the current session are returned.
+     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute effective rights for. When omitted (along with trusteeName), the effective rights of the current session are returned.
+     * @param args.trusteeName (optional) Optional. The account name of the trustee to compute effective rights for, as an alternative to trusteeId. When both are supplied, trusteeId takes precedence.
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully returned the effective rights for the entry.
      */
-    getEntryEffectiveRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights>;
+    getEntryEffectiveRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights>;
 }
 
 export class EntriesClient implements IEntriesClient {
@@ -8091,7 +8092,7 @@ export class EntriesClient implements IEntriesClient {
     /**
      * - Full replace of the entry's explicit ACEs: the supplied entries become the entry's complete set of explicit ACEs, and any explicit ACE not included is removed. An empty entries array clears all explicit ACEs.
     - Inherited ACEs cannot be supplied (entries flagged isInherited = true are rejected with 400); inheritance is controlled via inheritParents. When inheritParents is omitted, the entry's current inheritance setting is preserved.
-    - Each ACE is keyed by trustee.sid; trustee.accountName is optional and resolved server-side. A trustee that needs both allowed and denied rights is expressed as two ACEs.
+    - Each ACE identifies its trustee by trustee.sid or trustee.accountName (an account name is resolved to a SID server-side; the SID takes precedence when both are supplied). A trustee that needs both allowed and denied rights is expressed as two ACEs.
     - The repository session enforces the underlying permission: changing an ACL requires the ChangePermissions right on the entry, and a 403 is returned when it is lacking. The repository.Write OAuth scope is necessary but not sufficient.
     - Returns the entry's full ACL after the change.
     - Required OAuth scope: repository.Write
@@ -8189,17 +8190,18 @@ export class EntriesClient implements IEntriesClient {
 
     /**
      * - Returns the net rights a trustee effectively has on the entry after inheritance, group membership, and allow/deny resolution are applied by the repository server. This is the same effective-rights calculation the Laserfiche applications use.
-    - Pass trusteeId (a SID) to compute the effective rights for another trustee; omit it for the calling session.
+    - Identify the trustee by trusteeId (a SID) or trusteeName (an account name); omit both for the calling session.
     - isReadOnly reports whether the session is read-only, in which case no write operations are possible regardless of the granted rights.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry whose effective rights are computed.
-     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute effective rights for. When omitted, the effective rights of the current session are returned.
+     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute effective rights for. When omitted (along with trusteeName), the effective rights of the current session are returned.
+     * @param args.trusteeName (optional) Optional. The account name of the trustee to compute effective rights for, as an alternative to trusteeId. When both are supplied, trusteeId takes precedence.
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully returned the effective rights for the entry.
      */
-    getEntryEffectiveRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights> {
-        let { repositoryId, entryId, trusteeId, select } = args;
+    getEntryEffectiveRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights> {
+        let { repositoryId, entryId, trusteeId, trusteeName, select } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/EffectiveRights?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -8209,6 +8211,8 @@ export class EntriesClient implements IEntriesClient {
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
         if (trusteeId !== undefined && trusteeId !== null)
             url_ += "trusteeId=" + encodeURIComponent("" + trusteeId) + "&";
+        if (trusteeName !== undefined && trusteeName !== null)
+            url_ += "trusteeName=" + encodeURIComponent("" + trusteeName) + "&";
         if (select !== undefined && select !== null)
             url_ += "$select=" + encodeURIComponent("" + select) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -17169,7 +17173,8 @@ ACL is protected from parent inheritance. */
 
 /** A single access control entry (ACE): one trustee, whether its rights are allowed or denied, and the rights themselves. A trustee that has both allowed and denied rights is represented as two ACEs. */
 export class AccessControlEntry implements IAccessControlEntry {
-    /** The trustee this ACE applies to. On input, only trustee.sid is required. */
+    /** The trustee this ACE applies to. On input, identify the trustee by either
+trustee.sid or trustee.accountName (the SID takes precedence when both are given). */
     trustee?: TrusteeIdentity | undefined;
     /** Whether the ACE grants (Allow) or denies (Deny) the listed rights. */
     accessControlType?: AccessControlType;
@@ -17234,7 +17239,8 @@ returned by GET but are ignored on input (the set operation manages explicit ACE
 
 /** A single access control entry (ACE): one trustee, whether its rights are allowed or denied, and the rights themselves. A trustee that has both allowed and denied rights is represented as two ACEs. */
 export interface IAccessControlEntry {
-    /** The trustee this ACE applies to. On input, only trustee.sid is required. */
+    /** The trustee this ACE applies to. On input, identify the trustee by either
+trustee.sid or trustee.accountName (the SID takes precedence when both are given). */
     trustee?: TrusteeIdentity | undefined;
     /** Whether the ACE grants (Allow) or denies (Deny) the listed rights. */
     accessControlType?: AccessControlType;
@@ -17252,11 +17258,12 @@ returned by GET but are ignored on input (the set operation manages explicit ACE
 /** Identifies a security trustee (a user or a group) referenced by an access control entry, an effective-rights query, or a trustee-lookup result. */
 export class TrusteeIdentity implements ITrusteeIdentity {
     /** The trustee's security identifier (an SDDL string such as S-1-5-21-...). This is
-the canonical, URL-safe id used to address a trustee when reading effective rights or
-building access control entries. */
+the canonical, stable id for a trustee. On input it is preferred and takes precedence over
+AccountName; always populated on output. */
     sid?: string | undefined;
-    /** The trustee's account name. Optional when supplied on input — it is resolved from the
-SID server-side. Always populated on output. */
+    /** The trustee's account name. On input it may be supplied instead of Sid to
+address the trustee by name (resolved to a SID server-side); the SID wins when both are
+given. Always populated on output. */
     accountName?: string | undefined;
     /** The trustee type: one of LaserficheUser, LaserficheGroup,
 WindowsAccount, LdapAccount, LfdsAccount. */
@@ -17313,11 +17320,12 @@ access-control-entry contexts. */
 /** Identifies a security trustee (a user or a group) referenced by an access control entry, an effective-rights query, or a trustee-lookup result. */
 export interface ITrusteeIdentity {
     /** The trustee's security identifier (an SDDL string such as S-1-5-21-...). This is
-the canonical, URL-safe id used to address a trustee when reading effective rights or
-building access control entries. */
+the canonical, stable id for a trustee. On input it is preferred and takes precedence over
+AccountName; always populated on output. */
     sid?: string | undefined;
-    /** The trustee's account name. Optional when supplied on input — it is resolved from the
-SID server-side. Always populated on output. */
+    /** The trustee's account name. On input it may be supplied instead of Sid to
+address the trustee by name (resolved to a SID server-side); the SID wins when both are
+given. Always populated on output. */
     accountName?: string | undefined;
     /** The trustee type: one of LaserficheUser, LaserficheGroup,
 WindowsAccount, LdapAccount, LfdsAccount. */
@@ -19124,6 +19132,7 @@ export interface IRepositoryApiClient {
   tasksClient: ITasksClient;
   templateDefinitionsClient: ITemplateDefinitionsClient;
   linkDefinitionsClient: ILinkDefinitionsClient;
+  trusteesClient: ITrusteesClient;
   defaultRequestHeaders: Record<string, string>;
 }
 
@@ -19142,6 +19151,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
   public tasksClient: ITasksClient;
   public templateDefinitionsClient: ITemplateDefinitionsClient;
   public linkDefinitionsClient: ILinkDefinitionsClient;
+  public trusteesClient: ITrusteesClient;
 
   private repoClientHandler: RepositoryApiClientHttpHandler;
 
@@ -19181,6 +19191,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
     this.tasksClient = new TasksClient(this.baseUrl, http);
     this.templateDefinitionsClient = new TemplateDefinitionsClient(this.baseUrl, http);
     this.linkDefinitionsClient = new LinkDefinitionsClient(this.baseUrl, http);
+    this.trusteesClient = new TrusteesClient(this.baseUrl, http);
   }
 
   /**
