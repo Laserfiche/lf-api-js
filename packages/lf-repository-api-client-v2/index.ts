@@ -2911,6 +2911,45 @@ export interface IEntriesClient {
      * @returns Successfully undid the document check-out. Any persistent lock held on the document has been released.
      */
     undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry>;
+
+    /**
+     * - Returns the access control entries (ACEs) configured on the entry, both explicitly-set and inherited (inherited ACEs carry isInherited = true), plus whether the entry inherits rights from its parent(s).
+    - Each ACE names a trustee, whether its rights are allowed or denied, the rights themselves, and the propagation scope.
+    - The repository session enforces the underlying permission: reading an ACL requires the ReadPermissions right on the entry, and a 403 is returned when it is lacking. The repository.Read OAuth scope is necessary but not sufficient.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The entry whose access control list is returned.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the entry's access control list.
+     */
+    getEntryAccessControl(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<AccessControlList>;
+
+    /**
+     * - Full replace of the entry's explicit ACEs: the supplied entries become the entry's complete set of explicit ACEs, and any explicit ACE not included is removed. An empty entries array clears all explicit ACEs.
+    - Inherited ACEs cannot be supplied (entries flagged isInherited = true are rejected with 400); inheritance is controlled via inheritParents. When inheritParents is omitted, the entry's current inheritance setting is preserved.
+    - Each ACE is keyed by trustee.sid; trustee.accountName is optional and resolved server-side. A trustee that needs both allowed and denied rights is expressed as two ACEs.
+    - The repository session enforces the underlying permission: changing an ACL requires the ChangePermissions right on the entry, and a 403 is returned when it is lacking. The repository.Write OAuth scope is necessary but not sufficient.
+    - Returns the entry's full ACL after the change.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The entry whose access control list is replaced.
+     * @param args.request The explicit access control entries to apply and, optionally, the parent-inheritance setting.
+     * @returns Successfully replaced the entry's access control list. Returned the updated access control list.
+     */
+    setEntryAccessControl(args: { repositoryId: string, entryId: number, request: SetAccessControlRequest }): Promise<AccessControlList>;
+
+    /**
+     * - Returns the net rights a trustee effectively has on the entry after inheritance, group membership, and allow/deny resolution are applied by the repository server. This is the same effective-rights calculation the Laserfiche applications use.
+    - Pass trusteeId (a SID) to compute the effective rights for another trustee; omit it for the calling session.
+    - isReadOnly reports whether the session is read-only, in which case no write operations are possible regardless of the granted rights.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The entry whose effective rights are computed.
+     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute effective rights for. When omitted, the effective rights of the current session are returned.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the effective rights for the entry.
+     */
+    getEntryEffectiveRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights>;
 }
 
 export class EntriesClient implements IEntriesClient {
@@ -7953,6 +7992,298 @@ export class EntriesClient implements IEntriesClient {
         }
         return Promise.resolve<Entry>(null as any);
     }
+
+    /**
+     * - Returns the access control entries (ACEs) configured on the entry, both explicitly-set and inherited (inherited ACEs carry isInherited = true), plus whether the entry inherits rights from its parent(s).
+    - Each ACE names a trustee, whether its rights are allowed or denied, the rights themselves, and the propagation scope.
+    - The repository session enforces the underlying permission: reading an ACL requires the ReadPermissions right on the entry, and a 403 is returned when it is lacking. The repository.Read OAuth scope is necessary but not sufficient.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The entry whose access control list is returned.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the entry's access control list.
+     */
+    getEntryAccessControl(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<AccessControlList> {
+        let { repositoryId, entryId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/AccessControl?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntryAccessControl(_response);
+        });
+    }
+
+    protected processGetEntryAccessControl(response: Response): Promise<AccessControlList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AccessControlList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AccessControlList>(null as any);
+    }
+
+    /**
+     * - Full replace of the entry's explicit ACEs: the supplied entries become the entry's complete set of explicit ACEs, and any explicit ACE not included is removed. An empty entries array clears all explicit ACEs.
+    - Inherited ACEs cannot be supplied (entries flagged isInherited = true are rejected with 400); inheritance is controlled via inheritParents. When inheritParents is omitted, the entry's current inheritance setting is preserved.
+    - Each ACE is keyed by trustee.sid; trustee.accountName is optional and resolved server-side. A trustee that needs both allowed and denied rights is expressed as two ACEs.
+    - The repository session enforces the underlying permission: changing an ACL requires the ChangePermissions right on the entry, and a 403 is returned when it is lacking. The repository.Write OAuth scope is necessary but not sufficient.
+    - Returns the entry's full ACL after the change.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The entry whose access control list is replaced.
+     * @param args.request The explicit access control entries to apply and, optionally, the parent-inheritance setting.
+     * @returns Successfully replaced the entry's access control list. Returned the updated access control list.
+     */
+    setEntryAccessControl(args: { repositoryId: string, entryId: number, request: SetAccessControlRequest }): Promise<AccessControlList> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/AccessControl";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetEntryAccessControl(_response);
+        });
+    }
+
+    protected processSetEntryAccessControl(response: Response): Promise<AccessControlList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AccessControlList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AccessControlList>(null as any);
+    }
+
+    /**
+     * - Returns the net rights a trustee effectively has on the entry after inheritance, group membership, and allow/deny resolution are applied by the repository server. This is the same effective-rights calculation the Laserfiche applications use.
+    - Pass trusteeId (a SID) to compute the effective rights for another trustee; omit it for the calling session.
+    - isReadOnly reports whether the session is read-only, in which case no write operations are possible regardless of the granted rights.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The entry whose effective rights are computed.
+     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute effective rights for. When omitted, the effective rights of the current session are returned.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the effective rights for the entry.
+     */
+    getEntryEffectiveRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights> {
+        let { repositoryId, entryId, trusteeId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/EffectiveRights?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (trusteeId !== undefined && trusteeId !== null)
+            url_ += "trusteeId=" + encodeURIComponent("" + trusteeId) + "&";
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntryEffectiveRights(_response);
+        });
+    }
+
+    protected processGetEntryEffectiveRights(response: Response): Promise<EffectiveRights> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = EffectiveRights.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<EffectiveRights>(null as any);
+    }
 }
 
 export interface IRepositoriesClient {
@@ -11340,12 +11671,137 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
     }
 }
 
+export interface ITrusteesClient {
+
+    /**
+     * - Resolves trustee names to the SIDs used when building access control entries or reading effective rights for a trustee.
+    - Each result includes the trustee's SID, account name, display name, type, whether it is a user or group, and whether the account is disabled.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.search (optional) The name (or name prefix) to search for.
+     * @param args.type (optional) Optional. Restrict the search to user or group trustees. When omitted, both users and groups are returned.
+     * @param args.count (optional) Optional. The maximum number of trustees to return. Defaults to 100.
+     * @returns Successfully returned the matching trustees.
+     */
+    lookupTrustees(args: { repositoryId: string, search?: string | null | undefined, type?: string | null | undefined, count?: number | undefined }): Promise<TrusteeIdentity[]>;
+}
+
+export class TrusteesClient implements ITrusteesClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+    }
+
+    /**
+     * - Resolves trustee names to the SIDs used when building access control entries or reading effective rights for a trustee.
+    - Each result includes the trustee's SID, account name, display name, type, whether it is a user or group, and whether the account is disabled.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.search (optional) The name (or name prefix) to search for.
+     * @param args.type (optional) Optional. Restrict the search to user or group trustees. When omitted, both users and groups are returned.
+     * @param args.count (optional) Optional. The maximum number of trustees to return. Defaults to 100.
+     * @returns Successfully returned the matching trustees.
+     */
+    lookupTrustees(args: { repositoryId: string, search?: string | null | undefined, type?: string | null | undefined, count?: number | undefined }): Promise<TrusteeIdentity[]> {
+        let { repositoryId, search, type, count } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Trustees?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (search !== undefined && search !== null)
+            url_ += "search=" + encodeURIComponent("" + search) + "&";
+        if (type !== undefined && type !== null)
+            url_ += "type=" + encodeURIComponent("" + type) + "&";
+        if (count === null)
+            throw new Error("The parameter 'count' cannot be null.");
+        else if (count !== undefined)
+            url_ += "count=" + encodeURIComponent("" + count) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processLookupTrustees(_response);
+        });
+    }
+
+    protected processLookupTrustees(response: Response): Promise<TrusteeIdentity[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TrusteeIdentity.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TrusteeIdentity[]>(null as any);
+    }
+}
+
 /** Response containing a collection of Attribute. */
 export class AttributeCollectionResponse implements IAttributeCollectionResponse {
     /** A URL to retrieve the next page of the requested collection. */
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Attribute[] | undefined;
 
     
@@ -11397,6 +11853,7 @@ export interface IAttributeCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Attribute[] | undefined;
 }
 
@@ -11564,6 +12021,7 @@ export class AuditReasonCollectionResponse implements IAuditReasonCollectionResp
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: AuditReason[] | undefined;
 
     
@@ -11615,6 +12073,7 @@ export interface IAuditReasonCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: AuditReason[] | undefined;
 }
 
@@ -11879,6 +12338,7 @@ export class FieldDefinitionCollectionResponse implements IFieldDefinitionCollec
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: FieldDefinition[] | undefined;
 
     
@@ -11930,6 +12390,7 @@ export interface IFieldDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: FieldDefinition[] | undefined;
 }
 
@@ -12852,6 +13313,7 @@ export class LinkDefinitionCollectionResponse implements ILinkDefinitionCollecti
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: LinkDefinition[] | undefined;
 
     
@@ -12903,6 +13365,7 @@ export interface ILinkDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: LinkDefinition[] | undefined;
 }
 
@@ -14696,6 +15159,7 @@ Does not affect pages generated from `file` — use `pdfOptions.generateText` fo
 
 /** Response containing a link to download the exported entry. */
 export class ExportEntryResponse implements IExportEntryResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: string | undefined;
 
     
@@ -14731,6 +15195,7 @@ export class ExportEntryResponse implements IExportEntryResponse {
 
 /** Response containing a link to download the exported entry. */
 export interface IExportEntryResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: string | undefined;
 }
 
@@ -14914,6 +15379,7 @@ export class EntryCollectionResponse implements IEntryCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Entry[] | undefined;
 
     
@@ -14965,6 +15431,7 @@ export interface IEntryCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Entry[] | undefined;
 }
 
@@ -14974,6 +15441,7 @@ export class FieldCollectionResponse implements IFieldCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Field[] | undefined;
 
     
@@ -15025,6 +15493,7 @@ export interface IFieldCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Field[] | undefined;
 }
 
@@ -15084,6 +15553,7 @@ export class TagCollectionResponse implements ITagCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Tag[] | undefined;
 
     
@@ -15135,6 +15605,7 @@ export interface ITagCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Tag[] | undefined;
 }
 
@@ -15338,6 +15809,7 @@ export class LinkCollectionResponse implements ILinkCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Link[] | undefined;
 
     
@@ -15389,6 +15861,7 @@ export interface ILinkCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Link[] | undefined;
 }
 
@@ -16098,6 +16571,7 @@ export class PageInfoCollectionResponse implements IPageInfoCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: PageInfoResponse[] | undefined;
 
     
@@ -16149,6 +16623,7 @@ export interface IPageInfoCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: PageInfoResponse[] | undefined;
 }
 
@@ -16492,8 +16967,8 @@ Account renames change this value over time — do not use for stable identity c
 export class LockDocumentRequest implements ILockDocumentRequest {
     /** An optional comment for the persistent lock. */
     comment?: string | undefined;
-    /** The lock extent. Defaults to All when omitted. */
-    extent?: LockExtent | undefined;
+    /** The lock extent. One of: Page, Edoc, Metadata, All. Defaults to All when omitted. */
+    extent?: string | undefined;
 
     
     
@@ -16532,16 +17007,8 @@ export class LockDocumentRequest implements ILockDocumentRequest {
 export interface ILockDocumentRequest {
     /** An optional comment for the persistent lock. */
     comment?: string | undefined;
-    /** The lock extent. Defaults to All when omitted. */
-    extent?: LockExtent | undefined;
-}
-
-/** The portion of a document that a persistent lock covers. */
-export enum LockExtent {
-    Page = "Page",
-    Edoc = "Edoc",
-    Metadata = "Metadata",
-    All = "All",
+    /** The lock extent. One of: Page, Edoc, Metadata, All. Defaults to All when omitted. */
+    extent?: string | undefined;
 }
 
 /** Request body for checking out a document. */
@@ -16640,8 +17107,396 @@ export interface ICheckInDocumentRequest {
     unlock?: boolean;
 }
 
+/** An entry's access control list: the explicit and inherited access control entries plus whether the entry inherits rights from its parent(s). */
+export class AccessControlList implements IAccessControlList {
+    /** The access control entries. Includes both explicitly-set and inherited ACEs;
+inherited ACEs carry isInherited = true. */
+    entries?: AccessControlEntry[] | undefined;
+    /** Whether the entry inherits access rights from its parent(s). When false, the entry's
+ACL is protected from parent inheritance. */
+    inheritParents?: boolean;
+
+    
+    
+    constructor(data?: IAccessControlList) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entries"])) {
+                this.entries = [] as any;
+                for (let item of _data["entries"])
+                    this.entries!.push(AccessControlEntry.fromJS(item));
+            }
+            this.inheritParents = _data["inheritParents"];
+        }
+    }
+
+    static fromJS(data: any): AccessControlList {
+        data = typeof data === 'object' ? data : {};
+        let result = new AccessControlList();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entries)) {
+            data["entries"] = [];
+            for (let item of this.entries)
+                data["entries"].push(item.toJSON());
+        }
+        data["inheritParents"] = this.inheritParents;
+        return data;
+    }
+}
+
+/** An entry's access control list: the explicit and inherited access control entries plus whether the entry inherits rights from its parent(s). */
+export interface IAccessControlList {
+    /** The access control entries. Includes both explicitly-set and inherited ACEs;
+inherited ACEs carry isInherited = true. */
+    entries?: AccessControlEntry[] | undefined;
+    /** Whether the entry inherits access rights from its parent(s). When false, the entry's
+ACL is protected from parent inheritance. */
+    inheritParents?: boolean;
+}
+
+/** A single access control entry (ACE): one trustee, whether its rights are allowed or denied, and the rights themselves. A trustee that has both allowed and denied rights is represented as two ACEs. */
+export class AccessControlEntry implements IAccessControlEntry {
+    /** The trustee this ACE applies to. On input, only trustee.sid is required. */
+    trustee?: TrusteeIdentity | undefined;
+    /** Whether the ACE grants (Allow) or denies (Deny) the listed rights. */
+    accessControlType?: AccessControlType;
+    /** The rights granted or denied by this ACE. */
+    rights?: EntryRight[] | undefined;
+    /** How the ACE propagates to descendant entries. Defaults to All when omitted on input. */
+    scope?: EntryAccessScope;
+    /** True when this ACE is inherited from an ancestor. Read-only — inherited ACEs are
+returned by GET but are ignored on input (the set operation manages explicit ACEs only). */
+    isInherited?: boolean;
+    /** When inherited, a description of where the ACE was inherited from. Output only. */
+    inheritedFrom?: string | undefined;
+
+    
+    
+    constructor(data?: IAccessControlEntry) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.trustee = _data["trustee"] ? TrusteeIdentity.fromJS(_data["trustee"]) : <any>undefined;
+            this.accessControlType = _data["accessControlType"];
+            if (Array.isArray(_data["rights"])) {
+                this.rights = [] as any;
+                for (let item of _data["rights"])
+                    this.rights!.push(item);
+            }
+            this.scope = _data["scope"];
+            this.isInherited = _data["isInherited"];
+            this.inheritedFrom = _data["inheritedFrom"];
+        }
+    }
+
+    static fromJS(data: any): AccessControlEntry {
+        data = typeof data === 'object' ? data : {};
+        let result = new AccessControlEntry();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["trustee"] = this.trustee ? this.trustee.toJSON() : <any>undefined;
+        data["accessControlType"] = this.accessControlType;
+        if (Array.isArray(this.rights)) {
+            data["rights"] = [];
+            for (let item of this.rights)
+                data["rights"].push(item);
+        }
+        data["scope"] = this.scope;
+        data["isInherited"] = this.isInherited;
+        data["inheritedFrom"] = this.inheritedFrom;
+        return data;
+    }
+}
+
+/** A single access control entry (ACE): one trustee, whether its rights are allowed or denied, and the rights themselves. A trustee that has both allowed and denied rights is represented as two ACEs. */
+export interface IAccessControlEntry {
+    /** The trustee this ACE applies to. On input, only trustee.sid is required. */
+    trustee?: TrusteeIdentity | undefined;
+    /** Whether the ACE grants (Allow) or denies (Deny) the listed rights. */
+    accessControlType?: AccessControlType;
+    /** The rights granted or denied by this ACE. */
+    rights?: EntryRight[] | undefined;
+    /** How the ACE propagates to descendant entries. Defaults to All when omitted on input. */
+    scope?: EntryAccessScope;
+    /** True when this ACE is inherited from an ancestor. Read-only — inherited ACEs are
+returned by GET but are ignored on input (the set operation manages explicit ACEs only). */
+    isInherited?: boolean;
+    /** When inherited, a description of where the ACE was inherited from. Output only. */
+    inheritedFrom?: string | undefined;
+}
+
+/** Identifies a security trustee (a user or a group) referenced by an access control entry, an effective-rights query, or a trustee-lookup result. */
+export class TrusteeIdentity implements ITrusteeIdentity {
+    /** The trustee's security identifier (an SDDL string such as S-1-5-21-...). This is
+the canonical, URL-safe id used to address a trustee when reading effective rights or
+building access control entries. */
+    sid?: string | undefined;
+    /** The trustee's account name. Optional when supplied on input — it is resolved from the
+SID server-side. Always populated on output. */
+    accountName?: string | undefined;
+    /** The trustee type: one of LaserficheUser, LaserficheGroup,
+WindowsAccount, LdapAccount, LfdsAccount. */
+    trusteeType?: string | undefined;
+    /** True when the trustee is an individual user; false when it is a group. */
+    isUser?: boolean;
+    /** A human-readable display name. Populated by trustee-lookup results; omitted in
+access-control-entry contexts. */
+    displayName?: string | undefined;
+    /** True when the trustee account is disabled. Populated by trustee-lookup results. */
+    isDisabled?: boolean;
+
+    
+    
+    constructor(data?: ITrusteeIdentity) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sid = _data["sid"];
+            this.accountName = _data["accountName"];
+            this.trusteeType = _data["trusteeType"];
+            this.isUser = _data["isUser"];
+            this.displayName = _data["displayName"];
+            this.isDisabled = _data["isDisabled"];
+        }
+    }
+
+    static fromJS(data: any): TrusteeIdentity {
+        data = typeof data === 'object' ? data : {};
+        let result = new TrusteeIdentity();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sid"] = this.sid;
+        data["accountName"] = this.accountName;
+        data["trusteeType"] = this.trusteeType;
+        data["isUser"] = this.isUser;
+        data["displayName"] = this.displayName;
+        data["isDisabled"] = this.isDisabled;
+        return data;
+    }
+}
+
+/** Identifies a security trustee (a user or a group) referenced by an access control entry, an effective-rights query, or a trustee-lookup result. */
+export interface ITrusteeIdentity {
+    /** The trustee's security identifier (an SDDL string such as S-1-5-21-...). This is
+the canonical, URL-safe id used to address a trustee when reading effective rights or
+building access control entries. */
+    sid?: string | undefined;
+    /** The trustee's account name. Optional when supplied on input — it is resolved from the
+SID server-side. Always populated on output. */
+    accountName?: string | undefined;
+    /** The trustee type: one of LaserficheUser, LaserficheGroup,
+WindowsAccount, LdapAccount, LfdsAccount. */
+    trusteeType?: string | undefined;
+    /** True when the trustee is an individual user; false when it is a group. */
+    isUser?: boolean;
+    /** A human-readable display name. Populated by trustee-lookup results; omitted in
+access-control-entry contexts. */
+    displayName?: string | undefined;
+    /** True when the trustee account is disabled. Populated by trustee-lookup results. */
+    isDisabled?: boolean;
+}
+
+/** Whether an access control entry (ACE) grants or denies its rights. Serialized by name. */
+export enum AccessControlType {
+    Allow = "Allow",
+    Deny = "Deny",
+}
+
+/** An individual access right that can be granted to or denied a trustee on an entry. Serialized by name; emitted as a string enum in the OpenAPI schema so clients can reference it directly. */
+export enum EntryRight {
+    Browse = "Browse",
+    Read = "Read",
+    WriteContent = "WriteContent",
+    AddPage = "AddPage",
+    Rename = "Rename",
+    RemovePage = "RemovePage",
+    Freeze = "Freeze",
+    Annotate = "Annotate",
+    SeeThroughRedactions = "SeeThroughRedactions",
+    SeeAnnotations = "SeeAnnotations",
+    SetReviewDate = "SetReviewDate",
+    WriteMetadata = "WriteMetadata",
+    CreateFolder = "CreateFolder",
+    CreateDocument = "CreateDocument",
+    SetEventDate = "SetEventDate",
+    Close = "Close",
+    Delete = "Delete",
+    ReadPermissions = "ReadPermissions",
+    ChangePermissions = "ChangePermissions",
+    TakeOwnership = "TakeOwnership",
+}
+
+/** Controls how an entry access control entry (ACE) propagates to descendant entries. Applies to entry ACEs only (field/template ACEs have no scope). Serialized by name. */
+export enum EntryAccessScope {
+    ThisEntry = "ThisEntry",
+    Folders = "Folders",
+    All = "All",
+    NotThisEntry = "NotThisEntry",
+    FoldersOnly = "FoldersOnly",
+    DocumentsOnly = "DocumentsOnly",
+    Immediate = "Immediate",
+    ImmediateChildren = "ImmediateChildren",
+    ImmediateDocuments = "ImmediateDocuments",
+}
+
+/** Request body to replace an entry's explicit access control list. This is a full replace: the supplied entries become the entry's complete set of explicit ACEs (any explicit ACE not included is removed). Inherited ACEs cannot be supplied and are managed via inheritParents. */
+export class SetAccessControlRequest implements ISetAccessControlRequest {
+    /** The explicit access control entries to apply. An empty array clears all explicit ACEs.
+Entries flagged isInherited = true are rejected. */
+    entries?: AccessControlEntry[] | undefined;
+    /** Whether the entry should inherit access rights from its parent(s). When omitted, the
+entry's current inheritance setting is preserved. When false, the ACL is protected
+from parent inheritance; when true, parent rights are inherited. */
+    inheritParents?: boolean | undefined;
+
+    
+    
+    constructor(data?: ISetAccessControlRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entries"])) {
+                this.entries = [] as any;
+                for (let item of _data["entries"])
+                    this.entries!.push(AccessControlEntry.fromJS(item));
+            }
+            this.inheritParents = _data["inheritParents"];
+        }
+    }
+
+    static fromJS(data: any): SetAccessControlRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetAccessControlRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entries)) {
+            data["entries"] = [];
+            for (let item of this.entries)
+                data["entries"].push(item.toJSON());
+        }
+        data["inheritParents"] = this.inheritParents;
+        return data;
+    }
+}
+
+/** Request body to replace an entry's explicit access control list. This is a full replace: the supplied entries become the entry's complete set of explicit ACEs (any explicit ACE not included is removed). Inherited ACEs cannot be supplied and are managed via inheritParents. */
+export interface ISetAccessControlRequest {
+    /** The explicit access control entries to apply. An empty array clears all explicit ACEs.
+Entries flagged isInherited = true are rejected. */
+    entries?: AccessControlEntry[] | undefined;
+    /** Whether the entry should inherit access rights from its parent(s). When omitted, the
+entry's current inheritance setting is preserved. When false, the ACL is protected
+from parent inheritance; when true, parent rights are inherited. */
+    inheritParents?: boolean | undefined;
+}
+
+/** A trustee's effective rights to an entry — the net rights after inheritance, group membership, and allow/deny resolution are applied by the repository server. */
+export class EffectiveRights implements IEffectiveRights {
+    /** The rights effectively granted to the trustee on the entry. */
+    rights?: EntryRight[] | undefined;
+    /** True when the session is read-only, so no write operations are possible regardless of
+the granted rights. */
+    isReadOnly?: boolean;
+
+    
+    
+    constructor(data?: IEffectiveRights) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["rights"])) {
+                this.rights = [] as any;
+                for (let item of _data["rights"])
+                    this.rights!.push(item);
+            }
+            this.isReadOnly = _data["isReadOnly"];
+        }
+    }
+
+    static fromJS(data: any): EffectiveRights {
+        data = typeof data === 'object' ? data : {};
+        let result = new EffectiveRights();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.rights)) {
+            data["rights"] = [];
+            for (let item of this.rights)
+                data["rights"].push(item);
+        }
+        data["isReadOnly"] = this.isReadOnly;
+        return data;
+    }
+}
+
+/** A trustee's effective rights to an entry — the net rights after inheritance, group membership, and allow/deny resolution are applied by the repository server. */
+export interface IEffectiveRights {
+    /** The rights effectively granted to the trustee on the entry. */
+    rights?: EntryRight[] | undefined;
+    /** True when the session is read-only, so no write operations are possible regardless of
+the granted rights. */
+    isReadOnly?: boolean;
+}
+
 /** Response containing a collection of Repository. */
 export class RepositoryCollectionResponse implements IRepositoryCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: Repository[] | undefined;
 
     
@@ -16685,6 +17540,7 @@ export class RepositoryCollectionResponse implements IRepositoryCollectionRespon
 
 /** Response containing a collection of Repository. */
 export interface IRepositoryCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: Repository[] | undefined;
 }
 
@@ -16808,6 +17664,7 @@ export class SearchContextHitCollectionResponse implements ISearchContextHitColl
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: SearchContextHit[] | undefined;
 
     
@@ -16859,6 +17716,7 @@ export interface ISearchContextHitCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: SearchContextHit[] | undefined;
 }
 
@@ -17056,6 +17914,7 @@ export class TagDefinitionCollectionResponse implements ITagDefinitionCollection
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TagDefinition[] | undefined;
 
     
@@ -17107,6 +17966,7 @@ export interface ITagDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TagDefinition[] | undefined;
 }
 
@@ -17184,6 +18044,7 @@ export interface ITagDefinition {
 
 /** Response containing a collection of TaskProgress. */
 export class TaskCollectionResponse implements ITaskCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: TaskProgress[] | undefined;
 
     
@@ -17227,6 +18088,7 @@ export class TaskCollectionResponse implements ITaskCollectionResponse {
 
 /** Response containing a collection of TaskProgress. */
 export interface ITaskCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: TaskProgress[] | undefined;
 }
 
@@ -17390,6 +18252,7 @@ export interface ITaskResult {
 
 /** Response containing a collection of CancelTaskResult. */
 export class CancelTasksResponse implements ICancelTasksResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: CancelTaskResult[] | undefined;
 
     
@@ -17433,6 +18296,7 @@ export class CancelTasksResponse implements ICancelTasksResponse {
 
 /** Response containing a collection of CancelTaskResult. */
 export interface ICancelTasksResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: CancelTaskResult[] | undefined;
 }
 
@@ -17496,6 +18360,7 @@ export class TemplateDefinitionCollectionResponse implements ITemplateDefinition
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateDefinition[] | undefined;
 
     
@@ -17547,6 +18412,7 @@ export interface ITemplateDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateDefinition[] | undefined;
 }
 
@@ -17556,6 +18422,7 @@ export class TemplateFieldDefinitionCollectionResponse implements ITemplateField
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateFieldDefinition[] | undefined;
 
     
@@ -17607,6 +18474,7 @@ export interface ITemplateFieldDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateFieldDefinition[] | undefined;
 }
 
