@@ -61,12 +61,47 @@ jobs:
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           teams: 'GitHub - Open Source'
 
-      - name: Reinstall with hoisted node_modules for Veracode SCA
+      - name: Generate package-lock.json for Veracode SCA
         run: |
-          # pnpm's default virtual store (node_modules/.pnpm/) hides packages from SourceClear.
-          # --shamefully-hoist creates a flat npm-style layout so SourceClear can find each
-          # package at node_modules/<name>/package.json.
-          pnpm install --shamefully-hoist
+          # SourceClear's npm scanner fails on pnpm workspaces and falls back to
+          # package-lock.json (v1 format, 'dependencies' key). Parse pnpm-lock.yaml
+          # directly to build a compatible lockfile, then remove pnpm-lock.yaml so
+          # SourceClear cannot attempt (and fail on) pnpm-lock v9 format.
+          pip3 install pyyaml --quiet
+          python3 - << 'EOF'
+          import yaml, json
+
+          with open('pnpm-lock.yaml') as f:
+              lockfile = yaml.safe_load(f)
+
+          deps = {}
+          for pkg_key, pkg_info in (lockfile.get('packages') or {}).items():
+              last_at = pkg_key.rfind('@')
+              if last_at <= 0:
+                  continue
+              name    = pkg_key[:last_at]
+              version = pkg_key[last_at + 1:]
+              resolution = (pkg_info or {}).get('resolution') or {}
+              entry = {'version': version}
+              if 'integrity' in resolution:
+                  entry['resolved']  = 'https://registry.npmjs.org/{n}/-/{s}-{v}.tgz'.format(
+                      n=name, s=name.split('/')[-1], v=version)
+                  entry['integrity'] = resolution['integrity']
+              elif 'tarball' in resolution:
+                  entry['resolved'] = resolution['tarball']
+              deps[name] = entry
+
+          lock = {
+              'name': 'lf-api-js',
+              'version': '0.0.1',
+              'lockfileVersion': 1,
+              'dependencies': deps,
+          }
+          with open('package-lock.json', 'w') as f:
+              json.dump(lock, f, indent=2)
+          print('Generated package-lock.json (v1) with {} packages'.format(len(deps)))
+          EOF
+          rm pnpm-lock.yaml
 
       - name: Run Veracode Software Composition Analysis (SCA)
         env:
