@@ -67,7 +67,6 @@ jobs:
           # --shamefully-hoist creates a flat npm-style layout so SourceClear can find each
           # package at node_modules/<name>/package.json.
           pnpm install --shamefully-hoist
-          rm pnpm-lock.yaml
 
       - name: Run Veracode Software Composition Analysis (SCA)
         env:
