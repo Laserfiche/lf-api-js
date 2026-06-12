@@ -2951,6 +2951,20 @@ export interface IEntriesClient {
      * @returns Successfully returned the effective rights for the entry.
      */
     getEntryEffectiveRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights>;
+
+    /**
+     * - Returns the rights granted by this entry's own ACL, excluding inheritance from parent folders and privilege/records-management overlays; group membership is still resolved. Contrast with EffectiveRights, which returns the net rights after inheritance and overlays are applied.
+    - Identify the trustee by trusteeId (a SID) or trusteeName (an account name); omit both for the calling session.
+    - isReadOnly reports whether the session is read-only, in which case no write operations are possible regardless of the granted rights.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The entry whose direct rights are computed.
+     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute direct rights for. When omitted (along with trusteeName), the direct rights of the current session are returned.
+     * @param args.trusteeName (optional) Optional. The account name of the trustee to compute direct rights for, as an alternative to trusteeId. When both are supplied, trusteeId takes precedence.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the direct (ACL) rights for the entry.
+     */
+    getEntryDirectRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights>;
 }
 
 export class EntriesClient implements IEntriesClient {
@@ -8230,6 +8244,107 @@ export class EntriesClient implements IEntriesClient {
     }
 
     protected processGetEntryEffectiveRights(response: Response): Promise<EffectiveRights> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = EffectiveRights.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<EffectiveRights>(null as any);
+    }
+
+    /**
+     * - Returns the rights granted by this entry's own ACL, excluding inheritance from parent folders and privilege/records-management overlays; group membership is still resolved. Contrast with EffectiveRights, which returns the net rights after inheritance and overlays are applied.
+    - Identify the trustee by trusteeId (a SID) or trusteeName (an account name); omit both for the calling session.
+    - isReadOnly reports whether the session is read-only, in which case no write operations are possible regardless of the granted rights.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The entry whose direct rights are computed.
+     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute direct rights for. When omitted (along with trusteeName), the direct rights of the current session are returned.
+     * @param args.trusteeName (optional) Optional. The account name of the trustee to compute direct rights for, as an alternative to trusteeId. When both are supplied, trusteeId takes precedence.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the direct (ACL) rights for the entry.
+     */
+    getEntryDirectRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights> {
+        let { repositoryId, entryId, trusteeId, trusteeName, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/DirectRights?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (trusteeId !== undefined && trusteeId !== null)
+            url_ += "trusteeId=" + encodeURIComponent("" + trusteeId) + "&";
+        if (trusteeName !== undefined && trusteeName !== null)
+            url_ += "trusteeName=" + encodeURIComponent("" + trusteeName) + "&";
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntryDirectRights(_response);
+        });
+    }
+
+    protected processGetEntryDirectRights(response: Response): Promise<EffectiveRights> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {

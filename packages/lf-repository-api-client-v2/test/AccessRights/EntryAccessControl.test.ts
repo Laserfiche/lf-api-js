@@ -12,8 +12,9 @@ import {
 } from '../../index.js';
 
 // Parallel (JS) coverage for the V2 entry access-rights endpoints (PRD 6.4.A — REQ-ACCESS-001):
-// getEntryAccessControl, setEntryAccessControl, getEntryEffectiveRights, and the Trustees
-// lookupTrustees search. The dotnet REST integration suite owns the exhaustive contract; these
+// getEntryAccessControl, setEntryAccessControl, getEntryEffectiveRights, getEntryDirectRights
+// (REQ-ACCESS-006), and the Trustees lookupTrustees search. The dotnet REST integration suite owns
+// the exhaustive contract; these
 // exercise the JS client end-to-end against a running server. No multipart upload here, so they
 // run under both vitest+node and vitest+jsdom.
 //
@@ -99,6 +100,41 @@ describe('Entry Access Rights (REQ-ACCESS-001)', () => {
       return; // borrowed trustee has no account name to resolve by
     }
     const rights = await _RepositoryApiClient.entriesClient.getEntryEffectiveRights({
+      repositoryId,
+      entryId,
+      trusteeName: trustee.accountName,
+    });
+    expect(rights).not.toBeNull();
+    expect(rights.rights).toBeDefined();
+  });
+
+  test('getEntryDirectRights for the calling session includes Browse and Read', async () => {
+    const entryId = await createFolder();
+    const rights = await _RepositoryApiClient.entriesClient.getEntryDirectRights({ repositoryId, entryId });
+    expect(rights.rights).toBeDefined();
+    expect(rights.rights).toContain(EntryRight.Browse);
+    expect(rights.rights).toContain(EntryRight.Read);
+  });
+
+  test('getEntryDirectRights resolves for a specific trustee by SID', async () => {
+    const entryId = await createFolder();
+    const trustee = await getAnyTrustee(entryId);
+    const rights = await _RepositoryApiClient.entriesClient.getEntryDirectRights({
+      repositoryId,
+      entryId,
+      trusteeId: trustee.sid,
+    });
+    expect(rights).not.toBeNull();
+    expect(rights.rights).toBeDefined();
+  });
+
+  test('getEntryDirectRights resolves a trustee addressed by account name', async () => {
+    const entryId = await createFolder();
+    const trustee = await getAnyTrustee(entryId);
+    if (!trustee.accountName) {
+      return; // borrowed trustee has no account name to resolve by
+    }
+    const rights = await _RepositoryApiClient.entriesClient.getEntryDirectRights({
       repositoryId,
       entryId,
       trusteeName: trustee.accountName,
