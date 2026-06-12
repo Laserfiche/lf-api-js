@@ -61,40 +61,12 @@ jobs:
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           teams: 'GitHub - Open Source'
 
-      - name: Generate npm package-lock.json for Veracode SCA
+      - name: Reinstall with hoisted node_modules for Veracode SCA
         run: |
-          # Parse pnpm-lock.yaml directly — no subprocess, no buffer limit.
-          # Then remove pnpm-lock.yaml so SourceClear uses only the npm lockfile.
-          pip3 install pyyaml --quiet
-          python3 - << 'EOF'
-          import yaml, json
-
-          with open('pnpm-lock.yaml') as f:
-              lockfile = yaml.safe_load(f)
-
-          packages = {'': {'name': 'lf-api-js', 'version': '0.0.1'}}
-
-          for pkg_key, pkg_info in (lockfile.get('packages') or {}).items():
-              last_at = pkg_key.rfind('@')
-              if last_at <= 0:
-                  continue
-              name    = pkg_key[:last_at]
-              version = pkg_key[last_at + 1:]
-              resolution = (pkg_info or {}).get('resolution') or {}
-              entry = {'version': version}
-              if 'integrity' in resolution:
-                  entry['resolved']  = 'https://registry.npmjs.org/{n}/-/{s}-{v}.tgz'.format(
-                      n=name, s=name.split('/')[-1], v=version)
-                  entry['integrity'] = resolution['integrity']
-              elif 'tarball' in resolution:
-                  entry['resolved'] = resolution['tarball']
-              packages['node_modules/' + name] = entry
-
-          lock = {'name': 'lf-api-js', 'lockfileVersion': 2, 'requires': True, 'packages': packages}
-          with open('package-lock.json', 'w') as f:
-              json.dump(lock, f, indent=2)
-          print('Generated package-lock.json with {} packages'.format(len(packages) - 1))
-          EOF
+          # pnpm's default virtual store (node_modules/.pnpm/) hides packages from SourceClear.
+          # --shamefully-hoist creates a flat npm-style layout so SourceClear can find each
+          # package at node_modules/<name>/package.json.
+          pnpm install --shamefully-hoist
           rm pnpm-lock.yaml
 
       - name: Run Veracode Software Composition Analysis (SCA)
