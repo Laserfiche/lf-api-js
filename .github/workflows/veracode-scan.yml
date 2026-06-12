@@ -63,10 +63,6 @@ jobs:
 
       - name: Generate package-lock.json for Veracode SCA
         run: |
-          # SourceClear's npm scanner fails on pnpm workspaces and falls back to
-          # package-lock.json (v1 format, 'dependencies' key). Parse pnpm-lock.yaml
-          # directly to build a compatible lockfile, then remove pnpm-lock.yaml so
-          # SourceClear cannot attempt (and fail on) pnpm-lock v9 format.
           pip3 install pyyaml --quiet
           python3 - << 'EOF'
           import yaml, json
@@ -75,6 +71,7 @@ jobs:
               lockfile = yaml.safe_load(f)
 
           deps = {}
+          pkgs = {}
           for pkg_key, pkg_info in (lockfile.get('packages') or {}).items():
               last_at = pkg_key.rfind('@')
               if last_at <= 0:
@@ -90,18 +87,41 @@ jobs:
               elif 'tarball' in resolution:
                   entry['resolved'] = resolution['tarball']
               deps[name] = entry
+              pkgs['node_modules/' + name] = dict(entry)
 
+          pkgs[''] = {
+              'name': 'lf-api-js',
+              'version': '0.0.1',
+              'dependencies': {n: v['version'] for n, v in deps.items()},
+          }
           lock = {
               'name': 'lf-api-js',
               'version': '0.0.1',
-              'lockfileVersion': 1,
+              'lockfileVersion': 2,
+              'requires': True,
+              'packages': pkgs,
               'dependencies': deps,
           }
           with open('package-lock.json', 'w') as f:
               json.dump(lock, f, indent=2)
-          print('Generated package-lock.json (v1) with {} packages'.format(len(deps)))
+          print('Generated package-lock.json (v2) with {} packages'.format(len(deps)))
+
+          # SourceClear runs npm with --omit=dev. The root package.json has only
+          # devDependencies, so npm finds 0 production packages and SourceClear
+          # reports nothing. Overwriting package.json with a workspace: reference
+          # causes npm to error out (npm does not support the workspace: protocol),
+          # which triggers SourceClear's lockfile fallback. That fallback reads
+          # package-lock.json directly — without --omit=dev — and picks up all
+          # packages generated above.
+          with open('package.json', 'w') as f:
+              json.dump({
+                  'name': 'lf-api-js',
+                  'version': '0.0.1',
+                  'dependencies': {'__placeholder__': 'workspace:*'},
+              }, f, indent=2)
+          print('Wrote package.json to trigger SourceClear lockfile fallback')
           EOF
-          rm pnpm-lock.yaml
+          rm pnpm-lock.yaml pnpm-workspace.yaml
 
       - name: Run Veracode Software Composition Analysis (SCA)
         env:
