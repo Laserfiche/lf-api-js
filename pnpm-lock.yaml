@@ -13,6 +13,7 @@ overrides:
   lodash: '>=4.17.21'
   markdown-it: '>=14.1.1'
   minimatch: '>=9.0.7'
+  '@microsoft/api-extractor>minimatch': ^3.1.2
   serialize-javascript: 7.0.5
   ws: '>=8.20.1'
   yaml: '>=2.8.3'
@@ -1610,6 +1611,9 @@ packages:
     resolution: {integrity: sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==}
     engines: {node: 18 || 20 || >=22}
 
+  minimatch@3.1.5:
+    resolution: {integrity: sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w==}
+
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -2378,7 +2382,7 @@ snapshots:
       '@rushstack/terminal': 0.14.6(@types/node@20.17.17)
       '@rushstack/ts-command-line': 4.23.4(@types/node@20.17.17)
       lodash: 4.17.21
-      minimatch: 10.2.5
+      minimatch: 3.1.5
       resolve: 1.22.10
       semver: 7.5.4
       source-map: 0.6.1
@@ -3574,6 +3578,10 @@ snapshots:
       mime-db: 1.52.0
 
   minimatch@10.2.5:
+    dependencies:
+      brace-expansion: 5.0.6
+
+  minimatch@3.1.5:
     dependencies:
       brace-expansion: 5.0.6
 
