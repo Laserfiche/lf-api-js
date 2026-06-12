@@ -1,11 +1,5 @@
 # Changelog
 
-## 1.2.1
-
-### Security
-
-- Upgrade vulnerable dependencies to resolve Veracode SCA findings: `brace-expansion` (>=2.0.3), `flatted` (>=3.4.0), `form-data` (4.0.4), `js-yaml` (4.1.1), `lodash` (>=4.18.1), `markdown-it` (>=14.1.1), `minimatch` (>=9.0.7), `serialize-javascript` (7.0.5), `ws` (>=8.20.1), `yaml` (>=2.8.3), `ajv` (>=8.18.0), `glob` (>=10.5.0). Remove `inflight` (deprecated, memory-leaking).
-
 ## 1.2.0
 
 ### Features
@@ -15,6 +9,10 @@
 - Add template definition administration methods: `createTemplate`, `updateTemplate`, `deleteTemplate`, `getTemplateAssignedEntryCount`, `getTemplateProperties`, `updateTemplateProperties`, `addTemplateField`, `updateTemplateFieldProperties`, `removeTemplateField`, `moveTemplateField`.
 - `getEntry` accepts opt-in `includeChildInfo` (folder entries — immediate-children counts: `hasChildren`, `childCount`, `folderCount`, `documentCount`, `shortcutCount`) and `includeTotalSize` (document entries — full stored size including page data, distinct from `electronicDocumentSize`). Both are omitted from the response unless requested.
 - New types: request/response DTOs for field and template definition administration, and the `childInfo` object on the entry response.
+
+### Security
+
+- Upgrade vulnerable dependencies: `brace-expansion` (>=2.0.3), `flatted` (>=3.4.0), `form-data` (4.0.4), `js-yaml` (4.1.1), `lodash` (>=4.18.1), `markdown-it` (>=14.1.1), `minimatch` (>=9.0.7), `serialize-javascript` (7.0.5), `ws` (>=8.20.1), `yaml` (>=2.8.3), `ajv` (>=8.18.0), `glob` (>=10.5.0). Remove `inflight` (deprecated, memory-leaking).
 
 ## 1.1.0
 
