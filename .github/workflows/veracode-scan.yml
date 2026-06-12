@@ -68,7 +68,7 @@ jobs:
           node -e "
             const {execSync} = require('child_process');
             const fs = require('fs');
-            const workspaces = JSON.parse(execSync('pnpm ls --json --recursive --depth=Infinity', {encoding:'utf8'}));
+            const workspaces = JSON.parse(execSync('pnpm ls --json --recursive --depth=Infinity', {encoding:'utf8', maxBuffer: 128 * 1024 * 1024}));
             const packages = {'': {}};
             const seen = new Set();
             const add = deps => Object.entries(deps || {}).forEach(([name, info]) => {
