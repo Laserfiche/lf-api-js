@@ -63,24 +63,39 @@ jobs:
 
       - name: Generate npm package-lock.json for Veracode SCA
         run: |
-          # pnpm ls --json resolves the full dependency tree across all workspace packages.
-          # We convert its output to an npm lockfile v2, which SourceClear can parse.
-          node -e "
-            const {execSync} = require('child_process');
-            const fs = require('fs');
-            const workspaces = JSON.parse(execSync('pnpm ls --json --recursive --depth=Infinity', {encoding:'utf8', maxBuffer: 128 * 1024 * 1024}));
-            const packages = {'': {}};
-            const seen = new Set();
-            const add = deps => Object.entries(deps || {}).forEach(([name, info]) => {
-              if (seen.has(name) || !info.version) return;
-              seen.add(name);
-              packages['node_modules/' + name] = {version: info.version};
-              add(info.dependencies);
-            });
-            workspaces.forEach(ws => { add(ws.dependencies); add(ws.devDependencies); });
-            fs.writeFileSync('package-lock.json', JSON.stringify({name:'lf-api-js', lockfileVersion:2, requires:true, packages}));
-            console.log('Generated package-lock.json — ' + (Object.keys(packages).length - 1) + ' packages');
-          "
+          # Parse pnpm-lock.yaml directly — no subprocess, no buffer limit.
+          # Then remove pnpm-lock.yaml so SourceClear uses only the npm lockfile.
+          pip3 install pyyaml --quiet
+          python3 - << 'EOF'
+          import yaml, json
+
+          with open('pnpm-lock.yaml') as f:
+              lockfile = yaml.safe_load(f)
+
+          packages = {'': {'name': 'lf-api-js', 'version': '0.0.1'}}
+
+          for pkg_key, pkg_info in (lockfile.get('packages') or {}).items():
+              last_at = pkg_key.rfind('@')
+              if last_at <= 0:
+                  continue
+              name    = pkg_key[:last_at]
+              version = pkg_key[last_at + 1:]
+              resolution = (pkg_info or {}).get('resolution') or {}
+              entry = {'version': version}
+              if 'integrity' in resolution:
+                  entry['resolved']  = 'https://registry.npmjs.org/{n}/-/{s}-{v}.tgz'.format(
+                      n=name, s=name.split('/')[-1], v=version)
+                  entry['integrity'] = resolution['integrity']
+              elif 'tarball' in resolution:
+                  entry['resolved'] = resolution['tarball']
+              packages['node_modules/' + name] = entry
+
+          lock = {'name': 'lf-api-js', 'lockfileVersion': 2, 'requires': True, 'packages': packages}
+          with open('package-lock.json', 'w') as f:
+              json.dump(lock, f, indent=2)
+          print('Generated package-lock.json with {} packages'.format(len(packages) - 1))
+          EOF
+          rm pnpm-lock.yaml
 
       - name: Run Veracode Software Composition Analysis (SCA)
         env:
