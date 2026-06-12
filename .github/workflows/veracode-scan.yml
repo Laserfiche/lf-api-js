@@ -45,6 +45,12 @@ jobs:
       - name: 'Compress js repository client v1 files'
         run: tar -czvf ./veracode/lf-repository-api-v1.tar.gz ./packages/lf-repository-api-client-v1/dist
 
+      - name: 'Compress lf-js-utils files'
+        run: tar -czvf ./veracode/lf-js-utils.tar.gz ./packages/lf-js-utils/dist
+
+      - name: 'Compress lf-api-js package files'
+        run: tar -czvf ./veracode/lf-api-js.tar.gz ./packages/lf-api-js/dist ./packages/lf-api-js/cdn
+
       - name: Veracode Upload And Scan (Static Application Security Testing)
         uses: veracode/veracode-uploadandscan-action@0.2.10
         with:
@@ -55,7 +61,28 @@ jobs:
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           teams: 'GitHub - Open Source'
 
+      - name: Generate npm package-lock.json for Veracode SCA
+        run: |
+          # pnpm ls --json resolves the full dependency tree across all workspace packages.
+          # We convert its output to an npm lockfile v2, which SourceClear can parse.
+          node -e "
+            const {execSync} = require('child_process');
+            const fs = require('fs');
+            const workspaces = JSON.parse(execSync('pnpm ls --json --recursive --depth=Infinity', {encoding:'utf8'}));
+            const packages = {'': {}};
+            const seen = new Set();
+            const add = deps => Object.entries(deps || {}).forEach(([name, info]) => {
+              if (seen.has(name) || !info.version) return;
+              seen.add(name);
+              packages['node_modules/' + name] = {version: info.version};
+              add(info.dependencies);
+            });
+            workspaces.forEach(ws => { add(ws.dependencies); add(ws.devDependencies); });
+            fs.writeFileSync('package-lock.json', JSON.stringify({name:'lf-api-js', lockfileVersion:2, requires:true, packages}));
+            console.log('Generated package-lock.json — ' + (Object.keys(packages).length - 1) + ' packages');
+          "
+
       - name: Run Veracode Software Composition Analysis (SCA)
         env:
           SRCCLR_API_TOKEN: ${{ secrets.SRCCLR_API_TOKEN }}
-        run: curl --silent --show-error --location https://download.sourceclear.com/ci.sh | sh -s -- scan ./ --update-advisor --allow-dirty --recursive
+        run: curl --silent --show-error --location https://download.sourceclear.com/ci.sh | sh -s -- scan ./ --update-advisor --allow-dirty
