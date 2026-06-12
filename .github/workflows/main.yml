@@ -13,11 +13,11 @@ on:
   workflow_dispatch:
 
 env:
-  NPM_API_CLIENT_V1_VERSION: '1.1.10'
-  NPM_API_CLIENT_V2_VERSION: '1.2.0'
-  NPM_CLIENT_CORE_VERSION: '1.1.19'
-  NPM_JS_UTILS_VERSION: '4.0.13'
-  NPM_API_JS_CLIENT_VERSION: '1.1.0'
+  NPM_API_CLIENT_V1_VERSION: '1.1.11'
+  NPM_API_CLIENT_V2_VERSION: '1.2.1'
+  NPM_CLIENT_CORE_VERSION: '1.1.20'
+  NPM_JS_UTILS_VERSION: '4.0.14'
+  NPM_API_JS_CLIENT_VERSION: '1.2.1'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
