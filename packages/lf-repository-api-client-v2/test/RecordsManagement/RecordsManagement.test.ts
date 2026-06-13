@@ -100,15 +100,17 @@ describe('Records Management (REQ-RM-ENTRY/FOLDER/SERIES)', () => {
   });
 
   test('createRecordSeries then read and update its series properties', async () => {
-    const parentEntryId = await createFolder();
-
+    // A record series belongs to the repository's record file plan — it cannot be a child of a normal
+    // folder (LFS enforces this). Create it under the repository root (the file-plan root) and record
+    // the created series id for cleanup.
     const created = await _RepositoryApiClient.entriesClient.createRecordSeries({
       repositoryId,
-      parentEntryId,
+      parentEntryId: 1,
       request: new CreateRecordSeriesRequest({ name: 'JS RM Test Series', code: 'RMS' }),
     });
     expect(created).toBeDefined();
     expect(created.id).toBeGreaterThan(0);
+    createdEntryId = created.id!; // cleanup deletes the series (not the root)
 
     const seriesProps = await _RepositoryApiClient.entriesClient.getRecordSeriesProperties({
       repositoryId,
