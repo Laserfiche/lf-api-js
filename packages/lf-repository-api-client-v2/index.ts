@@ -645,6 +645,56 @@ export interface IFieldDefinitionsClient {
      * @returns Successfully changed the field definition's type.
      */
     changeFieldType(args: { repositoryId: string, fieldId: number, request: ChangeFieldTypeRequest }): Promise<FieldDefinition>;
+
+    /**
+     * - Returns the field's access control entries (ACEs): the trustee, whether rights are allowed or denied, and the rights themselves. Field ACEs have no scope and are never inherited.
+    - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the field's ReadPermissions right.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The requested field definition ID.
+     * @returns Successfully returned the field definition's access control list.
+     */
+    getFieldAccessControl(args: { repositoryId: string, fieldId: number }): Promise<FieldAccessControlList>;
+
+    /**
+     * - Full replace: the supplied entries replace the field's entire explicit ACL. Inherited entries are not accepted (field ACEs are never inherited). Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given; an account name is resolved to a SID server-side).
+    - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the field's ChangePermissions right.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The field definition ID whose ACL to replace.
+     * @param args.request The access control entries to set.
+     * @returns Successfully replaced the field definition's access control list. Returned the updated access control list.
+     */
+    setFieldAccessControl(args: { repositoryId: string, fieldId: number, request: SetFieldAccessControlRequest }): Promise<FieldAccessControlList>;
+
+    /**
+     * - Returns the rights a trustee has on the field definition, plus whether the session is read-only. By default these are the effective rights (after group membership, allow/deny resolution, and the privilege overlay); set aclOnly=true for the rights granted by the field's own ACL without that overlay. Omit both trusteeId and trusteeName for the current session.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The requested field definition ID.
+     * @param args.trusteeId (optional) An optional trustee SID. When supplied, returns that trustee's rights; otherwise the current session's.
+     * @param args.trusteeName (optional) An optional trustee account name, as an alternative to trusteeId. The SID wins when both are supplied.
+     * @param args.aclOnly (optional) Optional. Selects which rights are returned. Default (false): the trustee's effective rights — the net result after allow/deny resolution, group membership, and the repository's privilege overlay (for example, the metadata-management privilege that grants full control over every field regardless of its ACL). When true: only the rights granted by this field definition's own access control list, without that privilege overlay. Group membership is always resolved. Field definitions are not hierarchical, so there is no parent inheritance involved either way.
+     * @returns Successfully returned the rights for the field definition.
+     */
+    getFieldRights(args: { repositoryId: string, fieldId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, aclOnly?: boolean | undefined }): Promise<FieldRights>;
+
+    /**
+     * - Returns the repository's default field ACL — the access control entries a new field definition inherits at creation time.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the default field access control list.
+     */
+    getDefaultFieldAccessControl(args: { repositoryId: string }): Promise<FieldAccessControlList>;
+
+    /**
+     * - Full replace: the supplied entries replace the entire default field ACL. Inherited entries are not accepted. Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The access control entries to set as the default field ACL.
+     * @returns Successfully replaced the default field access control list. Returned the updated default access control list.
+     */
+    setDefaultFieldAccessControl(args: { repositoryId: string, request: SetFieldAccessControlRequest }): Promise<FieldAccessControlList>;
 }
 
 export class FieldDefinitionsClient implements IFieldDefinitionsClient {
@@ -1985,6 +2035,457 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
             });
         }
         return Promise.resolve<FieldDefinition>(null as any);
+    }
+
+    /**
+     * - Returns the field's access control entries (ACEs): the trustee, whether rights are allowed or denied, and the rights themselves. Field ACEs have no scope and are never inherited.
+    - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the field's ReadPermissions right.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The requested field definition ID.
+     * @returns Successfully returned the field definition's access control list.
+     */
+    getFieldAccessControl(args: { repositoryId: string, fieldId: number }): Promise<FieldAccessControlList> {
+        let { repositoryId, fieldId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}/AccessControl";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetFieldAccessControl(_response);
+        });
+    }
+
+    protected processGetFieldAccessControl(response: Response): Promise<FieldAccessControlList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldAccessControlList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldAccessControlList>(null as any);
+    }
+
+    /**
+     * - Full replace: the supplied entries replace the field's entire explicit ACL. Inherited entries are not accepted (field ACEs are never inherited). Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given; an account name is resolved to a SID server-side).
+    - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the field's ChangePermissions right.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The field definition ID whose ACL to replace.
+     * @param args.request The access control entries to set.
+     * @returns Successfully replaced the field definition's access control list. Returned the updated access control list.
+     */
+    setFieldAccessControl(args: { repositoryId: string, fieldId: number, request: SetFieldAccessControlRequest }): Promise<FieldAccessControlList> {
+        let { repositoryId, fieldId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}/AccessControl";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetFieldAccessControl(_response);
+        });
+    }
+
+    protected processSetFieldAccessControl(response: Response): Promise<FieldAccessControlList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldAccessControlList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldAccessControlList>(null as any);
+    }
+
+    /**
+     * - Returns the rights a trustee has on the field definition, plus whether the session is read-only. By default these are the effective rights (after group membership, allow/deny resolution, and the privilege overlay); set aclOnly=true for the rights granted by the field's own ACL without that overlay. Omit both trusteeId and trusteeName for the current session.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.fieldId The requested field definition ID.
+     * @param args.trusteeId (optional) An optional trustee SID. When supplied, returns that trustee's rights; otherwise the current session's.
+     * @param args.trusteeName (optional) An optional trustee account name, as an alternative to trusteeId. The SID wins when both are supplied.
+     * @param args.aclOnly (optional) Optional. Selects which rights are returned. Default (false): the trustee's effective rights — the net result after allow/deny resolution, group membership, and the repository's privilege overlay (for example, the metadata-management privilege that grants full control over every field regardless of its ACL). When true: only the rights granted by this field definition's own access control list, without that privilege overlay. Group membership is always resolved. Field definitions are not hierarchical, so there is no parent inheritance involved either way.
+     * @returns Successfully returned the rights for the field definition.
+     */
+    getFieldRights(args: { repositoryId: string, fieldId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, aclOnly?: boolean | undefined }): Promise<FieldRights> {
+        let { repositoryId, fieldId, trusteeId, trusteeName, aclOnly } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/{fieldId}/Rights?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (fieldId === undefined || fieldId === null)
+            throw new Error("The parameter 'fieldId' must be defined.");
+        url_ = url_.replace("{fieldId}", encodeURIComponent("" + fieldId));
+        if (trusteeId !== undefined && trusteeId !== null)
+            url_ += "trusteeId=" + encodeURIComponent("" + trusteeId) + "&";
+        if (trusteeName !== undefined && trusteeName !== null)
+            url_ += "trusteeName=" + encodeURIComponent("" + trusteeName) + "&";
+        if (aclOnly === null)
+            throw new Error("The parameter 'aclOnly' cannot be null.");
+        else if (aclOnly !== undefined)
+            url_ += "aclOnly=" + encodeURIComponent("" + aclOnly) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetFieldRights(_response);
+        });
+    }
+
+    protected processGetFieldRights(response: Response): Promise<FieldRights> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldRights.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Field definition with specified id was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldRights>(null as any);
+    }
+
+    /**
+     * - Returns the repository's default field ACL — the access control entries a new field definition inherits at creation time.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the default field access control list.
+     */
+    getDefaultFieldAccessControl(args: { repositoryId: string }): Promise<FieldAccessControlList> {
+        let { repositoryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/DefaultAccessControl";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDefaultFieldAccessControl(_response);
+        });
+    }
+
+    protected processGetDefaultFieldAccessControl(response: Response): Promise<FieldAccessControlList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldAccessControlList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldAccessControlList>(null as any);
+    }
+
+    /**
+     * - Full replace: the supplied entries replace the entire default field ACL. Inherited entries are not accepted. Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The access control entries to set as the default field ACL.
+     * @returns Successfully replaced the default field access control list. Returned the updated default access control list.
+     */
+    setDefaultFieldAccessControl(args: { repositoryId: string, request: SetFieldAccessControlRequest }): Promise<FieldAccessControlList> {
+        let { repositoryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/FieldDefinitions/DefaultAccessControl";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetDefaultFieldAccessControl(_response);
+        });
+    }
+
+    protected processSetDefaultFieldAccessControl(response: Response): Promise<FieldAccessControlList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FieldAccessControlList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FieldAccessControlList>(null as any);
     }
 }
 
@@ -8310,6 +8811,15 @@ export interface IRepositoriesClient {
      * @returns Successfully returned list of available repositories.
      */
     listRepositories(args: {  }): Promise<RepositoryCollectionResponse>;
+
+    /**
+     * - Returns the privileges and feature rights held by the current session, plus whether the session is read-only. Each is reported as named booleans (a map of right name to whether it is granted), for UI enablement and pre-flight checks.
+    - Reflects the current session only. Per-trustee privilege administration is not part of this surface.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the current session's rights.
+     */
+    getSessionRights(args: { repositoryId: string }): Promise<SessionRights>;
 }
 
 export class RepositoriesClient implements IRepositoriesClient {
@@ -8411,6 +8921,86 @@ export class RepositoriesClient implements IRepositoriesClient {
             });
         }
         return Promise.resolve<RepositoryCollectionResponse>(null as any);
+    }
+
+    /**
+     * - Returns the privileges and feature rights held by the current session, plus whether the session is read-only. Each is reported as named booleans (a map of right name to whether it is granted), for UI enablement and pre-flight checks.
+    - Reflects the current session only. Per-trustee privilege administration is not part of this surface.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the current session's rights.
+     */
+    getSessionRights(args: { repositoryId: string }): Promise<SessionRights> {
+        let { repositoryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/SessionRights";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetSessionRights(_response);
+        });
+    }
+
+    protected processGetSessionRights(response: Response): Promise<SessionRights> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SessionRights.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SessionRights>(null as any);
     }
 }
 
@@ -10043,6 +10633,56 @@ export interface ITemplateDefinitionsClient {
      * @returns Successfully moved the field to the new position in the template.
      */
     moveTemplateField(args: { repositoryId: string, templateId: number, request: MoveTemplateFieldRequest }): Promise<void>;
+
+    /**
+     * - Returns the template's access control entries (ACEs): the trustee, whether rights are allowed or denied, and the rights themselves. Template ACEs have no scope and are never inherited.
+    - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the template's ReadPermissions right.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The requested template definition ID.
+     * @returns Successfully returned the template definition's access control list.
+     */
+    getTemplateAccessControl(args: { repositoryId: string, templateId: number }): Promise<TemplateAccessControlList>;
+
+    /**
+     * - Full replace: the supplied entries replace the template's entire explicit ACL. Inherited entries are not accepted (template ACEs are never inherited). Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given; an account name is resolved to a SID server-side).
+    - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the template's ChangePermissions right.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The template definition ID whose ACL to replace.
+     * @param args.request The access control entries to set.
+     * @returns Successfully replaced the template definition's access control list. Returned the updated access control list.
+     */
+    setTemplateAccessControl(args: { repositoryId: string, templateId: number, request: SetTemplateAccessControlRequest }): Promise<TemplateAccessControlList>;
+
+    /**
+     * - Returns the rights a trustee has on the template definition, plus whether the session is read-only. By default these are the effective rights (after group membership, allow/deny resolution, and the privilege overlay); set aclOnly=true for the rights granted by the template's own ACL without that overlay. Omit both trusteeId and trusteeName for the current session.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The requested template definition ID.
+     * @param args.trusteeId (optional) An optional trustee SID. When supplied, returns that trustee's rights; otherwise the current session's.
+     * @param args.trusteeName (optional) An optional trustee account name, as an alternative to trusteeId. The SID wins when both are supplied.
+     * @param args.aclOnly (optional) Optional. Selects which rights are returned. Default (false): the trustee's effective rights — the net result after allow/deny resolution, group membership, and the repository's privilege overlay (for example, the metadata-management privilege that grants full control over every template regardless of its ACL). When true: only the rights granted by this template definition's own access control list, without that privilege overlay. Group membership is always resolved. Template definitions are not hierarchical, so there is no parent inheritance involved either way.
+     * @returns Successfully returned the rights for the template definition.
+     */
+    getTemplateRights(args: { repositoryId: string, templateId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, aclOnly?: boolean | undefined }): Promise<TemplateRights>;
+
+    /**
+     * - Returns the repository's default template ACL — the access control entries a new template definition inherits at creation time.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the default template access control list.
+     */
+    getDefaultTemplateAccessControl(args: { repositoryId: string }): Promise<TemplateAccessControlList>;
+
+    /**
+     * - Full replace: the supplied entries replace the entire default template ACL. Inherited entries are not accepted. Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The access control entries to set as the default template ACL.
+     * @returns Successfully replaced the default template access control list. Returned the updated default access control list.
+     */
+    setDefaultTemplateAccessControl(args: { repositoryId: string, request: SetTemplateAccessControlRequest }): Promise<TemplateAccessControlList>;
 }
 
 export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
@@ -11685,6 +12325,457 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
         }
         return Promise.resolve<void>(null as any);
     }
+
+    /**
+     * - Returns the template's access control entries (ACEs): the trustee, whether rights are allowed or denied, and the rights themselves. Template ACEs have no scope and are never inherited.
+    - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the template's ReadPermissions right.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The requested template definition ID.
+     * @returns Successfully returned the template definition's access control list.
+     */
+    getTemplateAccessControl(args: { repositoryId: string, templateId: number }): Promise<TemplateAccessControlList> {
+        let { repositoryId, templateId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}/AccessControl";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTemplateAccessControl(_response);
+        });
+    }
+
+    protected processGetTemplateAccessControl(response: Response): Promise<TemplateAccessControlList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplateAccessControlList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TemplateAccessControlList>(null as any);
+    }
+
+    /**
+     * - Full replace: the supplied entries replace the template's entire explicit ACL. Inherited entries are not accepted (template ACEs are never inherited). Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given; an account name is resolved to a SID server-side).
+    - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the template's ChangePermissions right.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The template definition ID whose ACL to replace.
+     * @param args.request The access control entries to set.
+     * @returns Successfully replaced the template definition's access control list. Returned the updated access control list.
+     */
+    setTemplateAccessControl(args: { repositoryId: string, templateId: number, request: SetTemplateAccessControlRequest }): Promise<TemplateAccessControlList> {
+        let { repositoryId, templateId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}/AccessControl";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetTemplateAccessControl(_response);
+        });
+    }
+
+    protected processSetTemplateAccessControl(response: Response): Promise<TemplateAccessControlList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplateAccessControlList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TemplateAccessControlList>(null as any);
+    }
+
+    /**
+     * - Returns the rights a trustee has on the template definition, plus whether the session is read-only. By default these are the effective rights (after group membership, allow/deny resolution, and the privilege overlay); set aclOnly=true for the rights granted by the template's own ACL without that overlay. Omit both trusteeId and trusteeName for the current session.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.templateId The requested template definition ID.
+     * @param args.trusteeId (optional) An optional trustee SID. When supplied, returns that trustee's rights; otherwise the current session's.
+     * @param args.trusteeName (optional) An optional trustee account name, as an alternative to trusteeId. The SID wins when both are supplied.
+     * @param args.aclOnly (optional) Optional. Selects which rights are returned. Default (false): the trustee's effective rights — the net result after allow/deny resolution, group membership, and the repository's privilege overlay (for example, the metadata-management privilege that grants full control over every template regardless of its ACL). When true: only the rights granted by this template definition's own access control list, without that privilege overlay. Group membership is always resolved. Template definitions are not hierarchical, so there is no parent inheritance involved either way.
+     * @returns Successfully returned the rights for the template definition.
+     */
+    getTemplateRights(args: { repositoryId: string, templateId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, aclOnly?: boolean | undefined }): Promise<TemplateRights> {
+        let { repositoryId, templateId, trusteeId, trusteeName, aclOnly } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/{templateId}/Rights?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (templateId === undefined || templateId === null)
+            throw new Error("The parameter 'templateId' must be defined.");
+        url_ = url_.replace("{templateId}", encodeURIComponent("" + templateId));
+        if (trusteeId !== undefined && trusteeId !== null)
+            url_ += "trusteeId=" + encodeURIComponent("" + trusteeId) + "&";
+        if (trusteeName !== undefined && trusteeName !== null)
+            url_ += "trusteeName=" + encodeURIComponent("" + trusteeName) + "&";
+        if (aclOnly === null)
+            throw new Error("The parameter 'aclOnly' cannot be null.");
+        else if (aclOnly !== undefined)
+            url_ += "aclOnly=" + encodeURIComponent("" + aclOnly) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTemplateRights(_response);
+        });
+    }
+
+    protected processGetTemplateRights(response: Response): Promise<TemplateRights> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplateRights.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Template with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TemplateRights>(null as any);
+    }
+
+    /**
+     * - Returns the repository's default template ACL — the access control entries a new template definition inherits at creation time.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the default template access control list.
+     */
+    getDefaultTemplateAccessControl(args: { repositoryId: string }): Promise<TemplateAccessControlList> {
+        let { repositoryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/DefaultAccessControl";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDefaultTemplateAccessControl(_response);
+        });
+    }
+
+    protected processGetDefaultTemplateAccessControl(response: Response): Promise<TemplateAccessControlList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplateAccessControlList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TemplateAccessControlList>(null as any);
+    }
+
+    /**
+     * - Full replace: the supplied entries replace the entire default template ACL. Inherited entries are not accepted. Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The access control entries to set as the default template ACL.
+     * @returns Successfully replaced the default template access control list. Returned the updated default access control list.
+     */
+    setDefaultTemplateAccessControl(args: { repositoryId: string, request: SetTemplateAccessControlRequest }): Promise<TemplateAccessControlList> {
+        let { repositoryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/TemplateDefinitions/DefaultAccessControl";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetDefaultTemplateAccessControl(_response);
+        });
+    }
+
+    protected processSetDefaultTemplateAccessControl(response: Response): Promise<TemplateAccessControlList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TemplateAccessControlList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TemplateAccessControlList>(null as any);
+    }
 }
 
 export interface ITrusteesClient {
@@ -11700,6 +12791,16 @@ export interface ITrusteesClient {
      * @returns Successfully returned the matching trustees.
      */
     lookupTrustees(args: { repositoryId: string, search?: string | null | undefined, type?: string | null | undefined, count?: number | undefined }): Promise<TrusteeIdentity[]>;
+
+    /**
+     * - Returns the trustee's effective privileges and feature rights (as named booleans), the security tags assigned to it, the audit classes configured for it (split into success and failure masks), and whether the trustee is read-only.
+    - This is a best-effort computation that can, in rare cases, differ from the trustee's real rights. The authoritative way to determine a trustee's security is to sign in as that trustee and read the resulting session's rights.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.trusteeId The SID of the trustee whose effective security is computed. Use the trustee lookup to resolve a name to a SID.
+     * @returns Successfully returned the trustee's effective account security.
+     */
+    getTrusteeEffectiveSecurity(args: { repositoryId: string, trusteeId: string }): Promise<TrusteeEffectiveSecurity>;
 }
 
 export class TrusteesClient implements ITrusteesClient {
@@ -11808,6 +12909,97 @@ export class TrusteesClient implements ITrusteesClient {
             });
         }
         return Promise.resolve<TrusteeIdentity[]>(null as any);
+    }
+
+    /**
+     * - Returns the trustee's effective privileges and feature rights (as named booleans), the security tags assigned to it, the audit classes configured for it (split into success and failure masks), and whether the trustee is read-only.
+    - This is a best-effort computation that can, in rare cases, differ from the trustee's real rights. The authoritative way to determine a trustee's security is to sign in as that trustee and read the resulting session's rights.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.trusteeId The SID of the trustee whose effective security is computed. Use the trustee lookup to resolve a name to a SID.
+     * @returns Successfully returned the trustee's effective account security.
+     */
+    getTrusteeEffectiveSecurity(args: { repositoryId: string, trusteeId: string }): Promise<TrusteeEffectiveSecurity> {
+        let { repositoryId, trusteeId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Trustees/{trusteeId}/EffectiveSecurity";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (trusteeId === undefined || trusteeId === null)
+            throw new Error("The parameter 'trusteeId' must be defined.");
+        url_ = url_.replace("{trusteeId}", encodeURIComponent("" + trusteeId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTrusteeEffectiveSecurity(_response);
+        });
+    }
+
+    protected processGetTrusteeEffectiveSecurity(response: Response): Promise<TrusteeEffectiveSecurity> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TrusteeEffectiveSecurity.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<TrusteeEffectiveSecurity>(null as any);
     }
 }
 
@@ -13321,6 +14513,348 @@ or any assigned entries, AND the conversion is not one of the explicit safe wide
 LongInteger → Number). A lossy conversion without this flag returns 400
 (data_loss_expected). Lossless conversions ignore this flag. */
     allowDataLoss?: boolean;
+}
+
+/** The access control list (ACL) of a template field definition: its access control entries. Field ACLs have no parent inheritance, so there is no inherit-parents flag. */
+export class FieldAccessControlList implements IFieldAccessControlList {
+    /** The access control entries that make up the ACL. */
+    entries?: FieldAccessControlEntry[] | undefined;
+
+    
+    
+    constructor(data?: IFieldAccessControlList) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entries"])) {
+                this.entries = [] as any;
+                for (let item of _data["entries"])
+                    this.entries!.push(FieldAccessControlEntry.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): FieldAccessControlList {
+        data = typeof data === 'object' ? data : {};
+        let result = new FieldAccessControlList();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entries)) {
+            data["entries"] = [];
+            for (let item of this.entries)
+                data["entries"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** The access control list (ACL) of a template field definition: its access control entries. Field ACLs have no parent inheritance, so there is no inherit-parents flag. */
+export interface IFieldAccessControlList {
+    /** The access control entries that make up the ACL. */
+    entries?: FieldAccessControlEntry[] | undefined;
+}
+
+/** A single access control entry (ACE) on a template field definition: one trustee, whether its rights are allowed or denied, and the rights themselves. A trustee that has both allowed and denied rights is represented as two ACEs. Unlike entry ACEs, field ACEs have no scope and are never inherited. */
+export class FieldAccessControlEntry implements IFieldAccessControlEntry {
+    /** The trustee this ACE applies to. On input, identify the trustee by either
+trustee.sid or trustee.accountName (the SID takes precedence when both are given). */
+    trustee?: TrusteeIdentity | undefined;
+    /** Whether the ACE grants (Allow) or denies (Deny) the listed rights. Required on
+input — a missing value is rejected (it must not silently default to Allow). */
+    accessControlType?: AccessControlType | undefined;
+    /** The rights granted or denied by this ACE. */
+    rights?: FieldRight[] | undefined;
+    /** True when this ACE is inherited. Always false for field ACEs (field definitions have no
+ACL inheritance); returned for contract symmetry and ignored on input. */
+    isInherited?: boolean;
+    /** When inherited, a description of where the ACE was inherited from. Output only; null for
+field ACEs. */
+    inheritedFrom?: string | undefined;
+
+    
+    
+    constructor(data?: IFieldAccessControlEntry) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.trustee = _data["trustee"] ? TrusteeIdentity.fromJS(_data["trustee"]) : <any>undefined;
+            this.accessControlType = _data["accessControlType"];
+            if (Array.isArray(_data["rights"])) {
+                this.rights = [] as any;
+                for (let item of _data["rights"])
+                    this.rights!.push(item);
+            }
+            this.isInherited = _data["isInherited"];
+            this.inheritedFrom = _data["inheritedFrom"];
+        }
+    }
+
+    static fromJS(data: any): FieldAccessControlEntry {
+        data = typeof data === 'object' ? data : {};
+        let result = new FieldAccessControlEntry();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["trustee"] = this.trustee ? this.trustee.toJSON() : <any>undefined;
+        data["accessControlType"] = this.accessControlType;
+        if (Array.isArray(this.rights)) {
+            data["rights"] = [];
+            for (let item of this.rights)
+                data["rights"].push(item);
+        }
+        data["isInherited"] = this.isInherited;
+        data["inheritedFrom"] = this.inheritedFrom;
+        return data;
+    }
+}
+
+/** A single access control entry (ACE) on a template field definition: one trustee, whether its rights are allowed or denied, and the rights themselves. A trustee that has both allowed and denied rights is represented as two ACEs. Unlike entry ACEs, field ACEs have no scope and are never inherited. */
+export interface IFieldAccessControlEntry {
+    /** The trustee this ACE applies to. On input, identify the trustee by either
+trustee.sid or trustee.accountName (the SID takes precedence when both are given). */
+    trustee?: TrusteeIdentity | undefined;
+    /** Whether the ACE grants (Allow) or denies (Deny) the listed rights. Required on
+input — a missing value is rejected (it must not silently default to Allow). */
+    accessControlType?: AccessControlType | undefined;
+    /** The rights granted or denied by this ACE. */
+    rights?: FieldRight[] | undefined;
+    /** True when this ACE is inherited. Always false for field ACEs (field definitions have no
+ACL inheritance); returned for contract symmetry and ignored on input. */
+    isInherited?: boolean;
+    /** When inherited, a description of where the ACE was inherited from. Output only; null for
+field ACEs. */
+    inheritedFrom?: string | undefined;
+}
+
+/** Identifies a security trustee (a user or a group) referenced by an access control entry, an effective-rights query, or a trustee-lookup result. */
+export class TrusteeIdentity implements ITrusteeIdentity {
+    /** The trustee's security identifier (an SDDL string such as S-1-5-21-...). This is
+the canonical, stable id for a trustee. On input it is preferred and takes precedence over
+AccountName; always populated on output. */
+    sid?: string | undefined;
+    /** The trustee's account name. On input it may be supplied instead of Sid to
+address the trustee by name (resolved to a SID server-side); the SID wins when both are
+given. Always populated on output. */
+    accountName?: string | undefined;
+    /** The trustee type: one of LaserficheUser, LaserficheGroup,
+WindowsAccount, LdapAccount, LfdsAccount. */
+    trusteeType?: string | undefined;
+    /** True when the trustee is an individual user; false when it is a group. */
+    isUser?: boolean;
+    /** A human-readable display name. Populated by trustee-lookup results; omitted in
+access-control-entry contexts. */
+    displayName?: string | undefined;
+    /** True when the trustee account is disabled. Populated by trustee-lookup results. */
+    isDisabled?: boolean;
+
+    
+    
+    constructor(data?: ITrusteeIdentity) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sid = _data["sid"];
+            this.accountName = _data["accountName"];
+            this.trusteeType = _data["trusteeType"];
+            this.isUser = _data["isUser"];
+            this.displayName = _data["displayName"];
+            this.isDisabled = _data["isDisabled"];
+        }
+    }
+
+    static fromJS(data: any): TrusteeIdentity {
+        data = typeof data === 'object' ? data : {};
+        let result = new TrusteeIdentity();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sid"] = this.sid;
+        data["accountName"] = this.accountName;
+        data["trusteeType"] = this.trusteeType;
+        data["isUser"] = this.isUser;
+        data["displayName"] = this.displayName;
+        data["isDisabled"] = this.isDisabled;
+        return data;
+    }
+}
+
+/** Identifies a security trustee (a user or a group) referenced by an access control entry, an effective-rights query, or a trustee-lookup result. */
+export interface ITrusteeIdentity {
+    /** The trustee's security identifier (an SDDL string such as S-1-5-21-...). This is
+the canonical, stable id for a trustee. On input it is preferred and takes precedence over
+AccountName; always populated on output. */
+    sid?: string | undefined;
+    /** The trustee's account name. On input it may be supplied instead of Sid to
+address the trustee by name (resolved to a SID server-side); the SID wins when both are
+given. Always populated on output. */
+    accountName?: string | undefined;
+    /** The trustee type: one of LaserficheUser, LaserficheGroup,
+WindowsAccount, LdapAccount, LfdsAccount. */
+    trusteeType?: string | undefined;
+    /** True when the trustee is an individual user; false when it is a group. */
+    isUser?: boolean;
+    /** A human-readable display name. Populated by trustee-lookup results; omitted in
+access-control-entry contexts. */
+    displayName?: string | undefined;
+    /** True when the trustee account is disabled. Populated by trustee-lookup results. */
+    isDisabled?: boolean;
+}
+
+/** Whether an access control entry (ACE) grants or denies its rights. Serialized by name. */
+export enum AccessControlType {
+    Allow = "Allow",
+    Deny = "Deny",
+}
+
+/** An individual access right that can be granted to or denied a trustee on a template field definition. Serialized by name; emitted as a string enum in the OpenAPI schema so clients can reference it directly. */
+export enum FieldRight {
+    ReadValue = "ReadValue",
+    SetValue = "SetValue",
+    SetValueOnce = "SetValueOnce",
+    ModifyDefinition = "ModifyDefinition",
+    Delete = "Delete",
+    ReadPermissions = "ReadPermissions",
+    ChangePermissions = "ChangePermissions",
+    TakeOwnership = "TakeOwnership",
+}
+
+/** Request body for replacing a template field definition's access control list. The supplied entries fully replace the field's existing explicit ACL. Inherited entries are not accepted. */
+export class SetFieldAccessControlRequest implements ISetFieldAccessControlRequest {
+    /** The access control entries to set. Replaces the field's entire explicit ACL. */
+    entries?: FieldAccessControlEntry[] | undefined;
+
+    
+    
+    constructor(data?: ISetFieldAccessControlRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entries"])) {
+                this.entries = [] as any;
+                for (let item of _data["entries"])
+                    this.entries!.push(FieldAccessControlEntry.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SetFieldAccessControlRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetFieldAccessControlRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entries)) {
+            data["entries"] = [];
+            for (let item of this.entries)
+                data["entries"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** Request body for replacing a template field definition's access control list. The supplied entries fully replace the field's existing explicit ACL. Inherited entries are not accepted. */
+export interface ISetFieldAccessControlRequest {
+    /** The access control entries to set. Replaces the field's entire explicit ACL. */
+    entries?: FieldAccessControlEntry[] | undefined;
+}
+
+/** A trustee's rights to a template field definition. Depending on the aclOnly option on the request, these are either the effective rights (the net result after group membership, allow/deny resolution, and the repository's privilege overlay) or the rights granted by the field's access control list alone. */
+export class FieldRights implements IFieldRights {
+    /** The rights granted to the trustee on the field. */
+    rights?: FieldRight[] | undefined;
+    /** True when the session is read-only, so no write operations are possible regardless of
+the granted rights. */
+    isReadOnly?: boolean;
+
+    
+    
+    constructor(data?: IFieldRights) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["rights"])) {
+                this.rights = [] as any;
+                for (let item of _data["rights"])
+                    this.rights!.push(item);
+            }
+            this.isReadOnly = _data["isReadOnly"];
+        }
+    }
+
+    static fromJS(data: any): FieldRights {
+        data = typeof data === 'object' ? data : {};
+        let result = new FieldRights();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.rights)) {
+            data["rights"] = [];
+            for (let item of this.rights)
+                data["rights"].push(item);
+        }
+        data["isReadOnly"] = this.isReadOnly;
+        return data;
+    }
+}
+
+/** A trustee's rights to a template field definition. Depending on the aclOnly option on the request, these are either the effective rights (the net result after group membership, allow/deny resolution, and the repository's privilege overlay) or the rights granted by the field's access control list alone. */
+export interface IFieldRights {
+    /** The rights granted to the trustee on the field. */
+    rights?: FieldRight[] | undefined;
+    /** True when the session is read-only, so no write operations are possible regardless of
+the granted rights. */
+    isReadOnly?: boolean;
 }
 
 /** Response containing a collection of LinkDefinition. */
@@ -17267,96 +18801,6 @@ returned by GET but are ignored on input (the set operation manages explicit ACE
     inheritedFrom?: string | undefined;
 }
 
-/** Identifies a security trustee (a user or a group) referenced by an access control entry, an effective-rights query, or a trustee-lookup result. */
-export class TrusteeIdentity implements ITrusteeIdentity {
-    /** The trustee's security identifier (an SDDL string such as S-1-5-21-...). This is
-the canonical, stable id for a trustee. On input it is preferred and takes precedence over
-AccountName; always populated on output. */
-    sid?: string | undefined;
-    /** The trustee's account name. On input it may be supplied instead of Sid to
-address the trustee by name (resolved to a SID server-side); the SID wins when both are
-given. Always populated on output. */
-    accountName?: string | undefined;
-    /** The trustee type: one of LaserficheUser, LaserficheGroup,
-WindowsAccount, LdapAccount, LfdsAccount. */
-    trusteeType?: string | undefined;
-    /** True when the trustee is an individual user; false when it is a group. */
-    isUser?: boolean;
-    /** A human-readable display name. Populated by trustee-lookup results; omitted in
-access-control-entry contexts. */
-    displayName?: string | undefined;
-    /** True when the trustee account is disabled. Populated by trustee-lookup results. */
-    isDisabled?: boolean;
-
-    
-    
-    constructor(data?: ITrusteeIdentity) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.sid = _data["sid"];
-            this.accountName = _data["accountName"];
-            this.trusteeType = _data["trusteeType"];
-            this.isUser = _data["isUser"];
-            this.displayName = _data["displayName"];
-            this.isDisabled = _data["isDisabled"];
-        }
-    }
-
-    static fromJS(data: any): TrusteeIdentity {
-        data = typeof data === 'object' ? data : {};
-        let result = new TrusteeIdentity();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["sid"] = this.sid;
-        data["accountName"] = this.accountName;
-        data["trusteeType"] = this.trusteeType;
-        data["isUser"] = this.isUser;
-        data["displayName"] = this.displayName;
-        data["isDisabled"] = this.isDisabled;
-        return data;
-    }
-}
-
-/** Identifies a security trustee (a user or a group) referenced by an access control entry, an effective-rights query, or a trustee-lookup result. */
-export interface ITrusteeIdentity {
-    /** The trustee's security identifier (an SDDL string such as S-1-5-21-...). This is
-the canonical, stable id for a trustee. On input it is preferred and takes precedence over
-AccountName; always populated on output. */
-    sid?: string | undefined;
-    /** The trustee's account name. On input it may be supplied instead of Sid to
-address the trustee by name (resolved to a SID server-side); the SID wins when both are
-given. Always populated on output. */
-    accountName?: string | undefined;
-    /** The trustee type: one of LaserficheUser, LaserficheGroup,
-WindowsAccount, LdapAccount, LfdsAccount. */
-    trusteeType?: string | undefined;
-    /** True when the trustee is an individual user; false when it is a group. */
-    isUser?: boolean;
-    /** A human-readable display name. Populated by trustee-lookup results; omitted in
-access-control-entry contexts. */
-    displayName?: string | undefined;
-    /** True when the trustee account is disabled. Populated by trustee-lookup results. */
-    isDisabled?: boolean;
-}
-
-/** Whether an access control entry (ACE) grants or denies its rights. Serialized by name. */
-export enum AccessControlType {
-    Allow = "Allow",
-    Deny = "Deny",
-}
-
 /** An individual access right that can be granted to or denied a trustee on an entry. Serialized by name; emitted as a string enum in the OpenAPI schema so clients can reference it directly. */
 export enum EntryRight {
     Browse = "Browse",
@@ -17616,6 +19060,90 @@ export interface IRepository {
     name?: string | undefined;
     /** The corresponding repository Web Client url. */
     webClientUrl?: string | undefined;
+}
+
+/** The current session's rights in a repository: the privileges and feature rights held by the session, plus whether the session is read-only. Reported as named booleans (each map is keyed by the right's name with a granted true/false) rather than a raw bitmask, for UI enablement and pre-flight checks. Reflects the current session only — per-trustee privilege administration is not part of this surface. */
+export class SessionRights implements ISessionRights {
+    /** The session's privileges, keyed by privilege name (e.g. EntryAccess,
+RecordManager), with the value indicating whether the session holds that privilege. */
+    privileges?: { [key: string]: boolean; } | undefined;
+    /** The session's feature rights, keyed by feature-right name (e.g. Search,
+Import), with the value indicating whether the session holds that feature right. */
+    featureRights?: { [key: string]: boolean; } | undefined;
+    /** True when the current session is read-only, so no write operations are possible regardless
+of the granted privileges or feature rights. */
+    isReadOnly?: boolean;
+
+    
+    
+    constructor(data?: ISessionRights) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (_data["privileges"]) {
+                this.privileges = {} as any;
+                for (let key in _data["privileges"]) {
+                    if (_data["privileges"].hasOwnProperty(key))
+                        (<any>this.privileges)![key] = _data["privileges"][key];
+                }
+            }
+            if (_data["featureRights"]) {
+                this.featureRights = {} as any;
+                for (let key in _data["featureRights"]) {
+                    if (_data["featureRights"].hasOwnProperty(key))
+                        (<any>this.featureRights)![key] = _data["featureRights"][key];
+                }
+            }
+            this.isReadOnly = _data["isReadOnly"];
+        }
+    }
+
+    static fromJS(data: any): SessionRights {
+        data = typeof data === 'object' ? data : {};
+        let result = new SessionRights();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.privileges) {
+            data["privileges"] = {};
+            for (let key in this.privileges) {
+                if (this.privileges.hasOwnProperty(key))
+                    (<any>data["privileges"])[key] = (<any>this.privileges)[key];
+            }
+        }
+        if (this.featureRights) {
+            data["featureRights"] = {};
+            for (let key in this.featureRights) {
+                if (this.featureRights.hasOwnProperty(key))
+                    (<any>data["featureRights"])[key] = (<any>this.featureRights)[key];
+            }
+        }
+        data["isReadOnly"] = this.isReadOnly;
+        return data;
+    }
+}
+
+/** The current session's rights in a repository: the privileges and feature rights held by the session, plus whether the session is read-only. Reported as named booleans (each map is keyed by the right's name with a granted true/false) rather than a raw bitmask, for UI enablement and pre-flight checks. Reflects the current session only — per-trustee privilege administration is not part of this surface. */
+export interface ISessionRights {
+    /** The session's privileges, keyed by privilege name (e.g. EntryAccess,
+RecordManager), with the value indicating whether the session holds that privilege. */
+    privileges?: { [key: string]: boolean; } | undefined;
+    /** The session's feature rights, keyed by feature-right name (e.g. Search,
+Import), with the value indicating whether the session holds that feature right. */
+    featureRights?: { [key: string]: boolean; } | undefined;
+    /** True when the current session is read-only, so no write operations are possible regardless
+of the granted privileges or feature rights. */
+    isReadOnly?: boolean;
 }
 
 /** Request body for starting an asynchronous search entry task. */
@@ -19111,6 +20639,490 @@ export interface IMoveTemplateFieldRequest {
     /** The 1-based target position. Required. Values less than 1 or greater than the
 current field count are rejected with 400. */
     newPosition: number;
+}
+
+/** The access control list (ACL) of a template definition: its access control entries. Template ACLs have no parent inheritance, so there is no inherit-parents flag. */
+export class TemplateAccessControlList implements ITemplateAccessControlList {
+    /** The access control entries that make up the ACL. */
+    entries?: TemplateAccessControlEntry[] | undefined;
+
+    
+    
+    constructor(data?: ITemplateAccessControlList) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entries"])) {
+                this.entries = [] as any;
+                for (let item of _data["entries"])
+                    this.entries!.push(TemplateAccessControlEntry.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): TemplateAccessControlList {
+        data = typeof data === 'object' ? data : {};
+        let result = new TemplateAccessControlList();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entries)) {
+            data["entries"] = [];
+            for (let item of this.entries)
+                data["entries"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** The access control list (ACL) of a template definition: its access control entries. Template ACLs have no parent inheritance, so there is no inherit-parents flag. */
+export interface ITemplateAccessControlList {
+    /** The access control entries that make up the ACL. */
+    entries?: TemplateAccessControlEntry[] | undefined;
+}
+
+/** A single access control entry (ACE) on a template definition: one trustee, whether its rights are allowed or denied, and the rights themselves. A trustee that has both allowed and denied rights is represented as two ACEs. Unlike entry ACEs, template ACEs have no scope and are never inherited. */
+export class TemplateAccessControlEntry implements ITemplateAccessControlEntry {
+    /** The trustee this ACE applies to. On input, identify the trustee by either
+trustee.sid or trustee.accountName (the SID takes precedence when both are given). */
+    trustee?: TrusteeIdentity | undefined;
+    /** Whether the ACE grants (Allow) or denies (Deny) the listed rights. Required on
+input — a missing value is rejected (it must not silently default to Allow). */
+    accessControlType?: AccessControlType | undefined;
+    /** The rights granted or denied by this ACE. */
+    rights?: TemplateRight[] | undefined;
+    /** True when this ACE is inherited. Always false for template ACEs (template definitions have
+no ACL inheritance); returned for contract symmetry and ignored on input. */
+    isInherited?: boolean;
+    /** When inherited, a description of where the ACE was inherited from. Output only; null for
+template ACEs. */
+    inheritedFrom?: string | undefined;
+
+    
+    
+    constructor(data?: ITemplateAccessControlEntry) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.trustee = _data["trustee"] ? TrusteeIdentity.fromJS(_data["trustee"]) : <any>undefined;
+            this.accessControlType = _data["accessControlType"];
+            if (Array.isArray(_data["rights"])) {
+                this.rights = [] as any;
+                for (let item of _data["rights"])
+                    this.rights!.push(item);
+            }
+            this.isInherited = _data["isInherited"];
+            this.inheritedFrom = _data["inheritedFrom"];
+        }
+    }
+
+    static fromJS(data: any): TemplateAccessControlEntry {
+        data = typeof data === 'object' ? data : {};
+        let result = new TemplateAccessControlEntry();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["trustee"] = this.trustee ? this.trustee.toJSON() : <any>undefined;
+        data["accessControlType"] = this.accessControlType;
+        if (Array.isArray(this.rights)) {
+            data["rights"] = [];
+            for (let item of this.rights)
+                data["rights"].push(item);
+        }
+        data["isInherited"] = this.isInherited;
+        data["inheritedFrom"] = this.inheritedFrom;
+        return data;
+    }
+}
+
+/** A single access control entry (ACE) on a template definition: one trustee, whether its rights are allowed or denied, and the rights themselves. A trustee that has both allowed and denied rights is represented as two ACEs. Unlike entry ACEs, template ACEs have no scope and are never inherited. */
+export interface ITemplateAccessControlEntry {
+    /** The trustee this ACE applies to. On input, identify the trustee by either
+trustee.sid or trustee.accountName (the SID takes precedence when both are given). */
+    trustee?: TrusteeIdentity | undefined;
+    /** Whether the ACE grants (Allow) or denies (Deny) the listed rights. Required on
+input — a missing value is rejected (it must not silently default to Allow). */
+    accessControlType?: AccessControlType | undefined;
+    /** The rights granted or denied by this ACE. */
+    rights?: TemplateRight[] | undefined;
+    /** True when this ACE is inherited. Always false for template ACEs (template definitions have
+no ACL inheritance); returned for contract symmetry and ignored on input. */
+    isInherited?: boolean;
+    /** When inherited, a description of where the ACE was inherited from. Output only; null for
+template ACEs. */
+    inheritedFrom?: string | undefined;
+}
+
+/** An individual access right that can be granted to or denied a trustee on a template definition. Serialized by name; emitted as a string enum in the OpenAPI schema so clients can reference it directly. */
+export enum TemplateRight {
+    ReadDefinition = "ReadDefinition",
+    Modify = "Modify",
+    Delete = "Delete",
+    ReadPermissions = "ReadPermissions",
+    ChangePermissions = "ChangePermissions",
+    TakeOwnership = "TakeOwnership",
+}
+
+/** Request body for replacing a template definition's access control list. The supplied entries fully replace the template's existing explicit ACL. Inherited entries are not accepted. */
+export class SetTemplateAccessControlRequest implements ISetTemplateAccessControlRequest {
+    /** The access control entries to set. Replaces the template's entire explicit ACL. */
+    entries?: TemplateAccessControlEntry[] | undefined;
+
+    
+    
+    constructor(data?: ISetTemplateAccessControlRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entries"])) {
+                this.entries = [] as any;
+                for (let item of _data["entries"])
+                    this.entries!.push(TemplateAccessControlEntry.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SetTemplateAccessControlRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetTemplateAccessControlRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entries)) {
+            data["entries"] = [];
+            for (let item of this.entries)
+                data["entries"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** Request body for replacing a template definition's access control list. The supplied entries fully replace the template's existing explicit ACL. Inherited entries are not accepted. */
+export interface ISetTemplateAccessControlRequest {
+    /** The access control entries to set. Replaces the template's entire explicit ACL. */
+    entries?: TemplateAccessControlEntry[] | undefined;
+}
+
+/** A trustee's rights to a template definition. Depending on the aclOnly option on the request, these are either the effective rights (the net result after group membership, allow/deny resolution, and the repository's privilege overlay) or the rights granted by the template's access control list alone. */
+export class TemplateRights implements ITemplateRights {
+    /** The rights granted to the trustee on the template. */
+    rights?: TemplateRight[] | undefined;
+    /** True when the session is read-only, so no write operations are possible regardless of
+the granted rights. */
+    isReadOnly?: boolean;
+
+    
+    
+    constructor(data?: ITemplateRights) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["rights"])) {
+                this.rights = [] as any;
+                for (let item of _data["rights"])
+                    this.rights!.push(item);
+            }
+            this.isReadOnly = _data["isReadOnly"];
+        }
+    }
+
+    static fromJS(data: any): TemplateRights {
+        data = typeof data === 'object' ? data : {};
+        let result = new TemplateRights();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.rights)) {
+            data["rights"] = [];
+            for (let item of this.rights)
+                data["rights"].push(item);
+        }
+        data["isReadOnly"] = this.isReadOnly;
+        return data;
+    }
+}
+
+/** A trustee's rights to a template definition. Depending on the aclOnly option on the request, these are either the effective rights (the net result after group membership, allow/deny resolution, and the repository's privilege overlay) or the rights granted by the template's access control list alone. */
+export interface ITemplateRights {
+    /** The rights granted to the trustee on the template. */
+    rights?: TemplateRight[] | undefined;
+    /** True when the session is read-only, so no write operations are possible regardless of
+the granted rights. */
+    isReadOnly?: boolean;
+}
+
+/** The effective account security that applies when a trustee logs in to a repository: the privileges and feature rights the trustee holds, the security tags assigned to it, the audit classes configured for it, and whether the trustee is read-only. Privileges, feature rights, and audit masks are reported as named booleans (each map keyed by the right's name with a granted true/false) rather than raw bitmasks. This is a documented best-effort computation: in rare cases it can differ from the trustee's real rights. The authoritative way to determine a trustee's security is to sign in as that trustee and read the resulting session's rights. Values reflect effective (not direct) security. */
+export class TrusteeEffectiveSecurity implements ITrusteeEffectiveSecurity {
+    /** The trustee's privileges, keyed by privilege name (e.g. EntryAccess,
+RecordManager), with the value indicating whether the trustee holds that privilege. */
+    privileges?: { [key: string]: boolean; } | undefined;
+    /** The trustee's feature rights, keyed by feature-right name (e.g. Search,
+Import), with the value indicating whether the trustee holds that feature right. */
+    featureRights?: { [key: string]: boolean; } | undefined;
+    /** True when the trustee is read-only, so no write operations are possible regardless of the
+granted privileges or feature rights. */
+    isReadOnly?: boolean;
+    /** The security tags assigned to the trustee. */
+    tags?: TrusteeTag[] | undefined;
+    /** The audit classes configured for the trustee, split into successful- and failed-operation
+masks. Each map is keyed by audit-class name with the value indicating whether that class is
+audited. */
+    auditMasks?: TrusteeAuditMasks | undefined;
+
+    
+    
+    constructor(data?: ITrusteeEffectiveSecurity) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (_data["privileges"]) {
+                this.privileges = {} as any;
+                for (let key in _data["privileges"]) {
+                    if (_data["privileges"].hasOwnProperty(key))
+                        (<any>this.privileges)![key] = _data["privileges"][key];
+                }
+            }
+            if (_data["featureRights"]) {
+                this.featureRights = {} as any;
+                for (let key in _data["featureRights"]) {
+                    if (_data["featureRights"].hasOwnProperty(key))
+                        (<any>this.featureRights)![key] = _data["featureRights"][key];
+                }
+            }
+            this.isReadOnly = _data["isReadOnly"];
+            if (Array.isArray(_data["tags"])) {
+                this.tags = [] as any;
+                for (let item of _data["tags"])
+                    this.tags!.push(TrusteeTag.fromJS(item));
+            }
+            this.auditMasks = _data["auditMasks"] ? TrusteeAuditMasks.fromJS(_data["auditMasks"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): TrusteeEffectiveSecurity {
+        data = typeof data === 'object' ? data : {};
+        let result = new TrusteeEffectiveSecurity();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.privileges) {
+            data["privileges"] = {};
+            for (let key in this.privileges) {
+                if (this.privileges.hasOwnProperty(key))
+                    (<any>data["privileges"])[key] = (<any>this.privileges)[key];
+            }
+        }
+        if (this.featureRights) {
+            data["featureRights"] = {};
+            for (let key in this.featureRights) {
+                if (this.featureRights.hasOwnProperty(key))
+                    (<any>data["featureRights"])[key] = (<any>this.featureRights)[key];
+            }
+        }
+        data["isReadOnly"] = this.isReadOnly;
+        if (Array.isArray(this.tags)) {
+            data["tags"] = [];
+            for (let item of this.tags)
+                data["tags"].push(item.toJSON());
+        }
+        data["auditMasks"] = this.auditMasks ? this.auditMasks.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+/** The effective account security that applies when a trustee logs in to a repository: the privileges and feature rights the trustee holds, the security tags assigned to it, the audit classes configured for it, and whether the trustee is read-only. Privileges, feature rights, and audit masks are reported as named booleans (each map keyed by the right's name with a granted true/false) rather than raw bitmasks. This is a documented best-effort computation: in rare cases it can differ from the trustee's real rights. The authoritative way to determine a trustee's security is to sign in as that trustee and read the resulting session's rights. Values reflect effective (not direct) security. */
+export interface ITrusteeEffectiveSecurity {
+    /** The trustee's privileges, keyed by privilege name (e.g. EntryAccess,
+RecordManager), with the value indicating whether the trustee holds that privilege. */
+    privileges?: { [key: string]: boolean; } | undefined;
+    /** The trustee's feature rights, keyed by feature-right name (e.g. Search,
+Import), with the value indicating whether the trustee holds that feature right. */
+    featureRights?: { [key: string]: boolean; } | undefined;
+    /** True when the trustee is read-only, so no write operations are possible regardless of the
+granted privileges or feature rights. */
+    isReadOnly?: boolean;
+    /** The security tags assigned to the trustee. */
+    tags?: TrusteeTag[] | undefined;
+    /** The audit classes configured for the trustee, split into successful- and failed-operation
+masks. Each map is keyed by audit-class name with the value indicating whether that class is
+audited. */
+    auditMasks?: TrusteeAuditMasks | undefined;
+}
+
+/** A security tag assigned to a trustee. */
+export class TrusteeTag implements ITrusteeTag {
+    /** The tag's ID. */
+    id?: number;
+    /** The tag's name. */
+    name?: string | undefined;
+    /** True when the tag is a security tag. */
+    isSecure?: boolean;
+
+    
+    
+    constructor(data?: ITrusteeTag) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.isSecure = _data["isSecure"];
+        }
+    }
+
+    static fromJS(data: any): TrusteeTag {
+        data = typeof data === 'object' ? data : {};
+        let result = new TrusteeTag();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["isSecure"] = this.isSecure;
+        return data;
+    }
+}
+
+/** A security tag assigned to a trustee. */
+export interface ITrusteeTag {
+    /** The tag's ID. */
+    id?: number;
+    /** The tag's name. */
+    name?: string | undefined;
+    /** True when the tag is a security tag. */
+    isSecure?: boolean;
+}
+
+/** The audit classes configured for a trustee, split by operation outcome. */
+export class TrusteeAuditMasks implements ITrusteeAuditMasks {
+    /** Audit classes audited on successful operations, keyed by audit-class name. */
+    success?: { [key: string]: boolean; } | undefined;
+    /** Audit classes audited on failed operations, keyed by audit-class name. */
+    failure?: { [key: string]: boolean; } | undefined;
+
+    
+    
+    constructor(data?: ITrusteeAuditMasks) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (_data["success"]) {
+                this.success = {} as any;
+                for (let key in _data["success"]) {
+                    if (_data["success"].hasOwnProperty(key))
+                        (<any>this.success)![key] = _data["success"][key];
+                }
+            }
+            if (_data["failure"]) {
+                this.failure = {} as any;
+                for (let key in _data["failure"]) {
+                    if (_data["failure"].hasOwnProperty(key))
+                        (<any>this.failure)![key] = _data["failure"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): TrusteeAuditMasks {
+        data = typeof data === 'object' ? data : {};
+        let result = new TrusteeAuditMasks();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.success) {
+            data["success"] = {};
+            for (let key in this.success) {
+                if (this.success.hasOwnProperty(key))
+                    (<any>data["success"])[key] = (<any>this.success)[key];
+            }
+        }
+        if (this.failure) {
+            data["failure"] = {};
+            for (let key in this.failure) {
+                if (this.failure.hasOwnProperty(key))
+                    (<any>data["failure"])[key] = (<any>this.failure)[key];
+            }
+        }
+        return data;
+    }
+}
+
+/** The audit classes configured for a trustee, split by operation outcome. */
+export interface ITrusteeAuditMasks {
+    /** Audit classes audited on successful operations, keyed by audit-class name. */
+    success?: { [key: string]: boolean; } | undefined;
+    /** Audit classes audited on failed operations, keyed by audit-class name. */
+    failure?: { [key: string]: boolean; } | undefined;
 }
 
 export interface FileParameter {
