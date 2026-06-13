@@ -2913,16 +2913,17 @@ export interface IEntriesClient {
     undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry>;
 
     /**
-     * - Returns the access control entries (ACEs) configured on the entry, both explicitly-set and inherited (inherited ACEs carry isInherited = true), plus whether the entry inherits rights from its parent(s).
+     * - Returns the access control entries (ACEs) configured on the entry — by default both explicitly-set and inherited (inherited ACEs carry isInherited = true), or only the explicit ones when includeInherited=false — plus whether the entry inherits rights from its parent(s).
     - Each ACE names a trustee, whether its rights are allowed or denied, the rights themselves, and the propagation scope.
     - The repository session enforces the underlying permission: reading an ACL requires the ReadPermissions right on the entry, and a 403 is returned when it is lacking. The repository.Read OAuth scope is necessary but not sufficient.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry whose access control list is returned.
+     * @param args.includeInherited (optional) Optional. When true (the default), the response includes both the entry's explicit access control entries and the inherited ones (inherited ACEs carry isInherited = true). When false, only the explicit ACEs are returned — the exact set that the access-control PUT accepts — making it convenient to read, edit, and write back the ACL without filtering inherited entries client-side. The inheritParents flag is unaffected by this option.
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully returned the entry's access control list.
      */
-    getEntryAccessControl(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<AccessControlList>;
+    getEntryAccessControl(args: { repositoryId: string, entryId: number, includeInherited?: boolean | undefined, select?: string | null | undefined }): Promise<AccessControlList>;
 
     /**
      * - Full replace of the entry's explicit ACEs: the supplied entries become the entry's complete set of explicit ACEs, and any explicit ACE not included is removed. An empty entries array clears all explicit ACEs.
@@ -2939,32 +2940,19 @@ export interface IEntriesClient {
     setEntryAccessControl(args: { repositoryId: string, entryId: number, request: SetAccessControlRequest }): Promise<AccessControlList>;
 
     /**
-     * - Returns the net rights a trustee effectively has on the entry after inheritance, group membership, and allow/deny resolution are applied by the repository server. This is the same effective-rights calculation the Laserfiche applications use.
+     * - Returns the rights a trustee has on the entry. By default these are the effective rights — the same calculation the Laserfiche applications use, after allow/deny resolution, group membership, and the repository's privilege and records-management overlays. Set aclOnly=true to return only the rights granted by the entry's access control list (including its stored inherited ACEs) without the privilege/records-management overlays.
     - Identify the trustee by trusteeId (a SID) or trusteeName (an account name); omit both for the calling session.
     - isReadOnly reports whether the session is read-only, in which case no write operations are possible regardless of the granted rights.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The entry whose effective rights are computed.
-     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute effective rights for. When omitted (along with trusteeName), the effective rights of the current session are returned.
-     * @param args.trusteeName (optional) Optional. The account name of the trustee to compute effective rights for, as an alternative to trusteeId. When both are supplied, trusteeId takes precedence.
+     * @param args.entryId The entry whose rights are computed.
+     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute rights for. When omitted (along with trusteeName), the rights of the current session are returned.
+     * @param args.trusteeName (optional) Optional. The account name of the trustee to compute rights for, as an alternative to trusteeId. When both are supplied, trusteeId takes precedence.
+     * @param args.aclOnly (optional) Optional. Selects which rights are returned. Default (false): the trustee's effective rights — the net result after allow/deny resolution, group membership, and the repository's privilege and records-management overlays. When true: only the rights granted by this item's access control list — including inherited access control entries, which are stored on the item itself — without the privilege and records-management overlays (for example, a privilege that grants full control regardless of the ACL is reflected only when aclOnly=false). Group membership is always resolved. The aclOnly=true value is what the ACL editor displays as the net effect of the list.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully returned the effective rights for the entry.
+     * @returns Successfully returned the rights for the entry.
      */
-    getEntryEffectiveRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights>;
-
-    /**
-     * - Returns the rights granted by this entry's own ACL, excluding inheritance from parent folders and privilege/records-management overlays; group membership is still resolved. Contrast with EffectiveRights, which returns the net rights after inheritance and overlays are applied.
-    - Identify the trustee by trusteeId (a SID) or trusteeName (an account name); omit both for the calling session.
-    - isReadOnly reports whether the session is read-only, in which case no write operations are possible regardless of the granted rights.
-    - Required OAuth scope: repository.Read
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The entry whose direct rights are computed.
-     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute direct rights for. When omitted (along with trusteeName), the direct rights of the current session are returned.
-     * @param args.trusteeName (optional) Optional. The account name of the trustee to compute direct rights for, as an alternative to trusteeId. When both are supplied, trusteeId takes precedence.
-     * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully returned the direct (ACL) rights for the entry.
-     */
-    getEntryDirectRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights>;
+    getEntryRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, aclOnly?: boolean | undefined, select?: string | null | undefined }): Promise<EntryRights>;
 }
 
 export class EntriesClient implements IEntriesClient {
@@ -8009,17 +7997,18 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Returns the access control entries (ACEs) configured on the entry, both explicitly-set and inherited (inherited ACEs carry isInherited = true), plus whether the entry inherits rights from its parent(s).
+     * - Returns the access control entries (ACEs) configured on the entry — by default both explicitly-set and inherited (inherited ACEs carry isInherited = true), or only the explicit ones when includeInherited=false — plus whether the entry inherits rights from its parent(s).
     - Each ACE names a trustee, whether its rights are allowed or denied, the rights themselves, and the propagation scope.
     - The repository session enforces the underlying permission: reading an ACL requires the ReadPermissions right on the entry, and a 403 is returned when it is lacking. The repository.Read OAuth scope is necessary but not sufficient.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry whose access control list is returned.
+     * @param args.includeInherited (optional) Optional. When true (the default), the response includes both the entry's explicit access control entries and the inherited ones (inherited ACEs carry isInherited = true). When false, only the explicit ACEs are returned — the exact set that the access-control PUT accepts — making it convenient to read, edit, and write back the ACL without filtering inherited entries client-side. The inheritParents flag is unaffected by this option.
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully returned the entry's access control list.
      */
-    getEntryAccessControl(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<AccessControlList> {
-        let { repositoryId, entryId, select } = args;
+    getEntryAccessControl(args: { repositoryId: string, entryId: number, includeInherited?: boolean | undefined, select?: string | null | undefined }): Promise<AccessControlList> {
+        let { repositoryId, entryId, includeInherited, select } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/AccessControl?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -8027,6 +8016,10 @@ export class EntriesClient implements IEntriesClient {
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (includeInherited === null)
+            throw new Error("The parameter 'includeInherited' cannot be null.");
+        else if (includeInherited !== undefined)
+            url_ += "includeInherited=" + encodeURIComponent("" + includeInherited) + "&";
         if (select !== undefined && select !== null)
             url_ += "$select=" + encodeURIComponent("" + select) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -8203,20 +8196,21 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Returns the net rights a trustee effectively has on the entry after inheritance, group membership, and allow/deny resolution are applied by the repository server. This is the same effective-rights calculation the Laserfiche applications use.
+     * - Returns the rights a trustee has on the entry. By default these are the effective rights — the same calculation the Laserfiche applications use, after allow/deny resolution, group membership, and the repository's privilege and records-management overlays. Set aclOnly=true to return only the rights granted by the entry's access control list (including its stored inherited ACEs) without the privilege/records-management overlays.
     - Identify the trustee by trusteeId (a SID) or trusteeName (an account name); omit both for the calling session.
     - isReadOnly reports whether the session is read-only, in which case no write operations are possible regardless of the granted rights.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The entry whose effective rights are computed.
-     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute effective rights for. When omitted (along with trusteeName), the effective rights of the current session are returned.
-     * @param args.trusteeName (optional) Optional. The account name of the trustee to compute effective rights for, as an alternative to trusteeId. When both are supplied, trusteeId takes precedence.
+     * @param args.entryId The entry whose rights are computed.
+     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute rights for. When omitted (along with trusteeName), the rights of the current session are returned.
+     * @param args.trusteeName (optional) Optional. The account name of the trustee to compute rights for, as an alternative to trusteeId. When both are supplied, trusteeId takes precedence.
+     * @param args.aclOnly (optional) Optional. Selects which rights are returned. Default (false): the trustee's effective rights — the net result after allow/deny resolution, group membership, and the repository's privilege and records-management overlays. When true: only the rights granted by this item's access control list — including inherited access control entries, which are stored on the item itself — without the privilege and records-management overlays (for example, a privilege that grants full control regardless of the ACL is reflected only when aclOnly=false). Group membership is always resolved. The aclOnly=true value is what the ACL editor displays as the net effect of the list.
      * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully returned the effective rights for the entry.
+     * @returns Successfully returned the rights for the entry.
      */
-    getEntryEffectiveRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights> {
-        let { repositoryId, entryId, trusteeId, trusteeName, select } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/EffectiveRights?";
+    getEntryRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, aclOnly?: boolean | undefined, select?: string | null | undefined }): Promise<EntryRights> {
+        let { repositoryId, entryId, trusteeId, trusteeName, aclOnly, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Rights?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
@@ -8227,6 +8221,10 @@ export class EntriesClient implements IEntriesClient {
             url_ += "trusteeId=" + encodeURIComponent("" + trusteeId) + "&";
         if (trusteeName !== undefined && trusteeName !== null)
             url_ += "trusteeName=" + encodeURIComponent("" + trusteeName) + "&";
+        if (aclOnly === null)
+            throw new Error("The parameter 'aclOnly' cannot be null.");
+        else if (aclOnly !== undefined)
+            url_ += "aclOnly=" + encodeURIComponent("" + aclOnly) + "&";
         if (select !== undefined && select !== null)
             url_ += "$select=" + encodeURIComponent("" + select) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -8239,18 +8237,18 @@ export class EntriesClient implements IEntriesClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetEntryEffectiveRights(_response);
+            return this.processGetEntryRights(_response);
         });
     }
 
-    protected processGetEntryEffectiveRights(response: Response): Promise<EffectiveRights> {
+    protected processGetEntryRights(response: Response): Promise<EntryRights> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = EffectiveRights.fromJS(resultData200);
+            result200 = EntryRights.fromJS(resultData200);
             return result200;
             });
         } else if (status === 400) {
@@ -8300,108 +8298,7 @@ export class EntriesClient implements IEntriesClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<EffectiveRights>(null as any);
-    }
-
-    /**
-     * - Returns the rights granted by this entry's own ACL, excluding inheritance from parent folders and privilege/records-management overlays; group membership is still resolved. Contrast with EffectiveRights, which returns the net rights after inheritance and overlays are applied.
-    - Identify the trustee by trusteeId (a SID) or trusteeName (an account name); omit both for the calling session.
-    - isReadOnly reports whether the session is read-only, in which case no write operations are possible regardless of the granted rights.
-    - Required OAuth scope: repository.Read
-     * @param args.repositoryId The requested repository ID.
-     * @param args.entryId The entry whose direct rights are computed.
-     * @param args.trusteeId (optional) Optional. The SID of the trustee to compute direct rights for. When omitted (along with trusteeName), the direct rights of the current session are returned.
-     * @param args.trusteeName (optional) Optional. The account name of the trustee to compute direct rights for, as an alternative to trusteeId. When both are supplied, trusteeId takes precedence.
-     * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully returned the direct (ACL) rights for the entry.
-     */
-    getEntryDirectRights(args: { repositoryId: string, entryId: number, trusteeId?: string | null | undefined, trusteeName?: string | null | undefined, select?: string | null | undefined }): Promise<EffectiveRights> {
-        let { repositoryId, entryId, trusteeId, trusteeName, select } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/DirectRights?";
-        if (repositoryId === undefined || repositoryId === null)
-            throw new Error("The parameter 'repositoryId' must be defined.");
-        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
-        if (entryId === undefined || entryId === null)
-            throw new Error("The parameter 'entryId' must be defined.");
-        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (trusteeId !== undefined && trusteeId !== null)
-            url_ += "trusteeId=" + encodeURIComponent("" + trusteeId) + "&";
-        if (trusteeName !== undefined && trusteeName !== null)
-            url_ += "trusteeName=" + encodeURIComponent("" + trusteeName) + "&";
-        if (select !== undefined && select !== null)
-            url_ += "$select=" + encodeURIComponent("" + select) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetEntryDirectRights(_response);
-        });
-    }
-
-    protected processGetEntryDirectRights(response: Response): Promise<EffectiveRights> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = EffectiveRights.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
-            });
-        } else if (status === 401) {
-            return response.text().then((_responseText) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
-            });
-        } else if (status === 403) {
-            return response.text().then((_responseText) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
-            });
-        } else if (status === 429) {
-            return response.text().then((_responseText) => {
-            let result429: any = null;
-            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result429 = ProblemDetails.fromJS(resultData429);
-            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
-            });
-        } else if (status === 500) {
-            return response.text().then((_responseText) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<EffectiveRights>(null as any);
+        return Promise.resolve<EntryRights>(null as any);
     }
 }
 
@@ -17559,9 +17456,9 @@ from parent inheritance; when true, parent rights are inherited. */
     inheritParents?: boolean | undefined;
 }
 
-/** A trustee's effective rights to an entry — the net rights after inheritance, group membership, and allow/deny resolution are applied by the repository server. */
-export class EffectiveRights implements IEffectiveRights {
-    /** The rights effectively granted to the trustee on the entry. */
+/** A trustee's rights to an entry. Depending on the aclOnly option on the request, these are either the effective rights (the net result after allow/deny resolution, group membership, and the repository's privilege and records-management overlays) or the rights granted by the entry's access control list alone. */
+export class EntryRights implements IEntryRights {
+    /** The rights granted to the trustee on the entry. */
     rights?: EntryRight[] | undefined;
     /** True when the session is read-only, so no write operations are possible regardless of
 the granted rights. */
@@ -17569,7 +17466,7 @@ the granted rights. */
 
     
     
-    constructor(data?: IEffectiveRights) {
+    constructor(data?: IEntryRights) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -17589,9 +17486,9 @@ the granted rights. */
         }
     }
 
-    static fromJS(data: any): EffectiveRights {
+    static fromJS(data: any): EntryRights {
         data = typeof data === 'object' ? data : {};
-        let result = new EffectiveRights();
+        let result = new EntryRights();
         result.init(data);
         return result;
     }
@@ -17608,9 +17505,9 @@ the granted rights. */
     }
 }
 
-/** A trustee's effective rights to an entry — the net rights after inheritance, group membership, and allow/deny resolution are applied by the repository server. */
-export interface IEffectiveRights {
-    /** The rights effectively granted to the trustee on the entry. */
+/** A trustee's rights to an entry. Depending on the aclOnly option on the request, these are either the effective rights (the net result after allow/deny resolution, group membership, and the repository's privilege and records-management overlays) or the rights granted by the entry's access control list alone. */
+export interface IEntryRights {
+    /** The rights granted to the trustee on the entry. */
     rights?: EntryRight[] | undefined;
     /** True when the session is read-only, so no write operations are possible regardless of
 the granted rights. */

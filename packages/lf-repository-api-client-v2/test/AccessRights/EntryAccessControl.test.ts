@@ -12,8 +12,8 @@ import {
 } from '../../index.js';
 
 // Parallel (JS) coverage for the V2 entry access-rights endpoints (PRD 6.4.A — REQ-ACCESS-001):
-// getEntryAccessControl, setEntryAccessControl, getEntryEffectiveRights, getEntryDirectRights
-// (REQ-ACCESS-006), and the Trustees lookupTrustees search. The dotnet REST integration suite owns
+// getEntryAccessControl (incl. includeInherited filter), setEntryAccessControl, getEntryRights
+// (effective and aclOnly — REQ-ACCESS-006), and the Trustees lookupTrustees search. The dotnet REST integration suite owns
 // the exhaustive contract; these
 // exercise the JS client end-to-end against a running server. No multipart upload here, so they
 // run under both vitest+node and vitest+jsdom.
@@ -73,18 +73,18 @@ describe('Entry Access Rights (REQ-ACCESS-001)', () => {
     }
   });
 
-  test('getEntryEffectiveRights for the calling session includes Browse and Read', async () => {
+  test('getEntryRights for the calling session includes Browse and Read', async () => {
     const entryId = await createFolder();
-    const rights = await _RepositoryApiClient.entriesClient.getEntryEffectiveRights({ repositoryId, entryId });
+    const rights = await _RepositoryApiClient.entriesClient.getEntryRights({ repositoryId, entryId });
     expect(rights.rights).toBeDefined();
     expect(rights.rights).toContain(EntryRight.Browse);
     expect(rights.rights).toContain(EntryRight.Read);
   });
 
-  test('getEntryEffectiveRights resolves for a specific trustee by SID', async () => {
+  test('getEntryRights resolves for a specific trustee by SID', async () => {
     const entryId = await createFolder();
     const trustee = await getAnyTrustee(entryId);
-    const rights = await _RepositoryApiClient.entriesClient.getEntryEffectiveRights({
+    const rights = await _RepositoryApiClient.entriesClient.getEntryRights({
       repositoryId,
       entryId,
       trusteeId: trustee.sid,
@@ -93,13 +93,13 @@ describe('Entry Access Rights (REQ-ACCESS-001)', () => {
     expect(rights.rights).toBeDefined();
   });
 
-  test('getEntryEffectiveRights resolves a trustee addressed by account name', async () => {
+  test('getEntryRights resolves a trustee addressed by account name', async () => {
     const entryId = await createFolder();
     const trustee = await getAnyTrustee(entryId);
     if (!trustee.accountName) {
       return; // borrowed trustee has no account name to resolve by
     }
-    const rights = await _RepositoryApiClient.entriesClient.getEntryEffectiveRights({
+    const rights = await _RepositoryApiClient.entriesClient.getEntryRights({
       repositoryId,
       entryId,
       trusteeName: trustee.accountName,
@@ -108,39 +108,55 @@ describe('Entry Access Rights (REQ-ACCESS-001)', () => {
     expect(rights.rights).toBeDefined();
   });
 
-  test('getEntryDirectRights for the calling session includes Browse and Read', async () => {
+  test('getEntryRights with aclOnly for the calling session includes Browse and Read', async () => {
     const entryId = await createFolder();
-    const rights = await _RepositoryApiClient.entriesClient.getEntryDirectRights({ repositoryId, entryId });
+    const rights = await _RepositoryApiClient.entriesClient.getEntryRights({ repositoryId, entryId, aclOnly: true });
     expect(rights.rights).toBeDefined();
     expect(rights.rights).toContain(EntryRight.Browse);
     expect(rights.rights).toContain(EntryRight.Read);
   });
 
-  test('getEntryDirectRights resolves for a specific trustee by SID', async () => {
+  test('getEntryRights with aclOnly resolves for a specific trustee by SID', async () => {
     const entryId = await createFolder();
     const trustee = await getAnyTrustee(entryId);
-    const rights = await _RepositoryApiClient.entriesClient.getEntryDirectRights({
+    const rights = await _RepositoryApiClient.entriesClient.getEntryRights({
       repositoryId,
       entryId,
       trusteeId: trustee.sid,
+      aclOnly: true,
     });
     expect(rights).not.toBeNull();
     expect(rights.rights).toBeDefined();
   });
 
-  test('getEntryDirectRights resolves a trustee addressed by account name', async () => {
+  test('getEntryRights with aclOnly resolves a trustee addressed by account name', async () => {
     const entryId = await createFolder();
     const trustee = await getAnyTrustee(entryId);
     if (!trustee.accountName) {
       return; // borrowed trustee has no account name to resolve by
     }
-    const rights = await _RepositoryApiClient.entriesClient.getEntryDirectRights({
+    const rights = await _RepositoryApiClient.entriesClient.getEntryRights({
       repositoryId,
       entryId,
       trusteeName: trustee.accountName,
+      aclOnly: true,
     });
     expect(rights).not.toBeNull();
     expect(rights.rights).toBeDefined();
+  });
+
+  test('getEntryAccessControl with includeInherited=false returns only explicit ACEs', async () => {
+    const entryId = await createFolder();
+    const all = await _RepositoryApiClient.entriesClient.getEntryAccessControl({ repositoryId, entryId });
+    const explicitOnly = await _RepositoryApiClient.entriesClient.getEntryAccessControl({
+      repositoryId,
+      entryId,
+      includeInherited: false,
+    });
+    expect(explicitOnly.entries).toBeDefined();
+    expect(explicitOnly.entries!.every((e) => !e.isInherited)).toBe(true);
+    expect(explicitOnly.entries!.length).toBeLessThanOrEqual(all.entries!.length);
+    expect(explicitOnly.inheritParents).toBe(all.inheritParents);
   });
 
   test('setEntryAccessControl full replace persists on an independent re-fetch', async () => {
