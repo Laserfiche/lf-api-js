@@ -105,6 +105,8 @@ jobs:
           with open('package-lock.json', 'w') as f:
               json.dump(lock, f, indent=2)
           print('Generated package-lock.json (v2) with {} packages'.format(len(deps)))
+          if len(deps) < 10:
+              raise SystemExit('ERROR: Only {} packages found in lockfile — aborting to prevent a silent empty SCA scan'.format(len(deps)))
 
           # SourceClear runs npm with --omit=dev. The root package.json has only
           # devDependencies, so npm finds 0 production packages and SourceClear
