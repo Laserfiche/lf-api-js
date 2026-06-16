@@ -2911,69 +2911,6 @@ export interface IEntriesClient {
      * @returns Successfully undid the document check-out. Any persistent lock held on the document has been released.
      */
     undoCheckOut(args: { repositoryId: string, entryId: number }): Promise<Entry>;
-
-    /**
-     * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully returned the entry's records management properties.
-     */
-    getEntryRecordsManagementProperties(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordsManagementProperties>;
-
-    /**
-     * @returns Successfully updated the entry's records management properties. Returned the updated properties.
-     */
-    updateEntryRecordsManagementProperties(args: { repositoryId: string, entryId: number, request: UpdateRecordsManagementPropertiesRequest }): Promise<RecordsManagementProperties>;
-
-    /**
-     * @param args.forSelector (optional) 
-     * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully returned the ids of the records eligible for the requested action.
-     */
-    getEligibleRecords(args: { repositoryId: string, entryId: number, forSelector?: string | null | undefined, select?: string | null | undefined }): Promise<RecordEntryIdCollection>;
-
-    /**
-     * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully returned the ids of the independent records under the record folder.
-     */
-    getIndependentRecords(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordEntryIdCollection>;
-
-    /**
-     * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully returned the record folder's alternate-retention trigger events.
-     */
-    getAltRetentionEvents(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<AltRetentionEventCollection>;
-
-    /**
-     * @param args.select (optional) Limits the properties returned in the result.
-     * @returns Successfully returned the record series properties.
-     */
-    getRecordSeriesProperties(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordSeriesProperties>;
-
-    /**
-     * @returns Successfully updated the record series properties. Returned the updated properties.
-     */
-    updateRecordSeriesProperties(args: { repositoryId: string, entryId: number, request: UpdateRecordSeriesPropertiesRequest }): Promise<RecordSeriesProperties>;
-
-    /**
-     * @returns Successfully set the record event date. Returned the updated records management properties.
-     */
-    setRecordEvent(args: { repositoryId: string, entryId: number, request: SetRecordEventRequest }): Promise<RecordsManagementProperties>;
-
-    /**
-     * @returns Successfully removed the record event date. Returned the updated records management properties.
-     */
-    removeRecordEvent(args: { repositoryId: string, entryId: number, request: RemoveRecordEventRequest }): Promise<RecordsManagementProperties>;
-
-    /**
-     * - A record series provides cascading retention defaults for the file plan beneath it.
-    - The parent must be the file-plan root or another record series; creating one under a normal folder is rejected.
-    - Deleting a record series uses the existing Delete Entry endpoint (a record series is an entry).
-    - Required OAuth scope: repository.Write
-     * @param args.repositoryId The requested repository ID.
-     * @param args.parentEntryId The parent the record series is created under. A record series belongs to the record file plan, so the parent must be the repository's file-plan root or an existing record series — it cannot be a normal folder (the server returns an error if it is).
-     * @param args.request The new record series' name and code.
-     * @returns Successfully created the record series. Returned the created entry.
-     */
-    createRecordSeries(args: { repositoryId: string, parentEntryId: number, request: CreateRecordSeriesRequest }): Promise<Entry>;
 }
 
 export class EntriesClient implements IEntriesClient {
@@ -8015,6 +7952,83 @@ export class EntriesClient implements IEntriesClient {
             });
         }
         return Promise.resolve<Entry>(null as any);
+    }
+}
+
+export interface IRecordsManagementClient {
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the entry's records management properties.
+     */
+    getEntryRecordsManagementProperties(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordsManagementProperties>;
+
+    /**
+     * @returns Successfully updated the entry's records management properties. Returned the updated properties.
+     */
+    updateEntryRecordsManagementProperties(args: { repositoryId: string, entryId: number, request: UpdateRecordsManagementPropertiesRequest }): Promise<RecordsManagementProperties>;
+
+    /**
+     * @param args.forSelector (optional) 
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the ids of the records eligible for the requested action.
+     */
+    getEligibleRecords(args: { repositoryId: string, entryId: number, forSelector?: string | null | undefined, select?: string | null | undefined }): Promise<RecordEntryIdCollection>;
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the ids of the independent records under the record folder.
+     */
+    getIndependentRecords(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordEntryIdCollection>;
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the record folder's alternate-retention trigger events.
+     */
+    getAltRetentionEvents(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<AltRetentionEventCollection>;
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the record series properties.
+     */
+    getRecordSeriesProperties(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordSeriesProperties>;
+
+    /**
+     * @returns Successfully updated the record series properties. Returned the updated properties.
+     */
+    updateRecordSeriesProperties(args: { repositoryId: string, entryId: number, request: UpdateRecordSeriesPropertiesRequest }): Promise<RecordSeriesProperties>;
+
+    /**
+     * @returns Successfully set the record event date. Returned the updated records management properties.
+     */
+    setRecordEvent(args: { repositoryId: string, entryId: number, request: SetRecordEventRequest }): Promise<RecordsManagementProperties>;
+
+    /**
+     * @returns Successfully removed the record event date. Returned the updated records management properties.
+     */
+    removeRecordEvent(args: { repositoryId: string, entryId: number, request: RemoveRecordEventRequest }): Promise<RecordsManagementProperties>;
+
+    /**
+     * - A record series provides cascading retention defaults for the file plan beneath it.
+    - The parent must be the file-plan root or another record series; creating one under a normal folder is rejected.
+    - Deleting a record series uses the existing Delete Entry endpoint (a record series is an entry).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.parentEntryId The parent the record series is created under. A record series belongs to the record file plan, so the parent must be the repository's file-plan root or an existing record series — it cannot be a normal folder (the server returns an error if it is).
+     * @param args.request The new record series' name and code.
+     * @returns Successfully created the record series. Returned the created entry.
+     */
+    createRecordSeries(args: { repositoryId: string, parentEntryId: number, request: CreateRecordSeriesRequest }): Promise<Entry>;
+}
+
+export class RecordsManagementClient implements IRecordsManagementClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     /**
@@ -20167,6 +20181,7 @@ export interface IRepositoryApiClient {
   tasksClient: ITasksClient;
   templateDefinitionsClient: ITemplateDefinitionsClient;
   linkDefinitionsClient: ILinkDefinitionsClient;
+  recordsManagementClient: IRecordsManagementClient;
   defaultRequestHeaders: Record<string, string>;
 }
 
@@ -20185,6 +20200,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
   public tasksClient: ITasksClient;
   public templateDefinitionsClient: ITemplateDefinitionsClient;
   public linkDefinitionsClient: ILinkDefinitionsClient;
+  public recordsManagementClient: IRecordsManagementClient;
 
   private repoClientHandler: RepositoryApiClientHttpHandler;
 
@@ -20224,6 +20240,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
     this.tasksClient = new TasksClient(this.baseUrl, http);
     this.templateDefinitionsClient = new TemplateDefinitionsClient(this.baseUrl, http);
     this.linkDefinitionsClient = new LinkDefinitionsClient(this.baseUrl, http);
+    this.recordsManagementClient = new RecordsManagementClient(this.baseUrl, http);
   }
 
   /**

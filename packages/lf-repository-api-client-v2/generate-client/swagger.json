@@ -8383,7 +8383,7 @@
     "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/Properties": {
       "get": {
         "tags": [
-          "Entries"
+          "RecordsManagement"
         ],
         "operationId": "GetEntryRecordsManagementProperties",
         "parameters": [
@@ -8492,7 +8492,7 @@
       },
       "patch": {
         "tags": [
-          "Entries"
+          "RecordsManagement"
         ],
         "operationId": "UpdateEntryRecordsManagementProperties",
         "parameters": [
@@ -8605,7 +8605,7 @@
     "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/EligibleRecords": {
       "get": {
         "tags": [
-          "Entries"
+          "RecordsManagement"
         ],
         "operationId": "GetEligibleRecords",
         "parameters": [
@@ -8726,7 +8726,7 @@
     "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/IndependentRecords": {
       "get": {
         "tags": [
-          "Entries"
+          "RecordsManagement"
         ],
         "operationId": "GetIndependentRecords",
         "parameters": [
@@ -8837,7 +8837,7 @@
     "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/AltRetentionEvents": {
       "get": {
         "tags": [
-          "Entries"
+          "RecordsManagement"
         ],
         "operationId": "GetAltRetentionEvents",
         "parameters": [
@@ -8948,7 +8948,7 @@
     "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordSeries/Properties": {
       "get": {
         "tags": [
-          "Entries"
+          "RecordsManagement"
         ],
         "operationId": "GetRecordSeriesProperties",
         "parameters": [
@@ -9057,7 +9057,7 @@
       },
       "patch": {
         "tags": [
-          "Entries"
+          "RecordsManagement"
         ],
         "operationId": "UpdateRecordSeriesProperties",
         "parameters": [
@@ -9170,7 +9170,7 @@
     "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/SetEvent": {
       "post": {
         "tags": [
-          "Entries"
+          "RecordsManagement"
         ],
         "operationId": "SetRecordEvent",
         "parameters": [
@@ -9283,7 +9283,7 @@
     "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/RemoveEvent": {
       "post": {
         "tags": [
-          "Entries"
+          "RecordsManagement"
         ],
         "operationId": "RemoveRecordEvent",
         "parameters": [
@@ -9396,7 +9396,7 @@
     "/v2/Repositories/{repositoryId}/Entries/{parentEntryId}/RecordSeries": {
       "post": {
         "tags": [
-          "Entries"
+          "RecordsManagement"
         ],
         "summary": "- A record series provides cascading retention defaults for the file plan beneath it.\n- The parent must be the file-plan root or another record series; creating one under a normal folder is rejected.\n- Deleting a record series uses the existing Delete Entry endpoint (a record series is an entry).\n- Required OAuth scope: repository.Write",
         "operationId": "CreateRecordSeries",
