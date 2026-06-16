@@ -45,6 +45,12 @@ jobs:
       - name: 'Compress js repository client v1 files'
         run: tar -czvf ./veracode/lf-repository-api-v1.tar.gz ./packages/lf-repository-api-client-v1/dist
 
+      - name: 'Compress lf-js-utils files'
+        run: tar -czvf ./veracode/lf-js-utils.tar.gz ./packages/lf-js-utils/dist
+
+      - name: 'Compress lf-api-js package files'
+        run: tar -czvf ./veracode/lf-api-js.tar.gz ./packages/lf-api-js/dist ./packages/lf-api-js/cdn
+
       - name: Veracode Upload And Scan (Static Application Security Testing)
         uses: veracode/veracode-uploadandscan-action@0.2.10
         with:
@@ -55,7 +61,71 @@ jobs:
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           teams: 'GitHub - Open Source'
 
+      - name: Generate package-lock.json for Veracode SCA
+        run: |
+          pip3 install pyyaml --quiet
+          python3 - << 'EOF'
+          import yaml, json
+
+          with open('pnpm-lock.yaml') as f:
+              lockfile = yaml.safe_load(f)
+
+          deps = {}
+          pkgs = {}
+          for pkg_key, pkg_info in (lockfile.get('packages') or {}).items():
+              last_at = pkg_key.rfind('@')
+              if last_at <= 0:
+                  continue
+              name    = pkg_key[:last_at]
+              version = pkg_key[last_at + 1:]
+              resolution = (pkg_info or {}).get('resolution') or {}
+              entry = {'version': version}
+              if 'integrity' in resolution:
+                  entry['resolved']  = 'https://registry.npmjs.org/{n}/-/{s}-{v}.tgz'.format(
+                      n=name, s=name.split('/')[-1], v=version)
+                  entry['integrity'] = resolution['integrity']
+              elif 'tarball' in resolution:
+                  entry['resolved'] = resolution['tarball']
+              deps[name] = entry
+              pkgs['node_modules/' + name] = dict(entry)
+
+          pkgs[''] = {
+              'name': 'lf-api-js',
+              'version': '0.0.1',
+              'dependencies': {n: v['version'] for n, v in deps.items()},
+          }
+          lock = {
+              'name': 'lf-api-js',
+              'version': '0.0.1',
+              'lockfileVersion': 2,
+              'requires': True,
+              'packages': pkgs,
+              'dependencies': deps,
+          }
+          with open('package-lock.json', 'w') as f:
+              json.dump(lock, f, indent=2)
+          print('Generated package-lock.json (v2) with {} packages'.format(len(deps)))
+          if len(deps) < 10:
+              raise SystemExit('ERROR: Only {} packages found in lockfile — aborting to prevent a silent empty SCA scan'.format(len(deps)))
+
+          # SourceClear runs npm with --omit=dev. The root package.json has only
+          # devDependencies, so npm finds 0 production packages and SourceClear
+          # reports nothing. Overwriting package.json with a workspace: reference
+          # causes npm to error out (npm does not support the workspace: protocol),
+          # which triggers SourceClear's lockfile fallback. That fallback reads
+          # package-lock.json directly — without --omit=dev — and picks up all
+          # packages generated above.
+          with open('package.json', 'w') as f:
+              json.dump({
+                  'name': 'lf-api-js',
+                  'version': '0.0.1',
+                  'dependencies': {'__placeholder__': 'workspace:*'},
+              }, f, indent=2)
+          print('Wrote package.json to trigger SourceClear lockfile fallback')
+          EOF
+          rm pnpm-lock.yaml pnpm-workspace.yaml
+
       - name: Run Veracode Software Composition Analysis (SCA)
         env:
           SRCCLR_API_TOKEN: ${{ secrets.SRCCLR_API_TOKEN }}
-        run: curl --silent --show-error --location https://download.sourceclear.com/ci.sh | sh -s -- scan ./ --update-advisor --allow-dirty --recursive
+        run: curl --silent --show-error --location https://download.sourceclear.com/ci.sh | sh -s -- scan ./ --update-advisor --allow-dirty

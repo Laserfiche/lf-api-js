@@ -1,3 +1,10 @@
+## 1.1.20
+
+### Security
+
+- Upgrade `jsrsasign` to `>=11.1.1`.
+- Upgrade vulnerable transitive dependencies: `brace-expansion` (>=2.0.3), `flatted` (>=3.4.0), `form-data` (4.0.4), `js-yaml` (4.1.1), `lodash` (>=4.18.1), `markdown-it` (>=14.1.1), `minimatch` (>=9.0.7), `serialize-javascript` (7.0.5), `ws` (>=8.20.1), `yaml` (>=2.8.3), `ajv` (>=8.18.0), `glob` (>=10.5.0). Remove `inflight` (deprecated, memory-leaking).
+
 ## 1.1.19
 
 ### Features

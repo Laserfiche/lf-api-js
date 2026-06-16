@@ -28,8 +28,20 @@ async function tryDeleteField(fieldId: number): Promise<void> {
       fieldId,
     });
   } catch (err: any) {
-    // A parallel test or a manual repo edit could have removed the field already.
-    if (err?.status !== 404) throw err;
+    // Best-effort cleanup. Tolerate cases that don't indicate a defect in the operation under test:
+    // the field is already gone (404 — a parallel test or manual repo edit), or a transient dev-CA
+    // infrastructure hiccup during teardown — an expired/refused access token (401) or a network blip
+    // (`fetch failed`, surfaced as a TypeError with no HTTP status). The test body has already asserted
+    // the behavior; a teardown blip must not fail an otherwise-passing test. Genuine delete errors
+    // (e.g. 409 still-referenced, 500) still surface.
+    const status = err?.status;
+    if (status === 404 || status === 401 || status === undefined) {
+      if (status !== 404) {
+        console.warn(`tryDeleteField(${fieldId}) best-effort cleanup skipped: ${err?.message ?? err}`);
+      }
+      return;
+    }
+    throw err;
   }
 }
 
