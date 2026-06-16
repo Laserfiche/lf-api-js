@@ -9,9 +9,6 @@
   "servers": [
     {
       "url": "https://api.laserfiche.com/repository"
-    },
-    {
-      "url": "https://api.laserfiche.com/repository"
     }
   ],
   "paths": {
@@ -10931,6 +10928,23 @@
               "type": "string"
             },
             "x-position": 1
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "isPublic",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "x-position": 3
           }
         ],
         "requestBody": {
@@ -11338,7 +11352,7 @@
         "tags": [
           "Stamps"
         ],
-        "summary": "- Use `scope` to indicate whether the stamp is public or personal. An optional `color` (#RRGGBB) recolors the image.\n- Required OAuth scope: repository.Read",
+        "summary": "- Only public (common) stamps are returned. Personal stamps are not served by this endpoint and return 404.\n- An optional `color` (#RRGGBB) recolors the image: black pixels become the color, white becomes transparent.\n- Required OAuth scope: repository.Read",
         "operationId": "GetStampImage",
         "parameters": [
           {
@@ -11361,26 +11375,13 @@
             "x-position": 2
           },
           {
-            "name": "scope",
-            "in": "query",
-            "schema": {
-              "default": 0,
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/StampScope"
-                }
-              ]
-            },
-            "x-position": 3
-          },
-          {
             "name": "color",
             "in": "query",
             "schema": {
               "type": "string",
               "nullable": true
             },
-            "x-position": 4
+            "x-position": 3
           },
           {
             "name": "$select",
@@ -11390,7 +11391,7 @@
               "type": "string",
               "nullable": true
             },
-            "x-position": 5
+            "x-position": 4
           }
         ],
         "responses": {
@@ -19240,7 +19241,7 @@
       },
       "OAuth2 Authorization Code Flow": {
         "type": "oauth2",
-        "description": "<p>Note: Please enter below the clientId/clientSecret of a registered web application, or the clientId of a SPA. For SPA, the clientSecret field must be left empty. The app, either a web application or SPA, must have the following uri defined as its redirect uri.</p><p>https://api.laserfiche.com/repository/swagger/oauth2-redirect.html</p><p>For more information, see <a href=\"https://developer.laserfiche.com/guides/guide_authenticating-to-the-swagger-playground.html\" target=\"_blank\">this page</a></p>",
+        "description": "<p>Note: Please enter below the clientId/clientSecret of a registered web application, or the clientId of a SPA. For SPA, the clientSecret field must be left empty. The app, either a web application or SPA, must have the following uri defined as its redirect uri.</p><p>http://localhost:11211/repository/swagger/oauth2-redirect.html</p><p>For more information, see <a href=\"https://developer.laserfiche.com/guides/guide_authenticating-to-the-swagger-playground.html\" target=\"_blank\">this page</a></p>",
         "flows": {
           "authorizationCode": {
             "authorizationUrl": "https://signin.a.clouddev.laserfiche.ca/oauth/Authorize",

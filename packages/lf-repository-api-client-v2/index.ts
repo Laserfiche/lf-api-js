@@ -10276,10 +10276,12 @@ export interface IStampsClient {
      * - Send the image as multipart/form-data under the form field "file", with "name" and "isPublic" form fields. The service converts the image to the repository's internal format.
     - Creating a public stamp requires the stamp-management privilege; personal stamps require no special privilege.
     - Required OAuth scope: repository.Write
+     * @param args.name (optional) 
+     * @param args.isPublic (optional) 
      * @param args.file (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
      * @returns Successfully created the stamp. Returned the created stamp.
      */
-    createStamp(args: { repositoryId: string, file?: FileParameter | undefined }): Promise<Stamp>;
+    createStamp(args: { repositoryId: string, name?: string | null | undefined, isPublic?: boolean | undefined, file?: FileParameter | undefined }): Promise<Stamp>;
 
     /**
      * - Required OAuth scope: repository.Read
@@ -10303,14 +10305,14 @@ export interface IStampsClient {
     deleteStamp(args: { repositoryId: string, stampId: number }): Promise<void>;
 
     /**
-     * - Use `scope` to indicate whether the stamp is public or personal. An optional `color` (#RRGGBB) recolors the image.
+     * - Only public (common) stamps are returned. Personal stamps are not served by this endpoint and return 404.
+    - An optional `color` (#RRGGBB) recolors the image: black pixels become the color, white becomes transparent.
     - Required OAuth scope: repository.Read
-     * @param args.scope (optional) 
      * @param args.color (optional) 
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully returned the stamp image as a PNG.
      */
-    getStampImage(args: { repositoryId: string, stampId: number, scope?: StampScope | undefined, color?: string | null | undefined, select?: string | null | undefined }): Promise<FileResponse>;
+    getStampImage(args: { repositoryId: string, stampId: number, color?: string | null | undefined, select?: string | null | undefined }): Promise<FileResponse>;
 }
 
 export class StampsClient implements IStampsClient {
@@ -10428,15 +10430,23 @@ export class StampsClient implements IStampsClient {
      * - Send the image as multipart/form-data under the form field "file", with "name" and "isPublic" form fields. The service converts the image to the repository's internal format.
     - Creating a public stamp requires the stamp-management privilege; personal stamps require no special privilege.
     - Required OAuth scope: repository.Write
+     * @param args.name (optional) 
+     * @param args.isPublic (optional) 
      * @param args.file (optional) The image file to upload. See https://doc.laserfiche.com/ for supported image file formats.
      * @returns Successfully created the stamp. Returned the created stamp.
      */
-    createStamp(args: { repositoryId: string, file?: FileParameter | undefined }): Promise<Stamp> {
-        let { repositoryId, file } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Stamps";
+    createStamp(args: { repositoryId: string, name?: string | null | undefined, isPublic?: boolean | undefined, file?: FileParameter | undefined }): Promise<Stamp> {
+        let { repositoryId, name, isPublic, file } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Stamps?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (name !== undefined && name !== null)
+            url_ += "name=" + encodeURIComponent("" + name) + "&";
+        if (isPublic === null)
+            throw new Error("The parameter 'isPublic' cannot be null.");
+        else if (isPublic !== undefined)
+            url_ += "isPublic=" + encodeURIComponent("" + isPublic) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
@@ -10778,15 +10788,15 @@ export class StampsClient implements IStampsClient {
     }
 
     /**
-     * - Use `scope` to indicate whether the stamp is public or personal. An optional `color` (#RRGGBB) recolors the image.
+     * - Only public (common) stamps are returned. Personal stamps are not served by this endpoint and return 404.
+    - An optional `color` (#RRGGBB) recolors the image: black pixels become the color, white becomes transparent.
     - Required OAuth scope: repository.Read
-     * @param args.scope (optional) 
      * @param args.color (optional) 
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully returned the stamp image as a PNG.
      */
-    getStampImage(args: { repositoryId: string, stampId: number, scope?: StampScope | undefined, color?: string | null | undefined, select?: string | null | undefined }): Promise<FileResponse> {
-        let { repositoryId, stampId, scope, color, select } = args;
+    getStampImage(args: { repositoryId: string, stampId: number, color?: string | null | undefined, select?: string | null | undefined }): Promise<FileResponse> {
+        let { repositoryId, stampId, color, select } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Stamps/{stampId}/Image?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -10794,10 +10804,6 @@ export class StampsClient implements IStampsClient {
         if (stampId === undefined || stampId === null)
             throw new Error("The parameter 'stampId' must be defined.");
         url_ = url_.replace("{stampId}", encodeURIComponent("" + stampId));
-        if (scope === null)
-            throw new Error("The parameter 'scope' cannot be null.");
-        else if (scope !== undefined)
-            url_ += "scope=" + encodeURIComponent("" + scope) + "&";
         if (color !== undefined && color !== null)
             url_ += "color=" + encodeURIComponent("" + color) + "&";
         if (select !== undefined && select !== null)
