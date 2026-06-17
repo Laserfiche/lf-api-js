@@ -14,6 +14,7 @@ import {
 } from '@laserfiche/lf-api-client-core';
 class ClientBase {}
 export interface IRepositoryApiClient {
+  accessControlClient: generated.IAccessControlClient;
   attributesClient: IAttributesClient;
   auditReasonsClient: generated.IAuditReasonsClient;
   entriesClient: IEntriesClient;
@@ -32,6 +33,7 @@ export interface IRepositoryApiClient {
 export class RepositoryApiClient implements IRepositoryApiClient {
   private baseUrl: string;
 
+  public accessControlClient: generated.IAccessControlClient;
   public attributesClient: IAttributesClient;
   public auditReasonsClient: generated.IAuditReasonsClient;
   public entriesClient: IEntriesClient;
@@ -71,6 +73,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
       fetch,
     };
     this.baseUrl = baseUrlDebug ?? '';
+    this.accessControlClient = new generated.AccessControlClient(this.baseUrl, http);
     this.attributesClient = new AttributesClient(this.baseUrl, http);
     this.auditReasonsClient = new generated.AuditReasonsClient(this.baseUrl, http);
     this.entriesClient = new EntriesClient(this.baseUrl, http);
