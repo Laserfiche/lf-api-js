@@ -31,31 +31,37 @@ describe.skipIf(SKIP_UNDER_JSDOM)('Check In Check Out Integration Tests', () => 
   }
 
   afterEach(async () => {
-    if (createdEntryId !== 0) {
-      try {
-        await _RepositoryApiClient.entriesClient.undoCheckOut({
-          repositoryId,
-          entryId: createdEntryId,
-        });
-      } catch {
-        // Ignore if not checked out
-      }
-      try {
-        await _RepositoryApiClient.entriesClient.unlockDocument({
-          repositoryId,
-          entryId: createdEntryId,
-        });
-      } catch {
-        // Ignore if not locked
-      }
-      const request = new StartDeleteEntryRequest();
-      await _RepositoryApiClient.entriesClient.startDeleteEntry({
+    if (createdEntryId === 0) return;
+    try {
+      // Tests release their own lock/checkout on success, so only undo/unlock when the document is
+      // still locked (e.g. a test failed before releasing). This skips two slow error-path round-trips
+      // per test on the happy path instead of leaning on the raised hookTimeout.
+      const lockInfo = await _RepositoryApiClient.entriesClient.getDocumentLockInfo({
         repositoryId,
         entryId: createdEntryId,
-        request,
       });
-      createdEntryId = 0;
+      if (lockInfo.isActive) {
+        try {
+          await _RepositoryApiClient.entriesClient.undoCheckOut({ repositoryId, entryId: createdEntryId });
+        } catch {
+          // Ignore if not checked out
+        }
+        try {
+          await _RepositoryApiClient.entriesClient.unlockDocument({ repositoryId, entryId: createdEntryId });
+        } catch {
+          // Ignore if not locked
+        }
+      }
+    } catch {
+      // Ignore lock-info probe failures — fall through to delete.
     }
+    const request = new StartDeleteEntryRequest();
+    await _RepositoryApiClient.entriesClient.startDeleteEntry({
+      repositoryId,
+      entryId: createdEntryId,
+      request,
+    });
+    createdEntryId = 0;
   });
 
   test('PutUnderVersionControl then CheckOut then CheckIn', async () => {

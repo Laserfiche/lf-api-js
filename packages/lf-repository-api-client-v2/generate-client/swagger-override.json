@@ -1,6 +1,118 @@
 {
   "components": {
     "schemas": {
+      "Annotation": {
+        "type": "object",
+        "discriminator": {
+          "propertyName": "annotationType",
+          "mapping": {
+            "Highlight": "#/components/schemas/HighlightAnnotation",
+            "Redaction": "#/components/schemas/RedactionAnnotation",
+            "Strikeout": "#/components/schemas/StrikeoutAnnotation",
+            "Underline": "#/components/schemas/UnderlineAnnotation",
+            "Note": "#/components/schemas/NoteAnnotation",
+            "Attachment": "#/components/schemas/AttachmentAnnotation",
+            "TextBox": "#/components/schemas/TextBoxAnnotation",
+            "Bitmap": "#/components/schemas/BitmapAnnotation",
+            "Line": "#/components/schemas/LineAnnotation",
+            "Rectangle": "#/components/schemas/RectangleAnnotation",
+            "Polyline": "#/components/schemas/PolylineAnnotation",
+            "Callout": "#/components/schemas/CalloutAnnotation",
+            "Stamp": "#/components/schemas/StampAnnotation",
+            "FreeHand": "#/components/schemas/FreeHandAnnotation"
+          }
+        },
+        "required": [
+          "annotationType"
+        ],
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "type": "integer",
+            "description": "The identifier of the annotation, unique within its page.",
+            "format": "int32"
+          },
+          "entryId": {
+            "type": "integer",
+            "description": "The ID of the document entry the annotation belongs to.",
+            "format": "int32"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "description": "The 1-based page number the annotation is on.",
+            "format": "int32"
+          },
+          "annotationType": {
+            "description": "The type of the annotation.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AnnotationType"
+              }
+            ]
+          },
+          "creator": {
+            "type": "string",
+            "description": "The security identifier (SID) of the user that created the annotation.",
+            "nullable": true
+          },
+          "createdTime": {
+            "type": "string",
+            "description": "The UTC time the annotation was created.",
+            "format": "date-time"
+          },
+          "lastModifiedTime": {
+            "type": "string",
+            "description": "The UTC time the annotation was last modified.",
+            "format": "date-time"
+          },
+          "isReadOnly": {
+            "type": "boolean",
+            "description": "A boolean indicating whether the annotation is read-only (for example, on an archived version)."
+          },
+          "isProtected": {
+            "type": "boolean",
+            "description": "A boolean indicating whether the annotation is protected so that only its creator can modify it."
+          },
+          "visibility": {
+            "description": "Controls who can see the annotation.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AnnotationVisibility"
+              }
+            ]
+          },
+          "comment": {
+            "type": "string",
+            "description": "An optional comment on the annotation.",
+            "nullable": true
+          },
+          "customData": {
+            "type": "string",
+            "description": "Optional application-defined custom data stored with the annotation.",
+            "nullable": true
+          },
+          "zOrder": {
+            "type": "integer",
+            "description": "The z-order of the annotation; higher values draw on top.",
+            "format": "int32"
+          },
+          "reasonId": {
+            "type": "integer",
+            "description": "The ID of the redaction reason associated with the annotation, if any.",
+            "format": "int32",
+            "nullable": true
+          },
+          "accessType": {
+            "description": "How the annotation participates in access control.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AnnotationAccessControlType"
+              }
+            ]
+          }
+        }
+      },
       "Entry": {
         "type": "object",
         "discriminator": {
