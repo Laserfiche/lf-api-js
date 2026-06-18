@@ -11340,12 +11340,2070 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
     }
 }
 
+export interface IUserAreasClient {
+
+    /**
+     * - Returns the documents in the authenticated user's Recent Documents list, most-recently-accessed first.
+    - The list is per-user and maintained by the Laserfiche apps; this endpoint is read-only and reflects the persisted recent-documents area, so it may briefly lag an app's in-memory recent view.
+    - If the user has no recent documents, an empty collection is returned.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.documentLimit (optional) An optional maximum number of recent documents to return. When omitted, all entries in the user's recent-documents list are returned. A value of 0 returns an empty list; negative values are rejected.
+     * @returns Successfully returned the user's recently accessed documents.
+     */
+    getRecentDocuments(args: { repositoryId: string, documentLimit?: number | null | undefined }): Promise<UserAreaEntry[]>;
+
+    /**
+     * - Returns the folders in the authenticated user's Recent Folders list, most-recently-accessed first.
+    - The list is per-user and maintained by the Laserfiche apps; this endpoint is read-only.
+    - If the user has no recent folders, an empty collection is returned.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the user's recently accessed folders.
+     */
+    getRecentFolders(args: { repositoryId: string }): Promise<UserAreaEntry[]>;
+
+    /**
+     * - Returns the entries in the authenticated user's Starred list.
+    - The list is per-user; if the user has starred nothing, an empty collection is returned.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the user's starred entries.
+     */
+    getStarredEntries(args: { repositoryId: string }): Promise<UserAreaEntry[]>;
+
+    /**
+     * - Adds the supplied entries to the authenticated user's Starred list and returns the updated list.
+    - Creates the user's Starred area on first use.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The entry IDs to star. Already-starred entries are left unchanged (idempotent).
+     * @returns Successfully starred the requested entries. Returns the updated list of starred entries.
+     */
+    starEntries(args: { repositoryId: string, request: StarEntriesRequest }): Promise<UserAreaEntry[]>;
+
+    /**
+     * - Removes the supplied entries from the authenticated user's Starred list and returns the updated list.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The entry IDs to unstar. Entries that are not starred are ignored (idempotent).
+     * @returns Successfully unstarred the requested entries. Returns the updated list of starred entries.
+     */
+    unstarEntries(args: { repositoryId: string, request: StarEntriesRequest }): Promise<UserAreaEntry[]>;
+
+    /**
+     * - Returns the authenticated user's personal collections, each with its display name and member entry IDs.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the user's personal collections.
+     */
+    getPersonalCollections(args: { repositoryId: string }): Promise<PersonalCollection[]>;
+
+    /**
+     * - Creates a personal collection with the supplied display name. Names must be unique (case-insensitive),
+      fewer than 256 characters, and must not use a reserved name. A user may have at most 50 collections.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The new collection's display name.
+     * @returns Successfully created the personal collection.
+     */
+    createPersonalCollection(args: { repositoryId: string, request: CreatePersonalCollectionRequest }): Promise<PersonalCollection>;
+
+    /**
+     * - Returns the requested personal collection with its display name and member entry IDs.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.collectionId The ID of the personal collection.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the requested personal collection.
+     */
+    getPersonalCollection(args: { repositoryId: string, collectionId: string, select?: string | null | undefined }): Promise<PersonalCollection>;
+
+    /**
+     * - Changes the collection's display name (the collection ID is unchanged). Same name constraints as creation.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.collectionId The ID of the personal collection to rename.
+     * @param args.request The new display name.
+     * @returns Successfully renamed the personal collection.
+     */
+    renamePersonalCollection(args: { repositoryId: string, collectionId: string, request: RenamePersonalCollectionRequest }): Promise<PersonalCollection>;
+
+    /**
+     * - Deletes the collection. Idempotent — deleting a non-existent collection succeeds.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.collectionId The ID of the personal collection to delete.
+     * @returns Successfully deleted the personal collection.
+     */
+    deletePersonalCollection(args: { repositoryId: string, collectionId: string }): Promise<void>;
+
+    /**
+     * - Adds the supplied entries to the collection and returns the updated collection. Idempotent for entries already present.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.collectionId The ID of the personal collection.
+     * @param args.request The entry IDs to add.
+     * @returns Successfully added the entries to the personal collection. Returns the updated collection.
+     */
+    addCollectionEntries(args: { repositoryId: string, collectionId: string, request: EntryIdsRequest }): Promise<PersonalCollection>;
+
+    /**
+     * - Removes the supplied entries from the collection and returns the updated collection. Idempotent for entries not present.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.collectionId The ID of the personal collection.
+     * @param args.request The entry IDs to remove.
+     * @returns Successfully removed the entries from the personal collection. Returns the updated collection.
+     */
+    removeCollectionEntries(args: { repositoryId: string, collectionId: string, request: EntryIdsRequest }): Promise<PersonalCollection>;
+
+    /**
+     * - Returns the caller's generic user areas. Application-managed areas (Personal Collections, Starred,
+      Recent) are excluded from this surface.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the user's user areas.
+     */
+    getUserAreas(args: { repositoryId: string }): Promise<UserArea[]>;
+
+    /**
+     * - Creates a user area owned by the caller. Names reserved for application-managed areas are rejected.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The new user area's name and optional comment/data.
+     * @returns Successfully created the user area.
+     */
+    createUserArea(args: { repositoryId: string, request: CreateUserAreaRequest }): Promise<UserArea>;
+
+    /**
+     * - Returns the requested user area. Application-managed areas are not accessible through this surface (404).
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the requested user area.
+     */
+    getUserArea(args: { repositoryId: string, areaId: number, select?: string | null | undefined }): Promise<UserArea>;
+
+    /**
+     * - Updates the name, comment, and/or data of the user area. A renamed area cannot take a reserved name.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area to update.
+     * @param args.request The properties to change. Null properties are left unchanged.
+     * @returns Successfully updated the user area.
+     */
+    updateUserArea(args: { repositoryId: string, areaId: number, request: UpdateUserAreaRequest }): Promise<UserArea>;
+
+    /**
+     * - Deletes the user area. Application-managed areas cannot be deleted through this surface (404).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area to delete.
+     * @returns Successfully deleted the user area.
+     */
+    deleteUserArea(args: { repositoryId: string, areaId: number }): Promise<void>;
+
+    /**
+     * - Returns the entries contained in the user area.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area.
+     * @returns Successfully returned the user area's entries.
+     */
+    getUserAreaEntries(args: { repositoryId: string, areaId: number }): Promise<UserAreaEntry[]>;
+
+    /**
+     * - Adds the supplied entries to the user area and returns the updated entries. Idempotent for entries already present.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area.
+     * @param args.request The entry IDs to add.
+     * @returns Successfully added the entries to the user area. Returns the updated entries.
+     */
+    addUserAreaEntries(args: { repositoryId: string, areaId: number, request: EntryIdsRequest }): Promise<UserAreaEntry[]>;
+
+    /**
+     * - Removes the supplied entries from the user area and returns the updated entries. Idempotent for entries not present.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area.
+     * @param args.request The entry IDs to remove.
+     * @returns Successfully removed the entries from the user area. Returns the updated entries.
+     */
+    removeUserAreaEntries(args: { repositoryId: string, areaId: number, request: EntryIdsRequest }): Promise<UserAreaEntry[]>;
+}
+
+export class UserAreasClient implements IUserAreasClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+    }
+
+    /**
+     * - Returns the documents in the authenticated user's Recent Documents list, most-recently-accessed first.
+    - The list is per-user and maintained by the Laserfiche apps; this endpoint is read-only and reflects the persisted recent-documents area, so it may briefly lag an app's in-memory recent view.
+    - If the user has no recent documents, an empty collection is returned.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.documentLimit (optional) An optional maximum number of recent documents to return. When omitted, all entries in the user's recent-documents list are returned. A value of 0 returns an empty list; negative values are rejected.
+     * @returns Successfully returned the user's recently accessed documents.
+     */
+    getRecentDocuments(args: { repositoryId: string, documentLimit?: number | null | undefined }): Promise<UserAreaEntry[]> {
+        let { repositoryId, documentLimit } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/RecentDocuments?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (documentLimit !== undefined && documentLimit !== null)
+            url_ += "documentLimit=" + encodeURIComponent("" + documentLimit) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetRecentDocuments(_response);
+        });
+    }
+
+    protected processGetRecentDocuments(response: Response): Promise<UserAreaEntry[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserAreaEntry.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserAreaEntry[]>(null as any);
+    }
+
+    /**
+     * - Returns the folders in the authenticated user's Recent Folders list, most-recently-accessed first.
+    - The list is per-user and maintained by the Laserfiche apps; this endpoint is read-only.
+    - If the user has no recent folders, an empty collection is returned.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the user's recently accessed folders.
+     */
+    getRecentFolders(args: { repositoryId: string }): Promise<UserAreaEntry[]> {
+        let { repositoryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/RecentFolders";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetRecentFolders(_response);
+        });
+    }
+
+    protected processGetRecentFolders(response: Response): Promise<UserAreaEntry[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserAreaEntry.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserAreaEntry[]>(null as any);
+    }
+
+    /**
+     * - Returns the entries in the authenticated user's Starred list.
+    - The list is per-user; if the user has starred nothing, an empty collection is returned.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the user's starred entries.
+     */
+    getStarredEntries(args: { repositoryId: string }): Promise<UserAreaEntry[]> {
+        let { repositoryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/StarredEntries";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetStarredEntries(_response);
+        });
+    }
+
+    protected processGetStarredEntries(response: Response): Promise<UserAreaEntry[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserAreaEntry.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserAreaEntry[]>(null as any);
+    }
+
+    /**
+     * - Adds the supplied entries to the authenticated user's Starred list and returns the updated list.
+    - Creates the user's Starred area on first use.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The entry IDs to star. Already-starred entries are left unchanged (idempotent).
+     * @returns Successfully starred the requested entries. Returns the updated list of starred entries.
+     */
+    starEntries(args: { repositoryId: string, request: StarEntriesRequest }): Promise<UserAreaEntry[]> {
+        let { repositoryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/StarredEntries";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processStarEntries(_response);
+        });
+    }
+
+    protected processStarEntries(response: Response): Promise<UserAreaEntry[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserAreaEntry.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserAreaEntry[]>(null as any);
+    }
+
+    /**
+     * - Removes the supplied entries from the authenticated user's Starred list and returns the updated list.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The entry IDs to unstar. Entries that are not starred are ignored (idempotent).
+     * @returns Successfully unstarred the requested entries. Returns the updated list of starred entries.
+     */
+    unstarEntries(args: { repositoryId: string, request: StarEntriesRequest }): Promise<UserAreaEntry[]> {
+        let { repositoryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/StarredEntries";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUnstarEntries(_response);
+        });
+    }
+
+    protected processUnstarEntries(response: Response): Promise<UserAreaEntry[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserAreaEntry.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserAreaEntry[]>(null as any);
+    }
+
+    /**
+     * - Returns the authenticated user's personal collections, each with its display name and member entry IDs.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the user's personal collections.
+     */
+    getPersonalCollections(args: { repositoryId: string }): Promise<PersonalCollection[]> {
+        let { repositoryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/PersonalCollections";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPersonalCollections(_response);
+        });
+    }
+
+    protected processGetPersonalCollections(response: Response): Promise<PersonalCollection[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PersonalCollection.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PersonalCollection[]>(null as any);
+    }
+
+    /**
+     * - Creates a personal collection with the supplied display name. Names must be unique (case-insensitive),
+      fewer than 256 characters, and must not use a reserved name. A user may have at most 50 collections.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The new collection's display name.
+     * @returns Successfully created the personal collection.
+     */
+    createPersonalCollection(args: { repositoryId: string, request: CreatePersonalCollectionRequest }): Promise<PersonalCollection> {
+        let { repositoryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/PersonalCollections";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreatePersonalCollection(_response);
+        });
+    }
+
+    protected processCreatePersonalCollection(response: Response): Promise<PersonalCollection> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PersonalCollection.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("A personal collection with the requested name already exists, or the name is reserved.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PersonalCollection>(null as any);
+    }
+
+    /**
+     * - Returns the requested personal collection with its display name and member entry IDs.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.collectionId The ID of the personal collection.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the requested personal collection.
+     */
+    getPersonalCollection(args: { repositoryId: string, collectionId: string, select?: string | null | undefined }): Promise<PersonalCollection> {
+        let { repositoryId, collectionId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/PersonalCollections/{collectionId}?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (collectionId === undefined || collectionId === null)
+            throw new Error("The parameter 'collectionId' must be defined.");
+        url_ = url_.replace("{collectionId}", encodeURIComponent("" + collectionId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPersonalCollection(_response);
+        });
+    }
+
+    protected processGetPersonalCollection(response: Response): Promise<PersonalCollection> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PersonalCollection.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The requested personal collection was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PersonalCollection>(null as any);
+    }
+
+    /**
+     * - Changes the collection's display name (the collection ID is unchanged). Same name constraints as creation.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.collectionId The ID of the personal collection to rename.
+     * @param args.request The new display name.
+     * @returns Successfully renamed the personal collection.
+     */
+    renamePersonalCollection(args: { repositoryId: string, collectionId: string, request: RenamePersonalCollectionRequest }): Promise<PersonalCollection> {
+        let { repositoryId, collectionId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/PersonalCollections/{collectionId}";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (collectionId === undefined || collectionId === null)
+            throw new Error("The parameter 'collectionId' must be defined.");
+        url_ = url_.replace("{collectionId}", encodeURIComponent("" + collectionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRenamePersonalCollection(_response);
+        });
+    }
+
+    protected processRenamePersonalCollection(response: Response): Promise<PersonalCollection> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PersonalCollection.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The requested personal collection was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("A personal collection with the requested name already exists, or the name is reserved.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PersonalCollection>(null as any);
+    }
+
+    /**
+     * - Deletes the collection. Idempotent — deleting a non-existent collection succeeds.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.collectionId The ID of the personal collection to delete.
+     * @returns Successfully deleted the personal collection.
+     */
+    deletePersonalCollection(args: { repositoryId: string, collectionId: string }): Promise<void> {
+        let { repositoryId, collectionId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/PersonalCollections/{collectionId}";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (collectionId === undefined || collectionId === null)
+            throw new Error("The parameter 'collectionId' must be defined.");
+        url_ = url_.replace("{collectionId}", encodeURIComponent("" + collectionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeletePersonalCollection(_response);
+        });
+    }
+
+    protected processDeletePersonalCollection(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * - Adds the supplied entries to the collection and returns the updated collection. Idempotent for entries already present.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.collectionId The ID of the personal collection.
+     * @param args.request The entry IDs to add.
+     * @returns Successfully added the entries to the personal collection. Returns the updated collection.
+     */
+    addCollectionEntries(args: { repositoryId: string, collectionId: string, request: EntryIdsRequest }): Promise<PersonalCollection> {
+        let { repositoryId, collectionId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/PersonalCollections/{collectionId}/Entries";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (collectionId === undefined || collectionId === null)
+            throw new Error("The parameter 'collectionId' must be defined.");
+        url_ = url_.replace("{collectionId}", encodeURIComponent("" + collectionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAddCollectionEntries(_response);
+        });
+    }
+
+    protected processAddCollectionEntries(response: Response): Promise<PersonalCollection> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PersonalCollection.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The requested personal collection was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PersonalCollection>(null as any);
+    }
+
+    /**
+     * - Removes the supplied entries from the collection and returns the updated collection. Idempotent for entries not present.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.collectionId The ID of the personal collection.
+     * @param args.request The entry IDs to remove.
+     * @returns Successfully removed the entries from the personal collection. Returns the updated collection.
+     */
+    removeCollectionEntries(args: { repositoryId: string, collectionId: string, request: EntryIdsRequest }): Promise<PersonalCollection> {
+        let { repositoryId, collectionId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/PersonalCollections/{collectionId}/Entries";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (collectionId === undefined || collectionId === null)
+            throw new Error("The parameter 'collectionId' must be defined.");
+        url_ = url_.replace("{collectionId}", encodeURIComponent("" + collectionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRemoveCollectionEntries(_response);
+        });
+    }
+
+    protected processRemoveCollectionEntries(response: Response): Promise<PersonalCollection> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PersonalCollection.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The requested personal collection was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PersonalCollection>(null as any);
+    }
+
+    /**
+     * - Returns the caller's generic user areas. Application-managed areas (Personal Collections, Starred,
+      Recent) are excluded from this surface.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @returns Successfully returned the user's user areas.
+     */
+    getUserAreas(args: { repositoryId: string }): Promise<UserArea[]> {
+        let { repositoryId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/UserAreas";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUserAreas(_response);
+        });
+    }
+
+    protected processGetUserAreas(response: Response): Promise<UserArea[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserArea.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserArea[]>(null as any);
+    }
+
+    /**
+     * - Creates a user area owned by the caller. Names reserved for application-managed areas are rejected.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.request The new user area's name and optional comment/data.
+     * @returns Successfully created the user area.
+     */
+    createUserArea(args: { repositoryId: string, request: CreateUserAreaRequest }): Promise<UserArea> {
+        let { repositoryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/UserAreas";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateUserArea(_response);
+        });
+    }
+
+    protected processCreateUserArea(response: Response): Promise<UserArea> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserArea.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("A user area with the requested name already exists.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserArea>(null as any);
+    }
+
+    /**
+     * - Returns the requested user area. Application-managed areas are not accessible through this surface (404).
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the requested user area.
+     */
+    getUserArea(args: { repositoryId: string, areaId: number, select?: string | null | undefined }): Promise<UserArea> {
+        let { repositoryId, areaId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/UserAreas/{areaId}?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (areaId === undefined || areaId === null)
+            throw new Error("The parameter 'areaId' must be defined.");
+        url_ = url_.replace("{areaId}", encodeURIComponent("" + areaId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUserArea(_response);
+        });
+    }
+
+    protected processGetUserArea(response: Response): Promise<UserArea> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserArea.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The requested user area was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserArea>(null as any);
+    }
+
+    /**
+     * - Updates the name, comment, and/or data of the user area. A renamed area cannot take a reserved name.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area to update.
+     * @param args.request The properties to change. Null properties are left unchanged.
+     * @returns Successfully updated the user area.
+     */
+    updateUserArea(args: { repositoryId: string, areaId: number, request: UpdateUserAreaRequest }): Promise<UserArea> {
+        let { repositoryId, areaId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/UserAreas/{areaId}";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (areaId === undefined || areaId === null)
+            throw new Error("The parameter 'areaId' must be defined.");
+        url_ = url_.replace("{areaId}", encodeURIComponent("" + areaId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateUserArea(_response);
+        });
+    }
+
+    protected processUpdateUserArea(response: Response): Promise<UserArea> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserArea.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The requested user area was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("A user area with the requested name already exists.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserArea>(null as any);
+    }
+
+    /**
+     * - Deletes the user area. Application-managed areas cannot be deleted through this surface (404).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area to delete.
+     * @returns Successfully deleted the user area.
+     */
+    deleteUserArea(args: { repositoryId: string, areaId: number }): Promise<void> {
+        let { repositoryId, areaId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/UserAreas/{areaId}";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (areaId === undefined || areaId === null)
+            throw new Error("The parameter 'areaId' must be defined.");
+        url_ = url_.replace("{areaId}", encodeURIComponent("" + areaId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteUserArea(_response);
+        });
+    }
+
+    protected processDeleteUserArea(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The requested user area was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * - Returns the entries contained in the user area.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area.
+     * @returns Successfully returned the user area's entries.
+     */
+    getUserAreaEntries(args: { repositoryId: string, areaId: number }): Promise<UserAreaEntry[]> {
+        let { repositoryId, areaId } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/UserAreas/{areaId}/Entries";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (areaId === undefined || areaId === null)
+            throw new Error("The parameter 'areaId' must be defined.");
+        url_ = url_.replace("{areaId}", encodeURIComponent("" + areaId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUserAreaEntries(_response);
+        });
+    }
+
+    protected processGetUserAreaEntries(response: Response): Promise<UserAreaEntry[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserAreaEntry.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The requested user area was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserAreaEntry[]>(null as any);
+    }
+
+    /**
+     * - Adds the supplied entries to the user area and returns the updated entries. Idempotent for entries already present.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area.
+     * @param args.request The entry IDs to add.
+     * @returns Successfully added the entries to the user area. Returns the updated entries.
+     */
+    addUserAreaEntries(args: { repositoryId: string, areaId: number, request: EntryIdsRequest }): Promise<UserAreaEntry[]> {
+        let { repositoryId, areaId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/UserAreas/{areaId}/Entries";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (areaId === undefined || areaId === null)
+            throw new Error("The parameter 'areaId' must be defined.");
+        url_ = url_.replace("{areaId}", encodeURIComponent("" + areaId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAddUserAreaEntries(_response);
+        });
+    }
+
+    protected processAddUserAreaEntries(response: Response): Promise<UserAreaEntry[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserAreaEntry.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The requested user area was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserAreaEntry[]>(null as any);
+    }
+
+    /**
+     * - Removes the supplied entries from the user area and returns the updated entries. Idempotent for entries not present.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.areaId The ID of the user area.
+     * @param args.request The entry IDs to remove.
+     * @returns Successfully removed the entries from the user area. Returns the updated entries.
+     */
+    removeUserAreaEntries(args: { repositoryId: string, areaId: number, request: EntryIdsRequest }): Promise<UserAreaEntry[]> {
+        let { repositoryId, areaId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/UserAreas/{areaId}/Entries";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (areaId === undefined || areaId === null)
+            throw new Error("The parameter 'areaId' must be defined.");
+        url_ = url_.replace("{areaId}", encodeURIComponent("" + areaId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRemoveUserAreaEntries(_response);
+        });
+    }
+
+    protected processRemoveUserAreaEntries(response: Response): Promise<UserAreaEntry[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserAreaEntry.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The requested user area was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserAreaEntry[]>(null as any);
+    }
+}
+
 /** Response containing a collection of Attribute. */
 export class AttributeCollectionResponse implements IAttributeCollectionResponse {
     /** A URL to retrieve the next page of the requested collection. */
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Attribute[] | undefined;
 
     
@@ -11397,6 +13455,7 @@ export interface IAttributeCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Attribute[] | undefined;
 }
 
@@ -11564,6 +13623,7 @@ export class AuditReasonCollectionResponse implements IAuditReasonCollectionResp
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: AuditReason[] | undefined;
 
     
@@ -11615,6 +13675,7 @@ export interface IAuditReasonCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: AuditReason[] | undefined;
 }
 
@@ -11879,6 +13940,7 @@ export class FieldDefinitionCollectionResponse implements IFieldDefinitionCollec
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: FieldDefinition[] | undefined;
 
     
@@ -11930,6 +13992,7 @@ export interface IFieldDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: FieldDefinition[] | undefined;
 }
 
@@ -12852,6 +14915,7 @@ export class LinkDefinitionCollectionResponse implements ILinkDefinitionCollecti
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: LinkDefinition[] | undefined;
 
     
@@ -12903,6 +14967,7 @@ export interface ILinkDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: LinkDefinition[] | undefined;
 }
 
@@ -14696,6 +16761,7 @@ Does not affect pages generated from `file` — use `pdfOptions.generateText` fo
 
 /** Response containing a link to download the exported entry. */
 export class ExportEntryResponse implements IExportEntryResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: string | undefined;
 
     
@@ -14731,6 +16797,7 @@ export class ExportEntryResponse implements IExportEntryResponse {
 
 /** Response containing a link to download the exported entry. */
 export interface IExportEntryResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: string | undefined;
 }
 
@@ -14914,6 +16981,7 @@ export class EntryCollectionResponse implements IEntryCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Entry[] | undefined;
 
     
@@ -14965,6 +17033,7 @@ export interface IEntryCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Entry[] | undefined;
 }
 
@@ -14974,6 +17043,7 @@ export class FieldCollectionResponse implements IFieldCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Field[] | undefined;
 
     
@@ -15025,6 +17095,7 @@ export interface IFieldCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Field[] | undefined;
 }
 
@@ -15084,6 +17155,7 @@ export class TagCollectionResponse implements ITagCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Tag[] | undefined;
 
     
@@ -15135,6 +17207,7 @@ export interface ITagCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Tag[] | undefined;
 }
 
@@ -15338,6 +17411,7 @@ export class LinkCollectionResponse implements ILinkCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Link[] | undefined;
 
     
@@ -15389,6 +17463,7 @@ export interface ILinkCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Link[] | undefined;
 }
 
@@ -16098,6 +18173,7 @@ export class PageInfoCollectionResponse implements IPageInfoCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: PageInfoResponse[] | undefined;
 
     
@@ -16149,6 +18225,7 @@ export interface IPageInfoCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: PageInfoResponse[] | undefined;
 }
 
@@ -16492,8 +18569,8 @@ Account renames change this value over time — do not use for stable identity c
 export class LockDocumentRequest implements ILockDocumentRequest {
     /** An optional comment for the persistent lock. */
     comment?: string | undefined;
-    /** The lock extent. Defaults to All when omitted. */
-    extent?: LockExtent | undefined;
+    /** The lock extent. One of: Page, Edoc, Metadata, All. Defaults to All when omitted. */
+    extent?: string | undefined;
 
     
     
@@ -16532,16 +18609,8 @@ export class LockDocumentRequest implements ILockDocumentRequest {
 export interface ILockDocumentRequest {
     /** An optional comment for the persistent lock. */
     comment?: string | undefined;
-    /** The lock extent. Defaults to All when omitted. */
-    extent?: LockExtent | undefined;
-}
-
-/** The portion of a document that a persistent lock covers. */
-export enum LockExtent {
-    Page = "Page",
-    Edoc = "Edoc",
-    Metadata = "Metadata",
-    All = "All",
+    /** The lock extent. One of: Page, Edoc, Metadata, All. Defaults to All when omitted. */
+    extent?: string | undefined;
 }
 
 /** Request body for checking out a document. */
@@ -16642,6 +18711,7 @@ export interface ICheckInDocumentRequest {
 
 /** Response containing a collection of Repository. */
 export class RepositoryCollectionResponse implements IRepositoryCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: Repository[] | undefined;
 
     
@@ -16685,6 +18755,7 @@ export class RepositoryCollectionResponse implements IRepositoryCollectionRespon
 
 /** Response containing a collection of Repository. */
 export interface IRepositoryCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: Repository[] | undefined;
 }
 
@@ -16808,6 +18879,7 @@ export class SearchContextHitCollectionResponse implements ISearchContextHitColl
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: SearchContextHit[] | undefined;
 
     
@@ -16859,6 +18931,7 @@ export interface ISearchContextHitCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: SearchContextHit[] | undefined;
 }
 
@@ -17056,6 +19129,7 @@ export class TagDefinitionCollectionResponse implements ITagDefinitionCollection
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TagDefinition[] | undefined;
 
     
@@ -17107,6 +19181,7 @@ export interface ITagDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TagDefinition[] | undefined;
 }
 
@@ -17184,6 +19259,7 @@ export interface ITagDefinition {
 
 /** Response containing a collection of TaskProgress. */
 export class TaskCollectionResponse implements ITaskCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: TaskProgress[] | undefined;
 
     
@@ -17227,6 +19303,7 @@ export class TaskCollectionResponse implements ITaskCollectionResponse {
 
 /** Response containing a collection of TaskProgress. */
 export interface ITaskCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: TaskProgress[] | undefined;
 }
 
@@ -17390,6 +19467,7 @@ export interface ITaskResult {
 
 /** Response containing a collection of CancelTaskResult. */
 export class CancelTasksResponse implements ICancelTasksResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: CancelTaskResult[] | undefined;
 
     
@@ -17433,6 +19511,7 @@ export class CancelTasksResponse implements ICancelTasksResponse {
 
 /** Response containing a collection of CancelTaskResult. */
 export interface ICancelTasksResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: CancelTaskResult[] | undefined;
 }
 
@@ -17496,6 +19575,7 @@ export class TemplateDefinitionCollectionResponse implements ITemplateDefinition
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateDefinition[] | undefined;
 
     
@@ -17547,6 +19627,7 @@ export interface ITemplateDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateDefinition[] | undefined;
 }
 
@@ -17556,6 +19637,7 @@ export class TemplateFieldDefinitionCollectionResponse implements ITemplateField
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateFieldDefinition[] | undefined;
 
     
@@ -17607,6 +19689,7 @@ export interface ITemplateFieldDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateFieldDefinition[] | undefined;
 }
 
@@ -18225,6 +20308,472 @@ current field count are rejected with 400. */
     newPosition: number;
 }
 
+/** Represents an entry referenced by a user's Recent Documents or Recent Folders list. */
+export class UserAreaEntry implements IUserAreaEntry {
+    /** The ID of the recently accessed entry. */
+    entryId?: number;
+    /** The full repository path of the recently accessed entry. */
+    fullPath?: string | undefined;
+
+    
+    
+    constructor(data?: IUserAreaEntry) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.entryId = _data["entryId"];
+            this.fullPath = _data["fullPath"];
+        }
+    }
+
+    static fromJS(data: any): UserAreaEntry {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserAreaEntry();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["entryId"] = this.entryId;
+        data["fullPath"] = this.fullPath;
+        return data;
+    }
+}
+
+/** Represents an entry referenced by a user's Recent Documents or Recent Folders list. */
+export interface IUserAreaEntry {
+    /** The ID of the recently accessed entry. */
+    entryId?: number;
+    /** The full repository path of the recently accessed entry. */
+    fullPath?: string | undefined;
+}
+
+/** Request body for starring or unstarring one or more entries. */
+export class StarEntriesRequest implements IStarEntriesRequest {
+    /** The IDs of the entries to star or unstar. Must contain at least one entry ID. */
+    entryIds?: number[] | undefined;
+
+    
+    
+    constructor(data?: IStarEntriesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entryIds"])) {
+                this.entryIds = [] as any;
+                for (let item of _data["entryIds"])
+                    this.entryIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): StarEntriesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new StarEntriesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entryIds)) {
+            data["entryIds"] = [];
+            for (let item of this.entryIds)
+                data["entryIds"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Request body for starring or unstarring one or more entries. */
+export interface IStarEntriesRequest {
+    /** The IDs of the entries to star or unstar. Must contain at least one entry ID. */
+    entryIds?: number[] | undefined;
+}
+
+/** Represents a user's Personal Collection — a named, per-user set of entries. */
+export class PersonalCollection implements IPersonalCollection {
+    /** The stable identifier of the collection (the underlying user-area name). */
+    id?: string | undefined;
+    /** The display name of the collection. */
+    name?: string | undefined;
+    /** The IDs of the entries contained in the collection. */
+    entryIds?: number[] | undefined;
+
+    
+    
+    constructor(data?: IPersonalCollection) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            if (Array.isArray(_data["entryIds"])) {
+                this.entryIds = [] as any;
+                for (let item of _data["entryIds"])
+                    this.entryIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): PersonalCollection {
+        data = typeof data === 'object' ? data : {};
+        let result = new PersonalCollection();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        if (Array.isArray(this.entryIds)) {
+            data["entryIds"] = [];
+            for (let item of this.entryIds)
+                data["entryIds"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Represents a user's Personal Collection — a named, per-user set of entries. */
+export interface IPersonalCollection {
+    /** The stable identifier of the collection (the underlying user-area name). */
+    id?: string | undefined;
+    /** The display name of the collection. */
+    name?: string | undefined;
+    /** The IDs of the entries contained in the collection. */
+    entryIds?: number[] | undefined;
+}
+
+/** Request body for creating a Personal Collection. */
+export class CreatePersonalCollectionRequest implements ICreatePersonalCollectionRequest {
+    /** The display name for the new collection. Required, must be 256 characters or fewer, and must not
+duplicate an existing collection name or a reserved name. */
+    name?: string | undefined;
+
+    
+    
+    constructor(data?: ICreatePersonalCollectionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): CreatePersonalCollectionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePersonalCollectionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+/** Request body for creating a Personal Collection. */
+export interface ICreatePersonalCollectionRequest {
+    /** The display name for the new collection. Required, must be 256 characters or fewer, and must not
+duplicate an existing collection name or a reserved name. */
+    name?: string | undefined;
+}
+
+/** Request body for renaming a Personal Collection. */
+export class RenamePersonalCollectionRequest implements IRenamePersonalCollectionRequest {
+    /** The new display name for the collection. Same constraints as creation. */
+    name?: string | undefined;
+
+    
+    
+    constructor(data?: IRenamePersonalCollectionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): RenamePersonalCollectionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new RenamePersonalCollectionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+/** Request body for renaming a Personal Collection. */
+export interface IRenamePersonalCollectionRequest {
+    /** The new display name for the collection. Same constraints as creation. */
+    name?: string | undefined;
+}
+
+/** Request body carrying a set of entry IDs (used to add or remove entries from a collection). */
+export class EntryIdsRequest implements IEntryIdsRequest {
+    /** The IDs of the entries to add or remove. Must contain at least one entry ID. */
+    entryIds?: number[] | undefined;
+
+    
+    
+    constructor(data?: IEntryIdsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entryIds"])) {
+                this.entryIds = [] as any;
+                for (let item of _data["entryIds"])
+                    this.entryIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): EntryIdsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new EntryIdsRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entryIds)) {
+            data["entryIds"] = [];
+            for (let item of this.entryIds)
+                data["entryIds"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Request body carrying a set of entry IDs (used to add or remove entries from a collection). */
+export interface IEntryIdsRequest {
+    /** The IDs of the entries to add or remove. Must contain at least one entry ID. */
+    entryIds?: number[] | undefined;
+}
+
+/** Represents a generic, owner-scoped user area (the raw primitive). Application-managed areas (Personal Collections, Starred, Recent) are excluded from this surface. */
+export class UserArea implements IUserArea {
+    /** The ID of the user area. */
+    id?: number;
+    /** The name of the user area. */
+    name?: string | undefined;
+    /** An optional comment associated with the user area. */
+    comment?: string | undefined;
+    /** An optional opaque application-defined data string associated with the user area. */
+    data?: string | undefined;
+
+    
+    
+    constructor(data?: IUserArea) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.comment = _data["comment"];
+            this.data = _data["data"];
+        }
+    }
+
+    static fromJS(data: any): UserArea {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserArea();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["comment"] = this.comment;
+        data["data"] = this.data;
+        return data;
+    }
+}
+
+/** Represents a generic, owner-scoped user area (the raw primitive). Application-managed areas (Personal Collections, Starred, Recent) are excluded from this surface. */
+export interface IUserArea {
+    /** The ID of the user area. */
+    id?: number;
+    /** The name of the user area. */
+    name?: string | undefined;
+    /** An optional comment associated with the user area. */
+    comment?: string | undefined;
+    /** An optional opaque application-defined data string associated with the user area. */
+    data?: string | undefined;
+}
+
+/** Request body for creating a generic user area. */
+export class CreateUserAreaRequest implements ICreateUserAreaRequest {
+    /** The name for the new user area. Required. Names reserved for application-managed areas
+(the pc_ prefix and the well-known Starred/Recent area names) are rejected. */
+    name?: string | undefined;
+    /** An optional comment for the user area. */
+    comment?: string | undefined;
+    /** An optional opaque application-defined data string for the user area. */
+    data?: string | undefined;
+
+    
+    
+    constructor(data?: ICreateUserAreaRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.comment = _data["comment"];
+            this.data = _data["data"];
+        }
+    }
+
+    static fromJS(data: any): CreateUserAreaRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUserAreaRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["comment"] = this.comment;
+        data["data"] = this.data;
+        return data;
+    }
+}
+
+/** Request body for creating a generic user area. */
+export interface ICreateUserAreaRequest {
+    /** The name for the new user area. Required. Names reserved for application-managed areas
+(the pc_ prefix and the well-known Starred/Recent area names) are rejected. */
+    name?: string | undefined;
+    /** An optional comment for the user area. */
+    comment?: string | undefined;
+    /** An optional opaque application-defined data string for the user area. */
+    data?: string | undefined;
+}
+
+/** Request body for updating a generic user area. Only non-null properties are applied. */
+export class UpdateUserAreaRequest implements IUpdateUserAreaRequest {
+    /** The new name for the user area. null leaves it unchanged. Reserved names are rejected. */
+    name?: string | undefined;
+    /** The new comment. null leaves it unchanged. */
+    comment?: string | undefined;
+    /** The new data string. null leaves it unchanged. */
+    data?: string | undefined;
+
+    
+    
+    constructor(data?: IUpdateUserAreaRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.comment = _data["comment"];
+            this.data = _data["data"];
+        }
+    }
+
+    static fromJS(data: any): UpdateUserAreaRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateUserAreaRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["comment"] = this.comment;
+        data["data"] = this.data;
+        return data;
+    }
+}
+
+/** Request body for updating a generic user area. Only non-null properties are applied. */
+export interface IUpdateUserAreaRequest {
+    /** The new name for the user area. null leaves it unchanged. Reserved names are rejected. */
+    name?: string | undefined;
+    /** The new comment. null leaves it unchanged. */
+    comment?: string | undefined;
+    /** The new data string. null leaves it unchanged. */
+    data?: string | undefined;
+}
+
 export interface FileParameter {
     data: any;
     fileName: string;
@@ -18256,6 +20805,7 @@ export interface IRepositoryApiClient {
   tasksClient: ITasksClient;
   templateDefinitionsClient: ITemplateDefinitionsClient;
   linkDefinitionsClient: ILinkDefinitionsClient;
+  userAreasClient: IUserAreasClient;
   defaultRequestHeaders: Record<string, string>;
 }
 
@@ -18274,6 +20824,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
   public tasksClient: ITasksClient;
   public templateDefinitionsClient: ITemplateDefinitionsClient;
   public linkDefinitionsClient: ILinkDefinitionsClient;
+  public userAreasClient: IUserAreasClient;
 
   private repoClientHandler: RepositoryApiClientHttpHandler;
 
@@ -18313,6 +20864,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
     this.tasksClient = new TasksClient(this.baseUrl, http);
     this.templateDefinitionsClient = new TemplateDefinitionsClient(this.baseUrl, http);
     this.linkDefinitionsClient = new LinkDefinitionsClient(this.baseUrl, http);
+    this.userAreasClient = new UserAreasClient(this.baseUrl, http);
   }
 
   /**

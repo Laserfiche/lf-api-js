@@ -25,6 +25,7 @@ export interface IRepositoryApiClient {
   tasksClient: generated.ITasksClient;
   templateDefinitionsClient: ITemplateDefinitionsClient;
   linkDefinitionsClient: ILinkDefinitionsClient;
+  userAreasClient: generated.IUserAreasClient;
   defaultRequestHeaders: Record<string, string>;
 }
 
@@ -43,6 +44,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
   public tasksClient: generated.ITasksClient;
   public templateDefinitionsClient: ITemplateDefinitionsClient;
   public linkDefinitionsClient: ILinkDefinitionsClient;
+  public userAreasClient: generated.IUserAreasClient;
 
   private repoClientHandler: RepositoryApiClientHttpHandler;
 
@@ -82,6 +84,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
     this.tasksClient = new generated.TasksClient(this.baseUrl, http);
     this.templateDefinitionsClient = new TemplateDefinitionsClient(this.baseUrl, http);
     this.linkDefinitionsClient = new LinkDefinitionsClient(this.baseUrl, http);
+    this.userAreasClient = new generated.UserAreasClient(this.baseUrl, http);
   }
 
   /**
