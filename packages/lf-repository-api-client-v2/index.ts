@@ -59,7 +59,7 @@ export class AttributesClient implements IAttributesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -373,7 +373,7 @@ export class AuditReasonsClient implements IAuditReasonsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -654,7 +654,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -2026,7 +2026,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -2920,7 +2920,7 @@ export class EntriesClient implements IEntriesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -7955,6 +7955,995 @@ export class EntriesClient implements IEntriesClient {
     }
 }
 
+export interface IRecordsManagementClient {
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the entry's records management properties.
+     */
+    getEntryRecordsManagementProperties(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordsManagementProperties>;
+
+    /**
+     * @returns Successfully updated the entry's records management properties. Returned the updated properties.
+     */
+    updateEntryRecordsManagementProperties(args: { repositoryId: string, entryId: number, request: UpdateRecordsManagementPropertiesRequest }): Promise<RecordsManagementProperties>;
+
+    /**
+     * @param args.eligibleFor (optional) 
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the ids of the records eligible for the requested action.
+     */
+    getEligibleRecords(args: { repositoryId: string, entryId: number, eligibleFor?: EligibleRecordsAction | null | undefined, select?: string | null | undefined }): Promise<RecordEntryIdCollection>;
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the ids of the independent records under the record folder.
+     */
+    getIndependentRecords(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordEntryIdCollection>;
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the record folder's alternate-retention trigger events.
+     */
+    getAltRetentionEvents(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<AltRetentionEventCollection>;
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the record series properties.
+     */
+    getRecordSeriesProperties(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordSeriesProperties>;
+
+    /**
+     * @returns Successfully updated the record series properties. Returned the updated properties.
+     */
+    updateRecordSeriesProperties(args: { repositoryId: string, entryId: number, request: UpdateRecordSeriesPropertiesRequest }): Promise<RecordSeriesProperties>;
+
+    /**
+     * @returns Successfully set the record event date. Returned the updated records management properties.
+     */
+    setRecordEvent(args: { repositoryId: string, entryId: number, request: SetRecordEventRequest }): Promise<RecordsManagementProperties>;
+
+    /**
+     * @returns Successfully removed the record event date. Returned the updated records management properties.
+     */
+    removeRecordEvent(args: { repositoryId: string, entryId: number, request: RemoveRecordEventRequest }): Promise<RecordsManagementProperties>;
+
+    /**
+     * - A record series provides cascading retention defaults for the file plan beneath it.
+    - The parent must be the file-plan root or another record series; creating one under a normal folder is rejected.
+    - Deleting a record series uses the existing Delete Entry endpoint (a record series is an entry).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.parentEntryId The parent the record series is created under. A record series belongs to the record file plan, so the parent must be the repository's file-plan root or an existing record series — it cannot be a normal folder (the server returns an error if it is).
+     * @param args.request The new record series' name and code.
+     * @returns Successfully created the record series. Returned the created entry.
+     */
+    createRecordSeries(args: { repositoryId: string, parentEntryId: number, request: CreateRecordSeriesRequest }): Promise<Entry>;
+}
+
+export class RecordsManagementClient implements IRecordsManagementClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+    }
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the entry's records management properties.
+     */
+    getEntryRecordsManagementProperties(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordsManagementProperties> {
+        let { repositoryId, entryId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/Properties?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEntryRecordsManagementProperties(_response);
+        });
+    }
+
+    protected processGetEntryRecordsManagementProperties(response: Response): Promise<RecordsManagementProperties> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RecordsManagementProperties.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The entry was not found, or it is not a record or record folder and therefore has no records management properties.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RecordsManagementProperties>(null as any);
+    }
+
+    /**
+     * @returns Successfully updated the entry's records management properties. Returned the updated properties.
+     */
+    updateEntryRecordsManagementProperties(args: { repositoryId: string, entryId: number, request: UpdateRecordsManagementPropertiesRequest }): Promise<RecordsManagementProperties> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/Properties";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateEntryRecordsManagementProperties(_response);
+        });
+    }
+
+    protected processUpdateEntryRecordsManagementProperties(response: Response): Promise<RecordsManagementProperties> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RecordsManagementProperties.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The entry was not found, or it is not a record or record folder and therefore has no records management properties.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RecordsManagementProperties>(null as any);
+    }
+
+    /**
+     * @param args.eligibleFor (optional) 
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the ids of the records eligible for the requested action.
+     */
+    getEligibleRecords(args: { repositoryId: string, entryId: number, eligibleFor?: EligibleRecordsAction | null | undefined, select?: string | null | undefined }): Promise<RecordEntryIdCollection> {
+        let { repositoryId, entryId, eligibleFor, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/EligibleRecords?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (eligibleFor !== undefined && eligibleFor !== null)
+            url_ += "eligibleFor=" + encodeURIComponent("" + eligibleFor) + "&";
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEligibleRecords(_response);
+        });
+    }
+
+    protected processGetEligibleRecords(response: Response): Promise<RecordEntryIdCollection> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RecordEntryIdCollection.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The entry was not found, or it is not a record folder.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RecordEntryIdCollection>(null as any);
+    }
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the ids of the independent records under the record folder.
+     */
+    getIndependentRecords(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordEntryIdCollection> {
+        let { repositoryId, entryId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/IndependentRecords?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetIndependentRecords(_response);
+        });
+    }
+
+    protected processGetIndependentRecords(response: Response): Promise<RecordEntryIdCollection> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RecordEntryIdCollection.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The entry was not found, or it is not a record folder.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RecordEntryIdCollection>(null as any);
+    }
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the record folder's alternate-retention trigger events.
+     */
+    getAltRetentionEvents(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<AltRetentionEventCollection> {
+        let { repositoryId, entryId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/AltRetentionEvents?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAltRetentionEvents(_response);
+        });
+    }
+
+    protected processGetAltRetentionEvents(response: Response): Promise<AltRetentionEventCollection> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AltRetentionEventCollection.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The entry was not found, or it is not a record folder.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AltRetentionEventCollection>(null as any);
+    }
+
+    /**
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the record series properties.
+     */
+    getRecordSeriesProperties(args: { repositoryId: string, entryId: number, select?: string | null | undefined }): Promise<RecordSeriesProperties> {
+        let { repositoryId, entryId, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordSeries/Properties?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetRecordSeriesProperties(_response);
+        });
+    }
+
+    protected processGetRecordSeriesProperties(response: Response): Promise<RecordSeriesProperties> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RecordSeriesProperties.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The entry was not found, or it is not a record series.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RecordSeriesProperties>(null as any);
+    }
+
+    /**
+     * @returns Successfully updated the record series properties. Returned the updated properties.
+     */
+    updateRecordSeriesProperties(args: { repositoryId: string, entryId: number, request: UpdateRecordSeriesPropertiesRequest }): Promise<RecordSeriesProperties> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordSeries/Properties";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateRecordSeriesProperties(_response);
+        });
+    }
+
+    protected processUpdateRecordSeriesProperties(response: Response): Promise<RecordSeriesProperties> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RecordSeriesProperties.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The entry was not found, or it is not a record series.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RecordSeriesProperties>(null as any);
+    }
+
+    /**
+     * @returns Successfully set the record event date. Returned the updated records management properties.
+     */
+    setRecordEvent(args: { repositoryId: string, entryId: number, request: SetRecordEventRequest }): Promise<RecordsManagementProperties> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/SetEvent";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSetRecordEvent(_response);
+        });
+    }
+
+    protected processSetRecordEvent(response: Response): Promise<RecordsManagementProperties> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RecordsManagementProperties.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The entry was not found, or it is not a record or record folder and therefore has no records management properties.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RecordsManagementProperties>(null as any);
+    }
+
+    /**
+     * @returns Successfully removed the record event date. Returned the updated records management properties.
+     */
+    removeRecordEvent(args: { repositoryId: string, entryId: number, request: RemoveRecordEventRequest }): Promise<RecordsManagementProperties> {
+        let { repositoryId, entryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/RemoveEvent";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRemoveRecordEvent(_response);
+        });
+    }
+
+    protected processRemoveRecordEvent(response: Response): Promise<RecordsManagementProperties> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RecordsManagementProperties.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The entry was not found, or it is not a record or record folder and therefore has no records management properties.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RecordsManagementProperties>(null as any);
+    }
+
+    /**
+     * - A record series provides cascading retention defaults for the file plan beneath it.
+    - The parent must be the file-plan root or another record series; creating one under a normal folder is rejected.
+    - Deleting a record series uses the existing Delete Entry endpoint (a record series is an entry).
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.parentEntryId The parent the record series is created under. A record series belongs to the record file plan, so the parent must be the repository's file-plan root or an existing record series — it cannot be a normal folder (the server returns an error if it is).
+     * @param args.request The new record series' name and code.
+     * @returns Successfully created the record series. Returned the created entry.
+     */
+    createRecordSeries(args: { repositoryId: string, parentEntryId: number, request: CreateRecordSeriesRequest }): Promise<Entry> {
+        let { repositoryId, parentEntryId, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{parentEntryId}/RecordSeries";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (parentEntryId === undefined || parentEntryId === null)
+            throw new Error("The parameter 'parentEntryId' must be defined.");
+        url_ = url_.replace("{parentEntryId}", encodeURIComponent("" + parentEntryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateRecordSeries(_response);
+        });
+    }
+
+    protected processCreateRecordSeries(response: Response): Promise<Entry> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = Entry.fromJS(resultData201);
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Entry name conflicts.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Entry>(null as any);
+    }
+}
+
 export interface IRepositoriesClient {
 
     /**
@@ -7972,7 +8961,7 @@ export class RepositoriesClient implements IRepositoriesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -8133,7 +9122,7 @@ export class SearchesClient implements ISearchesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -8707,7 +9696,7 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -8887,7 +9876,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -9224,7 +10213,7 @@ export class TasksClient implements ITasksClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -9705,7 +10694,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -11346,6 +12335,7 @@ export class AttributeCollectionResponse implements IAttributeCollectionResponse
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Attribute[] | undefined;
 
     
@@ -11397,6 +12387,7 @@ export interface IAttributeCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Attribute[] | undefined;
 }
 
@@ -11564,6 +12555,7 @@ export class AuditReasonCollectionResponse implements IAuditReasonCollectionResp
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: AuditReason[] | undefined;
 
     
@@ -11615,6 +12607,7 @@ export interface IAuditReasonCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: AuditReason[] | undefined;
 }
 
@@ -11879,6 +12872,7 @@ export class FieldDefinitionCollectionResponse implements IFieldDefinitionCollec
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: FieldDefinition[] | undefined;
 
     
@@ -11930,6 +12924,7 @@ export interface IFieldDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: FieldDefinition[] | undefined;
 }
 
@@ -12852,6 +13847,7 @@ export class LinkDefinitionCollectionResponse implements ILinkDefinitionCollecti
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: LinkDefinition[] | undefined;
 
     
@@ -12903,6 +13899,7 @@ export interface ILinkDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: LinkDefinition[] | undefined;
 }
 
@@ -14696,6 +15693,7 @@ Does not affect pages generated from `file` — use `pdfOptions.generateText` fo
 
 /** Response containing a link to download the exported entry. */
 export class ExportEntryResponse implements IExportEntryResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: string | undefined;
 
     
@@ -14731,6 +15729,7 @@ export class ExportEntryResponse implements IExportEntryResponse {
 
 /** Response containing a link to download the exported entry. */
 export interface IExportEntryResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: string | undefined;
 }
 
@@ -14914,6 +15913,7 @@ export class EntryCollectionResponse implements IEntryCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Entry[] | undefined;
 
     
@@ -14965,6 +15965,7 @@ export interface IEntryCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Entry[] | undefined;
 }
 
@@ -14974,6 +15975,7 @@ export class FieldCollectionResponse implements IFieldCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Field[] | undefined;
 
     
@@ -15025,6 +16027,7 @@ export interface IFieldCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Field[] | undefined;
 }
 
@@ -15084,6 +16087,7 @@ export class TagCollectionResponse implements ITagCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Tag[] | undefined;
 
     
@@ -15135,6 +16139,7 @@ export interface ITagCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Tag[] | undefined;
 }
 
@@ -15338,6 +16343,7 @@ export class LinkCollectionResponse implements ILinkCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Link[] | undefined;
 
     
@@ -15389,6 +16395,7 @@ export interface ILinkCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: Link[] | undefined;
 }
 
@@ -16098,6 +17105,7 @@ export class PageInfoCollectionResponse implements IPageInfoCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: PageInfoResponse[] | undefined;
 
     
@@ -16149,6 +17157,7 @@ export interface IPageInfoCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: PageInfoResponse[] | undefined;
 }
 
@@ -16492,8 +17501,8 @@ Account renames change this value over time — do not use for stable identity c
 export class LockDocumentRequest implements ILockDocumentRequest {
     /** An optional comment for the persistent lock. */
     comment?: string | undefined;
-    /** The lock extent. Defaults to All when omitted. */
-    extent?: LockExtent | undefined;
+    /** The lock extent. One of: Page, Edoc, Metadata, All. Defaults to All when omitted. */
+    extent?: string | undefined;
 
     
     
@@ -16532,16 +17541,8 @@ export class LockDocumentRequest implements ILockDocumentRequest {
 export interface ILockDocumentRequest {
     /** An optional comment for the persistent lock. */
     comment?: string | undefined;
-    /** The lock extent. Defaults to All when omitted. */
-    extent?: LockExtent | undefined;
-}
-
-/** The portion of a document that a persistent lock covers. */
-export enum LockExtent {
-    Page = "Page",
-    Edoc = "Edoc",
-    Metadata = "Metadata",
-    All = "All",
+    /** The lock extent. One of: Page, Edoc, Metadata, All. Defaults to All when omitted. */
+    extent?: string | undefined;
 }
 
 /** Request body for checking out a document. */
@@ -16640,8 +17641,1018 @@ export interface ICheckInDocumentRequest {
     unlock?: boolean;
 }
 
+/** The records management properties of an entry. This is the abstract base; the concrete shape is RecordProperties for a document record (RecordType = Record) or RecordFolderProperties for a record folder (RecordFolder). Members common to both record and record folder live here; type-specific members live on the subtypes. Many members are computed by the repository and are read-only â€” they are noted as such and are ignored on update. */
+export abstract class RecordsManagementProperties implements IRecordsManagementProperties {
+    /** Whether these properties describe a document record or a record folder. Determines the
+concrete subtype (RecordProperties or RecordFolderProperties)
+and which type-specific members are present. */
+    recordType?: RecordEntryType;
+    /** The current lifecycle state. Computed (read-only). */
+    dispositionState?: DispositionState | undefined;
+    /** True when the entry has been cut off. Computed (read-only). */
+    isCutoff?: boolean;
+    /** True when the entry is currently eligible for cutoff. Computed (read-only). */
+    isEligibleForCutoff?: boolean;
+    /** True when the entry is currently eligible for final disposition. Computed (read-only). */
+    isEligibleForFinalDisposition?: boolean;
+    /** The date the entry was cut off, or null if not cut off. Computed (read-only). */
+    cutoffDate?: Date | undefined;
+    /** The date the entry becomes eligible for cutoff, or null. Computed (read-only). */
+    cutoffEligibility?: Date | undefined;
+    /** The date the entry becomes eligible for final disposition, or null. Computed (read-only). */
+    finalDispositionEligibility?: Date | undefined;
+    /** The date final disposition was confirmed, or null. Computed (read-only). */
+    dispositionConfirmationDate?: Date | undefined;
+    /** Projected and completed interim transfers. Computed (read-only). */
+    transferDates?: RecordsManagementTransferDate[] | undefined;
+    /** The records management location the entry currently resides at, or null. Computed (read-only). */
+    locationId?: number | undefined;
+    /** The disposition schedule currently governing the entry (own or inherited), or null. Computed (read-only). */
+    activeDispositionScheduleId?: number | undefined;
+    /** The cutoff criterion assigned to the entry, or null when none. */
+    cutoffCriterionId?: number | undefined;
+    /** The disposition schedule assigned to the entry, or null when none. */
+    dispositionScheduleId?: number | undefined;
+    /** The filing date, or null when unset. */
+    filingDate?: Date | undefined;
+    /** The alternate-retention trigger date, or null when unset. */
+    triggerDate?: Date | undefined;
+    protected _discriminator: string;
+
+    
+    
+    constructor(data?: IRecordsManagementProperties) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "RecordsManagementProperties";
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.recordType = _data["recordType"];
+            this.dispositionState = _data["dispositionState"];
+            this.isCutoff = _data["isCutoff"];
+            this.isEligibleForCutoff = _data["isEligibleForCutoff"];
+            this.isEligibleForFinalDisposition = _data["isEligibleForFinalDisposition"];
+            this.cutoffDate = _data["cutoffDate"] ? new Date(_data["cutoffDate"].toString()) : <any>undefined;
+            this.cutoffEligibility = _data["cutoffEligibility"] ? new Date(_data["cutoffEligibility"].toString()) : <any>undefined;
+            this.finalDispositionEligibility = _data["finalDispositionEligibility"] ? new Date(_data["finalDispositionEligibility"].toString()) : <any>undefined;
+            this.dispositionConfirmationDate = _data["dispositionConfirmationDate"] ? new Date(_data["dispositionConfirmationDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["transferDates"])) {
+                this.transferDates = [] as any;
+                for (let item of _data["transferDates"])
+                    this.transferDates!.push(RecordsManagementTransferDate.fromJS(item));
+            }
+            this.locationId = _data["locationId"];
+            this.activeDispositionScheduleId = _data["activeDispositionScheduleId"];
+            this.cutoffCriterionId = _data["cutoffCriterionId"];
+            this.dispositionScheduleId = _data["dispositionScheduleId"];
+            this.filingDate = _data["filingDate"] ? new Date(_data["filingDate"].toString()) : <any>undefined;
+            this.triggerDate = _data["triggerDate"] ? new Date(_data["triggerDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RecordsManagementProperties {
+        data = typeof data === 'object' ? data : {};
+        if (data["recordType"] === "Record") {
+            let result = new RecordProperties();
+            result.init(data);
+            return result;
+        }
+        if (data["recordType"] === "RecordFolder") {
+            let result = new RecordFolderProperties();
+            result.init(data);
+            return result;
+        }
+        throw new Error("The abstract class 'RecordsManagementProperties' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recordType"] = this._discriminator;
+        data["recordType"] = this.recordType;
+        data["dispositionState"] = this.dispositionState;
+        data["isCutoff"] = this.isCutoff;
+        data["isEligibleForCutoff"] = this.isEligibleForCutoff;
+        data["isEligibleForFinalDisposition"] = this.isEligibleForFinalDisposition;
+        data["cutoffDate"] = this.cutoffDate ? this.cutoffDate.toISOString() : <any>undefined;
+        data["cutoffEligibility"] = this.cutoffEligibility ? this.cutoffEligibility.toISOString() : <any>undefined;
+        data["finalDispositionEligibility"] = this.finalDispositionEligibility ? this.finalDispositionEligibility.toISOString() : <any>undefined;
+        data["dispositionConfirmationDate"] = this.dispositionConfirmationDate ? this.dispositionConfirmationDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.transferDates)) {
+            data["transferDates"] = [];
+            for (let item of this.transferDates)
+                data["transferDates"].push(item.toJSON());
+        }
+        data["locationId"] = this.locationId;
+        data["activeDispositionScheduleId"] = this.activeDispositionScheduleId;
+        data["cutoffCriterionId"] = this.cutoffCriterionId;
+        data["dispositionScheduleId"] = this.dispositionScheduleId;
+        data["filingDate"] = this.filingDate ? this.filingDate.toISOString() : <any>undefined;
+        data["triggerDate"] = this.triggerDate ? this.triggerDate.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+/** The records management properties of an entry. This is the abstract base; the concrete shape is RecordProperties for a document record (RecordType = Record) or RecordFolderProperties for a record folder (RecordFolder). Members common to both record and record folder live here; type-specific members live on the subtypes. Many members are computed by the repository and are read-only â€” they are noted as such and are ignored on update. */
+export interface IRecordsManagementProperties {
+    /** Whether these properties describe a document record or a record folder. Determines the
+concrete subtype (RecordProperties or RecordFolderProperties)
+and which type-specific members are present. */
+    recordType?: RecordEntryType;
+    /** The current lifecycle state. Computed (read-only). */
+    dispositionState?: DispositionState | undefined;
+    /** True when the entry has been cut off. Computed (read-only). */
+    isCutoff?: boolean;
+    /** True when the entry is currently eligible for cutoff. Computed (read-only). */
+    isEligibleForCutoff?: boolean;
+    /** True when the entry is currently eligible for final disposition. Computed (read-only). */
+    isEligibleForFinalDisposition?: boolean;
+    /** The date the entry was cut off, or null if not cut off. Computed (read-only). */
+    cutoffDate?: Date | undefined;
+    /** The date the entry becomes eligible for cutoff, or null. Computed (read-only). */
+    cutoffEligibility?: Date | undefined;
+    /** The date the entry becomes eligible for final disposition, or null. Computed (read-only). */
+    finalDispositionEligibility?: Date | undefined;
+    /** The date final disposition was confirmed, or null. Computed (read-only). */
+    dispositionConfirmationDate?: Date | undefined;
+    /** Projected and completed interim transfers. Computed (read-only). */
+    transferDates?: RecordsManagementTransferDate[] | undefined;
+    /** The records management location the entry currently resides at, or null. Computed (read-only). */
+    locationId?: number | undefined;
+    /** The disposition schedule currently governing the entry (own or inherited), or null. Computed (read-only). */
+    activeDispositionScheduleId?: number | undefined;
+    /** The cutoff criterion assigned to the entry, or null when none. */
+    cutoffCriterionId?: number | undefined;
+    /** The disposition schedule assigned to the entry, or null when none. */
+    dispositionScheduleId?: number | undefined;
+    /** The filing date, or null when unset. */
+    filingDate?: Date | undefined;
+    /** The alternate-retention trigger date, or null when unset. */
+    triggerDate?: Date | undefined;
+}
+
+/** Discriminates which kind of records management entry a set of records management properties describes. Serialized by name. */
+export enum RecordEntryType {
+    Record = "Record",
+    RecordFolder = "RecordFolder",
+}
+
+/** The current lifecycle state of a record or record folder. Serialized by name. */
+export enum DispositionState {
+    Open = "Open",
+    Closed = "Closed",
+    InRetention = "InRetention",
+    Transferred = "Transferred",
+    Eligible = "Eligible",
+    Partial = "Partial",
+    Final = "Final",
+}
+
+/** A single interim-transfer step's dates for a record or record folder. A step is either a completed transfer or a projected one (see Transferred). Output only. */
+export class RecordsManagementTransferDate implements IRecordsManagementTransferDate {
+    /** The id of the disposition schedule transfer step this date corresponds to. */
+    transferId?: number;
+    /** The ordinal transfer number within the disposition schedule. */
+    transferNumber?: number;
+    /** The date the transfer occurred, or null when it has not yet taken place. */
+    date?: Date | undefined;
+    /** The date the entry becomes (or became) eligible for this transfer. */
+    eligibleDate?: Date | undefined;
+    /** True when the transfer has taken place; false when this is a projected date. */
+    transferred?: boolean;
+
+    
+    
+    constructor(data?: IRecordsManagementTransferDate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.transferId = _data["transferId"];
+            this.transferNumber = _data["transferNumber"];
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.eligibleDate = _data["eligibleDate"] ? new Date(_data["eligibleDate"].toString()) : <any>undefined;
+            this.transferred = _data["transferred"];
+        }
+    }
+
+    static fromJS(data: any): RecordsManagementTransferDate {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecordsManagementTransferDate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["transferId"] = this.transferId;
+        data["transferNumber"] = this.transferNumber;
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["eligibleDate"] = this.eligibleDate ? this.eligibleDate.toISOString() : <any>undefined;
+        data["transferred"] = this.transferred;
+        return data;
+    }
+}
+
+/** A single interim-transfer step's dates for a record or record folder. A step is either a completed transfer or a projected one (see Transferred). Output only. */
+export interface IRecordsManagementTransferDate {
+    /** The id of the disposition schedule transfer step this date corresponds to. */
+    transferId?: number;
+    /** The ordinal transfer number within the disposition schedule. */
+    transferNumber?: number;
+    /** The date the transfer occurred, or null when it has not yet taken place. */
+    date?: Date | undefined;
+    /** The date the entry becomes (or became) eligible for this transfer. */
+    eligibleDate?: Date | undefined;
+    /** True when the transfer has taken place; false when this is a projected date. */
+    transferred?: boolean;
+}
+
+/** The records management properties of a document record (RecordType = Record). Adds the document-record-only members to the common RecordsManagementProperties shape. */
+export class RecordProperties extends RecordsManagementProperties implements IRecordProperties {
+    /** The record folder this record is filed under, or null when independent. Computed (read-only). */
+    recordFolderId?: number | undefined;
+    /** True when the record is filed under a record folder. Computed (read-only). */
+    underRecordFolder?: boolean | undefined;
+    /** True when the record was cut off individually rather than with its folder. Computed (read-only). */
+    isIndividuallyCutoff?: boolean | undefined;
+    /** True when the cutoff criterion is inherited from the record folder. */
+    isCutoffCriterionInherited?: boolean | undefined;
+    /** True when the disposition schedule is inherited from the record folder. */
+    isDispositionScheduleInherited?: boolean | undefined;
+    /** The reviewer recorded for the last vital-record review, or null. Computed (read-only). */
+    reviewer?: string | undefined;
+    /** The last vital-record review date, or null when unset. */
+    lastReviewDate?: Date | undefined;
+    /** The next scheduled vital-record review date, or null. Computed (read-only). */
+    nextReviewDate?: Date | undefined;
+
+    
+    
+    constructor(data?: IRecordProperties) {
+        super(data);
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "Record";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.recordFolderId = _data["recordFolderId"];
+            this.underRecordFolder = _data["underRecordFolder"];
+            this.isIndividuallyCutoff = _data["isIndividuallyCutoff"];
+            this.isCutoffCriterionInherited = _data["isCutoffCriterionInherited"];
+            this.isDispositionScheduleInherited = _data["isDispositionScheduleInherited"];
+            this.reviewer = _data["reviewer"];
+            this.lastReviewDate = _data["lastReviewDate"] ? new Date(_data["lastReviewDate"].toString()) : <any>undefined;
+            this.nextReviewDate = _data["nextReviewDate"] ? new Date(_data["nextReviewDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RecordProperties {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecordProperties();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recordFolderId"] = this.recordFolderId;
+        data["underRecordFolder"] = this.underRecordFolder;
+        data["isIndividuallyCutoff"] = this.isIndividuallyCutoff;
+        data["isCutoffCriterionInherited"] = this.isCutoffCriterionInherited;
+        data["isDispositionScheduleInherited"] = this.isDispositionScheduleInherited;
+        data["reviewer"] = this.reviewer;
+        data["lastReviewDate"] = this.lastReviewDate ? this.lastReviewDate.toISOString() : <any>undefined;
+        data["nextReviewDate"] = this.nextReviewDate ? this.nextReviewDate.toISOString() : <any>undefined;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+/** The records management properties of a document record (RecordType = Record). Adds the document-record-only members to the common RecordsManagementProperties shape. */
+export interface IRecordProperties extends IRecordsManagementProperties {
+    /** The record folder this record is filed under, or null when independent. Computed (read-only). */
+    recordFolderId?: number | undefined;
+    /** True when the record is filed under a record folder. Computed (read-only). */
+    underRecordFolder?: boolean | undefined;
+    /** True when the record was cut off individually rather than with its folder. Computed (read-only). */
+    isIndividuallyCutoff?: boolean | undefined;
+    /** True when the cutoff criterion is inherited from the record folder. */
+    isCutoffCriterionInherited?: boolean | undefined;
+    /** True when the disposition schedule is inherited from the record folder. */
+    isDispositionScheduleInherited?: boolean | undefined;
+    /** The reviewer recorded for the last vital-record review, or null. Computed (read-only). */
+    reviewer?: string | undefined;
+    /** The last vital-record review date, or null when unset. */
+    lastReviewDate?: Date | undefined;
+    /** The next scheduled vital-record review date, or null. Computed (read-only). */
+    nextReviewDate?: Date | undefined;
+}
+
+/** The records management properties of a record folder (RecordType = RecordFolder). Adds the record-folder-only members to the common RecordsManagementProperties shape. */
+export class RecordFolderProperties extends RecordsManagementProperties implements IRecordFolderProperties {
+    /** True when the record folder is closed to new filings. */
+    isClosed?: boolean | undefined;
+    /** True when the record folder is permanent (never destroyed). */
+    isPermanent?: boolean | undefined;
+    /** The disposition authority name, or null. */
+    dispositionAuthority?: string | undefined;
+    /** The vital-record review cycle (calendar cycle) id, or null. */
+    reviewCycleId?: number | undefined;
+    /** The vital-record review interval, or null. */
+    reviewInterval?: number | undefined;
+    /** The review interval unit. */
+    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+
+    
+    
+    constructor(data?: IRecordFolderProperties) {
+        super(data);
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "RecordFolder";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.isClosed = _data["isClosed"];
+            this.isPermanent = _data["isPermanent"];
+            this.dispositionAuthority = _data["dispositionAuthority"];
+            this.reviewCycleId = _data["reviewCycleId"];
+            this.reviewInterval = _data["reviewInterval"];
+            this.reviewIntervalUnit = _data["reviewIntervalUnit"];
+        }
+    }
+
+    static fromJS(data: any): RecordFolderProperties {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecordFolderProperties();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isClosed"] = this.isClosed;
+        data["isPermanent"] = this.isPermanent;
+        data["dispositionAuthority"] = this.dispositionAuthority;
+        data["reviewCycleId"] = this.reviewCycleId;
+        data["reviewInterval"] = this.reviewInterval;
+        data["reviewIntervalUnit"] = this.reviewIntervalUnit;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+/** The records management properties of a record folder (RecordType = RecordFolder). Adds the record-folder-only members to the common RecordsManagementProperties shape. */
+export interface IRecordFolderProperties extends IRecordsManagementProperties {
+    /** True when the record folder is closed to new filings. */
+    isClosed?: boolean | undefined;
+    /** True when the record folder is permanent (never destroyed). */
+    isPermanent?: boolean | undefined;
+    /** The disposition authority name, or null. */
+    dispositionAuthority?: string | undefined;
+    /** The vital-record review cycle (calendar cycle) id, or null. */
+    reviewCycleId?: number | undefined;
+    /** The vital-record review interval, or null. */
+    reviewInterval?: number | undefined;
+    /** The review interval unit. */
+    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+}
+
+/** The unit of a vital-record review interval. Serialized by name. */
+export enum ReviewIntervalUnit {
+    NotApplicable = "NotApplicable",
+    Day = "Day",
+    Month = "Month",
+}
+
+/** A list of entry ids returned by a records management folder query (for example, the records eligible for disposition or transfer, or the independent records under a record folder). Callers join these ids against the entry endpoints to retrieve the entries themselves. */
+export class RecordEntryIdCollection implements IRecordEntryIdCollection {
+    /** The matching entry ids. */
+    entryIds?: number[] | undefined;
+
+    
+    
+    constructor(data?: IRecordEntryIdCollection) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["entryIds"])) {
+                this.entryIds = [] as any;
+                for (let item of _data["entryIds"])
+                    this.entryIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): RecordEntryIdCollection {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecordEntryIdCollection();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.entryIds)) {
+            data["entryIds"] = [];
+            for (let item of this.entryIds)
+                data["entryIds"].push(item);
+        }
+        return data;
+    }
+}
+
+/** A list of entry ids returned by a records management folder query (for example, the records eligible for disposition or transfer, or the independent records under a record folder). Callers join these ids against the entry endpoints to retrieve the entries themselves. */
+export interface IRecordEntryIdCollection {
+    /** The matching entry ids. */
+    entryIds?: number[] | undefined;
+}
+
+/** The records management action to query a record folder's eligible records for. Used as the for selector on GetEligibleRecords. Serialized by name. */
+export enum EligibleRecordsAction {
+    Disposition = "Disposition",
+    Transfer = "Transfer",
+}
+
+/** The alternate-retention trigger events resolved for a record folder. */
+export class AltRetentionEventCollection implements IAltRetentionEventCollection {
+    /** The alternate-retention trigger events. */
+    events?: AltRetentionEvent[] | undefined;
+
+    
+    
+    constructor(data?: IAltRetentionEventCollection) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["events"])) {
+                this.events = [] as any;
+                for (let item of _data["events"])
+                    this.events!.push(AltRetentionEvent.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AltRetentionEventCollection {
+        data = typeof data === 'object' ? data : {};
+        let result = new AltRetentionEventCollection();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.events)) {
+            data["events"] = [];
+            for (let item of this.events)
+                data["events"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** The alternate-retention trigger events resolved for a record folder. */
+export interface IAltRetentionEventCollection {
+    /** The alternate-retention trigger events. */
+    events?: AltRetentionEvent[] | undefined;
+}
+
+/** An alternate-retention trigger event resolved for a record folder — the event whose occurrence drives the folder's alternate disposition schedule. Output only. */
+export class AltRetentionEvent implements IAltRetentionEvent {
+    /** The entry the alternate-retention trigger applies to. */
+    entryId?: number;
+    /** The records management event definition id that triggers the alternate retention. */
+    eventId?: number;
+    /** The date the trigger event is set to occur, or null when unset. */
+    triggerDate?: Date | undefined;
+
+    
+    
+    constructor(data?: IAltRetentionEvent) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.entryId = _data["entryId"];
+            this.eventId = _data["eventId"];
+            this.triggerDate = _data["triggerDate"] ? new Date(_data["triggerDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): AltRetentionEvent {
+        data = typeof data === 'object' ? data : {};
+        let result = new AltRetentionEvent();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["entryId"] = this.entryId;
+        data["eventId"] = this.eventId;
+        data["triggerDate"] = this.triggerDate ? this.triggerDate.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+/** An alternate-retention trigger event resolved for a record folder — the event whose occurrence drives the folder's alternate disposition schedule. Output only. */
+export interface IAltRetentionEvent {
+    /** The entry the alternate-retention trigger applies to. */
+    entryId?: number;
+    /** The records management event definition id that triggers the alternate retention. */
+    eventId?: number;
+    /** The date the trigger event is set to occur, or null when unset. */
+    triggerDate?: Date | undefined;
+}
+
+/** A record series' retention defaults. A record series provides cascading defaults (cutoff criterion, disposition schedule, review cycle, permanence, disposition authority) that the record folders and records beneath it resolve against. */
+export class RecordSeriesProperties implements IRecordSeriesProperties {
+    /** The record series code. */
+    code?: string | undefined;
+    /** The default cutoff criterion id, or null when none. */
+    cutoffCriterionId?: number | undefined;
+    /** The default disposition schedule id, or null when none. */
+    dispositionScheduleId?: number | undefined;
+    /** The disposition authority name, or null. */
+    dispositionAuthority?: string | undefined;
+    /** True when records under the series are permanent (never destroyed). */
+    isPermanent?: boolean;
+    /** The default vital-record review cycle (calendar cycle) id, or null when none. */
+    reviewCycleId?: number | undefined;
+    /** The default vital-record review interval, or null when none. */
+    reviewInterval?: number | undefined;
+    /** The default review interval unit. */
+    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+
+    
+    
+    constructor(data?: IRecordSeriesProperties) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.code = _data["code"];
+            this.cutoffCriterionId = _data["cutoffCriterionId"];
+            this.dispositionScheduleId = _data["dispositionScheduleId"];
+            this.dispositionAuthority = _data["dispositionAuthority"];
+            this.isPermanent = _data["isPermanent"];
+            this.reviewCycleId = _data["reviewCycleId"];
+            this.reviewInterval = _data["reviewInterval"];
+            this.reviewIntervalUnit = _data["reviewIntervalUnit"];
+        }
+    }
+
+    static fromJS(data: any): RecordSeriesProperties {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecordSeriesProperties();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["code"] = this.code;
+        data["cutoffCriterionId"] = this.cutoffCriterionId;
+        data["dispositionScheduleId"] = this.dispositionScheduleId;
+        data["dispositionAuthority"] = this.dispositionAuthority;
+        data["isPermanent"] = this.isPermanent;
+        data["reviewCycleId"] = this.reviewCycleId;
+        data["reviewInterval"] = this.reviewInterval;
+        data["reviewIntervalUnit"] = this.reviewIntervalUnit;
+        return data;
+    }
+}
+
+/** A record series' retention defaults. A record series provides cascading defaults (cutoff criterion, disposition schedule, review cycle, permanence, disposition authority) that the record folders and records beneath it resolve against. */
+export interface IRecordSeriesProperties {
+    /** The record series code. */
+    code?: string | undefined;
+    /** The default cutoff criterion id, or null when none. */
+    cutoffCriterionId?: number | undefined;
+    /** The default disposition schedule id, or null when none. */
+    dispositionScheduleId?: number | undefined;
+    /** The disposition authority name, or null. */
+    dispositionAuthority?: string | undefined;
+    /** True when records under the series are permanent (never destroyed). */
+    isPermanent?: boolean;
+    /** The default vital-record review cycle (calendar cycle) id, or null when none. */
+    reviewCycleId?: number | undefined;
+    /** The default vital-record review interval, or null when none. */
+    reviewInterval?: number | undefined;
+    /** The default review interval unit. */
+    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+}
+
+/** Request body for partial-update of an entry's records management properties. Every member is optional: null = leave unchanged. Id members accept 0 to clear the assignment. Dates are set by supplying a value; the two clearable dates (record folder triggerDate and record lastReviewDate) are cleared via their explicit clear* flags. Applying this update to a plain document promotes it to a record, and to a plain folder promotes it to a record folder, before the properties are applied. Members that do not apply to the entry's resulting type (for example record-folder members on a document record) are rejected with 400. */
+export class UpdateRecordsManagementPropertiesRequest implements IUpdateRecordsManagementPropertiesRequest {
+    /** The cutoff criterion id to assign, or 0 to clear. */
+    cutoffCriterionId?: number | undefined;
+    /** The disposition schedule id to assign, or 0 to clear. */
+    dispositionScheduleId?: number | undefined;
+    /** The filing date to set. */
+    filingDate?: Date | undefined;
+    /** The alternate-retention trigger date to set. */
+    triggerDate?: Date | undefined;
+    /** Whether the cutoff criterion is inherited from the record folder. (record) */
+    isCutoffCriterionInherited?: boolean | undefined;
+    /** Whether the disposition schedule is inherited from the record folder. (record) */
+    isDispositionScheduleInherited?: boolean | undefined;
+    /** The last vital-record review date to set. (record) */
+    lastReviewDate?: Date | undefined;
+    /** When true, clear the last vital-record review date. (record) */
+    clearLastReviewDate?: boolean;
+    /** When true, clear the alternate-retention trigger date. (recordFolder) */
+    clearTriggerDate?: boolean;
+    /** Whether the record folder is closed to new filings. (recordFolder) */
+    isClosed?: boolean | undefined;
+    /** Whether the record folder is permanent (never destroyed). (recordFolder) */
+    isPermanent?: boolean | undefined;
+    /** The disposition authority name; empty string to clear. (recordFolder) */
+    dispositionAuthority?: string | undefined;
+    /** The vital-record review cycle (calendar cycle) id to assign, or 0 to clear. (recordFolder) */
+    reviewCycleId?: number | undefined;
+    /** The vital-record review interval to set. (recordFolder) */
+    reviewInterval?: number | undefined;
+    /** The review interval unit. (recordFolder) */
+    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+
+    
+    
+    constructor(data?: IUpdateRecordsManagementPropertiesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cutoffCriterionId = _data["cutoffCriterionId"];
+            this.dispositionScheduleId = _data["dispositionScheduleId"];
+            this.filingDate = _data["filingDate"] ? new Date(_data["filingDate"].toString()) : <any>undefined;
+            this.triggerDate = _data["triggerDate"] ? new Date(_data["triggerDate"].toString()) : <any>undefined;
+            this.isCutoffCriterionInherited = _data["isCutoffCriterionInherited"];
+            this.isDispositionScheduleInherited = _data["isDispositionScheduleInherited"];
+            this.lastReviewDate = _data["lastReviewDate"] ? new Date(_data["lastReviewDate"].toString()) : <any>undefined;
+            this.clearLastReviewDate = _data["clearLastReviewDate"];
+            this.clearTriggerDate = _data["clearTriggerDate"];
+            this.isClosed = _data["isClosed"];
+            this.isPermanent = _data["isPermanent"];
+            this.dispositionAuthority = _data["dispositionAuthority"];
+            this.reviewCycleId = _data["reviewCycleId"];
+            this.reviewInterval = _data["reviewInterval"];
+            this.reviewIntervalUnit = _data["reviewIntervalUnit"];
+        }
+    }
+
+    static fromJS(data: any): UpdateRecordsManagementPropertiesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateRecordsManagementPropertiesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cutoffCriterionId"] = this.cutoffCriterionId;
+        data["dispositionScheduleId"] = this.dispositionScheduleId;
+        data["filingDate"] = this.filingDate ? this.filingDate.toISOString() : <any>undefined;
+        data["triggerDate"] = this.triggerDate ? this.triggerDate.toISOString() : <any>undefined;
+        data["isCutoffCriterionInherited"] = this.isCutoffCriterionInherited;
+        data["isDispositionScheduleInherited"] = this.isDispositionScheduleInherited;
+        data["lastReviewDate"] = this.lastReviewDate ? this.lastReviewDate.toISOString() : <any>undefined;
+        data["clearLastReviewDate"] = this.clearLastReviewDate;
+        data["clearTriggerDate"] = this.clearTriggerDate;
+        data["isClosed"] = this.isClosed;
+        data["isPermanent"] = this.isPermanent;
+        data["dispositionAuthority"] = this.dispositionAuthority;
+        data["reviewCycleId"] = this.reviewCycleId;
+        data["reviewInterval"] = this.reviewInterval;
+        data["reviewIntervalUnit"] = this.reviewIntervalUnit;
+        return data;
+    }
+}
+
+/** Request body for partial-update of an entry's records management properties. Every member is optional: null = leave unchanged. Id members accept 0 to clear the assignment. Dates are set by supplying a value; the two clearable dates (record folder triggerDate and record lastReviewDate) are cleared via their explicit clear* flags. Applying this update to a plain document promotes it to a record, and to a plain folder promotes it to a record folder, before the properties are applied. Members that do not apply to the entry's resulting type (for example record-folder members on a document record) are rejected with 400. */
+export interface IUpdateRecordsManagementPropertiesRequest {
+    /** The cutoff criterion id to assign, or 0 to clear. */
+    cutoffCriterionId?: number | undefined;
+    /** The disposition schedule id to assign, or 0 to clear. */
+    dispositionScheduleId?: number | undefined;
+    /** The filing date to set. */
+    filingDate?: Date | undefined;
+    /** The alternate-retention trigger date to set. */
+    triggerDate?: Date | undefined;
+    /** Whether the cutoff criterion is inherited from the record folder. (record) */
+    isCutoffCriterionInherited?: boolean | undefined;
+    /** Whether the disposition schedule is inherited from the record folder. (record) */
+    isDispositionScheduleInherited?: boolean | undefined;
+    /** The last vital-record review date to set. (record) */
+    lastReviewDate?: Date | undefined;
+    /** When true, clear the last vital-record review date. (record) */
+    clearLastReviewDate?: boolean;
+    /** When true, clear the alternate-retention trigger date. (recordFolder) */
+    clearTriggerDate?: boolean;
+    /** Whether the record folder is closed to new filings. (recordFolder) */
+    isClosed?: boolean | undefined;
+    /** Whether the record folder is permanent (never destroyed). (recordFolder) */
+    isPermanent?: boolean | undefined;
+    /** The disposition authority name; empty string to clear. (recordFolder) */
+    dispositionAuthority?: string | undefined;
+    /** The vital-record review cycle (calendar cycle) id to assign, or 0 to clear. (recordFolder) */
+    reviewCycleId?: number | undefined;
+    /** The vital-record review interval to set. (recordFolder) */
+    reviewInterval?: number | undefined;
+    /** The review interval unit. (recordFolder) */
+    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+}
+
+/** Request body for setting a records management event date on a record or record folder. */
+export class SetRecordEventRequest implements ISetRecordEventRequest {
+    /** The records management event definition id whose date is being set. */
+    eventId?: number;
+    /** The date to record for the event. */
+    date?: Date;
+
+    
+    
+    constructor(data?: ISetRecordEventRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.eventId = _data["eventId"];
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): SetRecordEventRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetRecordEventRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["eventId"] = this.eventId;
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+/** Request body for setting a records management event date on a record or record folder. */
+export interface ISetRecordEventRequest {
+    /** The records management event definition id whose date is being set. */
+    eventId?: number;
+    /** The date to record for the event. */
+    date?: Date;
+}
+
+/** Request body for removing a records management event date from a record or record folder. */
+export class RemoveRecordEventRequest implements IRemoveRecordEventRequest {
+    /** The records management event definition id whose date is being removed. */
+    eventId?: number;
+
+    
+    
+    constructor(data?: IRemoveRecordEventRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.eventId = _data["eventId"];
+        }
+    }
+
+    static fromJS(data: any): RemoveRecordEventRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new RemoveRecordEventRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["eventId"] = this.eventId;
+        return data;
+    }
+}
+
+/** Request body for removing a records management event date from a record or record folder. */
+export interface IRemoveRecordEventRequest {
+    /** The records management event definition id whose date is being removed. */
+    eventId?: number;
+}
+
+/** Request body for partial-update of a record series' retention defaults. Every member is optional: null = leave unchanged. Id members accept 0 to clear the assignment. */
+export class UpdateRecordSeriesPropertiesRequest implements IUpdateRecordSeriesPropertiesRequest {
+    /** The default cutoff criterion id to assign, or 0 to clear. */
+    cutoffCriterionId?: number | undefined;
+    /** The default disposition schedule id to assign, or 0 to clear. */
+    dispositionScheduleId?: number | undefined;
+    /** The disposition authority name; empty string to clear. */
+    dispositionAuthority?: string | undefined;
+    /** Whether records under the series are permanent (never destroyed). */
+    isPermanent?: boolean | undefined;
+    /** The default vital-record review cycle (calendar cycle) id to assign, or 0 to clear. */
+    reviewCycleId?: number | undefined;
+    /** The default vital-record review interval to set. */
+    reviewInterval?: number | undefined;
+    /** The default review interval unit. */
+    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+    /** When true, cascade the changed defaults to the record folders and records beneath the
+series. When false (default), only the series' own defaults change. */
+    cascade?: boolean;
+
+    
+    
+    constructor(data?: IUpdateRecordSeriesPropertiesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cutoffCriterionId = _data["cutoffCriterionId"];
+            this.dispositionScheduleId = _data["dispositionScheduleId"];
+            this.dispositionAuthority = _data["dispositionAuthority"];
+            this.isPermanent = _data["isPermanent"];
+            this.reviewCycleId = _data["reviewCycleId"];
+            this.reviewInterval = _data["reviewInterval"];
+            this.reviewIntervalUnit = _data["reviewIntervalUnit"];
+            this.cascade = _data["cascade"];
+        }
+    }
+
+    static fromJS(data: any): UpdateRecordSeriesPropertiesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateRecordSeriesPropertiesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cutoffCriterionId"] = this.cutoffCriterionId;
+        data["dispositionScheduleId"] = this.dispositionScheduleId;
+        data["dispositionAuthority"] = this.dispositionAuthority;
+        data["isPermanent"] = this.isPermanent;
+        data["reviewCycleId"] = this.reviewCycleId;
+        data["reviewInterval"] = this.reviewInterval;
+        data["reviewIntervalUnit"] = this.reviewIntervalUnit;
+        data["cascade"] = this.cascade;
+        return data;
+    }
+}
+
+/** Request body for partial-update of a record series' retention defaults. Every member is optional: null = leave unchanged. Id members accept 0 to clear the assignment. */
+export interface IUpdateRecordSeriesPropertiesRequest {
+    /** The default cutoff criterion id to assign, or 0 to clear. */
+    cutoffCriterionId?: number | undefined;
+    /** The default disposition schedule id to assign, or 0 to clear. */
+    dispositionScheduleId?: number | undefined;
+    /** The disposition authority name; empty string to clear. */
+    dispositionAuthority?: string | undefined;
+    /** Whether records under the series are permanent (never destroyed). */
+    isPermanent?: boolean | undefined;
+    /** The default vital-record review cycle (calendar cycle) id to assign, or 0 to clear. */
+    reviewCycleId?: number | undefined;
+    /** The default vital-record review interval to set. */
+    reviewInterval?: number | undefined;
+    /** The default review interval unit. */
+    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+    /** When true, cascade the changed defaults to the record folders and records beneath the
+series. When false (default), only the series' own defaults change. */
+    cascade?: boolean;
+}
+
+/** Request body for creating a record series under a parent folder. */
+export class CreateRecordSeriesRequest implements ICreateRecordSeriesRequest {
+    /** The name of the new record series. */
+    name?: string | undefined;
+    /** The record series code. */
+    code?: string | undefined;
+    /** When true, the server appends a suffix to the name on a naming conflict instead of failing. */
+    autoRename?: boolean;
+
+    
+    
+    constructor(data?: ICreateRecordSeriesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.code = _data["code"];
+            this.autoRename = _data["autoRename"];
+        }
+    }
+
+    static fromJS(data: any): CreateRecordSeriesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateRecordSeriesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["code"] = this.code;
+        data["autoRename"] = this.autoRename;
+        return data;
+    }
+}
+
+/** Request body for creating a record series under a parent folder. */
+export interface ICreateRecordSeriesRequest {
+    /** The name of the new record series. */
+    name?: string | undefined;
+    /** The record series code. */
+    code?: string | undefined;
+    /** When true, the server appends a suffix to the name on a naming conflict instead of failing. */
+    autoRename?: boolean;
+}
+
 /** Response containing a collection of Repository. */
 export class RepositoryCollectionResponse implements IRepositoryCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: Repository[] | undefined;
 
     
@@ -16685,6 +18696,7 @@ export class RepositoryCollectionResponse implements IRepositoryCollectionRespon
 
 /** Response containing a collection of Repository. */
 export interface IRepositoryCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: Repository[] | undefined;
 }
 
@@ -16808,6 +18820,7 @@ export class SearchContextHitCollectionResponse implements ISearchContextHitColl
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: SearchContextHit[] | undefined;
 
     
@@ -16859,6 +18872,7 @@ export interface ISearchContextHitCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: SearchContextHit[] | undefined;
 }
 
@@ -17056,6 +19070,7 @@ export class TagDefinitionCollectionResponse implements ITagDefinitionCollection
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TagDefinition[] | undefined;
 
     
@@ -17107,6 +19122,7 @@ export interface ITagDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TagDefinition[] | undefined;
 }
 
@@ -17184,6 +19200,7 @@ export interface ITagDefinition {
 
 /** Response containing a collection of TaskProgress. */
 export class TaskCollectionResponse implements ITaskCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: TaskProgress[] | undefined;
 
     
@@ -17227,6 +19244,7 @@ export class TaskCollectionResponse implements ITaskCollectionResponse {
 
 /** Response containing a collection of TaskProgress. */
 export interface ITaskCollectionResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: TaskProgress[] | undefined;
 }
 
@@ -17390,6 +19408,7 @@ export interface ITaskResult {
 
 /** Response containing a collection of CancelTaskResult. */
 export class CancelTasksResponse implements ICancelTasksResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: CancelTaskResult[] | undefined;
 
     
@@ -17433,6 +19452,7 @@ export class CancelTasksResponse implements ICancelTasksResponse {
 
 /** Response containing a collection of CancelTaskResult. */
 export interface ICancelTasksResponse {
+    /** Gets or sets the OData response content in the "value". */
     value?: CancelTaskResult[] | undefined;
 }
 
@@ -17496,6 +19516,7 @@ export class TemplateDefinitionCollectionResponse implements ITemplateDefinition
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateDefinition[] | undefined;
 
     
@@ -17547,6 +19568,7 @@ export interface ITemplateDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateDefinition[] | undefined;
 }
 
@@ -17556,6 +19578,7 @@ export class TemplateFieldDefinitionCollectionResponse implements ITemplateField
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateFieldDefinition[] | undefined;
 
     
@@ -17607,6 +19630,7 @@ export interface ITemplateFieldDefinitionCollectionResponse {
     odataNextLink?: string | undefined;
     /** The total count of items within a collection. */
     odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
     value?: TemplateFieldDefinition[] | undefined;
 }
 
@@ -18256,6 +20280,7 @@ export interface IRepositoryApiClient {
   tasksClient: ITasksClient;
   templateDefinitionsClient: ITemplateDefinitionsClient;
   linkDefinitionsClient: ILinkDefinitionsClient;
+  recordsManagementClient: IRecordsManagementClient;
   defaultRequestHeaders: Record<string, string>;
 }
 
@@ -18274,6 +20299,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
   public tasksClient: ITasksClient;
   public templateDefinitionsClient: ITemplateDefinitionsClient;
   public linkDefinitionsClient: ILinkDefinitionsClient;
+  public recordsManagementClient: IRecordsManagementClient;
 
   private repoClientHandler: RepositoryApiClientHttpHandler;
 
@@ -18313,6 +20339,7 @@ export class RepositoryApiClient implements IRepositoryApiClient {
     this.tasksClient = new TasksClient(this.baseUrl, http);
     this.templateDefinitionsClient = new TemplateDefinitionsClient(this.baseUrl, http);
     this.linkDefinitionsClient = new LinkDefinitionsClient(this.baseUrl, http);
+    this.recordsManagementClient = new RecordsManagementClient(this.baseUrl, http);
   }
 
   /**
