@@ -59,7 +59,7 @@ export class AttributesClient implements IAttributesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -373,7 +373,7 @@ export class AuditReasonsClient implements IAuditReasonsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -654,7 +654,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -2026,7 +2026,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -2920,7 +2920,7 @@ export class EntriesClient implements IEntriesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -7969,11 +7969,11 @@ export interface IRecordsManagementClient {
     updateEntryRecordsManagementProperties(args: { repositoryId: string, entryId: number, request: UpdateRecordsManagementPropertiesRequest }): Promise<RecordsManagementProperties>;
 
     /**
-     * @param args.forSelector (optional) 
+     * @param args.eligibleFor (optional) 
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully returned the ids of the records eligible for the requested action.
      */
-    getEligibleRecords(args: { repositoryId: string, entryId: number, forSelector?: string | null | undefined, select?: string | null | undefined }): Promise<RecordEntryIdCollection>;
+    getEligibleRecords(args: { repositoryId: string, entryId: number, eligibleFor?: EligibleRecordsAction | null | undefined, select?: string | null | undefined }): Promise<RecordEntryIdCollection>;
 
     /**
      * @param args.select (optional) Limits the properties returned in the result.
@@ -8028,7 +8028,7 @@ export class RecordsManagementClient implements IRecordsManagementClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -8211,12 +8211,12 @@ export class RecordsManagementClient implements IRecordsManagementClient {
     }
 
     /**
-     * @param args.forSelector (optional) 
+     * @param args.eligibleFor (optional) 
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully returned the ids of the records eligible for the requested action.
      */
-    getEligibleRecords(args: { repositoryId: string, entryId: number, forSelector?: string | null | undefined, select?: string | null | undefined }): Promise<RecordEntryIdCollection> {
-        let { repositoryId, entryId, forSelector, select } = args;
+    getEligibleRecords(args: { repositoryId: string, entryId: number, eligibleFor?: EligibleRecordsAction | null | undefined, select?: string | null | undefined }): Promise<RecordEntryIdCollection> {
+        let { repositoryId, entryId, eligibleFor, select } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/RecordsManagement/EligibleRecords?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -8224,8 +8224,8 @@ export class RecordsManagementClient implements IRecordsManagementClient {
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
-        if (forSelector !== undefined && forSelector !== null)
-            url_ += "for=" + encodeURIComponent("" + forSelector) + "&";
+        if (eligibleFor !== undefined && eligibleFor !== null)
+            url_ += "eligibleFor=" + encodeURIComponent("" + eligibleFor) + "&";
         if (select !== undefined && select !== null)
             url_ += "$select=" + encodeURIComponent("" + select) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -8961,7 +8961,7 @@ export class RepositoriesClient implements IRepositoriesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -9122,7 +9122,7 @@ export class SearchesClient implements ISearchesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -9696,7 +9696,7 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -9876,7 +9876,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -10213,7 +10213,7 @@ export class TasksClient implements ITasksClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     /**
@@ -10694,7 +10694,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
     }
 
     
@@ -17641,10 +17641,11 @@ export interface ICheckInDocumentRequest {
     unlock?: boolean;
 }
 
-/** The records management properties of an entry. The same shape describes both a document record (RecordType = Record) and a record folder (RecordType = RecordFolder); members that do not apply to the entry's type are omitted. Many members are computed by the repository and are read-only — they are noted as such and are ignored on update. */
-export class RecordsManagementProperties implements IRecordsManagementProperties {
-    /** Whether these properties describe a document record or a record folder. Determines which
-of the type-specific members are present. */
+/** The records management properties of an entry. This is the abstract base; the concrete shape is RecordProperties for a document record (RecordType = Record) or RecordFolderProperties for a record folder (RecordFolder). Members common to both record and record folder live here; type-specific members live on the subtypes. Many members are computed by the repository and are read-only â€” they are noted as such and are ignored on update. */
+export abstract class RecordsManagementProperties implements IRecordsManagementProperties {
+    /** Whether these properties describe a document record or a record folder. Determines the
+concrete subtype (RecordProperties or RecordFolderProperties)
+and which type-specific members are present. */
     recordType?: RecordEntryType;
     /** The current lifecycle state. Computed (read-only). */
     dispositionState?: DispositionState | undefined;
@@ -17676,34 +17677,7 @@ of the type-specific members are present. */
     filingDate?: Date | undefined;
     /** The alternate-retention trigger date, or null when unset. */
     triggerDate?: Date | undefined;
-    /** The record folder this record is filed under, or null when independent. Computed (read-only). */
-    recordFolderId?: number | undefined;
-    /** True when the record is filed under a record folder. Computed (read-only). */
-    underRecordFolder?: boolean | undefined;
-    /** True when the record was cut off individually rather than with its folder. Computed (read-only). */
-    isIndividuallyCutoff?: boolean | undefined;
-    /** True when the cutoff criterion is inherited from the record folder. */
-    isCutoffCriterionInherited?: boolean | undefined;
-    /** True when the disposition schedule is inherited from the record folder. */
-    isDispositionScheduleInherited?: boolean | undefined;
-    /** The reviewer recorded for the last vital-record review, or null. Computed (read-only). */
-    reviewer?: string | undefined;
-    /** The last vital-record review date, or null when unset. */
-    lastReviewDate?: Date | undefined;
-    /** The next scheduled vital-record review date, or null. Computed (read-only). */
-    nextReviewDate?: Date | undefined;
-    /** True when the record folder is closed to new filings. */
-    isClosed?: boolean | undefined;
-    /** True when the record folder is permanent (never destroyed). */
-    isPermanent?: boolean | undefined;
-    /** The disposition authority name, or null. */
-    dispositionAuthority?: string | undefined;
-    /** The vital-record review cycle (calendar cycle) id, or null. */
-    reviewCycleId?: number | undefined;
-    /** The vital-record review interval, or null. */
-    reviewInterval?: number | undefined;
-    /** The review interval unit. */
-    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+    protected _discriminator: string;
 
     
     
@@ -17714,6 +17688,7 @@ of the type-specific members are present. */
                     (<any>this)[property] = (<any>data)[property];
             }
         }
+        this._discriminator = "RecordsManagementProperties";
     }
 
     init(_data?: any) {
@@ -17738,32 +17713,27 @@ of the type-specific members are present. */
             this.dispositionScheduleId = _data["dispositionScheduleId"];
             this.filingDate = _data["filingDate"] ? new Date(_data["filingDate"].toString()) : <any>undefined;
             this.triggerDate = _data["triggerDate"] ? new Date(_data["triggerDate"].toString()) : <any>undefined;
-            this.recordFolderId = _data["recordFolderId"];
-            this.underRecordFolder = _data["underRecordFolder"];
-            this.isIndividuallyCutoff = _data["isIndividuallyCutoff"];
-            this.isCutoffCriterionInherited = _data["isCutoffCriterionInherited"];
-            this.isDispositionScheduleInherited = _data["isDispositionScheduleInherited"];
-            this.reviewer = _data["reviewer"];
-            this.lastReviewDate = _data["lastReviewDate"] ? new Date(_data["lastReviewDate"].toString()) : <any>undefined;
-            this.nextReviewDate = _data["nextReviewDate"] ? new Date(_data["nextReviewDate"].toString()) : <any>undefined;
-            this.isClosed = _data["isClosed"];
-            this.isPermanent = _data["isPermanent"];
-            this.dispositionAuthority = _data["dispositionAuthority"];
-            this.reviewCycleId = _data["reviewCycleId"];
-            this.reviewInterval = _data["reviewInterval"];
-            this.reviewIntervalUnit = _data["reviewIntervalUnit"];
         }
     }
 
     static fromJS(data: any): RecordsManagementProperties {
         data = typeof data === 'object' ? data : {};
-        let result = new RecordsManagementProperties();
-        result.init(data);
-        return result;
+        if (data["recordType"] === "Record") {
+            let result = new RecordProperties();
+            result.init(data);
+            return result;
+        }
+        if (data["recordType"] === "RecordFolder") {
+            let result = new RecordFolderProperties();
+            result.init(data);
+            return result;
+        }
+        throw new Error("The abstract class 'RecordsManagementProperties' cannot be instantiated.");
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["recordType"] = this._discriminator;
         data["recordType"] = this.recordType;
         data["dispositionState"] = this.dispositionState;
         data["isCutoff"] = this.isCutoff;
@@ -17784,28 +17754,15 @@ of the type-specific members are present. */
         data["dispositionScheduleId"] = this.dispositionScheduleId;
         data["filingDate"] = this.filingDate ? this.filingDate.toISOString() : <any>undefined;
         data["triggerDate"] = this.triggerDate ? this.triggerDate.toISOString() : <any>undefined;
-        data["recordFolderId"] = this.recordFolderId;
-        data["underRecordFolder"] = this.underRecordFolder;
-        data["isIndividuallyCutoff"] = this.isIndividuallyCutoff;
-        data["isCutoffCriterionInherited"] = this.isCutoffCriterionInherited;
-        data["isDispositionScheduleInherited"] = this.isDispositionScheduleInherited;
-        data["reviewer"] = this.reviewer;
-        data["lastReviewDate"] = this.lastReviewDate ? this.lastReviewDate.toISOString() : <any>undefined;
-        data["nextReviewDate"] = this.nextReviewDate ? this.nextReviewDate.toISOString() : <any>undefined;
-        data["isClosed"] = this.isClosed;
-        data["isPermanent"] = this.isPermanent;
-        data["dispositionAuthority"] = this.dispositionAuthority;
-        data["reviewCycleId"] = this.reviewCycleId;
-        data["reviewInterval"] = this.reviewInterval;
-        data["reviewIntervalUnit"] = this.reviewIntervalUnit;
         return data;
     }
 }
 
-/** The records management properties of an entry. The same shape describes both a document record (RecordType = Record) and a record folder (RecordType = RecordFolder); members that do not apply to the entry's type are omitted. Many members are computed by the repository and are read-only — they are noted as such and are ignored on update. */
+/** The records management properties of an entry. This is the abstract base; the concrete shape is RecordProperties for a document record (RecordType = Record) or RecordFolderProperties for a record folder (RecordFolder). Members common to both record and record folder live here; type-specific members live on the subtypes. Many members are computed by the repository and are read-only â€” they are noted as such and are ignored on update. */
 export interface IRecordsManagementProperties {
-    /** Whether these properties describe a document record or a record folder. Determines which
-of the type-specific members are present. */
+    /** Whether these properties describe a document record or a record folder. Determines the
+concrete subtype (RecordProperties or RecordFolderProperties)
+and which type-specific members are present. */
     recordType?: RecordEntryType;
     /** The current lifecycle state. Computed (read-only). */
     dispositionState?: DispositionState | undefined;
@@ -17837,34 +17794,6 @@ of the type-specific members are present. */
     filingDate?: Date | undefined;
     /** The alternate-retention trigger date, or null when unset. */
     triggerDate?: Date | undefined;
-    /** The record folder this record is filed under, or null when independent. Computed (read-only). */
-    recordFolderId?: number | undefined;
-    /** True when the record is filed under a record folder. Computed (read-only). */
-    underRecordFolder?: boolean | undefined;
-    /** True when the record was cut off individually rather than with its folder. Computed (read-only). */
-    isIndividuallyCutoff?: boolean | undefined;
-    /** True when the cutoff criterion is inherited from the record folder. */
-    isCutoffCriterionInherited?: boolean | undefined;
-    /** True when the disposition schedule is inherited from the record folder. */
-    isDispositionScheduleInherited?: boolean | undefined;
-    /** The reviewer recorded for the last vital-record review, or null. Computed (read-only). */
-    reviewer?: string | undefined;
-    /** The last vital-record review date, or null when unset. */
-    lastReviewDate?: Date | undefined;
-    /** The next scheduled vital-record review date, or null. Computed (read-only). */
-    nextReviewDate?: Date | undefined;
-    /** True when the record folder is closed to new filings. */
-    isClosed?: boolean | undefined;
-    /** True when the record folder is permanent (never destroyed). */
-    isPermanent?: boolean | undefined;
-    /** The disposition authority name, or null. */
-    dispositionAuthority?: string | undefined;
-    /** The vital-record review cycle (calendar cycle) id, or null. */
-    reviewCycleId?: number | undefined;
-    /** The vital-record review interval, or null. */
-    reviewInterval?: number | undefined;
-    /** The review interval unit. */
-    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
 }
 
 /** Discriminates which kind of records management entry a set of records management properties describes. Serialized by name. */
@@ -17950,6 +17879,170 @@ export interface IRecordsManagementTransferDate {
     transferred?: boolean;
 }
 
+/** The records management properties of a document record (RecordType = Record). Adds the document-record-only members to the common RecordsManagementProperties shape. */
+export class RecordProperties extends RecordsManagementProperties implements IRecordProperties {
+    /** The record folder this record is filed under, or null when independent. Computed (read-only). */
+    recordFolderId?: number | undefined;
+    /** True when the record is filed under a record folder. Computed (read-only). */
+    underRecordFolder?: boolean | undefined;
+    /** True when the record was cut off individually rather than with its folder. Computed (read-only). */
+    isIndividuallyCutoff?: boolean | undefined;
+    /** True when the cutoff criterion is inherited from the record folder. */
+    isCutoffCriterionInherited?: boolean | undefined;
+    /** True when the disposition schedule is inherited from the record folder. */
+    isDispositionScheduleInherited?: boolean | undefined;
+    /** The reviewer recorded for the last vital-record review, or null. Computed (read-only). */
+    reviewer?: string | undefined;
+    /** The last vital-record review date, or null when unset. */
+    lastReviewDate?: Date | undefined;
+    /** The next scheduled vital-record review date, or null. Computed (read-only). */
+    nextReviewDate?: Date | undefined;
+
+    
+    
+    constructor(data?: IRecordProperties) {
+        super(data);
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "Record";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.recordFolderId = _data["recordFolderId"];
+            this.underRecordFolder = _data["underRecordFolder"];
+            this.isIndividuallyCutoff = _data["isIndividuallyCutoff"];
+            this.isCutoffCriterionInherited = _data["isCutoffCriterionInherited"];
+            this.isDispositionScheduleInherited = _data["isDispositionScheduleInherited"];
+            this.reviewer = _data["reviewer"];
+            this.lastReviewDate = _data["lastReviewDate"] ? new Date(_data["lastReviewDate"].toString()) : <any>undefined;
+            this.nextReviewDate = _data["nextReviewDate"] ? new Date(_data["nextReviewDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RecordProperties {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecordProperties();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recordFolderId"] = this.recordFolderId;
+        data["underRecordFolder"] = this.underRecordFolder;
+        data["isIndividuallyCutoff"] = this.isIndividuallyCutoff;
+        data["isCutoffCriterionInherited"] = this.isCutoffCriterionInherited;
+        data["isDispositionScheduleInherited"] = this.isDispositionScheduleInherited;
+        data["reviewer"] = this.reviewer;
+        data["lastReviewDate"] = this.lastReviewDate ? this.lastReviewDate.toISOString() : <any>undefined;
+        data["nextReviewDate"] = this.nextReviewDate ? this.nextReviewDate.toISOString() : <any>undefined;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+/** The records management properties of a document record (RecordType = Record). Adds the document-record-only members to the common RecordsManagementProperties shape. */
+export interface IRecordProperties extends IRecordsManagementProperties {
+    /** The record folder this record is filed under, or null when independent. Computed (read-only). */
+    recordFolderId?: number | undefined;
+    /** True when the record is filed under a record folder. Computed (read-only). */
+    underRecordFolder?: boolean | undefined;
+    /** True when the record was cut off individually rather than with its folder. Computed (read-only). */
+    isIndividuallyCutoff?: boolean | undefined;
+    /** True when the cutoff criterion is inherited from the record folder. */
+    isCutoffCriterionInherited?: boolean | undefined;
+    /** True when the disposition schedule is inherited from the record folder. */
+    isDispositionScheduleInherited?: boolean | undefined;
+    /** The reviewer recorded for the last vital-record review, or null. Computed (read-only). */
+    reviewer?: string | undefined;
+    /** The last vital-record review date, or null when unset. */
+    lastReviewDate?: Date | undefined;
+    /** The next scheduled vital-record review date, or null. Computed (read-only). */
+    nextReviewDate?: Date | undefined;
+}
+
+/** The records management properties of a record folder (RecordType = RecordFolder). Adds the record-folder-only members to the common RecordsManagementProperties shape. */
+export class RecordFolderProperties extends RecordsManagementProperties implements IRecordFolderProperties {
+    /** True when the record folder is closed to new filings. */
+    isClosed?: boolean | undefined;
+    /** True when the record folder is permanent (never destroyed). */
+    isPermanent?: boolean | undefined;
+    /** The disposition authority name, or null. */
+    dispositionAuthority?: string | undefined;
+    /** The vital-record review cycle (calendar cycle) id, or null. */
+    reviewCycleId?: number | undefined;
+    /** The vital-record review interval, or null. */
+    reviewInterval?: number | undefined;
+    /** The review interval unit. */
+    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+
+    
+    
+    constructor(data?: IRecordFolderProperties) {
+        super(data);
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "RecordFolder";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.isClosed = _data["isClosed"];
+            this.isPermanent = _data["isPermanent"];
+            this.dispositionAuthority = _data["dispositionAuthority"];
+            this.reviewCycleId = _data["reviewCycleId"];
+            this.reviewInterval = _data["reviewInterval"];
+            this.reviewIntervalUnit = _data["reviewIntervalUnit"];
+        }
+    }
+
+    static fromJS(data: any): RecordFolderProperties {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecordFolderProperties();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isClosed"] = this.isClosed;
+        data["isPermanent"] = this.isPermanent;
+        data["dispositionAuthority"] = this.dispositionAuthority;
+        data["reviewCycleId"] = this.reviewCycleId;
+        data["reviewInterval"] = this.reviewInterval;
+        data["reviewIntervalUnit"] = this.reviewIntervalUnit;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+/** The records management properties of a record folder (RecordType = RecordFolder). Adds the record-folder-only members to the common RecordsManagementProperties shape. */
+export interface IRecordFolderProperties extends IRecordsManagementProperties {
+    /** True when the record folder is closed to new filings. */
+    isClosed?: boolean | undefined;
+    /** True when the record folder is permanent (never destroyed). */
+    isPermanent?: boolean | undefined;
+    /** The disposition authority name, or null. */
+    dispositionAuthority?: string | undefined;
+    /** The vital-record review cycle (calendar cycle) id, or null. */
+    reviewCycleId?: number | undefined;
+    /** The vital-record review interval, or null. */
+    reviewInterval?: number | undefined;
+    /** The review interval unit. */
+    reviewIntervalUnit?: ReviewIntervalUnit | undefined;
+}
+
 /** The unit of a vital-record review interval. Serialized by name. */
 export enum ReviewIntervalUnit {
     NotApplicable = "NotApplicable",
@@ -18005,6 +18098,12 @@ export class RecordEntryIdCollection implements IRecordEntryIdCollection {
 export interface IRecordEntryIdCollection {
     /** The matching entry ids. */
     entryIds?: number[] | undefined;
+}
+
+/** The records management action to query a record folder's eligible records for. Used as the for selector on GetEligibleRecords. Serialized by name. */
+export enum EligibleRecordsAction {
+    Disposition = "Disposition",
+    Transfer = "Transfer",
 }
 
 /** The alternate-retention trigger events resolved for a record folder. */

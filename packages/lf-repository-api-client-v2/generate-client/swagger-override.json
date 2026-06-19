@@ -112,6 +112,121 @@
             }
           }
         }
+      },
+      "RecordsManagementProperties": {
+        "type": "object",
+        "description": "The records management properties of an entry. This is the abstract base; the concrete shape is\nRecordProperties for a document record (RecordType = Record)\nor RecordFolderProperties for a record folder (RecordFolder). Members\ncommon to both record and record folder live here; type-specific members live on the subtypes.\nMany members are computed by the repository and are read-only \u00e2\u20ac\u201d they are noted as such and are\nignored on update.",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "recordType": {
+            "description": "Whether these properties describe a document record or a record folder. Determines the\nconcrete subtype (RecordProperties or RecordFolderProperties)\nand which type-specific members are present.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RecordEntryType"
+              }
+            ]
+          },
+          "dispositionState": {
+            "description": "The current lifecycle state. Computed (read-only).",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DispositionState"
+              }
+            ]
+          },
+          "isCutoff": {
+            "type": "boolean",
+            "description": "True when the entry has been cut off. Computed (read-only)."
+          },
+          "isEligibleForCutoff": {
+            "type": "boolean",
+            "description": "True when the entry is currently eligible for cutoff. Computed (read-only)."
+          },
+          "isEligibleForFinalDisposition": {
+            "type": "boolean",
+            "description": "True when the entry is currently eligible for final disposition. Computed (read-only)."
+          },
+          "cutoffDate": {
+            "type": "string",
+            "description": "The date the entry was cut off, or null if not cut off. Computed (read-only).",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cutoffEligibility": {
+            "type": "string",
+            "description": "The date the entry becomes eligible for cutoff, or null. Computed (read-only).",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finalDispositionEligibility": {
+            "type": "string",
+            "description": "The date the entry becomes eligible for final disposition, or null. Computed (read-only).",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dispositionConfirmationDate": {
+            "type": "string",
+            "description": "The date final disposition was confirmed, or null. Computed (read-only).",
+            "format": "date-time",
+            "nullable": true
+          },
+          "transferDates": {
+            "type": "array",
+            "description": "Projected and completed interim transfers. Computed (read-only).",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/RecordsManagementTransferDate"
+            }
+          },
+          "locationId": {
+            "type": "integer",
+            "description": "The records management location the entry currently resides at, or null. Computed (read-only).",
+            "format": "int32",
+            "nullable": true
+          },
+          "activeDispositionScheduleId": {
+            "type": "integer",
+            "description": "The disposition schedule currently governing the entry (own or inherited), or null. Computed (read-only).",
+            "format": "int32",
+            "nullable": true
+          },
+          "cutoffCriterionId": {
+            "type": "integer",
+            "description": "The cutoff criterion assigned to the entry, or null when none.",
+            "format": "int32",
+            "nullable": true
+          },
+          "dispositionScheduleId": {
+            "type": "integer",
+            "description": "The disposition schedule assigned to the entry, or null when none.",
+            "format": "int32",
+            "nullable": true
+          },
+          "filingDate": {
+            "type": "string",
+            "description": "The filing date, or null when unset.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "triggerDate": {
+            "type": "string",
+            "description": "The alternate-retention trigger date, or null when unset.",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "discriminator": {
+          "propertyName": "record Type",
+          "mapping": {
+            "Record": "#/components/schemas/RecordProperties",
+            "RecordFolder": "#/components/schemas/RecordFolderProperties"
+          }
+        },
+        "required": [
+          "record Type"
+        ]
       }
     }
   }
