@@ -1,3 +1,9 @@
+## 1.1.21
+
+### Security
+
+- Upgrade `form-data` to `4.0.6` to remediate CVE-2026-12143 (CRLF injection via unescaped field/filename in the `Content-Disposition` header).
+
 ## 1.1.20
 
 ### Security

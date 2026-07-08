@@ -1,6 +1,12 @@
 <!--Copyright (c) Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
+## 4.0.15
+
+### Security
+
+- Upgrade `form-data` to `4.0.6` to remediate CVE-2026-12143 (CRLF injection via unescaped field/filename in the `Content-Disposition` header).
+
 ## 4.0.14
 
 ### Security
