@@ -38,7 +38,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Update npm
         run: npm install -g npm@latest
@@ -123,7 +123,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Update npm
         run: npm install -g npm@latest
@@ -265,7 +265,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Update npm
         run: npm install -g npm@latest
@@ -353,10 +353,10 @@ jobs:
           name: pnpm-api-js-types-publish-artifact
           path: ./packages/lf-api-js/types-npm-publish
 
-      - name: Setup Node.js v20 environment
+      - name: Setup Node.js v24 environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Update npm
         run: npm install -g npm@latest
@@ -475,10 +475,10 @@ jobs:
           name: pnpm-api-js-types-publish-artifact
           path: ./packages/lf-api-js/types-npm-publish
 
-      - name: Setup Node.js v20 environment
+      - name: Setup Node.js v24 environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Update npm
         run: npm install -g npm@latest
