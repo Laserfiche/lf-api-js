@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+### Security
+
+- Upgrade `form-data` to `4.0.6` to update vulnerable transitive dependency.
+
 ## 1.2.0
 
 ### Features
@@ -12,7 +18,7 @@
 
 ### Security
 
-- Upgrade vulnerable dependencies: `brace-expansion` (^2.0.3), `flatted` (^3.4.0), `form-data` (4.0.6), `js-yaml` (4.1.1), `lodash` (^4.18.1), `markdown-it` (^14.1.1), `minimatch` (^9.0.7), `serialize-javascript` (7.0.5), `ws` (^8.20.1), `yaml` (^2.8.3), `ajv` (^8.18.0), `glob` (^10.5.0). Remove `inflight` (deprecated, memory-leaking). (`form-data` further bumped to `4.0.6` to remediate CVE-2026-12143 — CRLF injection via unescaped field/filename in the `Content-Disposition` header.)
+- Upgrade vulnerable dependencies: `brace-expansion` (^2.0.3), `flatted` (^3.4.0), `form-data` (4.0.6), `js-yaml` (4.1.1), `lodash` (^4.18.1), `markdown-it` (^14.1.1), `minimatch` (^9.0.7), `serialize-javascript` (7.0.5), `ws` (^8.20.1), `yaml` (^2.8.3), `ajv` (^8.18.0), `glob` (^10.5.0). Remove `inflight` (deprecated, memory-leaking).
 
 ## 1.1.0
 
