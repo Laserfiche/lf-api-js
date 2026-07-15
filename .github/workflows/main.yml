@@ -13,11 +13,11 @@ on:
   workflow_dispatch:
 
 env:
-  NPM_API_CLIENT_V1_VERSION: '1.1.11'
-  NPM_API_CLIENT_V2_VERSION: '1.2.0'
-  NPM_CLIENT_CORE_VERSION: '1.1.20'
-  NPM_JS_UTILS_VERSION: '4.0.14'
-  NPM_API_JS_CLIENT_VERSION: '1.2.0'
+  NPM_API_CLIENT_V1_VERSION: '1.1.12'
+  NPM_API_CLIENT_V2_VERSION: '1.2.1'
+  NPM_CLIENT_CORE_VERSION: '1.1.21'
+  NPM_JS_UTILS_VERSION: '4.0.15'
+  NPM_API_JS_CLIENT_VERSION: '1.2.1'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -38,7 +38,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Update npm
         run: npm install -g npm@latest
@@ -123,7 +123,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Update npm
         run: npm install -g npm@latest
@@ -265,7 +265,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Update npm
         run: npm install -g npm@latest
@@ -353,10 +353,10 @@ jobs:
           name: pnpm-api-js-types-publish-artifact
           path: ./packages/lf-api-js/types-npm-publish
 
-      - name: Setup Node.js v20 environment
+      - name: Setup Node.js v24 environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Update npm
         run: npm install -g npm@latest
@@ -475,10 +475,10 @@ jobs:
           name: pnpm-api-js-types-publish-artifact
           path: ./packages/lf-api-js/types-npm-publish
 
-      - name: Setup Node.js v20 environment
+      - name: Setup Node.js v24 environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Update npm
         run: npm install -g npm@latest

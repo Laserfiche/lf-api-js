@@ -1,6 +1,12 @@
 <!--Copyright (c) Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
+## 4.0.15
+
+### Security
+
+- Upgrade `form-data` to `4.0.6` to update vulnerable transitive dependency.
+
 ## 4.0.14
 
 ### Security

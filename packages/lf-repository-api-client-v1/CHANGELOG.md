@@ -1,3 +1,9 @@
+## 1.1.12
+
+### Security
+
+- Upgrade `form-data` to `4.0.6` to update vulnerable transitive dependency.
+
 ## 1.1.11
 
 ### Security
