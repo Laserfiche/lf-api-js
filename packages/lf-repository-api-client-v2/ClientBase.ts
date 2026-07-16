@@ -14,17 +14,22 @@ import {
 } from '@laserfiche/lf-api-client-core';
 class ClientBase {}
 export interface IRepositoryApiClient {
+  accessControlClient: generated.IAccessControlClient;
+  annotationsClient: generated.IAnnotationsClient;
   attributesClient: IAttributesClient;
   auditReasonsClient: generated.IAuditReasonsClient;
   entriesClient: IEntriesClient;
   fieldDefinitionsClient: IFieldDefinitionsClient;
+  recordsManagementClient: generated.IRecordsManagementClient;
   repositoriesClient: generated.IRepositoriesClient;
   searchesClient: ISearchesClient;
   simpleSearchesClient: generated.ISimpleSearchesClient;
+  stampsClient: generated.IStampsClient;
   tagDefinitionsClient: ITagDefinitionsClient;
   tasksClient: generated.ITasksClient;
   templateDefinitionsClient: ITemplateDefinitionsClient;
   linkDefinitionsClient: ILinkDefinitionsClient;
+  userAreasClient: generated.IUserAreasClient;
   defaultRequestHeaders: Record<string, string>;
 }
 
@@ -32,17 +37,22 @@ export interface IRepositoryApiClient {
 export class RepositoryApiClient implements IRepositoryApiClient {
   private baseUrl: string;
 
+  public accessControlClient: generated.IAccessControlClient;
+  public annotationsClient: generated.IAnnotationsClient;
   public attributesClient: IAttributesClient;
   public auditReasonsClient: generated.IAuditReasonsClient;
   public entriesClient: IEntriesClient;
   public fieldDefinitionsClient: IFieldDefinitionsClient;
+  public recordsManagementClient: generated.IRecordsManagementClient;
   public repositoriesClient: generated.IRepositoriesClient;
   public searchesClient: ISearchesClient;
   public simpleSearchesClient: generated.ISimpleSearchesClient;
+  public stampsClient: generated.IStampsClient;
   public tagDefinitionsClient: ITagDefinitionsClient;
   public tasksClient: generated.ITasksClient;
   public templateDefinitionsClient: ITemplateDefinitionsClient;
   public linkDefinitionsClient: ILinkDefinitionsClient;
+  public userAreasClient: generated.IUserAreasClient;
 
   private repoClientHandler: RepositoryApiClientHttpHandler;
 
@@ -71,17 +81,22 @@ export class RepositoryApiClient implements IRepositoryApiClient {
       fetch,
     };
     this.baseUrl = baseUrlDebug ?? '';
+    this.accessControlClient = new generated.AccessControlClient(this.baseUrl, http);
+    this.annotationsClient = new generated.AnnotationsClient(this.baseUrl, http);
     this.attributesClient = new AttributesClient(this.baseUrl, http);
     this.auditReasonsClient = new generated.AuditReasonsClient(this.baseUrl, http);
     this.entriesClient = new EntriesClient(this.baseUrl, http);
     this.fieldDefinitionsClient = new FieldDefinitionsClient(this.baseUrl, http);
+    this.recordsManagementClient = new generated.RecordsManagementClient(this.baseUrl, http);
     this.repositoriesClient = new generated.RepositoriesClient(this.baseUrl, http);
     this.searchesClient = new SearchesClient(this.baseUrl, http);
     this.simpleSearchesClient = new generated.SimpleSearchesClient(this.baseUrl, http);
+    this.stampsClient = new generated.StampsClient(this.baseUrl, http);
     this.tagDefinitionsClient = new TagDefinitionsClient(this.baseUrl, http);
     this.tasksClient = new generated.TasksClient(this.baseUrl, http);
     this.templateDefinitionsClient = new TemplateDefinitionsClient(this.baseUrl, http);
     this.linkDefinitionsClient = new LinkDefinitionsClient(this.baseUrl, http);
+    this.userAreasClient = new generated.UserAreasClient(this.baseUrl, http);
   }
 
   /**

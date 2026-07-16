@@ -112,6 +112,233 @@
             }
           }
         }
+      },
+      "Annotation": {
+        "type": "object",
+        "discriminator": {
+          "propertyName": "annotationType",
+          "mapping": {
+            "Highlight": "#/components/schemas/HighlightAnnotation",
+            "Redaction": "#/components/schemas/RedactionAnnotation",
+            "Strikeout": "#/components/schemas/StrikeoutAnnotation",
+            "Underline": "#/components/schemas/UnderlineAnnotation",
+            "Note": "#/components/schemas/NoteAnnotation",
+            "Attachment": "#/components/schemas/AttachmentAnnotation",
+            "TextBox": "#/components/schemas/TextBoxAnnotation",
+            "Bitmap": "#/components/schemas/BitmapAnnotation",
+            "Line": "#/components/schemas/LineAnnotation",
+            "Rectangle": "#/components/schemas/RectangleAnnotation",
+            "Polyline": "#/components/schemas/PolylineAnnotation",
+            "Callout": "#/components/schemas/CalloutAnnotation",
+            "Stamp": "#/components/schemas/StampAnnotation",
+            "FreeHand": "#/components/schemas/FreeHandAnnotation"
+          }
+        },
+        "required": [
+          "annotationType"
+        ],
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "type": "integer",
+            "description": "The identifier of the annotation, unique within its page.",
+            "format": "int32"
+          },
+          "entryId": {
+            "type": "integer",
+            "description": "The ID of the document entry the annotation belongs to.",
+            "format": "int32"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "description": "The 1-based page number the annotation is on.",
+            "format": "int32"
+          },
+          "annotationType": {
+            "description": "The type of the annotation.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AnnotationType"
+              }
+            ]
+          },
+          "creator": {
+            "type": "string",
+            "description": "The security identifier (SID) of the user that created the annotation.",
+            "nullable": true
+          },
+          "createdTime": {
+            "type": "string",
+            "description": "The UTC time the annotation was created.",
+            "format": "date-time"
+          },
+          "lastModifiedTime": {
+            "type": "string",
+            "description": "The UTC time the annotation was last modified.",
+            "format": "date-time"
+          },
+          "isReadOnly": {
+            "type": "boolean",
+            "description": "A boolean indicating whether the annotation is read-only (for example, on an archived version)."
+          },
+          "isProtected": {
+            "type": "boolean",
+            "description": "A boolean indicating whether the annotation is protected so that only its creator can modify it."
+          },
+          "visibility": {
+            "description": "Controls who can see the annotation.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AnnotationVisibility"
+              }
+            ]
+          },
+          "comment": {
+            "type": "string",
+            "description": "An optional comment on the annotation.",
+            "nullable": true
+          },
+          "customData": {
+            "type": "string",
+            "description": "Optional application-defined custom data stored with the annotation.",
+            "nullable": true
+          },
+          "zOrder": {
+            "type": "integer",
+            "description": "The z-order of the annotation; higher values draw on top.",
+            "format": "int32"
+          },
+          "reasonId": {
+            "type": "integer",
+            "description": "The ID of the redaction reason associated with the annotation, if any.",
+            "format": "int32",
+            "nullable": true
+          },
+          "accessType": {
+            "description": "How the annotation participates in access control.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AnnotationAccessControlType"
+              }
+            ]
+          }
+        }
+      },
+      "RecordsManagementProperties": {
+        "type": "object",
+        "description": "The records management properties of an entry. This is the abstract base; the concrete shape is\nRecordProperties for a document record (RecordType = Record)\nor RecordFolderProperties for a record folder (RecordFolder). Members\ncommon to both record and record folder live here; type-specific members live on the subtypes.\nMany members are computed by the repository and are read-only \u00e2\u20ac\u201d they are noted as such and are\nignored on update.",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "recordType": {
+            "description": "Whether these properties describe a document record or a record folder. Determines the\nconcrete subtype (RecordProperties or RecordFolderProperties)\nand which type-specific members are present.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RecordEntryType"
+              }
+            ]
+          },
+          "dispositionState": {
+            "description": "The current lifecycle state. Computed (read-only).",
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DispositionState"
+              }
+            ]
+          },
+          "isCutoff": {
+            "type": "boolean",
+            "description": "True when the entry has been cut off. Computed (read-only)."
+          },
+          "isEligibleForCutoff": {
+            "type": "boolean",
+            "description": "True when the entry is currently eligible for cutoff. Computed (read-only)."
+          },
+          "isEligibleForFinalDisposition": {
+            "type": "boolean",
+            "description": "True when the entry is currently eligible for final disposition. Computed (read-only)."
+          },
+          "cutoffDate": {
+            "type": "string",
+            "description": "The date the entry was cut off, or null if not cut off. Computed (read-only).",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cutoffEligibility": {
+            "type": "string",
+            "description": "The date the entry becomes eligible for cutoff, or null. Computed (read-only).",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finalDispositionEligibility": {
+            "type": "string",
+            "description": "The date the entry becomes eligible for final disposition, or null. Computed (read-only).",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dispositionConfirmationDate": {
+            "type": "string",
+            "description": "The date final disposition was confirmed, or null. Computed (read-only).",
+            "format": "date-time",
+            "nullable": true
+          },
+          "transferDates": {
+            "type": "array",
+            "description": "Projected and completed interim transfers. Computed (read-only).",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/RecordsManagementTransferDate"
+            }
+          },
+          "locationId": {
+            "type": "integer",
+            "description": "The records management location the entry currently resides at, or null. Computed (read-only).",
+            "format": "int32",
+            "nullable": true
+          },
+          "activeDispositionScheduleId": {
+            "type": "integer",
+            "description": "The disposition schedule currently governing the entry (own or inherited), or null. Computed (read-only).",
+            "format": "int32",
+            "nullable": true
+          },
+          "cutoffCriterionId": {
+            "type": "integer",
+            "description": "The cutoff criterion assigned to the entry, or null when none.",
+            "format": "int32",
+            "nullable": true
+          },
+          "dispositionScheduleId": {
+            "type": "integer",
+            "description": "The disposition schedule assigned to the entry, or null when none.",
+            "format": "int32",
+            "nullable": true
+          },
+          "filingDate": {
+            "type": "string",
+            "description": "The filing date, or null when unset.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "triggerDate": {
+            "type": "string",
+            "description": "The alternate-retention trigger date, or null when unset.",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "discriminator": {
+          "propertyName": "record Type",
+          "mapping": {
+            "Record": "#/components/schemas/RecordProperties",
+            "RecordFolder": "#/components/schemas/RecordFolderProperties"
+          }
+        },
+        "required": [
+          "record Type"
+        ]
       }
     }
   }

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.0
+
+### Features
+
+- Add Records Management methods: `getEntryRecordsManagementProperties`, `updateEntryRecordsManagementProperties`, `getEligibleRecords`, `getIndependentRecords`, `getAltRetentionEvents`, `getRecordSeriesProperties`, `updateRecordSeriesProperties`, `setRecordEvent`, `removeRecordEvent`, `createRecordSeries`, exposed on the new `recordsManagementClient`.
+- Add unified access-rights/access-control methods for fields, templates, and entries: `get/setFieldAccessControl`, `getFieldRights`, `get/setDefaultFieldAccessControl`, `get/setEntryAccessControl`, `getEntryRights`, `getSessionRights`, `get/setTemplateAccessControl`, `getTemplateRights`, `get/setDefaultTemplateAccessControl`, `lookupTrustees`, `getTrusteeSecurity`, exposed on the new `accessControlClient`.
+- Add User Areas methods: recent documents/folders, starred entries, personal collections, and user areas (`get/create/update/deleteUserArea`, `get/addUserAreaEntries`, etc.), exposed on the new `userAreasClient`.
+- Add Annotations & Stamps methods: `list/get/create/update/deleteAnnotation`, annotation attachments/images, annotation reasons, and `list/get/create/update/deleteStamp` + stamp images, exposed on the new `annotationsClient` and `stampsClient`.
+- New types: request/response DTOs and discriminated-union types (`Annotation`, `RecordsManagementProperties`) for all of the above.
+
 ## 1.2.1
 
 ### Security
