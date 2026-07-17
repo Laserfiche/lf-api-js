@@ -1,6 +1,6 @@
 ---
 name: regen-js-client
-description: This skill should be used when the user wants to "regenerate the JS V2 client", "regen lf-api-js", "update the JS swagger client", "refresh the lf-repository-api-client-v2 client", "pull new V2 methods into JS tests", or otherwise rebuild the NSwag-generated client in `lf-repository-api-client-v2`. Use it eagerly whenever a server-side V2 endpoint has just been added or modified — even if the user only says "sync the client" or "update the JS library". The skill bakes in four known traps (swagger-override file, baseUrl trailing-slash, jsdom multipart skip, OpenApiTag client-split) without which the regen silently breaks the entire test suite.
+description: This skill should be used when the user wants to "regenerate the JS V2 client", "regen lf-api-js", "update the JS swagger client", "refresh the lf-repository-api-client-v2 client", "pull new V2 methods into JS tests", or otherwise rebuild the NSwag-generated client in `lf-repository-api-client-v2`. Use it eagerly whenever a server-side V2 endpoint has just been added or modified — even if the user only says "sync the client" or "update the JS library". The skill bakes in six known traps (swagger-override file, baseUrl trailing-slash, jsdom multipart skip, OpenApiTag client-split, the optional-multipart patch step, and the ClientBase.ts splice-into-index.ts ordering) without which the regen silently breaks the entire test suite or leaves new clients unreachable.
 ---
 
 # Regenerate the JS V2 client
@@ -32,9 +32,15 @@ py generate-client/download_swagger.py `
     --swagger-override-filepath "generate-client/swagger-override.json" `
     --output-filepath "generate-client/swagger.json"
 
-# Then run NSwag against the downloaded swagger to regenerate the client TS:
+# Then run NSwag against the downloaded swagger to regenerate the client TS,
+# followed by the multipart null-check patch (see Trap 5 — do not skip this):
 npx nswag run generate-client/nswag.json
+py generate-client/patch_optional_multipart.py
 ```
+
+Equivalently, `npm run nswag` from the package root runs both of the above in one step (it's wired as `nswag run generate-client/nswag.json && node generate-client/run-patch.js`, and `run-patch.js` is just a Python-interpreter-finding wrapper around `patch_optional_multipart.py`). Prefer `npm run nswag` over calling `nswag` directly so you don't forget the patch step.
+
+If you hand-edit `ClientBase.ts` (e.g. to wire up a new top-level client accessor — see Trap 6), do it **before** running the regen commands above, not after: `index.ts` is not just built alongside `ClientBase.ts`, its content is spliced in wholesale by NSwag at generation time, so edits made after the last regen are invisible until you regen again.
 
 After regen: `pnpm install && pnpm build` from the package root.
 
@@ -104,6 +110,24 @@ If more than one server-facing client class shows up, the server side has a stra
 
 The dotnet client (`lf-repository-api-client-dotnet`) uses a different NSwag config that produces a single combined client, so it's unaffected by this trap.
 
+**A brand-new `[OpenApiTag]` value (not an existing one like `Entries`) means a brand-new top-level client class** (e.g. adding an `Annotations`/`Stamps` tag emits `AnnotationsClient`/`StampsClient`, entirely separate from `EntriesClient`). That new class is unreachable from `_RepositoryApiClient.*` until it's wired into `ClientBase.ts` — see Trap 6. Discovering a new class name here is the trigger to go do that.
+
+## Trap 5 — `nswag` alone doesn't patch optional multipart parameters
+
+`npx nswag run generate-client/nswag.json` on its own is **not** the full regen — it's half of the `npm run nswag` script, which is `nswag run generate-client/nswag.json && node generate-client/run-patch.js`. `run-patch.js` runs `generate-client/patch_optional_multipart.py`, which rewrites NSwag's generated null-checks for multipart form-data parameters.
+
+- NSwag always emits `if (x === null || x === undefined) throw new Error("The parameter 'x' cannot be null.")` for every multipart property, regardless of whether the swagger schema actually marks it `required`. For a parameter the server accepts as absent (`imageFiles` on `importEntry`, optional request bodies on `createPages`/`replacePages`/`updateDocument`/`writePage`, etc.), this turns a legitimate omission into a client-side crash.
+- `patch_optional_multipart.py` reads `swagger.json` + `index.ts` (both must already exist from the steps above) and rewrites each such block to `if (x !== null && x !== undefined) <append to FormData>` for parameters not in that operation's multipart `required` list. It's idempotent — safe to re-run.
+- **Symptom if skipped:** any test that calls one of the affected methods *without* the optional param throws `Error: The parameter '<name>' cannot be null.` instead of succeeding. This looks like a real regression but is just a skipped regen step.
+- Run `py generate-client/patch_optional_multipart.py` (or `npm run nswag`, which includes it) after **every** `nswag run` invocation, including re-runs triggered by a `ClientBase.ts` edit (Trap 6) — it patches `index.ts`, which regen just overwrote.
+
+## Trap 6 — `ClientBase.ts` is spliced into `index.ts`, not just co-exported
+
+`generate-client/nswag.json` sets `"extensionCode": "../ClientBase.ts"`. This is not a plain TypeScript import/re-export relationship — NSwag reads `ClientBase.ts` and **splices its contents directly into `index.ts` at generation time** (with `generated.` module-qualifier prefixes stripped, since both end up in the same file). `ClientBase.ts` is where the consumer-facing `IRepositoryApiClient`/`RepositoryApiClient` facade lives, wiring each generated per-tag client class (`AttributesClient`, `EntriesClient`, `TasksClient`, …) into a named accessor (`attributesClient`, `entriesClient`, `tasksClient`, …).
+
+- **Whenever a regen introduces a brand-new top-level client class** (per Trap 4 — a genuinely new `[OpenApiTag]` value, not a rename), you must manually add three things to `ClientBase.ts`: the field in the `IRepositoryApiClient` interface, the `public` property declaration on `RepositoryApiClient`, and the constructor assignment (`this.xClient = new generated.XClient(this.baseUrl, http);` — use the plain `generated.IXClient`/`generated.XClient` pattern already used for `tasksClient`/`auditReasonsClient`/etc. unless the new client needs hand-written pagination helpers like `EntriesClient`/`AttributesClient` do). Forgetting this step leaves the new class fully generated in `index.ts` but completely unreachable via `_RepositoryApiClient.*` — this exact gap shipped in one PR (a new `Annotations`/`Stamps` regen that added the classes but never wired the accessors).
+- **Edit-then-regen ordering matters.** Because the splice happens *during* generation, editing `ClientBase.ts` after your last `nswag run` has **no effect** on the built `index.ts` — the stale, pre-edit version is what's baked in. Symptom: `_RepositoryApiClient.newClient` is `undefined` at runtime (`TypeError: Cannot read properties of undefined (reading '<method>')`) even though `ClientBase.ts` clearly declares it. Fix: re-run `nswag run generate-client/nswag.json` (then re-run the Trap 5 patch, since it operates on the `index.ts` regen just overwrote) *after* the `ClientBase.ts` edit, not before.
+
 ## Post-regen verification
 
 1. `pnpm build` — TypeScript compilation must be clean.
@@ -112,6 +136,8 @@ The dotnet client (`lf-repository-api-client-dotnet`) uses a different NSwag con
 4. If `pnpm test` reports `The abstract class 'Entry' cannot be instantiated.` → Trap 1.
 5. If `pnpm test` reports widespread `Error: Not Found` → Trap 2.
 6. If `pnpm test` hangs for ~120s per affected suite → Trap 3.
+7. If `pnpm test` reports `Error: The parameter '<name>' cannot be null.` for an omitted optional multipart param → Trap 5 (patch step skipped).
+8. If `pnpm test`/`tsc` reports `TypeError: Cannot read properties of undefined (reading '<method>')` on a `_RepositoryApiClient.<newClient>` accessor that's clearly declared in `ClientBase.ts` → Trap 6 (regen ran before the `ClientBase.ts` edit, not after).
 
 ## Bumping and publishing
 

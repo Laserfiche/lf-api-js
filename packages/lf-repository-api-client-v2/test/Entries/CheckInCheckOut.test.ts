@@ -31,31 +31,39 @@ describe.skipIf(SKIP_UNDER_JSDOM)('Check In Check Out Integration Tests', () => 
   }
 
   afterEach(async () => {
-    if (createdEntryId !== 0) {
-      try {
-        await _RepositoryApiClient.entriesClient.undoCheckOut({
-          repositoryId,
-          entryId: createdEntryId,
-        });
-      } catch {
-        // Ignore if not checked out
-      }
-      try {
-        await _RepositoryApiClient.entriesClient.unlockDocument({
-          repositoryId,
-          entryId: createdEntryId,
-        });
-      } catch {
-        // Ignore if not locked
-      }
-      const request = new StartDeleteEntryRequest();
-      await _RepositoryApiClient.entriesClient.startDeleteEntry({
+    if (createdEntryId === 0) return;
+    try {
+      // Tests release their own lock/checkout on success, so only undo/unlock when the document is
+      // still checked out (e.g. a test failed before releasing). This skips two slow error-path
+      // round-trips per test on the happy path. Gate on checkout state (getEntry().isCheckedOut), not
+      // lock state (getDocumentLockInfo().isActive) — a checkout with lock=false (see 'CheckOut without
+      // lock' below) leaves isActive false while the document is still checked out.
+      const entry = (await _RepositoryApiClient.entriesClient.getEntry({
         repositoryId,
         entryId: createdEntryId,
-        request,
-      });
-      createdEntryId = 0;
+      })) as Document;
+      if (entry.isCheckedOut) {
+        try {
+          await _RepositoryApiClient.entriesClient.undoCheckOut({ repositoryId, entryId: createdEntryId });
+        } catch {
+          // Ignore if not checked out
+        }
+        try {
+          await _RepositoryApiClient.entriesClient.unlockDocument({ repositoryId, entryId: createdEntryId });
+        } catch {
+          // Ignore if not locked
+        }
+      }
+    } catch {
+      // Ignore probe failures — fall through to delete.
     }
+    const request = new StartDeleteEntryRequest();
+    await _RepositoryApiClient.entriesClient.startDeleteEntry({
+      repositoryId,
+      entryId: createdEntryId,
+      request,
+    });
+    createdEntryId = 0;
   });
 
   test('PutUnderVersionControl then CheckOut then CheckIn', async () => {
