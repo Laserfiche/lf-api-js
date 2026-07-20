@@ -40,9 +40,6 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Update npm
-        run: npm install -g npm@latest
-
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
 
@@ -124,9 +121,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-
-      - name: Update npm
-        run: npm install -g npm@latest
 
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
@@ -267,9 +261,6 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Update npm
-        run: npm install -g npm@latest
-
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
 
@@ -357,9 +348,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-
-      - name: Update npm
-        run: npm install -g npm@latest
 
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
@@ -479,9 +467,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-
-      - name: Update npm
-        run: npm install -g npm@latest
 
       - name: Install pnpm
         run: npm install pnpm@latest-9 -g
