@@ -7,6 +7,22 @@ description: This skill should be used when the user wants to "regenerate the JS
 
 Procedural guide for refreshing the NSwag-generated client in `lf-api-js/packages/lf-repository-api-client-v2/` against a server's swagger.
 
+## Why JS integration tests matter (they are not redundant with the dotnet suites)
+
+The JS client is an **independent NSwag-generated TypeScript codebase** — its own URL builder,
+`fromJS`/`toJSON` serialization, multipart/FormData path, discriminator dispatch, and baseUrl handling.
+The two dotnet suites (`site-api-repository/SiteApiRepositoryREST` and
+`lf-repository-api-client-dotnet/tests/integration`) both drive the *dotnet* generated client and
+execute **none** of this code. So the JS suite (`test/`) is the **only** client-side layer that catches
+JS-specific routing/serialization bugs — the class of bug that has historically surfaced **first in the
+JS client**. When a new/changed endpoint lands, regen this client and add functional integration tests
+the same day; that coverage is complementary, not overlap.
+
+Validate new tests against a **local server** before the PR (throw-away regen + `.env`; Traps 2 and 3
+below). Worked example: the folder-path feature's `CreateEntryFolderPath.test.ts` +
+`ImportFolderPath.test.ts` (2026-07-23, 13/13 node). Full rationale:
+`site-api-repository/docs/analysis-dotnet-integration-test-overlap.md`.
+
 ## When to run this
 
 - A new V2 endpoint was added (or an existing one's signature changed) in `site-api-repository`, and JS tests/consumers need to pick it up.
