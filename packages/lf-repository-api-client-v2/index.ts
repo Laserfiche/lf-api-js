@@ -156,7 +156,7 @@ export class AnnotationsClient implements IAnnotationsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     /**
@@ -1471,7 +1471,7 @@ export class AttributesClient implements IAttributesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     
@@ -1785,7 +1785,7 @@ export class AuditReasonsClient implements IAuditReasonsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     /**
@@ -2066,7 +2066,7 @@ export class FieldDefinitionsClient implements IFieldDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     
@@ -3584,7 +3584,7 @@ export class AccessControlClient implements IAccessControlClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     /**
@@ -5107,7 +5107,7 @@ export class LinkDefinitionsClient implements ILinkDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     
@@ -5420,10 +5420,11 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.request (optional) The request body.
+     * @param args.autoCreateFolderPath (optional) When true, any missing folders in the request's `folderPath` are created; when false (default), a missing folder returns 404.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @returns Operation was started successfully. Returned a long operation task ID.
      */
-    startImportUploadedParts(args: { repositoryId: string, entryId: number, request?: StartImportUploadedPartsRequest | undefined, culture?: string | null | undefined }): Promise<StartTaskResponse>;
+    startImportUploadedParts(args: { repositoryId: string, entryId: number, request?: StartImportUploadedPartsRequest | undefined, autoCreateFolderPath?: boolean | undefined, culture?: string | null | undefined }): Promise<StartTaskResponse>;
 
     /**
      * - Starts an asynchronous export operation to export an entry.
@@ -5507,13 +5508,14 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
+     * @param args.autoCreateFolderPath (optional) When true, any missing folders in the request's `folderPath` are created; when false (default), a missing folder returns 404.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) Optional. The file to import. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it is stored as the electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file creates an empty document with no electronic document and no pages.
      * @param args.request (optional) 
      * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Document was created successfully. Returns created entry.
      */
-    importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
+    importEntry(args: { repositoryId: string, entryId: number, autoCreateFolderPath?: boolean | undefined, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
 
     /**
      * - Export an entry.
@@ -5569,10 +5571,11 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
+     * @param args.autoCreateFolderPath (optional) When true, any missing folders in the request's `folderPath` are created; when false (default), a missing folder returns 404.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
      * @returns Document was created successfully. Returns created entry.
      */
-    createEntry(args: { repositoryId: string, entryId: number, request: CreateEntryRequest, culture?: string | null | undefined }): Promise<Entry>;
+    createEntry(args: { repositoryId: string, entryId: number, request: CreateEntryRequest, autoCreateFolderPath?: boolean | undefined, culture?: string | null | undefined }): Promise<Entry>;
 
     /**
      * - Returns the fields assigned to an entry.
@@ -6001,7 +6004,7 @@ export class EntriesClient implements IEntriesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     
@@ -6440,11 +6443,12 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
      * @param args.request (optional) The request body.
+     * @param args.autoCreateFolderPath (optional) When true, any missing folders in the request's `folderPath` are created; when false (default), a missing folder returns 404.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @returns Operation was started successfully. Returned a long operation task ID.
      */
-    startImportUploadedParts(args: { repositoryId: string, entryId: number, request?: StartImportUploadedPartsRequest | undefined, culture?: string | null | undefined }): Promise<StartTaskResponse> {
-        let { repositoryId, entryId, request, culture } = args;
+    startImportUploadedParts(args: { repositoryId: string, entryId: number, request?: StartImportUploadedPartsRequest | undefined, autoCreateFolderPath?: boolean | undefined, culture?: string | null | undefined }): Promise<StartTaskResponse> {
+        let { repositoryId, entryId, request, autoCreateFolderPath, culture } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Folder/ImportUploadedParts?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -6452,6 +6456,10 @@ export class EntriesClient implements IEntriesClient {
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (autoCreateFolderPath === null)
+            throw new Error("The parameter 'autoCreateFolderPath' cannot be null.");
+        else if (autoCreateFolderPath !== undefined)
+            url_ += "autoCreateFolderPath=" + encodeURIComponent("" + autoCreateFolderPath) + "&";
         if (culture !== undefined && culture !== null)
             url_ += "culture=" + encodeURIComponent("" + culture) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -7100,14 +7108,15 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the folder that the document will be created in.
+     * @param args.autoCreateFolderPath (optional) When true, any missing folders in the request's `folderPath` are created; when false (default), a missing folder returns 404.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) Optional. The file to import. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it is stored as the electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file creates an empty document with no electronic document and no pages.
      * @param args.request (optional) 
      * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
      * @returns Document was created successfully. Returns created entry.
      */
-    importEntry(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, culture, file, request, imageFiles } = args;
+    importEntry(args: { repositoryId: string, entryId: number, autoCreateFolderPath?: boolean | undefined, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, autoCreateFolderPath, culture, file, request, imageFiles } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Folder/Import?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -7115,6 +7124,10 @@ export class EntriesClient implements IEntriesClient {
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (autoCreateFolderPath === null)
+            throw new Error("The parameter 'autoCreateFolderPath' cannot be null.");
+        else if (autoCreateFolderPath !== undefined)
+            url_ += "autoCreateFolderPath=" + encodeURIComponent("" + autoCreateFolderPath) + "&";
         if (culture !== undefined && culture !== null)
             url_ += "culture=" + encodeURIComponent("" + culture) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -7562,11 +7575,12 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The folder ID that the entry will be created in.
      * @param args.request The request body.
+     * @param args.autoCreateFolderPath (optional) When true, any missing folders in the request's `folderPath` are created; when false (default), a missing folder returns 404.
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag.
      * @returns Document was created successfully. Returns created entry.
      */
-    createEntry(args: { repositoryId: string, entryId: number, request: CreateEntryRequest, culture?: string | null | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, request, culture } = args;
+    createEntry(args: { repositoryId: string, entryId: number, request: CreateEntryRequest, autoCreateFolderPath?: boolean | undefined, culture?: string | null | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, request, autoCreateFolderPath, culture } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Folder/Children?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -7574,6 +7588,10 @@ export class EntriesClient implements IEntriesClient {
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (autoCreateFolderPath === null)
+            throw new Error("The parameter 'autoCreateFolderPath' cannot be null.");
+        else if (autoCreateFolderPath !== undefined)
+            url_ += "autoCreateFolderPath=" + encodeURIComponent("" + autoCreateFolderPath) + "&";
         if (culture !== undefined && culture !== null)
             url_ += "culture=" + encodeURIComponent("" + culture) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -11109,7 +11127,7 @@ export class RecordsManagementClient implements IRecordsManagementClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     /**
@@ -12042,7 +12060,7 @@ export class RepositoriesClient implements IRepositoriesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     
@@ -12203,7 +12221,7 @@ export class SearchesClient implements ISearchesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     
@@ -12777,7 +12795,7 @@ export class SimpleSearchesClient implements ISimpleSearchesClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     /**
@@ -12980,7 +12998,7 @@ export class StampsClient implements IStampsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     /**
@@ -13585,7 +13603,7 @@ export class TagDefinitionsClient implements ITagDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     
@@ -13922,7 +13940,7 @@ export class TasksClient implements ITasksClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     /**
@@ -14403,7 +14421,7 @@ export class TemplateDefinitionsClient implements ITemplateDefinitionsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     
@@ -16240,7 +16258,7 @@ export class UserAreasClient implements IUserAreasClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "http://localhost:11211/repository";
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://api.laserfiche.com/repository";
     }
 
     /**
@@ -21892,6 +21910,11 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
     volumeName?: string | undefined;
+    /** An optional folder path, relative to the entry given in the route, that the document is imported into.
+Both `/` and `\` are accepted as separators. When any folder in this path does not exist, set the
+`autoCreateFolderPath` query parameter to true to create the missing folders; otherwise the request
+fails with 404. When omitted, the document is imported directly into the route entry (unchanged behavior). */
+    folderPath?: string | undefined;
 
     
     
@@ -21923,6 +21946,7 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
             this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
             this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
             this.volumeName = _data["volumeName"];
+            this.folderPath = _data["folderPath"];
         }
     }
 
@@ -21947,6 +21971,7 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
         data["importAsElectronicDocument"] = this.importAsElectronicDocument;
         data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
         data["volumeName"] = this.volumeName;
+        data["folderPath"] = this.folderPath;
         return data;
     }
 }
@@ -21971,6 +21996,11 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
     volumeName?: string | undefined;
+    /** An optional folder path, relative to the entry given in the route, that the document is imported into.
+Both `/` and `\` are accepted as separators. When any folder in this path does not exist, set the
+`autoCreateFolderPath` query parameter to true to create the missing folders; otherwise the request
+fails with 404. When omitted, the document is imported directly into the route entry (unchanged behavior). */
+    folderPath?: string | undefined;
 }
 
 /** Server-side processing options for the imported file. Despite the type name, these fields apply to any supported electronic document as well as to files imported as image pages. */
@@ -23356,6 +23386,11 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
     /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
 Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
     generateImagePagesText?: boolean;
+    /** An optional folder path, relative to the entry given in the route, that the document is imported into.
+Both `/` and `\` are accepted as separators. When any folder in this path does not exist, set the
+`autoCreateFolderPath` query parameter to true to create the missing folders; otherwise the request
+fails with 404. When omitted, the document is imported directly into the route entry (unchanged behavior). */
+    folderPath?: string | undefined;
 
     
     
@@ -23382,6 +23417,7 @@ Does not affect pages generated from `file` — use `pdfOptions.generateText` fo
             this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
             this.volumeName = _data["volumeName"];
             this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
+            this.folderPath = _data["folderPath"];
         }
     }
 
@@ -23401,6 +23437,7 @@ Does not affect pages generated from `file` — use `pdfOptions.generateText` fo
         data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
         data["volumeName"] = this.volumeName;
         data["generateImagePagesText"] = this.generateImagePagesText;
+        data["folderPath"] = this.folderPath;
         return data;
     }
 }
@@ -23424,6 +23461,11 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
     /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
 Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
     generateImagePagesText?: boolean;
+    /** An optional folder path, relative to the entry given in the route, that the document is imported into.
+Both `/` and `\` are accepted as separators. When any folder in this path does not exist, set the
+`autoCreateFolderPath` query parameter to true to create the missing folders; otherwise the request
+fails with 404. When omitted, the document is imported directly into the route entry (unchanged behavior). */
+    folderPath?: string | undefined;
 }
 
 /** Response containing a link to download the exported entry. */
@@ -24385,6 +24427,11 @@ export class CreateEntryRequest implements ICreateEntryRequest {
     targetId?: number;
     /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
     volumeName?: string | undefined;
+    /** An optional folder path, relative to the entry given in the route, that the new entry is created under.
+Both `/` and `\` are accepted as separators. When any folder in this path does not exist, set the
+`autoCreateFolderPath` query parameter to true to create the missing folders; otherwise the request
+fails with 404. When omitted, the entry is created directly under the route entry (unchanged behavior). */
+    folderPath?: string | undefined;
 
     
     
@@ -24407,6 +24454,7 @@ export class CreateEntryRequest implements ICreateEntryRequest {
             this.entryType = _data["entryType"];
             this.targetId = _data["targetId"];
             this.volumeName = _data["volumeName"];
+            this.folderPath = _data["folderPath"];
         }
     }
 
@@ -24424,6 +24472,7 @@ export class CreateEntryRequest implements ICreateEntryRequest {
         data["entryType"] = this.entryType;
         data["targetId"] = this.targetId;
         data["volumeName"] = this.volumeName;
+        data["folderPath"] = this.folderPath;
         return data;
     }
 }
@@ -24440,6 +24489,11 @@ export interface ICreateEntryRequest {
     targetId?: number;
     /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
     volumeName?: string | undefined;
+    /** An optional folder path, relative to the entry given in the route, that the new entry is created under.
+Both `/` and `\` are accepted as separators. When any folder in this path does not exist, set the
+`autoCreateFolderPath` query parameter to true to create the missing folders; otherwise the request
+fails with 404. When omitted, the entry is created directly under the route entry (unchanged behavior). */
+    folderPath?: string | undefined;
 }
 
 /** Enumeration of entry types for CreateEntry. */
