@@ -1,6 +1,13 @@
 <!--Copyright Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
+## 1.4.0
+
+### Features
+
+- Updated version of `lf-repository-api-client-v2` to `1.4.0`:
+  - Add optional `folderPath` request property and `autoCreateFolderPath` query parameter to `createEntry`, `importEntry`, and `startImportUploadedParts`. When `autoCreateFolderPath` is `true`, any missing folders in `folderPath` are created; when `false` (default), a missing folder returns 404.
+
 ## 1.3.0
 
 ### Features
