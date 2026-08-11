@@ -1,6 +1,12 @@
 <!--Copyright (c) Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
+## 4.0.16
+
+### Fixes
+
+- `evaluateNumericValidationExpression` no longer uses `eval()` to check numeric field constraints, fixing validation failures in environments with a Content-Security-Policy that disallows `unsafe-eval`.
+
 ## 4.0.15
 
 ### Security

@@ -38,19 +38,6 @@ describe('NumericValidationUtils', () => {
     expect(validateFiveDigit).toBeFalsy();
   });
 
-  it('should generateNumericValidationExpression for constraint: 4-digit number', () => {
-    // Arrange
-    const value1: string = '12345';
-    const numericConstraint: string = '>=1000 &  <=9999';
-
-    // Act
-    const expression: string = numeric_testables.generateNumericValidationExpression(value1, numericConstraint);
-
-    // Assert
-    const expected: string = '12345>=1000&&12345<=9999';
-    expect(expression).toEqual(expected);
-  });
-
   it('should validate a valid positive number', () => {
     // Arrange
     const value1: string = '0';
@@ -76,19 +63,6 @@ describe('NumericValidationUtils', () => {
 
     // Assert
     expect(validateNegative).toBeFalsy();
-  });
-
-  it('should generateNumericValidationExpression for constraint: positive number', () => {
-    // Arrange
-    const value1: string = '12345';
-    const numericConstraint: string = '>=0';
-
-    // Act
-    const expression: string = numeric_testables.generateNumericValidationExpression(value1, numericConstraint);
-
-    // Assert
-    const expected: string = '12345>=0';
-    expect(expression).toEqual(expected);
   });
 
   it('should validate a valid number greater than 4', () => {
@@ -122,19 +96,6 @@ describe('NumericValidationUtils', () => {
     expect(validateNegative).toBeFalsy();
     expect(validateLessThan).toBeFalsy();
     expect(validateExactlyFour).toBeFalsy();
-  });
-
-  it('should generateNumericValidationExpression for constraint: greater than 4', () => {
-    // Arrange
-    const value1: string = '12345';
-    const numericConstraint: string = '>4';
-
-    // Act
-    const expression: string = numeric_testables.generateNumericValidationExpression(value1, numericConstraint);
-
-    // Assert
-    const expected: string = '12345>4';
-    expect(expression).toEqual(expected);
   });
 
   it('should validate a valid number less than or equal to 2.5', () => {
@@ -173,19 +134,6 @@ describe('NumericValidationUtils', () => {
     expect(validateAbove).toBeFalsy();
   });
 
-  it('should generateNumericValidationExpression for constraint: less than or equal to 2.5', () => {
-    // Arrange
-    const value1: string = '12345';
-    const numericConstraint: string = '<=2.5';
-
-    // Act
-    const expression: string = numeric_testables.generateNumericValidationExpression(value1, numericConstraint);
-
-    // Assert
-    const expected: string = '12345<=2.5';
-    expect(expression).toEqual(expected);
-  });
-
   it('should validate a valid number NOT greater than 999', () => {
     // Arrange
     const value1: string = '5';
@@ -216,19 +164,6 @@ describe('NumericValidationUtils', () => {
     expect(validate1).toBeFalsy();
   });
 
-  it('should generateNumericValidationExpression for constraint: NOT greater than 999', () => {
-    // Arrange
-    const value1: string = '12345';
-    const numericConstraint: string = '!>999';
-
-    // Act
-    const expression: string = numeric_testables.generateNumericValidationExpression(value1, numericConstraint);
-
-    // Assert
-    const expected: string = '12345<=999';
-    expect(expression).toEqual(expected);
-  });
-
   it('should validate a number that has way too many ! (odd)', () => {
     // Arrange
     const greater: string = '1000';
@@ -241,19 +176,6 @@ describe('NumericValidationUtils', () => {
     expect(validate1).toBeFalsy();
   });
 
-  it('should generateNumericValidationExpression for constraint: way too many ! (odd)', () => {
-    // Arrange
-    const value1: string = '12345';
-    const numericConstraint: string = '!!!>999';
-
-    // Act
-    const expression: string = numeric_testables.generateNumericValidationExpression(value1, numericConstraint);
-
-    // Assert
-    const expected: string = '12345<=999';
-    expect(expression).toEqual(expected);
-  });
-
   it('should validate a number that has way too many ! (even)', () => {
     // Arrange
     const greater: string = '1000';
@@ -264,19 +186,6 @@ describe('NumericValidationUtils', () => {
 
     // Assert
     expect(validate1).toBeTruthy();
-  });
-
-  it('should generateNumericValidationExpression for constraint: way too many ! (even)', () => {
-    // Arrange
-    const value1: string = '12345';
-    const numericConstraint: string = '!!>999';
-
-    // Act
-    const expression: string = numeric_testables.generateNumericValidationExpression(value1, numericConstraint);
-
-    // Assert
-    const expected: string = '12345>999';
-    expect(expression).toEqual(expected);
   });
 
   it('should validate a valid number between 1 and 10, not including 1 and 10', () => {
@@ -313,19 +222,6 @@ describe('NumericValidationUtils', () => {
     expect(validateTen).toBeFalsy();
     expect(validateAbove).toBeFalsy();
     expect(validateBelow).toBeFalsy();
-  });
-
-  it('should generateNumericValidationExpression for constraint: between 1 and 10, not including 1 and 10', () => {
-    // Arrange
-    const value1: string = '12345';
-    const numericConstraint: string = '1 < & < 10';
-
-    // Act
-    const expression: string = numeric_testables.generateNumericValidationExpression(value1, numericConstraint);
-
-    // Assert
-    const expected: string = '1<12345&&12345<10';
-    expect(expression).toEqual(expected);
   });
 
   it('should validate a valid number between 100 and 200 or between 500 and 900, including 100, 200, 500 and 900', () => {
@@ -379,17 +275,25 @@ describe('NumericValidationUtils', () => {
     expect(validateAbove).toBeFalsy();
   });
 
-  it('should generateNumericValidationExpression for constraint: between 100 and 200 or between 500 and 900, including 100, 200, 500 and 900', () => {
-    // Arrange
-    const value1: string = '12345';
-    const numericConstraint: string = '(>=100 & <=200) | (>=500 & <=900)';
+  it('should evaluate a 3-way AND chain at the same precedence level', () => {
+    // Arrange: also exercises the '<>' (not-equal) comparer, which no other test covers.
+    const numericConstraint: string = '>=10 & <=20 & <>15';
 
-    // Act
-    const expression: string = numeric_testables.generateNumericValidationExpression(value1, numericConstraint);
+    // Act & Assert
+    expect(evaluateNumericValidationExpression('12', numericConstraint)).toBe(true);
+    expect(evaluateNumericValidationExpression('15', numericConstraint)).toBe(false);
+    expect(evaluateNumericValidationExpression('25', numericConstraint)).toBe(false);
+  });
 
-    // Assert
-    const expected: string = '(12345>=100&&12345<=200)||(12345>=500&&12345<=900)';
-    expect(expression).toEqual(expected);
+  it('should evaluate a 3-way OR chain at the same precedence level', () => {
+    // Arrange: also exercises the '=' (equality) comparer, which no other test covers.
+    const numericConstraint: string = '=1 | =5 | =10';
+
+    // Act & Assert
+    expect(evaluateNumericValidationExpression('1', numericConstraint)).toBe(true);
+    expect(evaluateNumericValidationExpression('5', numericConstraint)).toBe(true);
+    expect(evaluateNumericValidationExpression('10', numericConstraint)).toBe(true);
+    expect(evaluateNumericValidationExpression('7', numericConstraint)).toBe(false);
   });
 
   it('should tokenizeLfConstraint for >4', () => {
@@ -518,6 +422,117 @@ describe('NumericValidationUtils', () => {
       { type: numeric_testables.LFTokenType.NUMERIC, value: '999', startIndex: 33 }
     ];
     expect(tokenized).toEqual(expected);
+  });
+
+  it('should evaluate correctly even when eval() is unavailable (e.g. blocked by a CSP disallowing unsafe-eval)', () => {
+    // Arrange
+    const originalEval = globalThis.eval;
+    // @ts-expect-error intentionally breaking eval to simulate a CSP-restricted environment
+    globalThis.eval = () => {
+      throw new EvalError('eval is disabled by Content-Security-Policy');
+    };
+
+    try {
+      // Act & Assert
+      expect(evaluateNumericValidationExpression('126', '>=100 and <=999')).toBe(true);
+      expect(evaluateNumericValidationExpression('99', '>=100 and <=999')).toBe(false);
+      expect(evaluateNumericValidationExpression('5', '>=1 & <=10 | >=100 & <=200')).toBe(true);
+      expect(evaluateNumericValidationExpression('50', '>=1 & <=10 | >=100 & <=200')).toBe(false);
+      expect(evaluateNumericValidationExpression('50', '!(>=1 & <=10)')).toBe(true);
+    } finally {
+      globalThis.eval = originalEval;
+    }
+  });
+
+  it('should return false for constraints with unbalanced parentheses', () => {
+    // Arrange
+    const missingClose: string = '>=1 & (<=5';
+    const strayClose: string = '>=1) & <=5';
+    const missingCloseLeadingOpen: string = '(>=1 & <=5';
+
+    // Act & Assert
+    expect(evaluateNumericValidationExpression('5', missingClose)).toBeFalsy();
+    expect(evaluateNumericValidationExpression('5', strayClose)).toBeFalsy();
+    expect(evaluateNumericValidationExpression('5', missingCloseLeadingOpen)).toBeFalsy();
+  });
+
+  it('should throw for a malformed JSToken sequence missing a closing parenthesis', () => {
+    // Arrange: unit-tests evaluateJsTokens directly with a hand-built token array,
+    // since real constraint strings that reach it always have balanced parens or
+    // fail earlier during tokenization/conversion.
+    const { JSTokenType, evaluateJsTokens } = numeric_testables;
+    const tokens = [
+      { type: JSTokenType.PARENTHESES, value: '(', startIndex: 0 },
+      { type: JSTokenType.NUMERIC, value: '5', startIndex: 1 },
+      { type: JSTokenType.COMPARER, value: '>=', startIndex: 2 },
+      { type: JSTokenType.NUMERIC, value: '1', startIndex: 4 }
+    ];
+
+    // Act & Assert
+    expect(() => evaluateJsTokens(tokens)).toThrow('Expected closing parenthesis');
+  });
+
+  it('should throw for a malformed JSToken sequence with a stray trailing token', () => {
+    // Arrange
+    const { JSTokenType, evaluateJsTokens } = numeric_testables;
+    const tokens = [
+      { type: JSTokenType.NUMERIC, value: '5', startIndex: 0 },
+      { type: JSTokenType.COMPARER, value: '>=', startIndex: 1 },
+      { type: JSTokenType.NUMERIC, value: '1', startIndex: 3 },
+      { type: JSTokenType.PARENTHESES, value: ')', startIndex: 4 }
+    ];
+
+    // Act & Assert
+    expect(() => evaluateJsTokens(tokens)).toThrow('Unexpected trailing tokens');
+  });
+
+  it('should validate a constraint with adjacent/nested parentheses (grouped into one multi-char token)', () => {
+    // Arrange: tokenizeLfConstraint groups consecutive '(' or ')' characters into a
+    // single token (e.g. value '((' ), which the token-walking evaluator must expand
+    // back into individual parens rather than assuming one character per token.
+    const numericConstraint: string = '((>=1 & <=5) | (>=10 & <=15)) & !>=12';
+
+    // Act & Assert
+    expect(evaluateNumericValidationExpression('1', numericConstraint)).toBe(true);
+    expect(evaluateNumericValidationExpression('11', numericConstraint)).toBe(true);
+    expect(evaluateNumericValidationExpression('12', numericConstraint)).toBe(false);
+    expect(evaluateNumericValidationExpression('15', numericConstraint)).toBe(false);
+    expect(evaluateNumericValidationExpression('20', numericConstraint)).toBe(false);
+  });
+
+  it('should match what eval() would compute, across a wide sweep of values and constraints', () => {
+    // Arrange: evaluateJsTokens replaced a plain eval(expression) call. This
+    // differential test rebuilds the same expression string that used to be eval'd
+    // (via the still-exposed getJsTokensWithNumber pipeline) and treats eval() as the
+    // reference oracle, so a future change to the parser can't silently drift from
+    // what eval() would have done for any well-formed constraint. This is how the
+    // adjacent-parentheses bug was originally found.
+    const values = ['0', '1', '-1', '4', '10', '12', '15', '20', '100', '99', '100.5', '999', '1000', '-999', '0.35', '2.5', '2.51', '-2', '12345'];
+    const constraints = [
+      '>=1000 &  <=9999', '>=0', '>4', '<=2.5', '!>999', '!!!>999', '!!>999',
+      '1 < & < 10', '(>=100 & <=200) | (>=500 & <=900)', '>=100 and <=999', '>=100 AND <=999',
+      '!(>=1 & <=10)', 'not (>=1 and <=10)', '((>=1 & <=5) | (>=10 & <=15)) & !>=12',
+      '(((>=1 & <=5)))', '!((>=1 & <=5) | (>=10 & <=15))', '((>=1) & (<=5)) | ((>=10) & (<=15))',
+      '(((>=1 & <=5) | (>=10 & <=15)) & !>=12) | (>=100 & <=105)',
+      '>=10 & <=20 & <>15', '=1 | =5 | =10'
+    ];
+
+    const mismatches: string[] = [];
+    for (const value of values) {
+      for (const constraint of constraints) {
+        const tokens = numeric_testables.getJsTokensWithNumber(value, constraint);
+        const expression: string = tokens.map(token => token.value).join('');
+        // eslint-disable-next-line no-eval
+        const expected: boolean = eval(expression);
+        const actual: boolean = evaluateNumericValidationExpression(value, constraint);
+        if (actual !== expected) {
+          mismatches.push(`value=${JSON.stringify(value)} constraint=${JSON.stringify(constraint)} expression=${JSON.stringify(expression)} eval=${expected} actual=${actual}`);
+        }
+      }
+    }
+
+    // Assert
+    expect(mismatches).toEqual([]);
   });
 
   it('should tokenizeLfConstraint for uppercase and lowercase NOT', () => {
