@@ -142,6 +142,18 @@ function evaluateJsTokens(rawTokens: JSToken[]): boolean {
     return parseComparison();
   }
 
+  // parseFloat() parses a leading valid numeric prefix and silently ignores trailing
+  // garbage (e.g. parseFloat('100.0.0') === 100, parseFloat('150abc') === 150). eval()
+  // would have rejected these as a SyntaxError; this replicates that strictness by
+  // requiring the entire token to be a well-formed number. Leading '+' is allowed
+  // since NumberFieldComponent's own format validator permits it for typed-in values.
+  function parseStrictNumericLiteral(value: string): number {
+    if (!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(value)) {
+      throw new Error(`Not a valid numeric literal: ${value}`);
+    }
+    return parseFloat(value);
+  }
+
   function parseComparison(): boolean {
     const left = consume();
     if (!left || left.type !== JSTokenType.NUMERIC) {
@@ -155,8 +167,8 @@ function evaluateJsTokens(rawTokens: JSToken[]): boolean {
     if (!right || right.type !== JSTokenType.NUMERIC) {
       throw new Error(`Expected number, got ${right ? right.value : 'end of expression'}`);
     }
-    const leftNum: number = parseFloat(left.value);
-    const rightNum: number = parseFloat(right.value);
+    const leftNum: number = parseStrictNumericLiteral(left.value);
+    const rightNum: number = parseStrictNumericLiteral(right.value);
     switch (comparer.value) {
       case '<': return leftNum < rightNum;
       case '<=': return leftNum <= rightNum;

@@ -296,6 +296,28 @@ describe('NumericValidationUtils', () => {
     expect(evaluateNumericValidationExpression('7', numericConstraint)).toBe(false);
   });
 
+  it('should reject malformed numeric literals instead of leniently parsing a valid prefix', () => {
+    // Arrange: parseFloat('100.0.0') === 100 and parseFloat('150abc') === 150 -- it
+    // parses a leading valid prefix and silently ignores trailing garbage. eval()
+    // rejected both as a SyntaxError; the parser must replicate that strictness
+    // rather than falling back to a lenient parseFloat.
+    const malformedConstraint: string = '>=100.0.0';
+    const malformedValue: string = '150abc';
+
+    // Act & Assert
+    expect(evaluateNumericValidationExpression('150', malformedConstraint)).toBe(false);
+    expect(evaluateNumericValidationExpression(malformedValue, '>=100')).toBe(false);
+  });
+
+  it('should still accept a legitimate leading + sign on the input value', () => {
+    // Arrange: NumberFieldComponent's own format validator permits a leading '+' for
+    // typed-in values (e.g. '+150'), so the strict numeric literal check must allow it.
+
+    // Act & Assert
+    expect(evaluateNumericValidationExpression('+150', '>=100')).toBe(true);
+    expect(evaluateNumericValidationExpression('+50', '>=100')).toBe(false);
+  });
+
   it('should tokenizeLfConstraint for >4', () => {
     // Arrange
     const constraint: string = '>4';
@@ -505,16 +527,16 @@ describe('NumericValidationUtils', () => {
     // differential test rebuilds the same expression string that used to be eval'd
     // (via the still-exposed getJsTokensWithNumber pipeline) and treats eval() as the
     // reference oracle, so a future change to the parser can't silently drift from
-    // what eval() would have done for any well-formed constraint. This is how the
-    // adjacent-parentheses bug was originally found.
-    const values = ['0', '1', '-1', '4', '10', '12', '15', '20', '100', '99', '100.5', '999', '1000', '-999', '0.35', '2.5', '2.51', '-2', '12345'];
+    // what eval() would have done for any well-formed (or consistently-malformed)
+    // constraint or value.
+    const values = ['0', '1', '-1', '4', '10', '12', '15', '20', '100', '99', '100.5', '999', '1000', '-999', '0.35', '2.5', '2.51', '-2', '12345', '150abc', '+150'];
     const constraints = [
       '>=1000 &  <=9999', '>=0', '>4', '<=2.5', '!>999', '!!!>999', '!!>999',
       '1 < & < 10', '(>=100 & <=200) | (>=500 & <=900)', '>=100 and <=999', '>=100 AND <=999',
       '!(>=1 & <=10)', 'not (>=1 and <=10)', '((>=1 & <=5) | (>=10 & <=15)) & !>=12',
       '(((>=1 & <=5)))', '!((>=1 & <=5) | (>=10 & <=15))', '((>=1) & (<=5)) | ((>=10) & (<=15))',
       '(((>=1 & <=5) | (>=10 & <=15)) & !>=12) | (>=100 & <=105)',
-      '>=10 & <=20 & <>15', '=1 | =5 | =10'
+      '>=10 & <=20 & <>15', '=1 | =5 | =10', '>=100.0.0'
     ];
 
     const mismatches: string[] = [];
@@ -522,8 +544,15 @@ describe('NumericValidationUtils', () => {
       for (const constraint of constraints) {
         const tokens = numeric_testables.getJsTokensWithNumber(value, constraint);
         const expression: string = tokens.map(token => token.value).join('');
-        // eslint-disable-next-line no-eval
-        const expected: boolean = eval(expression);
+        let expected: boolean;
+        try {
+          // eslint-disable-next-line no-eval
+          expected = eval(expression);
+        }
+        catch {
+          // mirrors evaluateNumericValidationExpression's own try/catch around eval()
+          expected = false;
+        }
         const actual: boolean = evaluateNumericValidationExpression(value, constraint);
         if (actual !== expected) {
           mismatches.push(`value=${JSON.stringify(value)} constraint=${JSON.stringify(constraint)} expression=${JSON.stringify(expression)} eval=${expected} actual=${actual}`);
