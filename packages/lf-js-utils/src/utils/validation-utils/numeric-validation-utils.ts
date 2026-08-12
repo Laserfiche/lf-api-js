@@ -52,8 +52,8 @@ export function evaluateNumericValidationExpression(value: string, numericConstr
   }
   else {
     try {
-      const expression: string = generateNumericValidationExpression(value, numericConstraint);
-      const isValid: boolean = eval(expression);
+      const jsTokensWithNumber: JSToken[] = getJsTokensWithNumber(value, numericConstraint);
+      const isValid: boolean = evaluateJsTokens(jsTokensWithNumber);
       return isValid;
     }
     catch (error) {
@@ -63,12 +63,128 @@ export function evaluateNumericValidationExpression(value: string, numericConstr
   }
 }
 
-function generateNumericValidationExpression(value: string, numericConstraint: string): string {
+function getJsTokensWithNumber(value: string, numericConstraint: string): JSToken[] {
   const lfTokens: LFToken[] = tokenizeLfConstraint(numericConstraint);
   const jsTokens: JSToken[] = convertLfTokensToJsTokens(lfTokens);
-  const jsTokensWithNumber: JSToken[] = insertInputIntoExpression(jsTokens, value);
-  const expression: string = jsTokensWithNumber.map(token => token.value).join('');
-  return expression;
+  return insertInputIntoExpression(jsTokens, value);
+}
+
+/**
+ * Evaluates a fully-resolved JSToken expression (comparisons joined by &&/|| and !,
+ * grouped by parentheses) without eval(), so this works under a CSP that disallows
+ * unsafe-eval (e.g. Office Add-in WebViews).
+ *
+ * Grammar (lowest to highest precedence):
+ *   orExpr  := andExpr ('||' andExpr)*
+ *   andExpr := notExpr ('&&' notExpr)*
+ *   notExpr := '!'* primary
+ *   primary := '(' orExpr ')' | NUMBER COMPARER NUMBER
+ */
+function evaluateJsTokens(rawTokens: JSToken[]): boolean {
+  // tokenizeLfConstraint groups consecutive same-type characters into one token, so
+  // adjacent parentheses like "((" or "))" arrive as a single multi-character
+  // PARENTHESES token. eval() doesn't care (it just re-parses the raw string), but
+  // this parser matches parens one character at a time, so expand them first.
+  const tokens: JSToken[] = [];
+  for (const token of rawTokens) {
+    if (token.type === JSTokenType.PARENTHESES && token.value.length > 1) {
+      for (const char of token.value) {
+        tokens.push({ type: JSTokenType.PARENTHESES, value: char, startIndex: token.startIndex });
+      }
+    }
+    else {
+      tokens.push(token);
+    }
+  }
+  let index = 0;
+  const peek = (): JSToken | undefined => tokens[index];
+  const consume = (): JSToken | undefined => tokens[index++];
+
+  function parseOr(): boolean {
+    let result = parseAnd();
+    while (peek() && peek()!.type === JSTokenType.LOGICAL && peek()!.value === '||') {
+      consume();
+      result = parseAnd() || result;
+    }
+    return result;
+  }
+
+  function parseAnd(): boolean {
+    let result = parseNot();
+    while (peek() && peek()!.type === JSTokenType.LOGICAL && peek()!.value === '&&') {
+      consume();
+      result = parseNot() && result;
+    }
+    return result;
+  }
+
+  function parseNot(): boolean {
+    let negate = false;
+    while (peek() && peek()!.type === JSTokenType.NOT) {
+      consume();
+      negate = !negate;
+    }
+    const result = parsePrimary();
+    return negate ? !result : result;
+  }
+
+  function parsePrimary(): boolean {
+    const token = peek();
+    if (token && token.type === JSTokenType.PARENTHESES && token.value === '(') {
+      consume();
+      const result = parseOr();
+      const closing = consume();
+      if (!closing || closing.type !== JSTokenType.PARENTHESES || closing.value !== ')') {
+        throw new Error('Expected closing parenthesis');
+      }
+      return result;
+    }
+    return parseComparison();
+  }
+
+  // parseFloat() parses a leading valid numeric prefix and silently ignores trailing
+  // garbage (e.g. parseFloat('100.0.0') === 100, parseFloat('150abc') === 150). eval()
+  // would have rejected these as a SyntaxError; this replicates that strictness by
+  // requiring the entire token to be a well-formed number. Leading '+' is allowed
+  // since NumberFieldComponent's own format validator permits it for typed-in values.
+  function parseStrictNumericLiteral(value: string): number {
+    if (!/^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(value)) {
+      throw new Error(`Not a valid numeric literal: ${value}`);
+    }
+    return parseFloat(value);
+  }
+
+  function parseComparison(): boolean {
+    const left = consume();
+    if (!left || left.type !== JSTokenType.NUMERIC) {
+      throw new Error(`Expected number, got ${left ? left.value : 'end of expression'}`);
+    }
+    const comparer = consume();
+    if (!comparer || comparer.type !== JSTokenType.COMPARER) {
+      throw new Error(`Expected comparer, got ${comparer ? comparer.value : 'end of expression'}`);
+    }
+    const right = consume();
+    if (!right || right.type !== JSTokenType.NUMERIC) {
+      throw new Error(`Expected number, got ${right ? right.value : 'end of expression'}`);
+    }
+    const leftNum: number = parseStrictNumericLiteral(left.value);
+    const rightNum: number = parseStrictNumericLiteral(right.value);
+    switch (comparer.value) {
+      case '<': return leftNum < rightNum;
+      case '<=': return leftNum <= rightNum;
+      case '>': return leftNum > rightNum;
+      case '>=': return leftNum >= rightNum;
+      case '==': return leftNum === rightNum;
+      case '!=': return leftNum !== rightNum;
+      default: throw new Error(`Unexpected comparer: ${comparer.value}`);
+    }
+  }
+
+  const result = parseOr();
+  if (index !== tokens.length) {
+    throw new Error('Unexpected trailing tokens');
+  }
+  return result;
 }
 
 function insertInputIntoExpression(jsTokens: JSToken[], numericValue: string): JSToken[] {
@@ -275,5 +391,6 @@ export const numeric_testables = {
   convertLfTokensToJsTokens,
   addOrAnnihilateNot,
   addComparer,
-  generateNumericValidationExpression
+  getJsTokensWithNumber,
+  evaluateJsTokens
 };
