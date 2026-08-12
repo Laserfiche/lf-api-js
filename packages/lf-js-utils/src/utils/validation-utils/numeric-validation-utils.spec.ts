@@ -309,6 +309,15 @@ describe('NumericValidationUtils', () => {
     expect(evaluateNumericValidationExpression(malformedValue, '>=100')).toBe(false);
   });
 
+  it('should fail closed on a constraint whose digits happen to form valid JS arithmetic', () => {
+    // Arrange: unlike eval(), which computed '5-3' as subtraction (150>5-3 => 150>2 => true),
+    // a bare '-' between two digit runs with no space/comparer is not a well-formed numeric
+    // literal, so this fails closed instead of silently evaluating as arithmetic. No
+    // legitimate Laserfiche constraint syntax produces this shape (a range is '>=5 & <=3',
+    // never '>5-3'), but the divergence from eval() should be intentional, not accidental.
+    expect(evaluateNumericValidationExpression('150', '>5-3')).toBe(false);
+  });
+
   it('should accept exponential notation, which both parseFloat and eval() handle unambiguously', () => {
     // Arrange: unlike '100.0.0' or '150abc', exponential notation isn't a truncation
     // risk -- '2.5e2' has one unambiguous numeric meaning. Number.prototype.toString()
