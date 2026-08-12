@@ -309,6 +309,18 @@ describe('NumericValidationUtils', () => {
     expect(evaluateNumericValidationExpression(malformedValue, '>=100')).toBe(false);
   });
 
+  it('should accept exponential notation, which both parseFloat and eval() handle unambiguously', () => {
+    // Arrange: unlike '100.0.0' or '150abc', exponential notation isn't a truncation
+    // risk -- '2.5e2' has one unambiguous numeric meaning. Number.prototype.toString()
+    // switches to this format for very large/small magnitudes (e.g. (1e21).toString()
+    // === '1e+21'), so a caller stringifying a JS number before passing it in can hit
+    // this without unusual input.
+
+    // Act & Assert
+    expect(evaluateNumericValidationExpression('2.5e2', '>4')).toBe(true);
+    expect(evaluateNumericValidationExpression('1e3', '>=1000 & <=9999')).toBe(true);
+  });
+
   it('should still accept a legitimate leading + sign on the input value', () => {
     // Arrange: NumberFieldComponent's own format validator permits a leading '+' for
     // typed-in values (e.g. '+150'), so the strict numeric literal check must allow it.
@@ -529,7 +541,7 @@ describe('NumericValidationUtils', () => {
     // reference oracle, so a future change to the parser can't silently drift from
     // what eval() would have done for any well-formed (or consistently-malformed)
     // constraint or value.
-    const values = ['0', '1', '-1', '4', '10', '12', '15', '20', '100', '99', '100.5', '999', '1000', '-999', '0.35', '2.5', '2.51', '-2', '12345', '150abc', '+150'];
+    const values = ['0', '1', '-1', '4', '10', '12', '15', '20', '100', '99', '100.5', '999', '1000', '-999', '0.35', '2.5', '2.51', '-2', '12345', '150abc', '+150', '2.5e2', '1e3', '-1.5e-2'];
     const constraints = [
       '>=1000 &  <=9999', '>=0', '>4', '<=2.5', '!>999', '!!!>999', '!!>999',
       '1 < & < 10', '(>=100 & <=200) | (>=500 & <=900)', '>=100 and <=999', '>=100 AND <=999',

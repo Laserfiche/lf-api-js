@@ -148,7 +148,7 @@ function evaluateJsTokens(rawTokens: JSToken[]): boolean {
   // requiring the entire token to be a well-formed number. Leading '+' is allowed
   // since NumberFieldComponent's own format validator permits it for typed-in values.
   function parseStrictNumericLiteral(value: string): number {
-    if (!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(value)) {
+    if (!/^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(value)) {
       throw new Error(`Not a valid numeric literal: ${value}`);
     }
     return parseFloat(value);
