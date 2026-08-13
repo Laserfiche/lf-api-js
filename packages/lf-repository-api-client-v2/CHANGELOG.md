@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.1
+
+### Maintenance
+
+- Update version of lf-js-utils dependency
+
 ## 1.4.0
 
 ### Features
