@@ -5433,7 +5433,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
-     * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when part=Edoc.
+     * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when part=Edoc or part=AlternateEdoc.
      * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startExportEntry(args: { repositoryId: string, entryId: number, request: StartExportEntryRequest, pageRange?: string | null | undefined }): Promise<StartTaskResponse>;
@@ -5524,7 +5524,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
-     * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when exporting as Edoc.
+     * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when exporting as Edoc or AlternateEdoc.
      * @returns Export was successful. Returned a link to download the exported entry.
      */
     exportEntry(args: { repositoryId: string, entryId: number, request: ExportEntryRequest, pageRange?: string | null | undefined }): Promise<ExportEntryResponse>;
@@ -5630,6 +5630,7 @@ export interface IEntriesClient {
      * - Assign tags to an entry.
     - Provide an entry ID and a list of tags to assign to that entry.
     - This is an overwrite action. The request must include all tags to assign to the entry, including existing tags that should remain assigned to the entry.
+    - The tags property is required. A request body that does not include it is rejected with a 400; send an empty list to unassign every tag.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
@@ -5642,6 +5643,7 @@ export interface IEntriesClient {
      * - Assign links to an entry.
     - Provide an entry ID and a list of links to assign to that entry.
     - This is an overwrite action. The request must include all links to assign to the entry, including existing links that should remain assigned to the entry.
+    - The links property is required. A request body that does not include it is rejected with a 400; send an empty list to remove every link.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The request repository ID.
      * @param args.entryId The requested entry ID.
@@ -5844,6 +5846,91 @@ export interface IEntriesClient {
      * @returns Successfully rotated the image page. Returned the updated entry.
      */
     rotateImagePage(args: { repositoryId: string, entryId: number, pageNumber: number, request: RotateImagePageRequest }): Promise<Entry>;
+
+    /**
+     * - An alternate electronic document is a named binary stream stored alongside the document's primary electronic document, such as an audio recording, a source scan, or sidecar data. It travels with the document through copy, move, versioning, and briefcase operations.
+    - Returns the name, MIME type, and size of each stream. This endpoint does not return the stream content.
+    - Stream names are at most 15 characters long.
+    - Streams are returned in ascending name order; that order is fixed and not configurable.
+    - Streams reserved for internal use are not listed.
+    - Default page size: 150. Allowed OData query options: Select | Count | Skip | SkipToken | Top | Prefer.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
+     * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
+     * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
+     * @returns Successfully retrieved a paged listing of the document's alternate electronic documents.
+     */
+    listAlternateEdocs(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<AlternateEdocInfoCollectionResponse>;
+
+    /**
+     * - Returns the name, MIME type, and size of the stream. This endpoint does not return the stream content.
+    - The name is supplied as a query parameter rather than a path segment, because the legal character set includes characters that are significant to OData URI parsing.
+    - Names match exactly. A name that differs only in letter case identifies a different stream on some repository configurations, so no case folding is applied.
+    - Streams reserved for internal use are reported as not found.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.name The name of the alternate electronic document. Matched exactly, so a name differing only in letter case is not found. Names reserved for internal use are also reported as not found.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved the metadata of the specified alternate electronic document.
+     */
+    getAlternateEdocInfo(args: { repositoryId: string, entryId: number, name: string | null, select?: string | null | undefined }): Promise<AlternateEdocInfoResponse>;
+
+    /**
+     * - Writes a named binary stream stored alongside the document's primary electronic document, such as an audio recording, a source scan, or sidecar data. The stream is created when the document does not have one under that name, and its content fully replaced when it does. The primary electronic document, the pages, and the metadata are unaffected.
+    - Send the content as multipart/form-data under the form field `file`. A zero-byte file is rejected; use the delete operation to remove an alternate electronic document.
+    - The name is supplied as a query parameter rather than a path segment, because the legal character set includes characters that are significant to OData URI parsing.
+    - Names are at most 15 characters long, and each character must be an ASCII letter, an ASCII digit, or one of `!@#$%^&()-+={}[]_~`.
+    - Names match exactly. A name that differs only in letter case from one the document already has is rejected with 409 rather than written, because such a pair means different things on different repository configurations; reads and deletes stay exact-match.
+    - Names reserved for internal use are rejected.
+    - The optional `mimeType` form field sets the content's MIME type, at most 127 characters. When omitted it is derived from the uploaded file's content type and file name, falling back to `application/octet-stream`. The repository stores it lower-cased and without any parameters, so `Text/Plain; charset=utf-8` is stored as `text/plain`; the response reports the stored value.
+    - Repeating an identical request is safe: the same content replaces itself.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.name The name of the alternate electronic document. 1 to 15 characters, each an ASCII letter, an ASCII digit, or one of `!@#$%^&()-+={}[]_~`. An existing name has its content and MIME type replaced in full; a name differing from an existing one only in letter case is rejected with 409 and leaves that stream unchanged. Names reserved for internal use are rejected.
+     * @param args.file (optional) The content to store. Any file type is accepted. A zero-byte file is rejected with 400; use the delete operation to remove an alternate electronic document.
+     * @param args.mimeType (optional) Optional. The MIME type to set for the content, at most 127 characters. When omitted it is derived from the uploaded file's content type and file name, falling back to application/octet-stream. Stored lower-cased and without parameters, so Text/Plain; charset=utf-8 is stored as text/plain. Worth setting explicitly for audio and video, where the multipart content type is frequently generic or wrong.
+     * @returns Successfully wrote the alternate electronic document. Returned its metadata as stored.
+     */
+    writeAlternateEdoc(args: { repositoryId: string, entryId: number, name: string | null, file?: FileParameter | undefined, mimeType?: string | undefined }): Promise<AlternateEdocInfoResponse>;
+
+    /**
+     * - Deletes a named binary stream stored alongside the document's primary electronic document. The primary electronic document, the pages, and the metadata are unaffected.
+    - The name is supplied as a query parameter rather than a path segment, because the legal character set includes characters that are significant to OData URI parsing.
+    - Names match exactly. A name that differs only in letter case identifies a different stream on some repository configurations, so no case folding is applied.
+    - A name the document has no stream for is reported as not found.
+    - Names reserved for internal use are rejected.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.name The name of the alternate electronic document. Matched exactly, so a name differing only in letter case is not found. Names reserved for internal use are rejected.
+     * @returns Successfully deleted the alternate electronic document.
+     */
+    deleteAlternateEdoc(args: { repositoryId: string, entryId: number, name: string | null }): Promise<void>;
+
+    /**
+     * - Writes a named binary stream stored alongside the document's primary electronic document from a file uploaded in chunks, for content too large to send in a single request. The stream is created when the document does not have one under that name, and its content fully replaced when it does. The primary electronic document, the pages, and the metadata are unaffected.
+    - Upload the content first: call CreateMultipartUploadUrls, write each chunk to the URLs it returns, then pass the same `uploadId` and the ETags here. There is no size limit at this tier beyond the one the upload itself enforces.
+    - This operation runs in the background. It returns **202 Accepted** with a task ID; poll `/Tasks?taskIds={taskId}` for progress and the result. Use the PUT operation instead for content small enough to send at once, which completes synchronously.
+    - The name is supplied as a query parameter rather than a path segment, because the legal character set includes characters that are significant to OData URI parsing.
+    - Names are at most 15 characters long, and each character must be an ASCII letter, an ASCII digit, or one of `!@#$%^&()-+={}[]_~`.
+    - Names match exactly. A name that differs only in letter case from one the document already has is rejected with 409 rather than written, because such a pair means different things on different repository configurations.
+    - Names reserved for internal use are rejected.
+    - The name, the MIME type and the case rule are all checked before the operation is accepted, so those errors come back on this request rather than on the task.
+    - The optional `mimeType` sets the content's MIME type, at most 127 characters. When omitted it is taken from the MIME type supplied to CreateMultipartUploadUrls. The repository stores it lower-cased and without any parameters, so `Text/Plain; charset=utf-8` is stored as `text/plain`.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.name The name of the alternate electronic document. 1 to 15 characters, each an ASCII letter, an ASCII digit, or one of `!@#$%^&()-+={}[]_~`. An existing name has its content and MIME type replaced in full; a name differing from an existing one only in letter case is rejected with 409 and leaves that stream unchanged. Names reserved for internal use are rejected. The name is validated before the operation is accepted, so a name error is returned on this request rather than on the task.
+     * @param args.request The upload to assemble, and the MIME type to record.
+     * @returns Successfully started the write alternate electronic document from uploaded parts operation. Returns a task ID for polling progress.
+     */
+    writeAltEdocUploadedParts(args: { repositoryId: string, entryId: number, name: string | null, request: WriteAltEdocUploadedPartsRequest }): Promise<StartTaskResponse>;
 
     /**
      * - Returns the raw image data for the specified page as a binary stream.
@@ -6554,7 +6641,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
-     * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when part=Edoc.
+     * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when part=Edoc or part=AlternateEdoc.
      * @returns Operation was started successfully. Returned a long operation task ID.
      */
     startExportEntry(args: { repositoryId: string, entryId: number, request: StartExportEntryRequest, pageRange?: string | null | undefined }): Promise<StartTaskResponse> {
@@ -7229,7 +7316,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
-     * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when exporting as Edoc.
+     * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when exporting as Edoc or AlternateEdoc.
      * @returns Export was successful. Returned a link to download the exported entry.
      */
     exportEntry(args: { repositoryId: string, entryId: number, request: ExportEntryRequest, pageRange?: string | null | undefined }): Promise<ExportEntryResponse> {
@@ -8046,6 +8133,7 @@ export class EntriesClient implements IEntriesClient {
      * - Assign tags to an entry.
     - Provide an entry ID and a list of tags to assign to that entry.
     - This is an overwrite action. The request must include all tags to assign to the entry, including existing tags that should remain assigned to the entry.
+    - The tags property is required. A request body that does not include it is rejected with a 400; send an empty list to unassign every tag.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested entry ID.
@@ -8157,6 +8245,7 @@ export class EntriesClient implements IEntriesClient {
      * - Assign links to an entry.
     - Provide an entry ID and a list of links to assign to that entry.
     - This is an overwrite action. The request must include all links to assign to the entry, including existing links that should remain assigned to the entry.
+    - The links property is required. A request body that does not include it is rejected with a 400; send an empty list to remove every link.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The request repository ID.
      * @param args.entryId The requested entry ID.
@@ -9718,6 +9807,582 @@ export class EntriesClient implements IEntriesClient {
             });
         }
         return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - An alternate electronic document is a named binary stream stored alongside the document's primary electronic document, such as an audio recording, a source scan, or sidecar data. It travels with the document through copy, move, versioning, and briefcase operations.
+    - Returns the name, MIME type, and size of each stream. This endpoint does not return the stream content.
+    - Stream names are at most 15 characters long.
+    - Streams are returned in ascending name order; that order is fixed and not configurable.
+    - Streams reserved for internal use are not listed.
+    - Default page size: 150. Allowed OData query options: Select | Count | Skip | SkipToken | Top | Prefer.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.prefer (optional) An optional OData header. Can be used to set the maximum page size using odata.maxpagesize.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @param args.top (optional) Limits the number of items returned from a collection. The maximum value is 150.
+     * @param args.skip (optional) Excludes the specified number of items of the queried collection from the result.
+     * @param args.count (optional) Indicates whether the total count of items within a collection are returned in the result.
+     * @returns Successfully retrieved a paged listing of the document's alternate electronic documents.
+     */
+    listAlternateEdocs(args: { repositoryId: string, entryId: number, prefer?: string | null | undefined, select?: string | null | undefined, top?: number | undefined, skip?: number | undefined, count?: boolean | undefined }): Promise<AlternateEdocInfoCollectionResponse> {
+        let { repositoryId, entryId, prefer, select, top, skip, count } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/AlternateEdocs?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        if (top === null)
+            throw new Error("The parameter 'top' cannot be null.");
+        else if (top !== undefined)
+            url_ += "$top=" + encodeURIComponent("" + top) + "&";
+        if (skip === null)
+            throw new Error("The parameter 'skip' cannot be null.");
+        else if (skip !== undefined)
+            url_ += "$skip=" + encodeURIComponent("" + skip) + "&";
+        if (count === null)
+            throw new Error("The parameter 'count' cannot be null.");
+        else if (count !== undefined)
+            url_ += "$count=" + encodeURIComponent("" + count) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        if (prefer !== null && prefer !== undefined)
+            options_.headers = Object.assign({}, options_.headers, {"Prefer": prefer !== undefined && prefer !== null ? "" + prefer : null});
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processListAlternateEdocs(_response);
+        });
+    }
+
+    protected processListAlternateEdocs(response: Response): Promise<AlternateEdocInfoCollectionResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AlternateEdocInfoCollectionResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AlternateEdocInfoCollectionResponse>(null as any);
+    }
+
+    /**
+     * - Returns the name, MIME type, and size of the stream. This endpoint does not return the stream content.
+    - The name is supplied as a query parameter rather than a path segment, because the legal character set includes characters that are significant to OData URI parsing.
+    - Names match exactly. A name that differs only in letter case identifies a different stream on some repository configurations, so no case folding is applied.
+    - Streams reserved for internal use are reported as not found.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.name The name of the alternate electronic document. Matched exactly, so a name differing only in letter case is not found. Names reserved for internal use are also reported as not found.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved the metadata of the specified alternate electronic document.
+     */
+    getAlternateEdocInfo(args: { repositoryId: string, entryId: number, name: string | null, select?: string | null | undefined }): Promise<AlternateEdocInfoResponse> {
+        let { repositoryId, entryId, name, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/AlternateEdoc?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (name === undefined)
+            throw new Error("The parameter 'name' must be defined.");
+        else if(name !== null)
+            url_ += "name=" + encodeURIComponent("" + name) + "&";
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAlternateEdocInfo(_response);
+        });
+    }
+
+    protected processGetAlternateEdocInfo(response: Response): Promise<AlternateEdocInfoResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AlternateEdocInfoResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AlternateEdocInfoResponse>(null as any);
+    }
+
+    /**
+     * - Writes a named binary stream stored alongside the document's primary electronic document, such as an audio recording, a source scan, or sidecar data. The stream is created when the document does not have one under that name, and its content fully replaced when it does. The primary electronic document, the pages, and the metadata are unaffected.
+    - Send the content as multipart/form-data under the form field `file`. A zero-byte file is rejected; use the delete operation to remove an alternate electronic document.
+    - The name is supplied as a query parameter rather than a path segment, because the legal character set includes characters that are significant to OData URI parsing.
+    - Names are at most 15 characters long, and each character must be an ASCII letter, an ASCII digit, or one of `!@#$%^&()-+={}[]_~`.
+    - Names match exactly. A name that differs only in letter case from one the document already has is rejected with 409 rather than written, because such a pair means different things on different repository configurations; reads and deletes stay exact-match.
+    - Names reserved for internal use are rejected.
+    - The optional `mimeType` form field sets the content's MIME type, at most 127 characters. When omitted it is derived from the uploaded file's content type and file name, falling back to `application/octet-stream`. The repository stores it lower-cased and without any parameters, so `Text/Plain; charset=utf-8` is stored as `text/plain`; the response reports the stored value.
+    - Repeating an identical request is safe: the same content replaces itself.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.name The name of the alternate electronic document. 1 to 15 characters, each an ASCII letter, an ASCII digit, or one of `!@#$%^&()-+={}[]_~`. An existing name has its content and MIME type replaced in full; a name differing from an existing one only in letter case is rejected with 409 and leaves that stream unchanged. Names reserved for internal use are rejected.
+     * @param args.file (optional) The content to store. Any file type is accepted. A zero-byte file is rejected with 400; use the delete operation to remove an alternate electronic document.
+     * @param args.mimeType (optional) Optional. The MIME type to set for the content, at most 127 characters. When omitted it is derived from the uploaded file's content type and file name, falling back to application/octet-stream. Stored lower-cased and without parameters, so Text/Plain; charset=utf-8 is stored as text/plain. Worth setting explicitly for audio and video, where the multipart content type is frequently generic or wrong.
+     * @returns Successfully wrote the alternate electronic document. Returned its metadata as stored.
+     */
+    writeAlternateEdoc(args: { repositoryId: string, entryId: number, name: string | null, file?: FileParameter | undefined, mimeType?: string | undefined }): Promise<AlternateEdocInfoResponse> {
+        let { repositoryId, entryId, name, file, mimeType } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/AlternateEdoc?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (name === undefined)
+            throw new Error("The parameter 'name' must be defined.");
+        else if(name !== null)
+            url_ += "name=" + encodeURIComponent("" + name) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (file === null || file === undefined)
+            throw new Error("The parameter 'file' cannot be null.");
+        else
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+        if (mimeType !== null && mimeType !== undefined)
+            content_.append("mimeType", mimeType.toString());
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processWriteAlternateEdoc(_response);
+        });
+    }
+
+    protected processWriteAlternateEdoc(response: Response): Promise<AlternateEdocInfoResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AlternateEdocInfoResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("The document already has an alternate electronic document whose name differs only in letter case.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 413) {
+            return response.text().then((_responseText) => {
+            let result413: any = null;
+            let resultData413 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result413 = ProblemDetails.fromJS(resultData413);
+            return throwException("Request is too large.", status, _responseText, _headers, result413);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AlternateEdocInfoResponse>(null as any);
+    }
+
+    /**
+     * - Deletes a named binary stream stored alongside the document's primary electronic document. The primary electronic document, the pages, and the metadata are unaffected.
+    - The name is supplied as a query parameter rather than a path segment, because the legal character set includes characters that are significant to OData URI parsing.
+    - Names match exactly. A name that differs only in letter case identifies a different stream on some repository configurations, so no case folding is applied.
+    - A name the document has no stream for is reported as not found.
+    - Names reserved for internal use are rejected.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.name The name of the alternate electronic document. Matched exactly, so a name differing only in letter case is not found. Names reserved for internal use are rejected.
+     * @returns Successfully deleted the alternate electronic document.
+     */
+    deleteAlternateEdoc(args: { repositoryId: string, entryId: number, name: string | null }): Promise<void> {
+        let { repositoryId, entryId, name } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/AlternateEdoc?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (name === undefined)
+            throw new Error("The parameter 'name' must be defined.");
+        else if(name !== null)
+            url_ += "name=" + encodeURIComponent("" + name) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteAlternateEdoc(_response);
+        });
+    }
+
+    protected processDeleteAlternateEdoc(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * - Writes a named binary stream stored alongside the document's primary electronic document from a file uploaded in chunks, for content too large to send in a single request. The stream is created when the document does not have one under that name, and its content fully replaced when it does. The primary electronic document, the pages, and the metadata are unaffected.
+    - Upload the content first: call CreateMultipartUploadUrls, write each chunk to the URLs it returns, then pass the same `uploadId` and the ETags here. There is no size limit at this tier beyond the one the upload itself enforces.
+    - This operation runs in the background. It returns **202 Accepted** with a task ID; poll `/Tasks?taskIds={taskId}` for progress and the result. Use the PUT operation instead for content small enough to send at once, which completes synchronously.
+    - The name is supplied as a query parameter rather than a path segment, because the legal character set includes characters that are significant to OData URI parsing.
+    - Names are at most 15 characters long, and each character must be an ASCII letter, an ASCII digit, or one of `!@#$%^&()-+={}[]_~`.
+    - Names match exactly. A name that differs only in letter case from one the document already has is rejected with 409 rather than written, because such a pair means different things on different repository configurations.
+    - Names reserved for internal use are rejected.
+    - The name, the MIME type and the case rule are all checked before the operation is accepted, so those errors come back on this request rather than on the task.
+    - The optional `mimeType` sets the content's MIME type, at most 127 characters. When omitted it is taken from the MIME type supplied to CreateMultipartUploadUrls. The repository stores it lower-cased and without any parameters, so `Text/Plain; charset=utf-8` is stored as `text/plain`.
+    - Required OAuth scope: repository.Write
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.name The name of the alternate electronic document. 1 to 15 characters, each an ASCII letter, an ASCII digit, or one of `!@#$%^&()-+={}[]_~`. An existing name has its content and MIME type replaced in full; a name differing from an existing one only in letter case is rejected with 409 and leaves that stream unchanged. Names reserved for internal use are rejected. The name is validated before the operation is accepted, so a name error is returned on this request rather than on the task.
+     * @param args.request The upload to assemble, and the MIME type to record.
+     * @returns Successfully started the write alternate electronic document from uploaded parts operation. Returns a task ID for polling progress.
+     */
+    writeAltEdocUploadedParts(args: { repositoryId: string, entryId: number, name: string | null, request: WriteAltEdocUploadedPartsRequest }): Promise<StartTaskResponse> {
+        let { repositoryId, entryId, name, request } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/AlternateEdoc/WriteUploadedParts?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (name === undefined)
+            throw new Error("The parameter 'name' must be defined.");
+        else if(name !== null)
+            url_ += "name=" + encodeURIComponent("" + name) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processWriteAltEdocUploadedParts(_response);
+        });
+    }
+
+    protected processWriteAltEdocUploadedParts(response: Response): Promise<StartTaskResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 202) {
+            return response.text().then((_responseText) => {
+            let result202: any = null;
+            let resultData202 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result202 = StartTaskResponse.fromJS(resultData202);
+            return result202;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("The document already has an alternate electronic document whose name differs only in letter case.", status, _responseText, _headers, result409);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<StartTaskResponse>(null as any);
     }
 
     /**
@@ -22307,8 +22972,14 @@ export class StartExportEntryRequest implements IStartExportEntryRequest {
     auditReasonId?: number;
     /** The comment for this audit event. */
     auditReasonComment?: string | undefined;
-    /** Specifies the part of the document to export. */
+    /** Specifies the part of the document to export. Options include: Image, Text, Edoc,
+AlternateEdoc. AlternateEdoc also requires alternateEdocName. */
     part!: ExportEntryRequestPart;
+    /** The name of the alternate electronic document to export. Required when part=AlternateEdoc,
+and rejected for every other part. 1 to 15 characters, each an ASCII letter, an ASCII
+digit, or one of `!@#$%^&()-+={}[]_~`. Matched exactly, so a name differing only in
+letter case is not found. Names reserved for internal use are also reported as not found. */
+    alternateEdocName?: string | undefined;
     /** The options applied when exporting as Image. */
     imageOptions?: ExportEntryRequestImageOptions | undefined;
     /** The options applied when exporting as Text. */
@@ -22333,6 +23004,7 @@ export class StartExportEntryRequest implements IStartExportEntryRequest {
             this.auditReasonId = _data["auditReasonId"];
             this.auditReasonComment = _data["auditReasonComment"] !== undefined ? _data["auditReasonComment"] : "";
             this.part = _data["part"];
+            this.alternateEdocName = _data["alternateEdocName"];
             this.imageOptions = _data["imageOptions"] ? ExportEntryRequestImageOptions.fromJS(_data["imageOptions"]) : <any>undefined;
             this.textOptions = _data["textOptions"] ? ExportEntryRequestTextOptions.fromJS(_data["textOptions"]) : <any>undefined;
         }
@@ -22350,6 +23022,7 @@ export class StartExportEntryRequest implements IStartExportEntryRequest {
         data["auditReasonId"] = this.auditReasonId;
         data["auditReasonComment"] = this.auditReasonComment;
         data["part"] = this.part;
+        data["alternateEdocName"] = this.alternateEdocName;
         data["imageOptions"] = this.imageOptions ? this.imageOptions.toJSON() : <any>undefined;
         data["textOptions"] = this.textOptions ? this.textOptions.toJSON() : <any>undefined;
         return data;
@@ -22362,8 +23035,14 @@ export interface IStartExportEntryRequest {
     auditReasonId?: number;
     /** The comment for this audit event. */
     auditReasonComment?: string | undefined;
-    /** Specifies the part of the document to export. */
+    /** Specifies the part of the document to export. Options include: Image, Text, Edoc,
+AlternateEdoc. AlternateEdoc also requires alternateEdocName. */
     part: ExportEntryRequestPart;
+    /** The name of the alternate electronic document to export. Required when part=AlternateEdoc,
+and rejected for every other part. 1 to 15 characters, each an ASCII letter, an ASCII
+digit, or one of `!@#$%^&()-+={}[]_~`. Matched exactly, so a name differing only in
+letter case is not found. Names reserved for internal use are also reported as not found. */
+    alternateEdocName?: string | undefined;
     /** The options applied when exporting as Image. */
     imageOptions?: ExportEntryRequestImageOptions | undefined;
     /** The options applied when exporting as Text. */
@@ -22375,6 +23054,7 @@ export enum ExportEntryRequestPart {
     Image = "Image",
     Text = "Text",
     Edoc = "Edoc",
+    AlternateEdoc = "AlternateEdoc",
 }
 
 /** Represents the options when exporting the image part of an entry. */
@@ -23039,6 +23719,10 @@ it aggregates across all of the document's pages. */
     extension?: string | undefined;
     /** A boolean indicating if there is an electronic document attached to the represented document. */
     isElectronicDocument?: boolean;
+    /** Whether the document has any alternate electronic documents — named binary streams
+stored alongside the primary electronic document, such as an audio recording, a source
+scan, or sidecar data. Use GET .../Document/AlternateEdocs to enumerate them. */
+    hasAlternateEdocs?: boolean | undefined;
     /** A boolean indicating if the represented document is a record. */
     isRecord?: boolean;
     /** The MIME type of the electronic document. */
@@ -23092,6 +23776,7 @@ Only populated on single-entry GET, not in listing results. */
             this.totalDocumentSize = _data["totalDocumentSize"];
             this.extension = _data["extension"];
             this.isElectronicDocument = _data["isElectronicDocument"];
+            this.hasAlternateEdocs = _data["hasAlternateEdocs"];
             this.isRecord = _data["isRecord"];
             this.mimeType = _data["mimeType"];
             this.pageCount = _data["pageCount"];
@@ -23119,6 +23804,7 @@ Only populated on single-entry GET, not in listing results. */
         data["totalDocumentSize"] = this.totalDocumentSize;
         data["extension"] = this.extension;
         data["isElectronicDocument"] = this.isElectronicDocument;
+        data["hasAlternateEdocs"] = this.hasAlternateEdocs;
         data["isRecord"] = this.isRecord;
         data["mimeType"] = this.mimeType;
         data["pageCount"] = this.pageCount;
@@ -23149,6 +23835,10 @@ it aggregates across all of the document's pages. */
     extension?: string | undefined;
     /** A boolean indicating if there is an electronic document attached to the represented document. */
     isElectronicDocument?: boolean;
+    /** Whether the document has any alternate electronic documents — named binary streams
+stored alongside the primary electronic document, such as an audio recording, a source
+scan, or sidecar data. Use GET .../Document/AlternateEdocs to enumerate them. */
+    hasAlternateEdocs?: boolean | undefined;
     /** A boolean indicating if the represented document is a record. */
     isRecord?: boolean;
     /** The MIME type of the electronic document. */
@@ -23516,8 +24206,14 @@ export class ExportEntryRequest implements IExportEntryRequest {
     auditReasonId?: number;
     /** The comment for this audit event. */
     auditReasonComment?: string | undefined;
-    /** The part of the document to export. Options include: Image, Text, Edoc. */
+    /** The part of the document to export. Options include: Image, Text, Edoc,
+AlternateEdoc. AlternateEdoc also requires alternateEdocName. */
     part!: ExportEntryRequestPart;
+    /** The name of the alternate electronic document to export. Required when part=AlternateEdoc,
+and rejected for every other part. 1 to 15 characters, each an ASCII letter, an ASCII
+digit, or one of `!@#$%^&()-+={}[]_~`. Matched exactly, so a name differing only in
+letter case is not found. Names reserved for internal use are also reported as not found. */
+    alternateEdocName?: string | undefined;
     /** The options applied when exporting as Image. */
     imageOptions?: ExportEntryRequestImageOptions | undefined;
     /** The options applied when exporting as Text. */
@@ -23542,6 +24238,7 @@ export class ExportEntryRequest implements IExportEntryRequest {
             this.auditReasonId = _data["auditReasonId"];
             this.auditReasonComment = _data["auditReasonComment"] !== undefined ? _data["auditReasonComment"] : "";
             this.part = _data["part"];
+            this.alternateEdocName = _data["alternateEdocName"];
             this.imageOptions = _data["imageOptions"] ? ExportEntryRequestImageOptions.fromJS(_data["imageOptions"]) : <any>undefined;
             this.textOptions = _data["textOptions"] ? ExportEntryRequestTextOptions.fromJS(_data["textOptions"]) : <any>undefined;
         }
@@ -23559,6 +24256,7 @@ export class ExportEntryRequest implements IExportEntryRequest {
         data["auditReasonId"] = this.auditReasonId;
         data["auditReasonComment"] = this.auditReasonComment;
         data["part"] = this.part;
+        data["alternateEdocName"] = this.alternateEdocName;
         data["imageOptions"] = this.imageOptions ? this.imageOptions.toJSON() : <any>undefined;
         data["textOptions"] = this.textOptions ? this.textOptions.toJSON() : <any>undefined;
         return data;
@@ -23571,8 +24269,14 @@ export interface IExportEntryRequest {
     auditReasonId?: number;
     /** The comment for this audit event. */
     auditReasonComment?: string | undefined;
-    /** The part of the document to export. Options include: Image, Text, Edoc. */
+    /** The part of the document to export. Options include: Image, Text, Edoc,
+AlternateEdoc. AlternateEdoc also requires alternateEdocName. */
     part: ExportEntryRequestPart;
+    /** The name of the alternate electronic document to export. Required when part=AlternateEdoc,
+and rejected for every other part. 1 to 15 characters, each an ASCII letter, an ASCII
+digit, or one of `!@#$%^&()-+={}[]_~`. Matched exactly, so a name differing only in
+letter case is not found. Names reserved for internal use are also reported as not found. */
+    alternateEdocName?: string | undefined;
     /** The options applied when exporting as Image. */
     imageOptions?: ExportEntryRequestImageOptions | undefined;
     /** The options applied when exporting as Text. */
@@ -24066,7 +24770,10 @@ export interface ITagDefinitionWatermark {
 
 /** Request body for assigning tags to an entry. */
 export class SetTagsRequest implements ISetTagsRequest {
-    /** The tag names to assign to the entry. */
+    /** The tag names to assign to the entry. Required.
+Deliberately left without a default: this is an overwrite action, so an omitted
+or null member has to stay distinguishable from an explicitly sent empty list,
+which unassigns every tag. */
     tags?: string[] | undefined;
 
     
@@ -24110,7 +24817,10 @@ export class SetTagsRequest implements ISetTagsRequest {
 
 /** Request body for assigning tags to an entry. */
 export interface ISetTagsRequest {
-    /** The tag names to assign to the entry. */
+    /** The tag names to assign to the entry. Required.
+Deliberately left without a default: this is an overwrite action, so an omitted
+or null member has to stay distinguishable from an explicitly sent empty list,
+which unassigns every tag. */
     tags?: string[] | undefined;
 }
 
@@ -24304,7 +25014,10 @@ export interface ILink {
 
 /** Request body for assigning links to an entry. */
 export class SetLinksRequest implements ISetLinksRequest {
-    /** The links that will be assigned to the entry. */
+    /** The links that will be assigned to the entry. Required.
+Deliberately left without a default: this is an overwrite action, so an omitted
+or null member has to stay distinguishable from an explicitly sent empty list,
+which removes every link. */
     links?: LinkToUpdate[] | undefined;
 
     
@@ -24348,7 +25061,10 @@ export class SetLinksRequest implements ISetLinksRequest {
 
 /** Request body for assigning links to an entry. */
 export interface ISetLinksRequest {
-    /** The links that will be assigned to the entry. */
+    /** The links that will be assigned to the entry. Required.
+Deliberately left without a default: this is an overwrite action, so an omitted
+or null member has to stay distinguishable from an explicitly sent empty list,
+which removes every link. */
     links?: LinkToUpdate[] | undefined;
 }
 
@@ -25050,6 +25766,189 @@ export interface IPageInfoResponse {
     imageWidth?: number;
     imageXResolution?: number;
     imageYResolution?: number;
+}
+
+/** Response containing a collection of AlternateEdocInfoResponse. */
+export class AlternateEdocInfoCollectionResponse implements IAlternateEdocInfoCollectionResponse {
+    /** A URL to retrieve the next page of the requested collection. */
+    odataNextLink?: string | undefined;
+    /** The total count of items within a collection. */
+    odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
+    value?: AlternateEdocInfoResponse[] | undefined;
+
+    
+    
+    constructor(data?: IAlternateEdocInfoCollectionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.odataNextLink = _data["@odata.nextLink"];
+            this.odataCount = _data["@odata.count"];
+            if (Array.isArray(_data["value"])) {
+                this.value = [] as any;
+                for (let item of _data["value"])
+                    this.value!.push(AlternateEdocInfoResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AlternateEdocInfoCollectionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AlternateEdocInfoCollectionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["@odata.nextLink"] = this.odataNextLink;
+        data["@odata.count"] = this.odataCount;
+        if (Array.isArray(this.value)) {
+            data["value"] = [];
+            for (let item of this.value)
+                data["value"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** Response containing a collection of AlternateEdocInfoResponse. */
+export interface IAlternateEdocInfoCollectionResponse {
+    /** A URL to retrieve the next page of the requested collection. */
+    odataNextLink?: string | undefined;
+    /** The total count of items within a collection. */
+    odataCount?: number | undefined;
+    /** Gets or sets the OData response content in the "value". */
+    value?: AlternateEdocInfoResponse[] | undefined;
+}
+
+/** Describes one alternate electronic document stream attached to a document. */
+export class AlternateEdocInfoResponse implements IAlternateEdocInfoResponse {
+    /** The name of the alternate electronic document stream, unique within the document. */
+    name?: string | undefined;
+    /** The MIME type recorded for the stream's content, or an empty string when the
+repository holds none. */
+    mimeType?: string | undefined;
+    /** The size of the stream's content in bytes. */
+    size?: number;
+
+    
+    
+    constructor(data?: IAlternateEdocInfoResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.mimeType = _data["mimeType"];
+            this.size = _data["size"];
+        }
+    }
+
+    static fromJS(data: any): AlternateEdocInfoResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AlternateEdocInfoResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["mimeType"] = this.mimeType;
+        data["size"] = this.size;
+        return data;
+    }
+}
+
+/** Describes one alternate electronic document stream attached to a document. */
+export interface IAlternateEdocInfoResponse {
+    /** The name of the alternate electronic document stream, unique within the document. */
+    name?: string | undefined;
+    /** The MIME type recorded for the stream's content, or an empty string when the
+repository holds none. */
+    mimeType?: string | undefined;
+    /** The size of the stream's content in bytes. */
+    size?: number;
+}
+
+/** Request body for writing an alternate electronic document from previously uploaded parts. */
+export class WriteAltEdocUploadedPartsRequest implements IWriteAltEdocUploadedPartsRequest {
+    /** The UploadId received when calling the CreateMultipartUploadUrls API to request upload URLs. */
+    uploadId!: string;
+    /** The array of the ETag values received when writing the file chunks into the upload URLs. The ETag values should be in the order of their associated upload URLs. */
+    partETags!: string[];
+    /** The MIME type to record for the content, at most 127 characters. When omitted, the MIME type supplied to CreateMultipartUploadUrls is recorded instead. The repository stores the value lower-cased and without any parameters, so "Text/Plain; charset=utf-8" is stored as "text/plain". */
+    mimeType?: string | undefined;
+
+    
+    
+    constructor(data?: IWriteAltEdocUploadedPartsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.partETags = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.uploadId = _data["uploadId"];
+            if (Array.isArray(_data["partETags"])) {
+                this.partETags = [] as any;
+                for (let item of _data["partETags"])
+                    this.partETags!.push(item);
+            }
+            this.mimeType = _data["mimeType"];
+        }
+    }
+
+    static fromJS(data: any): WriteAltEdocUploadedPartsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new WriteAltEdocUploadedPartsRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["uploadId"] = this.uploadId;
+        if (Array.isArray(this.partETags)) {
+            data["partETags"] = [];
+            for (let item of this.partETags)
+                data["partETags"].push(item);
+        }
+        data["mimeType"] = this.mimeType;
+        return data;
+    }
+}
+
+/** Request body for writing an alternate electronic document from previously uploaded parts. */
+export interface IWriteAltEdocUploadedPartsRequest {
+    /** The UploadId received when calling the CreateMultipartUploadUrls API to request upload URLs. */
+    uploadId: string;
+    /** The array of the ETag values received when writing the file chunks into the upload URLs. The ETag values should be in the order of their associated upload URLs. */
+    partETags: string[];
+    /** The MIME type to record for the content, at most 127 characters. When omitted, the MIME type supplied to CreateMultipartUploadUrls is recorded instead. The repository stores the value lower-cased and without any parameters, so "Text/Plain; charset=utf-8" is stored as "text/plain". */
+    mimeType?: string | undefined;
 }
 
 export class PageTextResponse implements IPageTextResponse {
@@ -27654,6 +28553,7 @@ export enum TaskType {
     ExportEntry = "ExportEntry",
     ImportUploadedParts = "ImportUploadedParts",
     SearchEntry = "SearchEntry",
+    WriteAltEdocUploadedParts = "WriteAltEdocUploadedParts",
 }
 
 /** An enumeration of possible statuses for a long operation task. */
