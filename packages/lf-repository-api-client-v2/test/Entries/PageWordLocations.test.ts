@@ -28,6 +28,9 @@ import { SKIP_UNDER_JSDOM } from '../BaseTest.js';
 // client's ProblemDetails.init in lf-api-client-core-js declares an extensions field and never
 // assigns it, so it is always undefined here. The member name is a substitution argument in the
 // localized message, so it survives translation even though the sentence around it does not.
+//
+// The 404 cases additionally assert operationId, which init does populate. Without it they would
+// pass against a server that has neither route deployed, since a missing route is also a 404.
 describe.skipIf(SKIP_UNDER_JSDOM)('Page Word Locations Integration Tests', () => {
   let createdEntryId: number = 0;
 
@@ -82,11 +85,16 @@ describe.skipIf(SKIP_UNDER_JSDOM)('Page Word Locations Integration Tests', () =>
       throw new Error('Should have thrown');
     } catch (e: any) {
       expect(e.status).toBe(404);
-      expect(e.problemDetails).not.toBeNull();
+      // operationId, not just the status: a server without this route deployed also answers 404,
+      // so the status alone would let this test pass against a build that has no such endpoint.
+      expect(e.problemDetails.operationId).toBe('ListPageWordLocations');
     }
   });
 
   test('ListPageWordLocations on a missing entry returns 404', async () => {
+    // No operationId assertion here: this 404 comes from the repository not finding the entry,
+    // through CategorizeException, which does not carry the operation's own id. The two tests
+    // that need to prove the route exists are the ones that reach a page.
     try {
       await _RepositoryApiClient.entriesClient.listPageWordLocations({
         repositoryId,
@@ -106,6 +114,7 @@ describe.skipIf(SKIP_UNDER_JSDOM)('Page Word Locations Integration Tests', () =>
 
     // 404, not 400: the rectangle passed validation and the request got as far as the page,
     // which has text but no word locations. A 400 here would mean a coordinate never arrived.
+    // The operationId assertion is what separates this from the 404 an undeployed route returns.
     try {
       await _RepositoryApiClient.entriesClient.getPageTextOffsets({
         repositoryId,
@@ -119,6 +128,7 @@ describe.skipIf(SKIP_UNDER_JSDOM)('Page Word Locations Integration Tests', () =>
       throw new Error('Should have thrown');
     } catch (e: any) {
       expect(e.status).toBe(404);
+      expect(e.problemDetails.operationId).toBe('GetPageTextOffsets');
     }
   });
 
