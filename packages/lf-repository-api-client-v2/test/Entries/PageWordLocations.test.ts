@@ -132,11 +132,45 @@ describe.skipIf(SKIP_UNDER_JSDOM)('Page Word Locations Integration Tests', () =>
     }
   });
 
-  test('GetPageTextOffsets without width returns 400 naming width', async () => {
+  test('GetPageTextOffsets omitting width is rejected before the request is sent', async () => {
     createdEntryId = await createDocumentWithTextPage(
       'RepositoryApiClientIntegrationTest JS GetPageTextOffsets MissingWidth'
     );
 
+    // The swagger marks the four rectangle parameters required, so the generated signature no
+    // longer lets a caller leave one out - hence the cast, which is the thing under test. The
+    // client rejects it locally rather than sending a request the server would answer with a 400,
+    // so there is no status here: it never reached the wire.
+    const argsWithoutWidth = {
+      repositoryId,
+      entryId: createdEntryId,
+      pageNumber: 1,
+      x: 10,
+      y: 20,
+      height: 50,
+    } as any;
+
+    // try/catch rather than .rejects: the generated guard runs before the method returns a
+    // promise, so it throws synchronously and .rejects would never receive one.
+    let thrown: any;
+    try {
+      await _RepositoryApiClient.entriesClient.getPageTextOffsets(argsWithoutWidth);
+    } catch (e: any) {
+      thrown = e;
+    }
+
+    expect(thrown).toBeDefined();
+    expect(String(thrown.message)).toMatch(/width.*must be defined/);
+    expect(thrown.status).toBeUndefined();
+  });
+
+  test('GetPageTextOffsets with an explicit null width returns 400 naming width', async () => {
+    createdEntryId = await createDocumentWithTextPage(
+      'RepositoryApiClientIntegrationTest JS GetPageTextOffsets NullWidth'
+    );
+
+    // The generated check is `=== undefined`, so an explicit null is still sent and the server
+    // rejects it. This keeps the server-side 400 covered now that omission stops at the client.
     try {
       await _RepositoryApiClient.entriesClient.getPageTextOffsets({
         repositoryId,
@@ -144,6 +178,7 @@ describe.skipIf(SKIP_UNDER_JSDOM)('Page Word Locations Integration Tests', () =>
         pageNumber: 1,
         x: 10,
         y: 20,
+        width: null,
         height: 50,
       });
       throw new Error('Should have thrown');

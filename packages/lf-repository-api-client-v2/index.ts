@@ -5981,14 +5981,14 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageNumber The 1-based page number of the page to search.
-     * @param args.x (optional) The X coordinate of the left edge of the rectangle, in page image pixels. Required, and may not be negative.
-     * @param args.y (optional) The Y coordinate of the top edge of the rectangle, in page image pixels. Required, and may not be negative.
-     * @param args.width (optional) The width of the rectangle, in page image pixels. Required, and must be at least 1.
-     * @param args.height (optional) The height of the rectangle, in page image pixels. Required, and must be at least 1.
+     * @param args.x The X coordinate of the left edge of the rectangle, in page image pixels. Required, and may not be negative.
+     * @param args.y The Y coordinate of the top edge of the rectangle, in page image pixels. Required, and may not be negative.
+     * @param args.width The width of the rectangle, in page image pixels. Required, and must be at least 1.
+     * @param args.height The height of the rectangle, in page image pixels. Required, and must be at least 1.
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully retrieved the page text span covered by the specified rectangle.
      */
-    getPageTextOffsets(args: { repositoryId: string, entryId: number, pageNumber: number, x?: number | null | undefined, y?: number | null | undefined, width?: number | null | undefined, height?: number | null | undefined, select?: string | null | undefined }): Promise<PageTextOffsetsResponse>;
+    getPageTextOffsets(args: { repositoryId: string, entryId: number, pageNumber: number, x: number | null, y: number | null, width: number | null, height: number | null, select?: string | null | undefined }): Promise<PageTextOffsetsResponse>;
 
     /**
      * - Returns every word of the page, in reading order, with its text offsets and its rectangle on the page image. This is the data the hasWordLocations and locationsDataSize properties on ListPageInfos advertise.
@@ -10651,14 +10651,14 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageNumber The 1-based page number of the page to search.
-     * @param args.x (optional) The X coordinate of the left edge of the rectangle, in page image pixels. Required, and may not be negative.
-     * @param args.y (optional) The Y coordinate of the top edge of the rectangle, in page image pixels. Required, and may not be negative.
-     * @param args.width (optional) The width of the rectangle, in page image pixels. Required, and must be at least 1.
-     * @param args.height (optional) The height of the rectangle, in page image pixels. Required, and must be at least 1.
+     * @param args.x The X coordinate of the left edge of the rectangle, in page image pixels. Required, and may not be negative.
+     * @param args.y The Y coordinate of the top edge of the rectangle, in page image pixels. Required, and may not be negative.
+     * @param args.width The width of the rectangle, in page image pixels. Required, and must be at least 1.
+     * @param args.height The height of the rectangle, in page image pixels. Required, and must be at least 1.
      * @param args.select (optional) Limits the properties returned in the result.
      * @returns Successfully retrieved the page text span covered by the specified rectangle.
      */
-    getPageTextOffsets(args: { repositoryId: string, entryId: number, pageNumber: number, x?: number | null | undefined, y?: number | null | undefined, width?: number | null | undefined, height?: number | null | undefined, select?: string | null | undefined }): Promise<PageTextOffsetsResponse> {
+    getPageTextOffsets(args: { repositoryId: string, entryId: number, pageNumber: number, x: number | null, y: number | null, width: number | null, height: number | null, select?: string | null | undefined }): Promise<PageTextOffsetsResponse> {
         let { repositoryId, entryId, pageNumber, x, y, width, height, select } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/{pageNumber}/Text/Offsets?";
         if (repositoryId === undefined || repositoryId === null)
@@ -10670,13 +10670,21 @@ export class EntriesClient implements IEntriesClient {
         if (pageNumber === undefined || pageNumber === null)
             throw new Error("The parameter 'pageNumber' must be defined.");
         url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
-        if (x !== undefined && x !== null)
+        if (x === undefined)
+            throw new Error("The parameter 'x' must be defined.");
+        else if(x !== null)
             url_ += "x=" + encodeURIComponent("" + x) + "&";
-        if (y !== undefined && y !== null)
+        if (y === undefined)
+            throw new Error("The parameter 'y' must be defined.");
+        else if(y !== null)
             url_ += "y=" + encodeURIComponent("" + y) + "&";
-        if (width !== undefined && width !== null)
+        if (width === undefined)
+            throw new Error("The parameter 'width' must be defined.");
+        else if(width !== null)
             url_ += "width=" + encodeURIComponent("" + width) + "&";
-        if (height !== undefined && height !== null)
+        if (height === undefined)
+            throw new Error("The parameter 'height' must be defined.");
+        else if(height !== null)
             url_ += "height=" + encodeURIComponent("" + height) + "&";
         if (select !== undefined && select !== null)
             url_ += "$select=" + encodeURIComponent("" + select) + "&";
