@@ -3415,6 +3415,7 @@ export interface IAccessControlClient {
     /**
      * - Full replace: the supplied entries replace the field's entire explicit ACL. Inherited entries are not accepted (field ACEs are never inherited). Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given; an account name is resolved to a SID server-side).
     - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the field's ChangePermissions right.
+    - The entries property is required. A request body that does not include it is rejected with a 400; send an empty array to clear the list.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.fieldId The field definition ID whose ACL to replace.
@@ -3445,6 +3446,7 @@ export interface IAccessControlClient {
 
     /**
      * - Full replace: the supplied entries replace the entire default field ACL. Inherited entries are not accepted. Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given).
+    - The entries property is required. A request body that does not include it is rejected with a 400; send an empty array to clear the list.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.request The access control entries to set as the default field ACL.
@@ -3471,6 +3473,7 @@ export interface IAccessControlClient {
     - Each ACE identifies its trustee by trustee.sid or trustee.accountName (an account name is resolved to a SID server-side; the SID takes precedence when both are supplied). A trustee that needs both allowed and denied rights is expressed as two ACEs.
     - The repository session enforces the underlying permission: changing an ACL requires the ChangePermissions right on the entry, and a 403 is returned when it is lacking. The repository.Write OAuth scope is necessary but not sufficient.
     - Returns the entry's full ACL after the change.
+    - The entries property is required. A request body that does not include it is rejected with a 400; send an empty array to clear the list.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry whose access control list is replaced.
@@ -3516,6 +3519,7 @@ export interface IAccessControlClient {
     /**
      * - Full replace: the supplied entries replace the template's entire explicit ACL. Inherited entries are not accepted (template ACEs are never inherited). Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given; an account name is resolved to a SID server-side).
     - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the template's ChangePermissions right.
+    - The entries property is required. A request body that does not include it is rejected with a 400; send an empty array to clear the list.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.templateId The template definition ID whose ACL to replace.
@@ -3546,6 +3550,7 @@ export interface IAccessControlClient {
 
     /**
      * - Full replace: the supplied entries replace the entire default template ACL. Inherited entries are not accepted. Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given).
+    - The entries property is required. A request body that does not include it is rejected with a 400; send an empty array to clear the list.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.request The access control entries to set as the default template ACL.
@@ -3681,6 +3686,7 @@ export class AccessControlClient implements IAccessControlClient {
     /**
      * - Full replace: the supplied entries replace the field's entire explicit ACL. Inherited entries are not accepted (field ACEs are never inherited). Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given; an account name is resolved to a SID server-side).
     - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the field's ChangePermissions right.
+    - The entries property is required. A request body that does not include it is rejected with a 400; send an empty array to clear the list.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.fieldId The field definition ID whose ACL to replace.
@@ -3956,6 +3962,7 @@ export class AccessControlClient implements IAccessControlClient {
 
     /**
      * - Full replace: the supplied entries replace the entire default field ACL. Inherited entries are not accepted. Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given).
+    - The entries property is required. A request body that does not include it is rejected with a 400; send an empty array to clear the list.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.request The access control entries to set as the default field ACL.
@@ -4144,6 +4151,7 @@ export class AccessControlClient implements IAccessControlClient {
     - Each ACE identifies its trustee by trustee.sid or trustee.accountName (an account name is resolved to a SID server-side; the SID takes precedence when both are supplied). A trustee that needs both allowed and denied rights is expressed as two ACEs.
     - The repository session enforces the underlying permission: changing an ACL requires the ChangePermissions right on the entry, and a 403 is returned when it is lacking. The repository.Write OAuth scope is necessary but not sufficient.
     - Returns the entry's full ACL after the change.
+    - The entries property is required. A request body that does not include it is rejected with a 400; send an empty array to clear the list.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry whose access control list is replaced.
@@ -4517,6 +4525,7 @@ export class AccessControlClient implements IAccessControlClient {
     /**
      * - Full replace: the supplied entries replace the template's entire explicit ACL. Inherited entries are not accepted (template ACEs are never inherited). Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given; an account name is resolved to a SID server-side).
     - The OAuth scope is coarse; the repository session enforces the real permission and returns 403 when the caller lacks the template's ChangePermissions right.
+    - The entries property is required. A request body that does not include it is rejected with a 400; send an empty array to clear the list.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.templateId The template definition ID whose ACL to replace.
@@ -4792,6 +4801,7 @@ export class AccessControlClient implements IAccessControlClient {
 
     /**
      * - Full replace: the supplied entries replace the entire default template ACL. Inherited entries are not accepted. Address a trustee by trustee.sid or trustee.accountName (the SID wins when both are given).
+    - The entries property is required. A request body that does not include it is rejected with a 400; send an empty array to clear the list.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.request The access control entries to set as the default template ACL.
@@ -5600,6 +5610,7 @@ export interface IEntriesClient {
      * - Update the field values assigned to an entry.
     - Provide the new field values to assign to the entry, and remove/reset all previously assigned field values.
     - This is an overwrite action. The request body must include all desired field values, including any existing field values that should remain assigned to the entry. Field values that are not included in the request will be deleted from the entry. If the field value that is not included is part of a template, it will still be assigned (as required by the template), but its value will be reset.
+    - The fields property is required. A request body that does not include it is rejected with a 400; send an empty list to clear every field value.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the entry that will have its fields updated.
@@ -5955,6 +5966,46 @@ export interface IEntriesClient {
      * @returns Successfully retrieved the text content for the specified page.
      */
     getPageText(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageTextResponse>;
+
+    /**
+     * - Returns the offsets, in the text of the page, of the words the rectangle covers, together with that text.
+    - All four rectangle parameters are required. Omitting one is a 400 rather than a coordinate of 0, because a rectangle silently moved to the edge of the page answers with a span the caller never asked about.
+    - Coordinates are in raw page image pixels, with the origin at the top left of the unrotated image: X is measured in imageXResolution columns and Y in imageYResolution rows, which can differ from one another, and the image is the one described by imageWidth, imageHeight, imageXResolution, imageYResolution and imageRotationAngle on ListPageInfos. The page's own rotation is not applied, so a viewer that displays the page rotated or scaled must convert its own coordinates back to this space before calling.
+    - A word counts as covered when the rectangle contains it, is contained by it, or overlaps it by at least 2 pixels and half of both its width and its height. A rectangle that lies entirely within the word on one axis - a thin stripe drawn through it - only has to clear the half threshold on the other axis. This is the same rule the Laserfiche viewers apply to a hand-drawn selection.
+    - textStart is the offset of the first character of the span and textEnd is the offset one past its last character, so textEnd - textStart is the length of the span. This is the convention Web Access stores in text-linked highlight and redaction annotations, so the values can be written straight back to CreateAnnotation. Offsets are UTF-16 code unit indices into the text returned by GetPageText, including its line breaks.
+    - The span runs from the first covered word to the last, so text can include characters that lie between covered words. text always equals the page text from textStart to textEnd.
+    - When the rectangle covers no words, hasTextSpan is false, textStart and textEnd are both -1, text is empty and wordCount is 0. -1 is also the value the annotation surface uses for a span that is not linked to text.
+    - Returns 404 when the page has no text or no word locations. A page has word locations when hasWordLocations is true on ListPageInfos; text is generated by GenerateText.
+    - Returns 400 when the page carries more word locations than the server supports, which is 20,000 by default.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to search.
+     * @param args.x The X coordinate of the left edge of the rectangle, in page image pixels. Required, and may not be negative.
+     * @param args.y The Y coordinate of the top edge of the rectangle, in page image pixels. Required, and may not be negative.
+     * @param args.width The width of the rectangle, in page image pixels. Required, and must be at least 1.
+     * @param args.height The height of the rectangle, in page image pixels. Required, and must be at least 1.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved the page text span covered by the specified rectangle.
+     */
+    getPageTextOffsets(args: { repositoryId: string, entryId: number, pageNumber: number, x: number | null, y: number | null, width: number | null, height: number | null, select?: string | null | undefined }): Promise<PageTextOffsetsResponse>;
+
+    /**
+     * - Returns every word of the page, in reading order, with its text offsets and its rectangle on the page image. This is the data the hasWordLocations and locationsDataSize properties on ListPageInfos advertise.
+    - The whole page is returned in one response; there is no paging, because the order of the words is itself part of the data. A page carrying more word locations than the server supports, which is 20,000 by default, is refused with a 400 rather than truncated.
+    - Coordinates are in raw page image pixels, with the origin at the top left of the unrotated image: X is measured in imageXResolution columns and Y in imageYResolution rows, which can differ from one another. The envelope repeats the page image geometry so the coordinates can be interpreted without a second call, and imageRotationAngle is reported but not applied - overlay code must apply its own rotation and scaling.
+    - textStart is the offset of the first character of the word and textEnd is the offset one past its last character, so textEnd - textStart is the length of the word. Offsets are UTF-16 code unit indices into the text returned by GetPageText, including its line breaks, and use the same convention as the text-linked highlight and redaction annotations.
+    - To find the rectangles that render a text span [spanStart, spanEnd), such as the span stored on an existing highlight or redaction annotation, take every entry where word.textStart < spanEnd and word.textEnd > spanStart, and use those entries' rectangles. Entries that overlap vertically are on the same line of text, so horizontally adjacent boxes within such a group can be merged into one box per line.
+    - width and height can both be 0 for a location OCR produced for a word it could not place. Such entries are still returned, because the order of the words is what pairs them with the page text.
+    - Returns 404 when the page has no text or no word locations. Word locations are produced by GenerateText along with the page text.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to retrieve the word locations for.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved the word locations for the specified page.
+     */
+    listPageWordLocations(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageWordLocationsResponse>;
 
     /**
      * - Triggers server-side text generation for the specified document.
@@ -7902,6 +7953,7 @@ export class EntriesClient implements IEntriesClient {
      * - Update the field values assigned to an entry.
     - Provide the new field values to assign to the entry, and remove/reset all previously assigned field values.
     - This is an overwrite action. The request body must include all desired field values, including any existing field values that should remain assigned to the entry. Field values that are not included in the request will be deleted from the entry. If the field value that is not included is part of a template, it will still be assigned (as required by the template), but its value will be reset.
+    - The fields property is required. A request body that does not include it is rejected with a 400; send an empty list to clear every field value.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The entry ID of the entry that will have its fields updated.
@@ -10583,6 +10635,234 @@ export class EntriesClient implements IEntriesClient {
             });
         }
         return Promise.resolve<PageTextResponse>(null as any);
+    }
+
+    /**
+     * - Returns the offsets, in the text of the page, of the words the rectangle covers, together with that text.
+    - All four rectangle parameters are required. Omitting one is a 400 rather than a coordinate of 0, because a rectangle silently moved to the edge of the page answers with a span the caller never asked about.
+    - Coordinates are in raw page image pixels, with the origin at the top left of the unrotated image: X is measured in imageXResolution columns and Y in imageYResolution rows, which can differ from one another, and the image is the one described by imageWidth, imageHeight, imageXResolution, imageYResolution and imageRotationAngle on ListPageInfos. The page's own rotation is not applied, so a viewer that displays the page rotated or scaled must convert its own coordinates back to this space before calling.
+    - A word counts as covered when the rectangle contains it, is contained by it, or overlaps it by at least 2 pixels and half of both its width and its height. A rectangle that lies entirely within the word on one axis - a thin stripe drawn through it - only has to clear the half threshold on the other axis. This is the same rule the Laserfiche viewers apply to a hand-drawn selection.
+    - textStart is the offset of the first character of the span and textEnd is the offset one past its last character, so textEnd - textStart is the length of the span. This is the convention Web Access stores in text-linked highlight and redaction annotations, so the values can be written straight back to CreateAnnotation. Offsets are UTF-16 code unit indices into the text returned by GetPageText, including its line breaks.
+    - The span runs from the first covered word to the last, so text can include characters that lie between covered words. text always equals the page text from textStart to textEnd.
+    - When the rectangle covers no words, hasTextSpan is false, textStart and textEnd are both -1, text is empty and wordCount is 0. -1 is also the value the annotation surface uses for a span that is not linked to text.
+    - Returns 404 when the page has no text or no word locations. A page has word locations when hasWordLocations is true on ListPageInfos; text is generated by GenerateText.
+    - Returns 400 when the page carries more word locations than the server supports, which is 20,000 by default.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to search.
+     * @param args.x The X coordinate of the left edge of the rectangle, in page image pixels. Required, and may not be negative.
+     * @param args.y The Y coordinate of the top edge of the rectangle, in page image pixels. Required, and may not be negative.
+     * @param args.width The width of the rectangle, in page image pixels. Required, and must be at least 1.
+     * @param args.height The height of the rectangle, in page image pixels. Required, and must be at least 1.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved the page text span covered by the specified rectangle.
+     */
+    getPageTextOffsets(args: { repositoryId: string, entryId: number, pageNumber: number, x: number | null, y: number | null, width: number | null, height: number | null, select?: string | null | undefined }): Promise<PageTextOffsetsResponse> {
+        let { repositoryId, entryId, pageNumber, x, y, width, height, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/{pageNumber}/Text/Offsets?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined.");
+        url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
+        if (x === undefined)
+            throw new Error("The parameter 'x' must be defined.");
+        else if(x !== null)
+            url_ += "x=" + encodeURIComponent("" + x) + "&";
+        if (y === undefined)
+            throw new Error("The parameter 'y' must be defined.");
+        else if(y !== null)
+            url_ += "y=" + encodeURIComponent("" + y) + "&";
+        if (width === undefined)
+            throw new Error("The parameter 'width' must be defined.");
+        else if(width !== null)
+            url_ += "width=" + encodeURIComponent("" + width) + "&";
+        if (height === undefined)
+            throw new Error("The parameter 'height' must be defined.");
+        else if(height !== null)
+            url_ += "height=" + encodeURIComponent("" + height) + "&";
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPageTextOffsets(_response);
+        });
+    }
+
+    protected processGetPageTextOffsets(response: Response): Promise<PageTextOffsetsResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PageTextOffsetsResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PageTextOffsetsResponse>(null as any);
+    }
+
+    /**
+     * - Returns every word of the page, in reading order, with its text offsets and its rectangle on the page image. This is the data the hasWordLocations and locationsDataSize properties on ListPageInfos advertise.
+    - The whole page is returned in one response; there is no paging, because the order of the words is itself part of the data. A page carrying more word locations than the server supports, which is 20,000 by default, is refused with a 400 rather than truncated.
+    - Coordinates are in raw page image pixels, with the origin at the top left of the unrotated image: X is measured in imageXResolution columns and Y in imageYResolution rows, which can differ from one another. The envelope repeats the page image geometry so the coordinates can be interpreted without a second call, and imageRotationAngle is reported but not applied - overlay code must apply its own rotation and scaling.
+    - textStart is the offset of the first character of the word and textEnd is the offset one past its last character, so textEnd - textStart is the length of the word. Offsets are UTF-16 code unit indices into the text returned by GetPageText, including its line breaks, and use the same convention as the text-linked highlight and redaction annotations.
+    - To find the rectangles that render a text span [spanStart, spanEnd), such as the span stored on an existing highlight or redaction annotation, take every entry where word.textStart < spanEnd and word.textEnd > spanStart, and use those entries' rectangles. Entries that overlap vertically are on the same line of text, so horizontally adjacent boxes within such a group can be merged into one box per line.
+    - width and height can both be 0 for a location OCR produced for a word it could not place. Such entries are still returned, because the order of the words is what pairs them with the page text.
+    - Returns 404 when the page has no text or no word locations. Word locations are produced by GenerateText along with the page text.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.pageNumber The 1-based page number of the page to retrieve the word locations for.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully retrieved the word locations for the specified page.
+     */
+    listPageWordLocations(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageWordLocationsResponse> {
+        let { repositoryId, entryId, pageNumber, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Pages/{pageNumber}/WordLocations?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined.");
+        url_ = url_.replace("{pageNumber}", encodeURIComponent("" + pageNumber));
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processListPageWordLocations(_response);
+        });
+    }
+
+    protected processListPageWordLocations(response: Response): Promise<PageWordLocationsResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PageWordLocationsResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PageWordLocationsResponse>(null as any);
     }
 
     /**
@@ -22153,7 +22433,10 @@ export enum FieldRight {
 
 /** Request body for replacing a template field definition's access control list. The supplied entries fully replace the field's existing explicit ACL. Inherited entries are not accepted. */
 export class SetFieldAccessControlRequest implements ISetFieldAccessControlRequest {
-    /** The access control entries to set. Replaces the field's entire explicit ACL. */
+    /** The access control entries to set. Required. Replaces the field's entire explicit
+ACL; an empty array clears it.
+Deliberately left without a default: this is a full replace, so an omitted or null
+member has to stay distinguishable from an explicitly sent empty array. */
     entries?: FieldAccessControlEntry[] | undefined;
 
     
@@ -22197,7 +22480,10 @@ export class SetFieldAccessControlRequest implements ISetFieldAccessControlReque
 
 /** Request body for replacing a template field definition's access control list. The supplied entries fully replace the field's existing explicit ACL. Inherited entries are not accepted. */
 export interface ISetFieldAccessControlRequest {
-    /** The access control entries to set. Replaces the field's entire explicit ACL. */
+    /** The access control entries to set. Required. Replaces the field's entire explicit
+ACL; an empty array clears it.
+Deliberately left without a default: this is a full replace, so an omitted or null
+member has to stay distinguishable from an explicitly sent empty array. */
     entries?: FieldAccessControlEntry[] | undefined;
 }
 
@@ -24514,7 +24800,10 @@ export interface IFieldCollectionResponse {
 
 /** Request body for assigning fields to an entry. */
 export class SetFieldsRequest implements ISetFieldsRequest {
-    /** The fields that will be assigned to the entry. */
+    /** The fields that will be assigned to the entry. Required.
+Deliberately left without a default: this is an overwrite action, so an omitted
+or null member has to stay distinguishable from an explicitly sent empty list,
+which clears every field value. */
     fields?: FieldToUpdate[] | undefined;
 
     
@@ -24558,7 +24847,10 @@ export class SetFieldsRequest implements ISetFieldsRequest {
 
 /** Request body for assigning fields to an entry. */
 export interface ISetFieldsRequest {
-    /** The fields that will be assigned to the entry. */
+    /** The fields that will be assigned to the entry. Required.
+Deliberately left without a default: this is an overwrite action, so an omitted
+or null member has to stay distinguishable from an explicitly sent empty list,
+which clears every field value. */
     fields?: FieldToUpdate[] | undefined;
 }
 
@@ -25989,6 +26281,252 @@ export interface IPageTextResponse {
     text?: string | undefined;
 }
 
+/** The page text span covered by a rectangle drawn on a page image. */
+export class PageTextOffsetsResponse implements IPageTextOffsetsResponse {
+    /** True when at least one word on the page intersects the requested rectangle.
+False when the rectangle covers no words, in which case textStart and textEnd are both -1. */
+    hasTextSpan?: boolean;
+    /** The offset of the first character of the covered span, or -1 when no word is covered. */
+    textStart?: number;
+    /** The offset one past the last character of the covered span (textEnd - textStart is the
+span length), or -1 when no word is covered. */
+    textEnd?: number;
+    /** The page text between textStart and textEnd, or an empty string when no word is covered. */
+    text?: string | undefined;
+    /** The number of words the rectangle covers. */
+    wordCount?: number;
+
+    
+    
+    constructor(data?: IPageTextOffsetsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.hasTextSpan = _data["hasTextSpan"];
+            this.textStart = _data["textStart"];
+            this.textEnd = _data["textEnd"];
+            this.text = _data["text"];
+            this.wordCount = _data["wordCount"];
+        }
+    }
+
+    static fromJS(data: any): PageTextOffsetsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PageTextOffsetsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["hasTextSpan"] = this.hasTextSpan;
+        data["textStart"] = this.textStart;
+        data["textEnd"] = this.textEnd;
+        data["text"] = this.text;
+        data["wordCount"] = this.wordCount;
+        return data;
+    }
+}
+
+/** The page text span covered by a rectangle drawn on a page image. */
+export interface IPageTextOffsetsResponse {
+    /** True when at least one word on the page intersects the requested rectangle.
+False when the rectangle covers no words, in which case textStart and textEnd are both -1. */
+    hasTextSpan?: boolean;
+    /** The offset of the first character of the covered span, or -1 when no word is covered. */
+    textStart?: number;
+    /** The offset one past the last character of the covered span (textEnd - textStart is the
+span length), or -1 when no word is covered. */
+    textEnd?: number;
+    /** The page text between textStart and textEnd, or an empty string when no word is covered. */
+    text?: string | undefined;
+    /** The number of words the rectangle covers. */
+    wordCount?: number;
+}
+
+/** The word locations of a page, together with the page image geometry the coordinates are expressed in. */
+export class PageWordLocationsResponse implements IPageWordLocationsResponse {
+    /** The 1-based page number. */
+    pageNumber?: number;
+    /** The width of the page image, in pixels. */
+    imageWidth?: number;
+    /** The height of the page image, in pixels. */
+    imageHeight?: number;
+    /** The horizontal resolution of the page image, in pixels per inch. */
+    imageXResolution?: number;
+    /** The vertical resolution of the page image, in pixels per inch. This can differ from
+imageXResolution, in which case the coordinate space is anisotropic. */
+    imageYResolution?: number;
+    /** The rotation the viewer applies to the page image, in degrees. Word location
+coordinates are relative to the unrotated image and do not include this rotation. */
+    imageRotationAngle?: number;
+    /** The words of the page, in reading order, each with its text offsets and its location
+on the page image. */
+    wordLocations?: PageWordLocation[] | undefined;
+
+    
+    
+    constructor(data?: IPageWordLocationsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageNumber = _data["pageNumber"];
+            this.imageWidth = _data["imageWidth"];
+            this.imageHeight = _data["imageHeight"];
+            this.imageXResolution = _data["imageXResolution"];
+            this.imageYResolution = _data["imageYResolution"];
+            this.imageRotationAngle = _data["imageRotationAngle"];
+            if (Array.isArray(_data["wordLocations"])) {
+                this.wordLocations = [] as any;
+                for (let item of _data["wordLocations"])
+                    this.wordLocations!.push(PageWordLocation.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): PageWordLocationsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PageWordLocationsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageNumber"] = this.pageNumber;
+        data["imageWidth"] = this.imageWidth;
+        data["imageHeight"] = this.imageHeight;
+        data["imageXResolution"] = this.imageXResolution;
+        data["imageYResolution"] = this.imageYResolution;
+        data["imageRotationAngle"] = this.imageRotationAngle;
+        if (Array.isArray(this.wordLocations)) {
+            data["wordLocations"] = [];
+            for (let item of this.wordLocations)
+                data["wordLocations"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** The word locations of a page, together with the page image geometry the coordinates are expressed in. */
+export interface IPageWordLocationsResponse {
+    /** The 1-based page number. */
+    pageNumber?: number;
+    /** The width of the page image, in pixels. */
+    imageWidth?: number;
+    /** The height of the page image, in pixels. */
+    imageHeight?: number;
+    /** The horizontal resolution of the page image, in pixels per inch. */
+    imageXResolution?: number;
+    /** The vertical resolution of the page image, in pixels per inch. This can differ from
+imageXResolution, in which case the coordinate space is anisotropic. */
+    imageYResolution?: number;
+    /** The rotation the viewer applies to the page image, in degrees. Word location
+coordinates are relative to the unrotated image and do not include this rotation. */
+    imageRotationAngle?: number;
+    /** The words of the page, in reading order, each with its text offsets and its location
+on the page image. */
+    wordLocations?: PageWordLocation[] | undefined;
+}
+
+/** One word of a page, with its position in the page text and its rectangle on the page image. */
+export class PageWordLocation implements IPageWordLocation {
+    /** The text of the word. */
+    word?: string | undefined;
+    /** The offset of the first character of the word in the page text. */
+    textStart?: number;
+    /** The offset one past the last character of the word in the page text
+(textEnd - textStart is the word length). */
+    textEnd?: number;
+    /** The X coordinate of the left edge of the word, in page image pixels. */
+    x?: number;
+    /** The Y coordinate of the top edge of the word, in page image pixels. */
+    y?: number;
+    /** The width of the word, in page image pixels. This can be 0 for a degenerate location
+produced by OCR. */
+    width?: number;
+    /** The height of the word, in page image pixels. This can be 0 for a degenerate location
+produced by OCR. */
+    height?: number;
+
+    
+    
+    constructor(data?: IPageWordLocation) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.word = _data["word"];
+            this.textStart = _data["textStart"];
+            this.textEnd = _data["textEnd"];
+            this.x = _data["x"];
+            this.y = _data["y"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+        }
+    }
+
+    static fromJS(data: any): PageWordLocation {
+        data = typeof data === 'object' ? data : {};
+        let result = new PageWordLocation();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["word"] = this.word;
+        data["textStart"] = this.textStart;
+        data["textEnd"] = this.textEnd;
+        data["x"] = this.x;
+        data["y"] = this.y;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        return data;
+    }
+}
+
+/** One word of a page, with its position in the page text and its rectangle on the page image. */
+export interface IPageWordLocation {
+    /** The text of the word. */
+    word?: string | undefined;
+    /** The offset of the first character of the word in the page text. */
+    textStart?: number;
+    /** The offset one past the last character of the word in the page text
+(textEnd - textStart is the word length). */
+    textEnd?: number;
+    /** The X coordinate of the left edge of the word, in page image pixels. */
+    x?: number;
+    /** The Y coordinate of the top edge of the word, in page image pixels. */
+    y?: number;
+    /** The width of the word, in page image pixels. This can be 0 for a degenerate location
+produced by OCR. */
+    width?: number;
+    /** The height of the word, in page image pixels. This can be 0 for a degenerate location
+produced by OCR. */
+    height?: number;
+}
+
 /** Request body for listing dynamic field values for an entry. */
 export class ListDynamicFieldValuesRequest implements IListDynamicFieldValuesRequest {
     /** The template id. */
@@ -26512,8 +27050,10 @@ export enum EntryAccessScope {
 
 /** Request body to replace an entry's explicit access control list. This is a full replace: the supplied entries become the entry's complete set of explicit ACEs (any explicit ACE not included is removed). Inherited ACEs cannot be supplied and are managed via inheritParents. */
 export class SetAccessControlRequest implements ISetAccessControlRequest {
-    /** The explicit access control entries to apply. An empty array clears all explicit ACEs.
-Entries flagged isInherited = true are rejected. */
+    /** The explicit access control entries to apply. Required. An empty array clears all
+explicit ACEs. Entries flagged isInherited = true are rejected.
+Deliberately left without a default: this is a full replace, so an omitted or null
+member has to stay distinguishable from an explicitly sent empty array. */
     entries?: AccessControlEntry[] | undefined;
     /** Whether the entry should inherit access rights from its parent(s). When omitted, the
 entry's current inheritance setting is preserved. When false, the ACL is protected
@@ -26563,8 +27103,10 @@ from parent inheritance; when true, parent rights are inherited. */
 
 /** Request body to replace an entry's explicit access control list. This is a full replace: the supplied entries become the entry's complete set of explicit ACEs (any explicit ACE not included is removed). Inherited ACEs cannot be supplied and are managed via inheritParents. */
 export interface ISetAccessControlRequest {
-    /** The explicit access control entries to apply. An empty array clears all explicit ACEs.
-Entries flagged isInherited = true are rejected. */
+    /** The explicit access control entries to apply. Required. An empty array clears all
+explicit ACEs. Entries flagged isInherited = true are rejected.
+Deliberately left without a default: this is a full replace, so an omitted or null
+member has to stay distinguishable from an explicitly sent empty array. */
     entries?: AccessControlEntry[] | undefined;
     /** Whether the entry should inherit access rights from its parent(s). When omitted, the
 entry's current inheritance setting is preserved. When false, the ACL is protected
@@ -29600,7 +30142,10 @@ export enum TemplateRight {
 
 /** Request body for replacing a template definition's access control list. The supplied entries fully replace the template's existing explicit ACL. Inherited entries are not accepted. */
 export class SetTemplateAccessControlRequest implements ISetTemplateAccessControlRequest {
-    /** The access control entries to set. Replaces the template's entire explicit ACL. */
+    /** The access control entries to set. Required. Replaces the template's entire explicit
+ACL; an empty array clears it.
+Deliberately left without a default: this is a full replace, so an omitted or null
+member has to stay distinguishable from an explicitly sent empty array. */
     entries?: TemplateAccessControlEntry[] | undefined;
 
     
@@ -29644,7 +30189,10 @@ export class SetTemplateAccessControlRequest implements ISetTemplateAccessContro
 
 /** Request body for replacing a template definition's access control list. The supplied entries fully replace the template's existing explicit ACL. Inherited entries are not accepted. */
 export interface ISetTemplateAccessControlRequest {
-    /** The access control entries to set. Replaces the template's entire explicit ACL. */
+    /** The access control entries to set. Required. Replaces the template's entire explicit
+ACL; an empty array clears it.
+Deliberately left without a default: this is a full replace, so an omitted or null
+member has to stay distinguishable from an explicitly sent empty array. */
     entries?: TemplateAccessControlEntry[] | undefined;
 }
 
