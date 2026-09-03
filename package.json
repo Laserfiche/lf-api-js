@@ -35,6 +35,8 @@
       "markdown-it": "^14.1.1",
       "minimatch": "^9.0.7",
       "@microsoft/api-extractor>minimatch": "^3.1.2",
+      "nanoid": "^3.3.18",
+      "postcss": "^8.5.27",
       "serialize-javascript": "7.0.5",
       "ws": "^8.20.1",
       "yaml": "^2.8.3",
