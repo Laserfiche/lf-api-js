@@ -41,7 +41,7 @@ jobs:
           node-version: '24'
 
       - name: Install pnpm
-        run: npm install pnpm@latest-9 -g
+        run: npm install pnpm@latest-10 -g
 
       - name: PNPM install
         run: pnpm install
@@ -123,7 +123,7 @@ jobs:
           node-version: '24'
 
       - name: Install pnpm
-        run: npm install pnpm@latest-9 -g
+        run: npm install pnpm@latest-10 -g
 
       - name: PNPM install
         run: pnpm install
@@ -262,7 +262,7 @@ jobs:
           node-version: '24'
 
       - name: Install pnpm
-        run: npm install pnpm@latest-9 -g
+        run: npm install pnpm@latest-10 -g
 
       - name: PNPM install
         run: pnpm install
@@ -350,7 +350,7 @@ jobs:
           node-version: '24'
 
       - name: Install pnpm
-        run: npm install pnpm@latest-9 -g
+        run: npm install pnpm@latest-10 -g
 
       - name: Replace workspace^ with workspace* in lf-api-client-core-js
         working-directory: ./packages/lf-api-client-core-js
@@ -469,7 +469,7 @@ jobs:
           node-version: '24'
 
       - name: Install pnpm
-        run: npm install pnpm@latest-9 -g
+        run: npm install pnpm@latest-10 -g
 
       - name: pnpm version lf-js-utils
         working-directory: ./packages/lf-js-utils

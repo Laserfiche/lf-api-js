@@ -1,2 +1,16 @@
 packages:
   - "packages/*"
+
+# Supply-chain cooldown. Refuse any dependency version published less than
+# 3 days ago (4320 minutes), giving a compromised or hijacked release time to
+# be reported and unpublished before it can reach our lockfile.
+#
+# The value is in MINUTES. Requires pnpm 10.16.0 or newer; older pnpm ignores
+# this key silently, so the packageManager pin and the CI pnpm installs must
+# stay at 10.16.0 or newer for the cooldown to have any effect.
+#
+# If a genuinely urgent fix is ever newer than the window, add just that
+# package to minimumReleaseAgeExclude rather than lowering the value:
+#   minimumReleaseAgeExclude:
+#     - some-package
+minimumReleaseAge: 4320
