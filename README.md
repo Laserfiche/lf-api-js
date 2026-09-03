@@ -11,8 +11,12 @@ Contains the following packages:
 
 ## One time setup
 
-- Run `npm install pnpm@latest-9 -g`
+- Run `npm install pnpm@latest-10 -g`
 - Run `pnpm install`
+
+pnpm 10.16.0 or newer is required. The workspace sets `minimumReleaseAge`, a
+supply-chain cooldown that refuses dependency versions published within the
+last 3 days, and older pnpm ignores that setting silently.
 
 ## To build
 
