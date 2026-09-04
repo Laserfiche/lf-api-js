@@ -1,6 +1,16 @@
 <!--Copyright Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
+## 1.4.2
+
+### Security
+
+- Upgrade vulnerable transitive dependencies: `fast-uri` (^3.1.6), `brace-expansion` (^2.1.4), `nanoid` (^3.3.18), `postcss` (8.5.26).
+
+### Maintenance
+
+- Require every dependency release to be at least 3 days old before it can enter the lockfile. Update pnpm to 10.x, which is required to enforce this.
+
 ## 1.4.1
 
 ### Maintenance
