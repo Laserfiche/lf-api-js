@@ -6026,10 +6026,9 @@ export interface IEntriesClient {
 
     /**
      * - Queues a request for the repository's text provider to extract text from the document's electronic document part (e.g., a PDF or Office file).
-    - By default this does not OCR image pages. A document whose pages are images and that has no electronic document part is unchanged by a call with ocrImagePages left at false.
-    - Set ocrImagePages to true to also queue an OCR job for the document's image pages. Only pages that have an image and no text are included: a page that already has text is left alone, because OCR replaces a page's text and would discard text that was written through the API or edited by a user.
-    - To re-OCR a page that already has text, clear the page text first with WritePage, then call this endpoint with ocrImagePages set to true.
-    - Returns 423 when another user holds a lock on the document, and 400 when another user has it checked out. OCR writes its results back under an exclusive lock, so a document that is held cannot be processed.
+    - By default this does not OCR image pages. A document whose pages are images and that has no electronic document part is unchanged by a call with ocrImagePages left at false; text for those pages is otherwise produced by the repository's automatic OCR when a page image is written, not by this endpoint.
+    - Set ocrImagePages to true to also queue an OCR job for the document's image pages. Only pages that have an image and no text are included: a page that already has text is left alone, because OCR replaces a page's text and would discard text that was written through the API or edited by a user. To re-OCR such a page, clear its text first with WritePage, then call this endpoint with ocrImagePages set to true.
+    - When ocrImagePages is true, returns 423 if another user holds a lock on the document and 400 if another user has it checked out; OCR writes its results back under an exclusive lock, so a document that is held cannot be processed. Neither status occurs when ocrImagePages is false.
     - A success response means the request was queued for processing, not that text now exists. Extraction and OCR run asynchronously, and the returned entry reflects the document as of the response. Poll hasText on ListPageInfos to observe OCR results; a large document may stay queued for some time.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
@@ -10905,10 +10904,9 @@ export class EntriesClient implements IEntriesClient {
 
     /**
      * - Queues a request for the repository's text provider to extract text from the document's electronic document part (e.g., a PDF or Office file).
-    - By default this does not OCR image pages. A document whose pages are images and that has no electronic document part is unchanged by a call with ocrImagePages left at false.
-    - Set ocrImagePages to true to also queue an OCR job for the document's image pages. Only pages that have an image and no text are included: a page that already has text is left alone, because OCR replaces a page's text and would discard text that was written through the API or edited by a user.
-    - To re-OCR a page that already has text, clear the page text first with WritePage, then call this endpoint with ocrImagePages set to true.
-    - Returns 423 when another user holds a lock on the document, and 400 when another user has it checked out. OCR writes its results back under an exclusive lock, so a document that is held cannot be processed.
+    - By default this does not OCR image pages. A document whose pages are images and that has no electronic document part is unchanged by a call with ocrImagePages left at false; text for those pages is otherwise produced by the repository's automatic OCR when a page image is written, not by this endpoint.
+    - Set ocrImagePages to true to also queue an OCR job for the document's image pages. Only pages that have an image and no text are included: a page that already has text is left alone, because OCR replaces a page's text and would discard text that was written through the API or edited by a user. To re-OCR such a page, clear its text first with WritePage, then call this endpoint with ocrImagePages set to true.
+    - When ocrImagePages is true, returns 423 if another user holds a lock on the document and 400 if another user has it checked out; OCR writes its results back under an exclusive lock, so a document that is held cannot be processed. Neither status occurs when ocrImagePages is false.
     - A success response means the request was queued for processing, not that text now exists. Extraction and OCR run asynchronously, and the returned entry reflects the document as of the response. Poll hasText on ListPageInfos to observe OCR results; a large document may stay queued for some time.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
