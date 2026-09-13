@@ -6026,14 +6026,18 @@ export interface IEntriesClient {
 
     /**
      * - Queues a request for the repository's text provider to extract text from the document's electronic document part (e.g., a PDF or Office file).
-    - Does not OCR image pages. A document whose pages are images and that has no electronic document part is unchanged by this call. Text for image pages is produced by the repository's automatic OCR when a page image is written, not by this endpoint.
-    - A success response means the request was queued for processing, not that text now exists. Extraction runs asynchronously, and the returned entry reflects the document as of the response.
+    - By default this does not OCR image pages. A document whose pages are images and that has no electronic document part is unchanged by a call with ocrImagePages left at false.
+    - Set ocrImagePages to true to also queue an OCR job for the document's image pages. Only pages that have an image and no text are included: a page that already has text is left alone, because OCR replaces a page's text and would discard text that was written through the API or edited by a user.
+    - To re-OCR a page that already has text, clear the page text first with WritePage, then call this endpoint with ocrImagePages set to true.
+    - Returns 423 when another user holds a lock on the document, and 400 when another user has it checked out. OCR writes its results back under an exclusive lock, so a document that is held cannot be processed.
+    - A success response means the request was queued for processing, not that text now exists. Extraction and OCR run asynchronously, and the returned entry reflects the document as of the response. Poll hasText on ListPageInfos to observe OCR results; a large document may stay queued for some time.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.ocrImagePages (optional) Set to true to also queue OCR for the document's image pages that have no text. Defaults to false.
      * @returns Successfully queued the text generation request for the document. Returned the entry. Text is produced asynchronously, so it may not be present in this response.
      */
-    generateText(args: { repositoryId: string, entryId: number }): Promise<Entry>;
+    generateText(args: { repositoryId: string, entryId: number, ocrImagePages?: boolean | undefined }): Promise<Entry>;
 
     /**
      * - Returns dynamic field logic values with the current values of the fields in the template.
@@ -10901,22 +10905,30 @@ export class EntriesClient implements IEntriesClient {
 
     /**
      * - Queues a request for the repository's text provider to extract text from the document's electronic document part (e.g., a PDF or Office file).
-    - Does not OCR image pages. A document whose pages are images and that has no electronic document part is unchanged by this call. Text for image pages is produced by the repository's automatic OCR when a page image is written, not by this endpoint.
-    - A success response means the request was queued for processing, not that text now exists. Extraction runs asynchronously, and the returned entry reflects the document as of the response.
+    - By default this does not OCR image pages. A document whose pages are images and that has no electronic document part is unchanged by a call with ocrImagePages left at false.
+    - Set ocrImagePages to true to also queue an OCR job for the document's image pages. Only pages that have an image and no text are included: a page that already has text is left alone, because OCR replaces a page's text and would discard text that was written through the API or edited by a user.
+    - To re-OCR a page that already has text, clear the page text first with WritePage, then call this endpoint with ocrImagePages set to true.
+    - Returns 423 when another user holds a lock on the document, and 400 when another user has it checked out. OCR writes its results back under an exclusive lock, so a document that is held cannot be processed.
+    - A success response means the request was queued for processing, not that text now exists. Extraction and OCR run asynchronously, and the returned entry reflects the document as of the response. Poll hasText on ListPageInfos to observe OCR results; a large document may stay queued for some time.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
+     * @param args.ocrImagePages (optional) Set to true to also queue OCR for the document's image pages that have no text. Defaults to false.
      * @returns Successfully queued the text generation request for the document. Returned the entry. Text is produced asynchronously, so it may not be present in this response.
      */
-    generateText(args: { repositoryId: string, entryId: number }): Promise<Entry> {
-        let { repositoryId, entryId } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/GenerateText";
+    generateText(args: { repositoryId: string, entryId: number, ocrImagePages?: boolean | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, ocrImagePages } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/GenerateText?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (ocrImagePages === null)
+            throw new Error("The parameter 'ocrImagePages' cannot be null.");
+        else if (ocrImagePages !== undefined)
+            url_ += "ocrImagePages=" + encodeURIComponent("" + ocrImagePages) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -10968,6 +10980,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("The document is locked by another user. OCR writes its results back under an exclusive lock, so a locked document cannot be processed.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
