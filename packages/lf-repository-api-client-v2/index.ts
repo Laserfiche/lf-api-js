@@ -5439,6 +5439,15 @@ export interface IEntriesClient {
     /**
      * - Starts an asynchronous export operation to export an entry.
     - If successful, it returns a taskId which can be used to check the status of the export operation or download the export result, otherwise, it returns an error.
+    - When part=Text, a document whose pages carry no text stream is rejected with 400 rather
+      than started and failed later. Text is extracted asynchronously after an import, so a
+      document may briefly have pages but no text; poll hasText on ListPageInfos and retry once
+      it reports true. A document with no pages at all is not rejected here.
+    - The download link the completed task carries in result.uri is **single-use**. The first
+      GET returns the file; any later GET of the same link answers 404, and that 404 carries no
+      problem details because it comes from the download service rather than from this API.
+      Save the content on the first download, and start a new export if a download has to be
+      retried.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -5522,7 +5531,7 @@ export interface IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) Optional. The file to import. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it is stored as the electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file creates an empty document with no electronic document and no pages.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending.
      * @returns Document was created successfully. Returns created entry.
      */
     importEntry(args: { repositoryId: string, entryId: number, autoCreateFolderPath?: boolean | undefined, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
@@ -5530,12 +5539,20 @@ export interface IEntriesClient {
     /**
      * - Export an entry.
     - The export may time out if it takes longer than 60 seconds. This value is subject to change at anytime. Use the long operation asynchronous export if you run into this restriction.
+    - When part=Text, a document whose pages carry no text stream is rejected with 400 rather
+      than started and failed later. Text is extracted asynchronously after an import, so a
+      document may briefly have pages but no text; poll hasText on ListPageInfos and retry once
+      it reports true. A document with no pages at all is not rejected here.
+    - The returned download link is **single-use**. The first GET returns the file; any later
+      GET of the same link answers 404, and that 404 carries no problem details because it
+      comes from the download service rather than from this API. Save the content on the first
+      download, and start a new export if a download has to be retried.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
      * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when exporting as Edoc or AlternateEdoc.
-     * @returns Export was successful. Returned a link to download the exported entry.
+     * @returns Export was successful. Returned a single-use link to download the exported entry. A second download of the same link returns 404.
      */
     exportEntry(args: { repositoryId: string, entryId: number, request: ExportEntryRequest, pageRange?: string | null | undefined }): Promise<ExportEntryResponse>;
 
@@ -5710,7 +5727,7 @@ export interface IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) Optional. The electronic document or image file to apply to the existing document. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it replaces the existing electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file is rejected with 400; use DELETE /Document/Edoc to remove the electronic document.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending.
      * @returns Successfully updated the document. Returned the updated entry.
      */
     updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: UpdateDocumentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
@@ -5761,14 +5778,14 @@ export interface IEntriesClient {
     - The number of pages created is max(imageFiles.Count, textPages.Count). If one array is shorter, pages beyond its length are created without that part.
     - If neither imageFiles nor textPages is provided, one empty page is created.
     - If pageNumber is omitted, pages are appended to the end. If provided, pages are inserted at that 1-based position; existing pages shift down.
-    - generateText triggers OCR when imageFiles are provided. When generateText is true and imageFiles are present, textPages is ignored because OCR-generated text would overwrite any provided text.
+    - generateText requests text extraction from the document's electronic document part; it does not OCR the image pages being written. When generateText is true and imageFiles are present, textPages is ignored because generated text would overwrite any provided text.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageNumber (optional) Optional 1-based page number. If omitted, pages are appended to the end. If provided, pages are inserted at that position.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) for image pages. Default is false.
+     * @param args.generateText (optional) If true, requests text extraction from the document's electronic document part after the pages are written. This does not OCR the image pages being written. Default is false.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending.
      * @returns Successfully created pages in the specified document. Returned the updated entry.
      */
     createPages(args: { repositoryId: string, entryId: number, pageNumber?: number | null | undefined, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
@@ -5780,9 +5797,9 @@ export interface IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after creating pages. Default is false.
+     * @param args.generateText (optional) If true, requests text extraction from the document's electronic document part after the pages are created. This does not OCR the image pages being written. Default is false.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending.
      * @returns Successfully replaced all pages in the specified document. Returned the updated entry.
      */
     replacePages(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry>;
@@ -5812,7 +5829,7 @@ export interface IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageNumber The 1-based page number.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after writing. Default is false.
+     * @param args.generateText (optional) If true, requests text extraction from the document's electronic document part after writing. This does not OCR the page image being written. Default is false.
      * @param args.imageFile (optional) Optional. The image file to upload to replace the page's image content. See https://doc.laserfiche.com/ for supported image file formats. At least one of imageFile or request (with text) must be provided.
      * @param args.request (optional) 
      * @returns Successfully wrote the image content of the specified page. Returned the updated entry.
@@ -6008,15 +6025,20 @@ export interface IEntriesClient {
     listPageWordLocations(args: { repositoryId: string, entryId: number, pageNumber: number, select?: string | null | undefined }): Promise<PageWordLocationsResponse>;
 
     /**
-     * - Triggers server-side text generation for the specified document.
-    - For documents with image pages, this performs OCR to generate searchable text.
-    - For documents with an electronic document part (e.g., PDF), this extracts embedded text.
+     * - Queues a request for the repository's text provider to extract text from the document's electronic document part (e.g., a PDF or Office file).
+    - By default this does not OCR image pages. A document whose pages are images and that has no electronic document part is unchanged by a call with ocrImagePages left at false; text for those pages is otherwise produced by the repository's automatic OCR when a page image is written, not by this endpoint.
+    - Set ocrImagePages to true to also queue an OCR job for the document's image pages. Only pages that have an image and no text are included: a page that already has text is left alone, because OCR replaces a page's text and would discard text that was written through the API or edited by a user. To re-OCR such a page, clear its text first with WritePage, then call this endpoint with ocrImagePages set to true.
+    - When ocrImagePages is true, returns 423 if another user holds a lock on the document and 400 if another user has it checked out; OCR writes its results back under an exclusive lock, so a document that is held cannot be processed. Neither status occurs when ocrImagePages is false.
+    - When ocrImagePages is true, at most 511 pages can be queued in one request. A document with more than 511 image pages that have no text returns 400; that is the number of pages the OCR pipeline accepts in a single job.
+    - The repository's automatic OCR setting does not apply to this endpoint. That setting governs only the OCR the repository performs on its own when a page image is written; a request made here is explicit, and its OCR is queued whether that setting is on or off.
+    - A success response means the request was queued for processing, not that text now exists. Extraction and OCR run asynchronously, and the returned entry reflects the document as of the response. Poll hasText on ListPageInfos to observe OCR results; a large document may stay queued for some time.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @returns Successfully triggered text generation for the document. Returned the updated entry.
+     * @param args.ocrImagePages (optional) Set to true to also queue OCR for the document's image pages that have no text. Defaults to false.
+     * @returns Successfully queued the text generation request for the document. Returned the entry. Text is produced asynchronously, so it may not be present in this response.
      */
-    generateText(args: { repositoryId: string, entryId: number }): Promise<Entry>;
+    generateText(args: { repositoryId: string, entryId: number, ocrImagePages?: boolean | undefined }): Promise<Entry>;
 
     /**
      * - Returns dynamic field logic values with the current values of the fields in the template.
@@ -6688,6 +6710,15 @@ export class EntriesClient implements IEntriesClient {
     /**
      * - Starts an asynchronous export operation to export an entry.
     - If successful, it returns a taskId which can be used to check the status of the export operation or download the export result, otherwise, it returns an error.
+    - When part=Text, a document whose pages carry no text stream is rejected with 400 rather
+      than started and failed later. Text is extracted asynchronously after an import, so a
+      document may briefly have pages but no text; poll hasText on ListPageInfos and retry once
+      it reports true. A document with no pages at all is not rejected here.
+    - The download link the completed task carries in result.uri is **single-use**. The first
+      GET returns the file; any later GET of the same link answers 404, and that 404 carries no
+      problem details because it comes from the download service rather than from this API.
+      Save the content on the first download, and start a new export if a download has to be
+      retried.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -7250,7 +7281,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) Optional. The file to import. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it is stored as the electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file creates an empty document with no electronic document and no pages.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending.
      * @returns Document was created successfully. Returns created entry.
      */
     importEntry(args: { repositoryId: string, entryId: number, autoCreateFolderPath?: boolean | undefined, culture?: string | null | undefined, file?: FileParameter | undefined, request?: ImportEntryRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
@@ -7363,12 +7394,20 @@ export class EntriesClient implements IEntriesClient {
     /**
      * - Export an entry.
     - The export may time out if it takes longer than 60 seconds. This value is subject to change at anytime. Use the long operation asynchronous export if you run into this restriction.
+    - When part=Text, a document whose pages carry no text stream is rejected with 400 rather
+      than started and failed later. Text is extracted asynchronously after an import, so a
+      document may briefly have pages but no text; poll hasText on ListPageInfos and retry once
+      it reports true. A document with no pages at all is not rejected here.
+    - The returned download link is **single-use**. The first GET returns the file; any later
+      GET of the same link answers 404, and that 404 carries no problem details because it
+      comes from the download service rather than from this API. Save the content on the first
+      download, and start a new export if a download has to be retried.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
      * @param args.request The request body.
      * @param args.pageRange (optional) A comma-separated range of pages to include. Ex: 1,3,4 or 1-3,5-7,9. This value is ignored when exporting as Edoc or AlternateEdoc.
-     * @returns Export was successful. Returned a link to download the exported entry.
+     * @returns Export was successful. Returned a single-use link to download the exported entry. A second download of the same link returns 404.
      */
     exportEntry(args: { repositoryId: string, entryId: number, request: ExportEntryRequest, pageRange?: string | null | undefined }): Promise<ExportEntryResponse> {
         let { repositoryId, entryId, request, pageRange } = args;
@@ -8653,7 +8692,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.culture (optional) An optional query parameter used to indicate the locale that should be used. The value should be a standard language tag. This may be used when setting field values with tokens.
      * @param args.file (optional) Optional. The electronic document or image file to apply to the existing document. If the file extension is not in {txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png}, or if importAsElectronicDocument=true, it replaces the existing electronic document. Otherwise (image extension with importAsElectronicDocument=false), it is imported as image pages. A zero-byte file is rejected with 400; use DELETE /Document/Edoc to remove the electronic document.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending.
      * @returns Successfully updated the document. Returned the updated entry.
      */
     updateDocument(args: { repositoryId: string, entryId: number, culture?: string | null | undefined, file?: FileParameter | undefined, request?: UpdateDocumentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
@@ -9087,14 +9126,14 @@ export class EntriesClient implements IEntriesClient {
     - The number of pages created is max(imageFiles.Count, textPages.Count). If one array is shorter, pages beyond its length are created without that part.
     - If neither imageFiles nor textPages is provided, one empty page is created.
     - If pageNumber is omitted, pages are appended to the end. If provided, pages are inserted at that 1-based position; existing pages shift down.
-    - generateText triggers OCR when imageFiles are provided. When generateText is true and imageFiles are present, textPages is ignored because OCR-generated text would overwrite any provided text.
+    - generateText requests text extraction from the document's electronic document part; it does not OCR the image pages being written. When generateText is true and imageFiles are present, textPages is ignored because generated text would overwrite any provided text.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageNumber (optional) Optional 1-based page number. If omitted, pages are appended to the end. If provided, pages are inserted at that position.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) for image pages. Default is false.
+     * @param args.generateText (optional) If true, requests text extraction from the document's electronic document part after the pages are written. This does not OCR the image pages being written. Default is false.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending.
      * @returns Successfully created pages in the specified document. Returned the updated entry.
      */
     createPages(args: { repositoryId: string, entryId: number, pageNumber?: number | null | undefined, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
@@ -9207,9 +9246,9 @@ export class EntriesClient implements IEntriesClient {
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after creating pages. Default is false.
+     * @param args.generateText (optional) If true, requests text extraction from the document's electronic document part after the pages are created. This does not OCR the image pages being written. Default is false.
      * @param args.request (optional) 
-     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending. Set generateImagePagesText=false in the request body to skip OCR for these pages (default: true).
+     * @param args.imageFiles (optional) Optional. Up to 10 image files (100 MB aggregate) that are appended as image pages. Use PUT /Document/Pages to replace existing pages instead of appending.
      * @returns Successfully replaced all pages in the specified document. Returned the updated entry.
      */
     replacePages(args: { repositoryId: string, entryId: number, generateText?: boolean | undefined, request?: PagesContentRequest | undefined, imageFiles?: FileParameter[] | undefined }): Promise<Entry> {
@@ -9434,7 +9473,7 @@ export class EntriesClient implements IEntriesClient {
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.pageNumber The 1-based page number.
-     * @param args.generateText (optional) If true, triggers server-side text generation (OCR) after writing. Default is false.
+     * @param args.generateText (optional) If true, requests text extraction from the document's electronic document part after writing. This does not OCR the page image being written. Default is false.
      * @param args.imageFile (optional) Optional. The image file to upload to replace the page's image content. See https://doc.laserfiche.com/ for supported image file formats. At least one of imageFile or request (with text) must be provided.
      * @param args.request (optional) 
      * @returns Successfully wrote the image content of the specified page. Returned the updated entry.
@@ -10866,23 +10905,32 @@ export class EntriesClient implements IEntriesClient {
     }
 
     /**
-     * - Triggers server-side text generation for the specified document.
-    - For documents with image pages, this performs OCR to generate searchable text.
-    - For documents with an electronic document part (e.g., PDF), this extracts embedded text.
+     * - Queues a request for the repository's text provider to extract text from the document's electronic document part (e.g., a PDF or Office file).
+    - By default this does not OCR image pages. A document whose pages are images and that has no electronic document part is unchanged by a call with ocrImagePages left at false; text for those pages is otherwise produced by the repository's automatic OCR when a page image is written, not by this endpoint.
+    - Set ocrImagePages to true to also queue an OCR job for the document's image pages. Only pages that have an image and no text are included: a page that already has text is left alone, because OCR replaces a page's text and would discard text that was written through the API or edited by a user. To re-OCR such a page, clear its text first with WritePage, then call this endpoint with ocrImagePages set to true.
+    - When ocrImagePages is true, returns 423 if another user holds a lock on the document and 400 if another user has it checked out; OCR writes its results back under an exclusive lock, so a document that is held cannot be processed. Neither status occurs when ocrImagePages is false.
+    - When ocrImagePages is true, at most 511 pages can be queued in one request. A document with more than 511 image pages that have no text returns 400; that is the number of pages the OCR pipeline accepts in a single job.
+    - The repository's automatic OCR setting does not apply to this endpoint. That setting governs only the OCR the repository performs on its own when a page image is written; a request made here is explicit, and its OCR is queued whether that setting is on or off.
+    - A success response means the request was queued for processing, not that text now exists. Extraction and OCR run asynchronously, and the returned entry reflects the document as of the response. Poll hasText on ListPageInfos to observe OCR results; a large document may stay queued for some time.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
-     * @returns Successfully triggered text generation for the document. Returned the updated entry.
+     * @param args.ocrImagePages (optional) Set to true to also queue OCR for the document's image pages that have no text. Defaults to false.
+     * @returns Successfully queued the text generation request for the document. Returned the entry. Text is produced asynchronously, so it may not be present in this response.
      */
-    generateText(args: { repositoryId: string, entryId: number }): Promise<Entry> {
-        let { repositoryId, entryId } = args;
-        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/GenerateText";
+    generateText(args: { repositoryId: string, entryId: number, ocrImagePages?: boolean | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, ocrImagePages } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/GenerateText?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
         url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (ocrImagePages === null)
+            throw new Error("The parameter 'ocrImagePages' cannot be null.");
+        else if (ocrImagePages !== undefined)
+            url_ += "ocrImagePages=" + encodeURIComponent("" + ocrImagePages) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -10934,6 +10982,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Entry with requested ID was not found.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("The document is locked by another user. OCR writes its results back under an exclusive lock, so a locked document cannot be processed.", status, _responseText, _headers, result423);
             });
         } else if (status === 429) {
             return response.text().then((_responseText) => {
@@ -24359,7 +24414,9 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
     volumeName?: string | undefined;
-    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+    /** Whether to request text extraction from the document's electronic document part after the image pages in
+`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
+automatic OCR when the page image is written, regardless of this setting. Default: true.
 Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
     generateImagePagesText?: boolean;
     /** An optional folder path, relative to the entry given in the route, that the document is imported into.
@@ -24434,7 +24491,9 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
     volumeName?: string | undefined;
-    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+    /** Whether to request text extraction from the document's electronic document part after the image pages in
+`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
+automatic OCR when the page image is written, regardless of this setting. Default: true.
 Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
     generateImagePagesText?: boolean;
     /** An optional folder path, relative to the entry given in the route, that the document is imported into.
@@ -25520,7 +25579,9 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The options applied when importing a PDF. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+    /** Whether to request text extraction from the document's electronic document part after the image pages in
+`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
+automatic OCR when the page image is written, regardless of this setting. Default: true.
 Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
     generateImagePagesText?: boolean;
 
@@ -25575,7 +25636,9 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
     metadata?: ImportEntryRequestMetadata | undefined;
     /** The options applied when importing a PDF. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether to generate searchable text (OCR) for image pages added via `imageFiles`. Default: true.
+    /** Whether to request text extraction from the document's electronic document part after the image pages in
+`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
+automatic OCR when the page image is written, regardless of this setting. Default: true.
 Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
     generateImagePagesText?: boolean;
 }
@@ -29111,7 +29174,10 @@ export enum TaskStatus {
 export class TaskResult implements ITaskResult {
     /** The ID of the entry which is affected (e.g. created or modified) by the execution of the associated task. */
     entryId?: number;
-    /** The URI which can be used (via api call) to access the result(s) of the associated task. */
+    /** The URI which can be used (via api call) to access the result(s) of the associated task.
+For an export task this is a download link for the exported file and it is single-use: the
+first GET returns the file and any later GET of the same link answers 404. For every other
+task type it is an ordinary API route and may be called as often as needed. */
     uri?: string | undefined;
 
     
@@ -29151,7 +29217,10 @@ export class TaskResult implements ITaskResult {
 export interface ITaskResult {
     /** The ID of the entry which is affected (e.g. created or modified) by the execution of the associated task. */
     entryId?: number;
-    /** The URI which can be used (via api call) to access the result(s) of the associated task. */
+    /** The URI which can be used (via api call) to access the result(s) of the associated task.
+For an export task this is a download link for the exported file and it is single-use: the
+first GET returns the file and any later GET of the same link answers 404. For every other
+task type it is an ordinary API route and may be called as often as needed. */
     uri?: string | undefined;
 }
 
