@@ -6030,15 +6030,17 @@ export interface IEntriesClient {
     - Set ocrImagePages to true to also queue an OCR job for the document's image pages. Only pages that have an image and no text are included: a page that already has text is left alone, because OCR replaces a page's text and would discard text that was written through the API or edited by a user. To re-OCR such a page, clear its text first with WritePage, then call this endpoint with ocrImagePages set to true.
     - When ocrImagePages is true, returns 423 if another user holds a lock on the document and 400 if another user has it checked out; OCR writes its results back under an exclusive lock, so a document that is held cannot be processed. Neither status occurs when ocrImagePages is false.
     - When ocrImagePages is true, at most 511 pages can be queued in one request. A document with more than 511 image pages that have no text returns 400; that is the number of pages the OCR pipeline accepts in a single job.
+    - When ocrImagePages is true, ocrLanguageOverride names the language for that OCR job, taking precedence over the document's own language and the repository's configured default. It is not stored on the document, so it changes this request only. Supplying it with ocrImagePages false returns 400, and so does a language that is not a usable code -- including one inherited from the document or the repository, because a job queued with an unusable language is accepted and then produces no text with nothing reported back.
     - The repository's automatic OCR setting does not apply to this endpoint. That setting governs only the OCR the repository performs on its own when a page image is written; a request made here is explicit, and its OCR is queued whether that setting is on or off.
     - A success response means the request was queued for processing, not that text now exists. Extraction and OCR run asynchronously, and the returned entry reflects the document as of the response. Poll hasText on ListPageInfos to observe OCR results; a large document may stay queued for some time.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.ocrImagePages (optional) Set to true to also queue OCR for the document's image pages that have no text. Defaults to false.
+     * @param args.ocrLanguageOverride (optional) The language the OCR engine should use for this request, as an RFC 4646 code such as en. Overrides the language that would otherwise apply: the document's own language, then the repository's default, then en. Affects this request only, so the document's stored language is unchanged and the repository's automatic OCR continues to use it. A value that is not a usable language code is rejected with 400 rather than queued, whether given here or inherited. Only valid when ocrImagePages is true.
      * @returns Successfully queued the text generation request for the document. Returned the entry. Text is produced asynchronously, so it may not be present in this response.
      */
-    generateText(args: { repositoryId: string, entryId: number, ocrImagePages?: boolean | undefined }): Promise<Entry>;
+    generateText(args: { repositoryId: string, entryId: number, ocrImagePages?: boolean | undefined, ocrLanguageOverride?: string | null | undefined }): Promise<Entry>;
 
     /**
      * - Returns dynamic field logic values with the current values of the fields in the template.
@@ -10910,16 +10912,18 @@ export class EntriesClient implements IEntriesClient {
     - Set ocrImagePages to true to also queue an OCR job for the document's image pages. Only pages that have an image and no text are included: a page that already has text is left alone, because OCR replaces a page's text and would discard text that was written through the API or edited by a user. To re-OCR such a page, clear its text first with WritePage, then call this endpoint with ocrImagePages set to true.
     - When ocrImagePages is true, returns 423 if another user holds a lock on the document and 400 if another user has it checked out; OCR writes its results back under an exclusive lock, so a document that is held cannot be processed. Neither status occurs when ocrImagePages is false.
     - When ocrImagePages is true, at most 511 pages can be queued in one request. A document with more than 511 image pages that have no text returns 400; that is the number of pages the OCR pipeline accepts in a single job.
+    - When ocrImagePages is true, ocrLanguageOverride names the language for that OCR job, taking precedence over the document's own language and the repository's configured default. It is not stored on the document, so it changes this request only. Supplying it with ocrImagePages false returns 400, and so does a language that is not a usable code -- including one inherited from the document or the repository, because a job queued with an unusable language is accepted and then produces no text with nothing reported back.
     - The repository's automatic OCR setting does not apply to this endpoint. That setting governs only the OCR the repository performs on its own when a page image is written; a request made here is explicit, and its OCR is queued whether that setting is on or off.
     - A success response means the request was queued for processing, not that text now exists. Extraction and OCR run asynchronously, and the returned entry reflects the document as of the response. Poll hasText on ListPageInfos to observe OCR results; a large document may stay queued for some time.
     - Required OAuth scope: repository.Write
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
      * @param args.ocrImagePages (optional) Set to true to also queue OCR for the document's image pages that have no text. Defaults to false.
+     * @param args.ocrLanguageOverride (optional) The language the OCR engine should use for this request, as an RFC 4646 code such as en. Overrides the language that would otherwise apply: the document's own language, then the repository's default, then en. Affects this request only, so the document's stored language is unchanged and the repository's automatic OCR continues to use it. A value that is not a usable language code is rejected with 400 rather than queued, whether given here or inherited. Only valid when ocrImagePages is true.
      * @returns Successfully queued the text generation request for the document. Returned the entry. Text is produced asynchronously, so it may not be present in this response.
      */
-    generateText(args: { repositoryId: string, entryId: number, ocrImagePages?: boolean | undefined }): Promise<Entry> {
-        let { repositoryId, entryId, ocrImagePages } = args;
+    generateText(args: { repositoryId: string, entryId: number, ocrImagePages?: boolean | undefined, ocrLanguageOverride?: string | null | undefined }): Promise<Entry> {
+        let { repositoryId, entryId, ocrImagePages, ocrLanguageOverride } = args;
         let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/GenerateText?";
         if (repositoryId === undefined || repositoryId === null)
             throw new Error("The parameter 'repositoryId' must be defined.");
@@ -10931,6 +10935,8 @@ export class EntriesClient implements IEntriesClient {
             throw new Error("The parameter 'ocrImagePages' cannot be null.");
         else if (ocrImagePages !== undefined)
             url_ += "ocrImagePages=" + encodeURIComponent("" + ocrImagePages) + "&";
+        if (ocrLanguageOverride !== undefined && ocrLanguageOverride !== null)
+            url_ += "ocrLanguageOverride=" + encodeURIComponent("" + ocrLanguageOverride) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
