@@ -1,3 +1,9 @@
+## 1.1.23
+
+### Security
+
+- Security updates for vulnerable dependencies.
+
 ## 1.1.22
 
 ### Maintenance

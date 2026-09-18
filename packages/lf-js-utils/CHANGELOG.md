@@ -1,6 +1,12 @@
 <!--Copyright (c) Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
+## 4.0.17
+
+### Security
+
+- Security updates for vulnerable dependencies.
+
 ## 4.0.16
 
 ### Fixes

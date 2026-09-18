@@ -15,6 +15,10 @@
 
 - The `generateText` description no longer claims to OCR a document's image pages. It never did: it queues text extraction from the electronic document part, so on a document whose pages are images there was nothing to extract and the call produced no text. The wording now describes what the call actually does and states that a `200` means the request was queued rather than that text exists. The `generateText` flag on the page-write and import methods carried the same claim and is corrected to match. Behavior and status codes are unchanged.
 
+### Security
+
+- Security updates for vulnerable dependencies.
+
 ## 1.5.0
 
 ### Features
