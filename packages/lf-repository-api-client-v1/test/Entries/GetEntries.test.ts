@@ -1,10 +1,16 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-import { repositoryId, authorizationType } from '../TestHelper.js';
+import { repositoryId } from '../TestHelper.js';
 import { _RepositoryApiClient } from '../CreateSession.js';
 import 'isomorphic-fetch';
-import { ApiException } from '../../index.js';
-import { authorizationTypeEnum } from '../AuthorizationType.js';
+import { Blob as NodeBlob } from 'buffer';
+import {
+  ApiException,
+  DeleteEntryWithAuditReason,
+  FileParameter,
+  PostEntryWithEdocMetadataRequest,
+} from '../../index.js';
+import { isBrowser } from '@laserfiche/lf-js-utils/dist/utils/core-utils.js';
 
 describe('Get Entries Integration Tests', () => {
   let entryId: number = 1;
@@ -62,22 +68,52 @@ describe('Get Entries Integration Tests', () => {
     expect(result?.entry).toBeUndefined();
   });
 
-  // TODO use importDocument instead of hardcode entryId 3 https://github.com/Laserfiche/lf-repository-api-client-js/issues/53
-  test('Get Document Content Type Return Content Headers', async () => {
-    if (authorizationType === authorizationTypeEnum.APIServerUsernamePassword) {
-      entryId = 509544;
-    } else {
-      entryId = 3;
-    }
-
-    let result: any = await _RepositoryApiClient.entriesClient.getDocumentContentType({
-      repoId: repositoryId,
-      entryId: entryId,
+  // Imports the document this test needs instead of pointing at a fixed entry id in the shared
+  // test repository: the id this used to hard-code was deleted there, and entry ids are never
+  // reused, so the test could not recover on its own. Resolves the TODO from
+  // https://github.com/Laserfiche/lf-repository-api-client-js/issues/53
+  //
+  // Skipped under jsdom: a Blob-bearing multipart body fails before reaching the server there,
+  // the same vitest+jsdom limitation already documented in ImportDocument.test.ts.
+  test.skipIf(isBrowser())('Get Document Content Type Return Content Headers', async () => {
+    const blob: any = new NodeBlob(['RepositoryApiClientIntegrationTest JS GetDocumentContentType'], {
+      type: 'text/plain',
     });
-    expect(result?.status).toBe(200);
-    expect(result?.headers['content-type']).toBeDefined();
-    expect(result?.headers['content-length']).toBeDefined();
-    expect(result?.result).toBeNull();
+    const edoc: FileParameter = {
+      fileName: 'RepositoryApiClientIntegrationTest JS GetDocumentContentType.txt',
+      data: blob,
+    };
+    const createResult = await _RepositoryApiClient.entriesClient.importDocument({
+      repoId: repositoryId,
+      parentEntryId: 1,
+      fileName: 'RepositoryApiClientIntegrationTest JS GetDocumentContentType',
+      autoRename: true,
+      request: new PostEntryWithEdocMetadataRequest(),
+      electronicDocument: edoc,
+    });
+    const documentEntryId: number = createResult.operations?.entryCreate?.entryId ?? 0;
+    expect(documentEntryId).not.toBe(0);
+
+    try {
+      let result: any = await _RepositoryApiClient.entriesClient.getDocumentContentType({
+        repoId: repositoryId,
+        entryId: documentEntryId,
+      });
+      expect(result?.status).toBe(200);
+      expect(result?.headers['content-type']).toBeDefined();
+      expect(result?.headers['content-length']).toBeDefined();
+      expect(result?.result).toBeNull();
+    } finally {
+      try {
+        await _RepositoryApiClient.entriesClient.deleteEntryInfo({
+          repoId: repositoryId,
+          entryId: documentEntryId,
+          request: new DeleteEntryWithAuditReason(),
+        });
+      } catch {
+        // Best effort: the document is auto-renamed, so a leftover is harmless clutter.
+      }
+    }
   });
 
   test('Get Entry Throw Exception', async () => {
