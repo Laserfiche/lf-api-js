@@ -5448,6 +5448,11 @@ export interface IEntriesClient {
       problem details because it comes from the download service rather than from this API.
       Save the content on the first download, and start a new export if a download has to be
       retried.
+    - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
+      another format with an encoding is rejected with 400). When it is omitted, pages are written uncompressed
+      (black-and-white pages as G4), which can be many times the stored size. AsStored copies the stored pages
+      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
+      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -5547,6 +5552,11 @@ export interface IEntriesClient {
       GET of the same link answers 404, and that 404 carries no problem details because it
       comes from the download service rather than from this API. Save the content on the first
       download, and start a new export if a download has to be retried.
+    - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
+      another format with an encoding is rejected with 400). When it is omitted, pages are written uncompressed
+      (black-and-white pages as G4), which can be many times the stored size. AsStored copies the stored pages
+      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
+      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -6721,6 +6731,11 @@ export class EntriesClient implements IEntriesClient {
       problem details because it comes from the download service rather than from this API.
       Save the content on the first download, and start a new export if a download has to be
       retried.
+    - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
+      another format with an encoding is rejected with 400). When it is omitted, pages are written uncompressed
+      (black-and-white pages as G4), which can be many times the stored size. AsStored copies the stored pages
+      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
+      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -7404,6 +7419,11 @@ export class EntriesClient implements IEntriesClient {
       GET of the same link answers 404, and that 404 carries no problem details because it
       comes from the download service rather than from this API. Save the content on the first
       download, and start a new export if a download has to be retried.
+    - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
+      another format with an encoding is rejected with 400). When it is omitted, pages are written uncompressed
+      (black-and-white pages as G4), which can be many times the stored size. AsStored copies the stored pages
+      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
+      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -23420,6 +23440,13 @@ export class ExportEntryRequestImageOptions implements IExportEntryRequestImageO
     includeRedactions?: boolean;
     /** The watermark element added to each image. No watermark will be added by default. */
     watermark?: ExportEntryRequestWatermark | undefined;
+    /** The compression of the pages in the exported TIFF. Options include: AsStored, Uncompressed, G4, LZW and JPEG. Only
+applicable when format is MultiPageTIFF or SinglePageTIFF; any other format with an encoding is rejected. When
+omitted, pages are written uncompressed (black-and-white pages as G4), which can make the export many times larger
+than the stored document. AsStored copies the stored pages without decoding them and keeps the export about the size
+of the stored pages; JPEG pages are then written as JPEG inside the TIFF (compression 7), which some older TIFF
+readers do not support. */
+    encoding?: ExportEntryRequestImageEncoding | undefined;
 
     
     
@@ -23449,6 +23476,7 @@ export class ExportEntryRequestImageOptions implements IExportEntryRequestImageO
             this.pagePrefix = _data["pagePrefix"] !== undefined ? _data["pagePrefix"] : ", Page ";
             this.includeRedactions = _data["includeRedactions"] !== undefined ? _data["includeRedactions"] : true;
             this.watermark = _data["watermark"] ? ExportEntryRequestWatermark.fromJS(_data["watermark"]) : <any>undefined;
+            this.encoding = _data["encoding"];
         }
     }
 
@@ -23468,6 +23496,7 @@ export class ExportEntryRequestImageOptions implements IExportEntryRequestImageO
         data["pagePrefix"] = this.pagePrefix;
         data["includeRedactions"] = this.includeRedactions;
         data["watermark"] = this.watermark ? this.watermark.toJSON() : <any>undefined;
+        data["encoding"] = this.encoding;
         return data;
     }
 }
@@ -23488,6 +23517,13 @@ export interface IExportEntryRequestImageOptions {
     includeRedactions?: boolean;
     /** The watermark element added to each image. No watermark will be added by default. */
     watermark?: ExportEntryRequestWatermark | undefined;
+    /** The compression of the pages in the exported TIFF. Options include: AsStored, Uncompressed, G4, LZW and JPEG. Only
+applicable when format is MultiPageTIFF or SinglePageTIFF; any other format with an encoding is rejected. When
+omitted, pages are written uncompressed (black-and-white pages as G4), which can make the export many times larger
+than the stored document. AsStored copies the stored pages without decoding them and keeps the export about the size
+of the stored pages; JPEG pages are then written as JPEG inside the TIFF (compression 7), which some older TIFF
+readers do not support. */
+    encoding?: ExportEntryRequestImageEncoding | undefined;
 }
 
 /** Enumeration of formats when exporting the image part of an entry. */
@@ -23576,6 +23612,15 @@ export enum WatermarkPosition {
     BottomLeft = "BottomLeft",
     BottomCenter = "BottomCenter",
     BottomRight = "BottomRight",
+}
+
+/** Enumeration of page compressions when exporting the image part of an entry as TIFF. */
+export enum ExportEntryRequestImageEncoding {
+    AsStored = "AsStored",
+    Uncompressed = "Uncompressed",
+    G4 = "G4",
+    LZW = "LZW",
+    JPEG = "JPEG",
 }
 
 /** Represents the options when exporting the text part of an entry. */
@@ -24402,111 +24447,6 @@ export interface IChildInfo {
     documentCount?: number;
     /** Number of immediate child shortcuts. */
     shortcutCount?: number;
-}
-
-/** Request body for importing an entry. */
-export class ImportEntryRequest implements IImportEntryRequest {
-    /** The name for the imported entry. */
-    name!: string;
-    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
-    autoRename?: boolean;
-    /** The options applied when importing a PDF. */
-    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
-This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
-For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
-    importAsElectronicDocument?: boolean;
-    /** The metadata that will be assigned to the entry. */
-    metadata?: ImportEntryRequestMetadata | undefined;
-    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
-    volumeName?: string | undefined;
-    /** Whether to request text extraction from the document's electronic document part after the image pages in
-`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
-automatic OCR when the page image is written, regardless of this setting. Default: true.
-Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
-    generateImagePagesText?: boolean;
-    /** An optional folder path, relative to the entry given in the route, that the document is imported into.
-Both `/` and `\` are accepted as separators. When any folder in this path does not exist, set the
-`autoCreateFolderPath` query parameter to true to create the missing folders; otherwise the request
-fails with 404. When omitted, the document is imported directly into the route entry (unchanged behavior). */
-    folderPath?: string | undefined;
-
-    
-    
-    constructor(data?: IImportEntryRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.autoRename = false;
-            this.importAsElectronicDocument = false;
-            this.generateImagePagesText = true;
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.autoRename = _data["autoRename"] !== undefined ? _data["autoRename"] : false;
-            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
-            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
-            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
-            this.volumeName = _data["volumeName"];
-            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
-            this.folderPath = _data["folderPath"];
-        }
-    }
-
-    static fromJS(data: any): ImportEntryRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new ImportEntryRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["autoRename"] = this.autoRename;
-        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
-        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
-        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
-        data["volumeName"] = this.volumeName;
-        data["generateImagePagesText"] = this.generateImagePagesText;
-        data["folderPath"] = this.folderPath;
-        return data;
-    }
-}
-
-/** Request body for importing an entry. */
-export interface IImportEntryRequest {
-    /** The name for the imported entry. */
-    name: string;
-    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
-    autoRename?: boolean;
-    /** The options applied when importing a PDF. */
-    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
-This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
-For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
-    importAsElectronicDocument?: boolean;
-    /** The metadata that will be assigned to the entry. */
-    metadata?: ImportEntryRequestMetadata | undefined;
-    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
-    volumeName?: string | undefined;
-    /** Whether to request text extraction from the document's electronic document part after the image pages in
-`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
-automatic OCR when the page image is written, regardless of this setting. Default: true.
-Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
-    generateImagePagesText?: boolean;
-    /** An optional folder path, relative to the entry given in the route, that the document is imported into.
-Both `/` and `\` are accepted as separators. When any folder in this path does not exist, set the
-`autoCreateFolderPath` query parameter to true to create the missing folders; otherwise the request
-fails with 404. When omitted, the document is imported directly into the route entry (unchanged behavior). */
-    folderPath?: string | undefined;
 }
 
 /** Response containing a link to download the exported entry. */
@@ -25575,80 +25515,6 @@ export enum CreateEntryRequestEntryType {
     Shortcut = "Shortcut",
 }
 
-/** Request body for updating a document's electronic document and/or metadata. */
-export class UpdateDocumentRequest implements IUpdateDocumentRequest {
-    /** Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.
-This flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
-For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
-    importAsElectronicDocument?: boolean;
-    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
-    metadata?: ImportEntryRequestMetadata | undefined;
-    /** The options applied when importing a PDF. */
-    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether to request text extraction from the document's electronic document part after the image pages in
-`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
-automatic OCR when the page image is written, regardless of this setting. Default: true.
-Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
-    generateImagePagesText?: boolean;
-
-    
-    
-    constructor(data?: IUpdateDocumentRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.importAsElectronicDocument = false;
-            this.generateImagePagesText = true;
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
-            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
-            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
-            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
-        }
-    }
-
-    static fromJS(data: any): UpdateDocumentRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateDocumentRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
-        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
-        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
-        data["generateImagePagesText"] = this.generateImagePagesText;
-        return data;
-    }
-}
-
-/** Request body for updating a document's electronic document and/or metadata. */
-export interface IUpdateDocumentRequest {
-    /** Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.
-This flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
-For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
-    importAsElectronicDocument?: boolean;
-    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
-    metadata?: ImportEntryRequestMetadata | undefined;
-    /** The options applied when importing a PDF. */
-    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-    /** Whether to request text extraction from the document's electronic document part after the image pages in
-`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
-automatic OCR when the page image is written, regardless of this setting. Default: true.
-Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
-    generateImagePagesText?: boolean;
-}
-
 /** Request body for updating a document's electronic document and/or metadata from previously uploaded parts. */
 export class UpdateDocumentUploadedPartsRequest implements IUpdateDocumentUploadedPartsRequest {
     /** The UploadId received when calling the CreateMultipartUploadUrls API to request upload URLs. */
@@ -25729,100 +25595,6 @@ For any other file type (PDF, Word, Excel, etc.), the file is always imported as
     metadata?: ImportEntryRequestMetadata | undefined;
     /** Server-side processing options applied to the assembled file. See ImportEntryRequestPdfOptions for the full contract. */
     pdfOptions?: ImportEntryRequestPdfOptions | undefined;
-}
-
-/** Request body for POST /Document/Pages (CreatePages) and PUT /Document/Pages (ReplacePages). Carries the textual page content alongside any uploaded image files. */
-export class PagesContentRequest implements IPagesContentRequest {
-    /** Optional text content for new pages. Paired by index with imageFiles —
-page[i] gets textPages[i] and imageFiles[i]. If one array is shorter,
-the corresponding pages are created without that part. */
-    textPages?: string[] | undefined;
-
-    
-    
-    constructor(data?: IPagesContentRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["textPages"])) {
-                this.textPages = [] as any;
-                for (let item of _data["textPages"])
-                    this.textPages!.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): PagesContentRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new PagesContentRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.textPages)) {
-            data["textPages"] = [];
-            for (let item of this.textPages)
-                data["textPages"].push(item);
-        }
-        return data;
-    }
-}
-
-/** Request body for POST /Document/Pages (CreatePages) and PUT /Document/Pages (ReplacePages). Carries the textual page content alongside any uploaded image files. */
-export interface IPagesContentRequest {
-    /** Optional text content for new pages. Paired by index with imageFiles —
-page[i] gets textPages[i] and imageFiles[i]. If one array is shorter,
-the corresponding pages are created without that part. */
-    textPages?: string[] | undefined;
-}
-
-export class WritePageTextRequest implements IWritePageTextRequest {
-    /** The text content for the page. */
-    text!: string;
-
-    
-    
-    constructor(data?: IWritePageTextRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.text = _data["text"];
-        }
-    }
-
-    static fromJS(data: any): WritePageTextRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new WritePageTextRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["text"] = this.text;
-        return data;
-    }
-}
-
-export interface IWritePageTextRequest {
-    /** The text content for the page. */
-    text: string;
 }
 
 export class MovePagesRequest implements IMovePagesRequest {
@@ -31027,6 +30799,279 @@ export interface IUpdateUserAreaRequest {
     comment?: string | undefined;
     /** The new data string. null leaves it unchanged. */
     data?: string | undefined;
+}
+
+/** Request body for importing an entry. */
+export class ImportEntryRequest implements IImportEntryRequest {
+    /** The name for the imported entry. */
+    name!: string;
+    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
+    autoRename?: boolean;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
+    volumeName?: string | undefined;
+    /** Whether to request text extraction from the document's electronic document part after the image pages in
+`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
+automatic OCR when the page image is written, regardless of this setting. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
+    generateImagePagesText?: boolean;
+    /** An optional folder path, relative to the entry given in the route, that the document is imported into.
+Both `/` and `\` are accepted as separators. When any folder in this path does not exist, set the
+`autoCreateFolderPath` query parameter to true to create the missing folders; otherwise the request
+fails with 404. When omitted, the document is imported directly into the route entry (unchanged behavior). */
+    folderPath?: string | undefined;
+
+    
+    
+    constructor(data?: IImportEntryRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.autoRename = false;
+            this.importAsElectronicDocument = false;
+            this.generateImagePagesText = true;
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.autoRename = _data["autoRename"] !== undefined ? _data["autoRename"] : false;
+            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
+            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
+            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
+            this.volumeName = _data["volumeName"];
+            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
+            this.folderPath = _data["folderPath"];
+        }
+    }
+
+    static fromJS(data: any): ImportEntryRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportEntryRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["autoRename"] = this.autoRename;
+        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
+        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
+        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
+        data["volumeName"] = this.volumeName;
+        data["generateImagePagesText"] = this.generateImagePagesText;
+        data["folderPath"] = this.folderPath;
+        return data;
+    }
+}
+
+/** Request body for importing an entry. */
+export interface IImportEntryRequest {
+    /** The name for the imported entry. */
+    name: string;
+    /** Indicates if the entry should be automatically renamed if an entry already exists with the given name in the folder. The default value is false. */
+    autoRename?: boolean;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Whether the file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when the file extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The name of the volume to use. Will use the default parent entry volume if not specified. This is ignored in Laserfiche Cloud. */
+    volumeName?: string | undefined;
+    /** Whether to request text extraction from the document's electronic document part after the image pages in
+`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
+automatic OCR when the page image is written, regardless of this setting. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
+    generateImagePagesText?: boolean;
+    /** An optional folder path, relative to the entry given in the route, that the document is imported into.
+Both `/` and `\` are accepted as separators. When any folder in this path does not exist, set the
+`autoCreateFolderPath` query parameter to true to create the missing folders; otherwise the request
+fails with 404. When omitted, the document is imported directly into the route entry (unchanged behavior). */
+    folderPath?: string | undefined;
+}
+
+/** Request body for updating a document's electronic document and/or metadata. */
+export class UpdateDocumentRequest implements IUpdateDocumentRequest {
+    /** Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Whether to request text extraction from the document's electronic document part after the image pages in
+`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
+automatic OCR when the page image is written, regardless of this setting. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
+    generateImagePagesText?: boolean;
+
+    
+    
+    constructor(data?: IUpdateDocumentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.importAsElectronicDocument = false;
+            this.generateImagePagesText = true;
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.importAsElectronicDocument = _data["importAsElectronicDocument"] !== undefined ? _data["importAsElectronicDocument"] : false;
+            this.metadata = _data["metadata"] ? ImportEntryRequestMetadata.fromJS(_data["metadata"]) : <any>undefined;
+            this.pdfOptions = _data["pdfOptions"] ? ImportEntryRequestPdfOptions.fromJS(_data["pdfOptions"]) : <any>undefined;
+            this.generateImagePagesText = _data["generateImagePagesText"] !== undefined ? _data["generateImagePagesText"] : true;
+        }
+    }
+
+    static fromJS(data: any): UpdateDocumentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDocumentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["importAsElectronicDocument"] = this.importAsElectronicDocument;
+        data["metadata"] = this.metadata ? this.metadata.toJSON() : <any>undefined;
+        data["pdfOptions"] = this.pdfOptions ? this.pdfOptions.toJSON() : <any>undefined;
+        data["generateImagePagesText"] = this.generateImagePagesText;
+        return data;
+    }
+}
+
+/** Request body for updating a document's electronic document and/or metadata. */
+export interface IUpdateDocumentRequest {
+    /** Whether a provided file is imported as the electronic document (true) or as image pages (false). Default: false.
+This flag is only effective when `file` is provided and its extension is one of: txt, tif, tiff, bmp, pcx, jpg, jpeg, gif, png.
+For any other file type (PDF, Word, Excel, etc.), the file is always imported as the electronic document regardless of this flag. */
+    importAsElectronicDocument?: boolean;
+    /** The metadata that will be assigned to the entry. Metadata updates are additive — only the specified fields, tags, and links are touched. Existing values not mentioned in the request are preserved. */
+    metadata?: ImportEntryRequestMetadata | undefined;
+    /** The options applied when importing a PDF. */
+    pdfOptions?: ImportEntryRequestPdfOptions | undefined;
+    /** Whether to request text extraction from the document's electronic document part after the image pages in
+`imageFiles` are added. This does not OCR those image pages — image pages are OCR'd by the repository's
+automatic OCR when the page image is written, regardless of this setting. Default: true.
+Does not affect pages generated from `file` — use `pdfOptions.generateText` for those. */
+    generateImagePagesText?: boolean;
+}
+
+/** Request body for POST /Document/Pages (CreatePages) and PUT /Document/Pages (ReplacePages). Carries the textual page content alongside any uploaded image files. */
+export class PagesContentRequest implements IPagesContentRequest {
+    /** Optional text content for new pages. Paired by index with imageFiles —
+page[i] gets textPages[i] and imageFiles[i]. If one array is shorter,
+the corresponding pages are created without that part. */
+    textPages?: string[] | undefined;
+
+    
+    
+    constructor(data?: IPagesContentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["textPages"])) {
+                this.textPages = [] as any;
+                for (let item of _data["textPages"])
+                    this.textPages!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): PagesContentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagesContentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.textPages)) {
+            data["textPages"] = [];
+            for (let item of this.textPages)
+                data["textPages"].push(item);
+        }
+        return data;
+    }
+}
+
+/** Request body for POST /Document/Pages (CreatePages) and PUT /Document/Pages (ReplacePages). Carries the textual page content alongside any uploaded image files. */
+export interface IPagesContentRequest {
+    /** Optional text content for new pages. Paired by index with imageFiles —
+page[i] gets textPages[i] and imageFiles[i]. If one array is shorter,
+the corresponding pages are created without that part. */
+    textPages?: string[] | undefined;
+}
+
+export class WritePageTextRequest implements IWritePageTextRequest {
+    /** The text content for the page. */
+    text!: string;
+
+    
+    
+    constructor(data?: IWritePageTextRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): WritePageTextRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new WritePageTextRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface IWritePageTextRequest {
+    /** The text content for the page. */
+    text: string;
 }
 
 export interface FileParameter {
