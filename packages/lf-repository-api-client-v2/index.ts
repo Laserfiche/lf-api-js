@@ -5448,6 +5448,12 @@ export interface IEntriesClient {
       problem details because it comes from the download service rather than from this API.
       Save the content on the first download, and start a new export if a download has to be
       retried.
+    - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
+      with another format and an encoding, the export task fails with 400). When it is omitted, pages are written
+      uncompressed (black-and-white pages as G4 unless they carry an included colour annotation), which can be many
+      times the stored size. AsStored copies the stored pages
+      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
+      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -5547,6 +5553,12 @@ export interface IEntriesClient {
       GET of the same link answers 404, and that 404 carries no problem details because it
       comes from the download service rather than from this API. Save the content on the first
       download, and start a new export if a download has to be retried.
+    - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
+      another format with an encoding is rejected with 400). When it is omitted, pages are written uncompressed
+      (black-and-white pages as G4 unless they carry an included colour annotation), which can be many times the
+      stored size. AsStored copies the stored pages
+      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
+      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -6721,6 +6733,12 @@ export class EntriesClient implements IEntriesClient {
       problem details because it comes from the download service rather than from this API.
       Save the content on the first download, and start a new export if a download has to be
       retried.
+    - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
+      with another format and an encoding, the export task fails with 400). When it is omitted, pages are written
+      uncompressed (black-and-white pages as G4 unless they carry an included colour annotation), which can be many
+      times the stored size. AsStored copies the stored pages
+      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
+      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -7404,6 +7422,12 @@ export class EntriesClient implements IEntriesClient {
       GET of the same link answers 404, and that 404 carries no problem details because it
       comes from the download service rather than from this API. Save the content on the first
       download, and start a new export if a download has to be retried.
+    - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
+      another format with an encoding is rejected with 400). When it is omitted, pages are written uncompressed
+      (black-and-white pages as G4 unless they carry an included colour annotation), which can be many times the
+      stored size. AsStored copies the stored pages
+      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
+      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -23420,6 +23444,13 @@ export class ExportEntryRequestImageOptions implements IExportEntryRequestImageO
     includeRedactions?: boolean;
     /** The watermark element added to each image. No watermark will be added by default. */
     watermark?: ExportEntryRequestWatermark | undefined;
+    /** The compression of the pages in the exported TIFF. Options include: AsStored, Uncompressed, G4, LZW and JPEG. Only
+applicable when format is MultiPageTIFF or SinglePageTIFF; any other format with an encoding is rejected. When
+omitted, pages are written uncompressed (black-and-white pages as G4 unless they carry an included colour annotation), which can make the export many times larger
+than the stored document. AsStored copies the stored pages without decoding them and keeps the export about the size
+of the stored pages; JPEG pages are then written as JPEG inside the TIFF (compression 7), which some older TIFF
+readers do not support. */
+    encoding?: ExportEntryRequestImageEncoding | undefined;
 
     
     
@@ -23449,6 +23480,7 @@ export class ExportEntryRequestImageOptions implements IExportEntryRequestImageO
             this.pagePrefix = _data["pagePrefix"] !== undefined ? _data["pagePrefix"] : ", Page ";
             this.includeRedactions = _data["includeRedactions"] !== undefined ? _data["includeRedactions"] : true;
             this.watermark = _data["watermark"] ? ExportEntryRequestWatermark.fromJS(_data["watermark"]) : <any>undefined;
+            this.encoding = _data["encoding"];
         }
     }
 
@@ -23468,6 +23500,7 @@ export class ExportEntryRequestImageOptions implements IExportEntryRequestImageO
         data["pagePrefix"] = this.pagePrefix;
         data["includeRedactions"] = this.includeRedactions;
         data["watermark"] = this.watermark ? this.watermark.toJSON() : <any>undefined;
+        data["encoding"] = this.encoding;
         return data;
     }
 }
@@ -23488,6 +23521,13 @@ export interface IExportEntryRequestImageOptions {
     includeRedactions?: boolean;
     /** The watermark element added to each image. No watermark will be added by default. */
     watermark?: ExportEntryRequestWatermark | undefined;
+    /** The compression of the pages in the exported TIFF. Options include: AsStored, Uncompressed, G4, LZW and JPEG. Only
+applicable when format is MultiPageTIFF or SinglePageTIFF; any other format with an encoding is rejected. When
+omitted, pages are written uncompressed (black-and-white pages as G4 unless they carry an included colour annotation), which can make the export many times larger
+than the stored document. AsStored copies the stored pages without decoding them and keeps the export about the size
+of the stored pages; JPEG pages are then written as JPEG inside the TIFF (compression 7), which some older TIFF
+readers do not support. */
+    encoding?: ExportEntryRequestImageEncoding | undefined;
 }
 
 /** Enumeration of formats when exporting the image part of an entry. */
@@ -23576,6 +23616,15 @@ export enum WatermarkPosition {
     BottomLeft = "BottomLeft",
     BottomCenter = "BottomCenter",
     BottomRight = "BottomRight",
+}
+
+/** Enumeration of page compressions when exporting the image part of an entry as TIFF. */
+export enum ExportEntryRequestImageEncoding {
+    AsStored = "AsStored",
+    Uncompressed = "Uncompressed",
+    G4 = "G4",
+    LZW = "LZW",
+    JPEG = "JPEG",
 }
 
 /** Represents the options when exporting the text part of an entry. */
