@@ -5772,6 +5772,36 @@ export interface IEntriesClient {
     deleteElectronicDocument(args: { repositoryId: string, entryId: number }): Promise<Entry>;
 
     /**
+     * - Returns the stored electronic document as the response body in a single request, with no export operation and
+      no download link. Content-Type is the stored MIME type, and Content-Disposition carries the entry name and
+      extension.
+    - Optional header: Range. A single byte range (bytes=a-b, bytes=a- or bytes=-n) returns 206 with exactly those
+      bytes and a Content-Range header. A range that starts at or after the end of the document returns 416, and its
+      Content-Range header gives the document size. Multiple ranges are not supported.
+    - The size and MIME type are available without downloading the content from GetEntry
+      (electronicDocumentSize, mimeType).
+    - An entry that is not a document, or a document without an electronic document, returns 404.
+    - Audit: when the repository requires an export audit reason, every request must carry a valid auditReasonId,
+      including each range request; otherwise 400. One Export Document audit event is recorded per download, for the
+      request whose range starts at byte 0, and only when an audit reason is given. The repository also records a
+      View Document event for every request, so a download made of several range requests records one export event
+      and one view event per request.
+    - The audit reason and comment are query parameters and therefore appear in request URLs and access logs.
+    - Every request, including each range request, counts against the import/export rate limit. A single request
+      returns at most about 2 GB; download a larger electronic document in ranges (a larger range returns 400).
+    - When the repository is busy, the request fails fast with 429 instead of waiting; retry after a short delay.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.auditReasonId (optional) Optional. The ID of the export audit reason for this download. Required when the repository requires an audit reason for exporting documents.
+     * @param args.auditReasonComment (optional) Optional. A comment recorded with the audit reason.
+     * @param args.range (optional) Optional. A single byte range, for example bytes=0-1023, to download part of the electronic document.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the document's electronic document.
+     */
+    getDocumentEdoc(args: { repositoryId: string, entryId: number, auditReasonId?: number | null | undefined, auditReasonComment?: string | null | undefined, range?: string | null | undefined, select?: string | null | undefined }): Promise<FileResponse>;
+
+    /**
      * - Delete the pages associated with the provided entry ID. If no pageRange is specified, all pages will be deleted.
     - Optional parameter: pageRange (default empty). The value should be a comma-separated string which contains non-overlapping single values, or page ranges. Ex: "1,2,3", "1-3,5", "2-7,10-12."
     - Required OAuth scope: repository.Write
@@ -9041,6 +9071,155 @@ export class EntriesClient implements IEntriesClient {
             });
         }
         return Promise.resolve<Entry>(null as any);
+    }
+
+    /**
+     * - Returns the stored electronic document as the response body in a single request, with no export operation and
+      no download link. Content-Type is the stored MIME type, and Content-Disposition carries the entry name and
+      extension.
+    - Optional header: Range. A single byte range (bytes=a-b, bytes=a- or bytes=-n) returns 206 with exactly those
+      bytes and a Content-Range header. A range that starts at or after the end of the document returns 416, and its
+      Content-Range header gives the document size. Multiple ranges are not supported.
+    - The size and MIME type are available without downloading the content from GetEntry
+      (electronicDocumentSize, mimeType).
+    - An entry that is not a document, or a document without an electronic document, returns 404.
+    - Audit: when the repository requires an export audit reason, every request must carry a valid auditReasonId,
+      including each range request; otherwise 400. One Export Document audit event is recorded per download, for the
+      request whose range starts at byte 0, and only when an audit reason is given. The repository also records a
+      View Document event for every request, so a download made of several range requests records one export event
+      and one view event per request.
+    - The audit reason and comment are query parameters and therefore appear in request URLs and access logs.
+    - Every request, including each range request, counts against the import/export rate limit. A single request
+      returns at most about 2 GB; download a larger electronic document in ranges (a larger range returns 400).
+    - When the repository is busy, the request fails fast with 429 instead of waiting; retry after a short delay.
+    - Required OAuth scope: repository.Read
+     * @param args.repositoryId The requested repository ID.
+     * @param args.entryId The requested document ID.
+     * @param args.auditReasonId (optional) Optional. The ID of the export audit reason for this download. Required when the repository requires an audit reason for exporting documents.
+     * @param args.auditReasonComment (optional) Optional. A comment recorded with the audit reason.
+     * @param args.range (optional) Optional. A single byte range, for example bytes=0-1023, to download part of the electronic document.
+     * @param args.select (optional) Limits the properties returned in the result.
+     * @returns Successfully returned the document's electronic document.
+     */
+    getDocumentEdoc(args: { repositoryId: string, entryId: number, auditReasonId?: number | null | undefined, auditReasonComment?: string | null | undefined, range?: string | null | undefined, select?: string | null | undefined }): Promise<FileResponse> {
+        let { repositoryId, entryId, auditReasonId, auditReasonComment, range, select } = args;
+        let url_ = this.baseUrl + "/v2/Repositories/{repositoryId}/Entries/{entryId}/Document/Edoc?";
+        if (repositoryId === undefined || repositoryId === null)
+            throw new Error("The parameter 'repositoryId' must be defined.");
+        url_ = url_.replace("{repositoryId}", encodeURIComponent("" + repositoryId));
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        if (auditReasonId !== undefined && auditReasonId !== null)
+            url_ += "auditReasonId=" + encodeURIComponent("" + auditReasonId) + "&";
+        if (auditReasonComment !== undefined && auditReasonComment !== null)
+            url_ += "auditReasonComment=" + encodeURIComponent("" + auditReasonComment) + "&";
+        if (select !== undefined && select !== null)
+            url_ += "$select=" + encodeURIComponent("" + select) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/octet-stream"
+            }
+        };
+
+        if (range !== null && range !== undefined)
+            options_.headers = Object.assign({}, options_.headers, {"Range": range !== undefined && range !== null ? "" + range : null});
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDocumentEdoc(_response);
+        });
+    }
+
+    protected processGetDocumentEdoc(response: Response): Promise<FileResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Invalid or bad request.", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Access token is invalid or expired.", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Access denied for the operation.", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("The entry was not found, is not a document, or has no electronic document.", status, _responseText, _headers, result404);
+            });
+        } else if (status === 416) {
+            return response.text().then((_responseText) => {
+            let result416: any = null;
+            let resultData416 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result416 = ProblemDetails.fromJS(resultData416);
+            return throwException("The requested range starts at or after the end of the electronic document.", status, _responseText, _headers, result416);
+            });
+        } else if (status === 423) {
+            return response.text().then((_responseText) => {
+            let result423: any = null;
+            let resultData423 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result423 = ProblemDetails.fromJS(resultData423);
+            return throwException("Entry is locked", status, _responseText, _headers, result423);
+            });
+        } else if (status === 429) {
+            return response.text().then((_responseText) => {
+            let result429: any = null;
+            let resultData429 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result429 = ProblemDetails.fromJS(resultData429);
+            return throwException("Rate limit is reached.", status, _responseText, _headers, result429);
+            });
+        } else if (status === 500) {
+            return response.text().then((_responseText) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<FileResponse>(null as any);
     }
 
     /**
