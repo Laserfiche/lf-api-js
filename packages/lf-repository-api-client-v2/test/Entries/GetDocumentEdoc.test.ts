@@ -153,7 +153,10 @@ describe.skipIf(SKIP_UNDER_JSDOM)('GetDocumentEdoc', () => {
     const folder = await CreateEntry(_RepositoryApiClient, 'RepositoryApiClientIntegrationTest JS GetDocumentEdoc folder');
     createdEntryIds.push(folder.id!);
 
-    await expect(getEdoc(folder.id!)).rejects.toMatchObject({ status: 404 });
-    await expect(getEdoc(999999999)).rejects.toMatchObject({ status: 404 });
+    // errorCode 9001 comes from the repository, so the request reached this route: a server without the route deployed
+    // also answers 404, without it. (problemDetails.operationId is a per-request id here, not the operation name.)
+    const notFound = { status: 404, problemDetails: { errorCode: 9001 } };
+    await expect(getEdoc(folder.id!)).rejects.toMatchObject(notFound);
+    await expect(getEdoc(999999999)).rejects.toMatchObject(notFound);
   });
 });
