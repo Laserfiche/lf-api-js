@@ -5782,13 +5782,14 @@ export interface IEntriesClient {
       (electronicDocumentSize, mimeType).
     - An entry that is not a document, or a document without an electronic document, returns 404.
     - Audit: when the repository requires an export audit reason, every request must carry a valid auditReasonId,
-      including each range request; otherwise 400. One Export Document audit event is recorded per download, for the
-      request whose range starts at byte 0, and only when an audit reason is given. The repository also records a
-      View Document event for every request, so a download made of several range requests records one export event
+      including each range request; otherwise 400. An Export Document audit event is recorded for every request that
+      carries an audit reason, including each range request. The repository also records a View Document event for
+      every request, so a download made of several range requests records one export event (when a reason is given)
       and one view event per request.
     - The audit reason and comment are query parameters and therefore appear in request URLs and access logs.
     - Every request, including each range request, counts against the import/export rate limit. A single request
-      returns at most about 2 GB; download a larger electronic document in ranges (a larger range returns 400).
+      returns at most 128 MiB (134217728 bytes); download a larger electronic document in ranges of at most that size
+      (a larger range returns 400).
     - When the repository is busy, the request fails fast with 429 instead of waiting; retry after a short delay.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
@@ -9084,13 +9085,14 @@ export class EntriesClient implements IEntriesClient {
       (electronicDocumentSize, mimeType).
     - An entry that is not a document, or a document without an electronic document, returns 404.
     - Audit: when the repository requires an export audit reason, every request must carry a valid auditReasonId,
-      including each range request; otherwise 400. One Export Document audit event is recorded per download, for the
-      request whose range starts at byte 0, and only when an audit reason is given. The repository also records a
-      View Document event for every request, so a download made of several range requests records one export event
+      including each range request; otherwise 400. An Export Document audit event is recorded for every request that
+      carries an audit reason, including each range request. The repository also records a View Document event for
+      every request, so a download made of several range requests records one export event (when a reason is given)
       and one view event per request.
     - The audit reason and comment are query parameters and therefore appear in request URLs and access logs.
     - Every request, including each range request, counts against the import/export rate limit. A single request
-      returns at most about 2 GB; download a larger electronic document in ranges (a larger range returns 400).
+      returns at most 128 MiB (134217728 bytes); download a larger electronic document in ranges of at most that size
+      (a larger range returns 400).
     - When the repository is busy, the request fails fast with 429 instead of waiting; retry after a short delay.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
