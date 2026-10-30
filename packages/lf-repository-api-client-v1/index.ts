@@ -12418,18 +12418,24 @@ export class RepositoryApiClientHttpHandler {
 
       try {
         response = await fetch(absoluteUrl, init);
-        shouldRetry =
-          (await this._httpRequestHandler.afterFetchResponseAsync(absoluteUrl, response, init)) ||
-          isRetryable(response, init);
+        let retryDelayMs: number | undefined = 0;
+        if (!(await this._httpRequestHandler.afterFetchResponseAsync(absoluteUrl, response, init))) {
+          retryDelayMs = retryCount < maxRetries ? getRetryDelayMs(response, init) : undefined;
+        }
+        shouldRetry = retryDelayMs !== undefined;
         if (!shouldRetry) {
           return response;
         }
+        if (retryDelayMs) {
+          await sleep(retryDelayMs, init.signal);
+        }
       } catch (err) {
-        if (retryCount >= maxRetries) {
+        if (retryCount >= maxRetries || init.signal?.aborted) {
           throw err;
         }
         shouldRetry = true;
         console.warn(`Retrying fetch due to exception: ${err}`);
+        await sleep(transientRetryDelayMs(), init.signal);
       } finally {
         retryCount++;
       }
@@ -12441,9 +12447,71 @@ export class RepositoryApiClientHttpHandler {
   }
 }
 
-function isRetryable(response: Response, init: RequestInit): boolean {
-  const isIdempotent = init.method != 'POST';
-  return (response.status >= 500 || response.status == 408) && isIdempotent;
+/** The longest Retry-After the client waits for before its one retry; a response asking for longer is returned. */
+const maxRetryAfterMs = 30_000;
+/** A transient error without Retry-After is retried after a random delay in this range, so clients do not retry in step. */
+const minTransientRetryDelayMs = 200;
+const maxTransientRetryDelayMs = 1_000;
+
+/**
+ * How long to wait before retrying `response`, or undefined if it should not be retried (TFS 725694). Only idempotent
+ * methods are retried. A 429 or 503 with Retry-After is retried after that delay unless it is longer than 30 s; any other
+ * 5xx, or 408, after a short random delay. A 429 without Retry-After is not retried.
+ * @internal
+ */
+export function getRetryDelayMs(response: Response, init: RequestInit): number | undefined {
+  if (!isIdempotentMethod(init.method)) {
+    return undefined;
+  }
+  const asksToWait = response.status == 429 || response.status == 503;
+  const retryAfterMs = asksToWait ? parseRetryAfterMs(response.headers.get('Retry-After')) : undefined;
+  if (retryAfterMs !== undefined) {
+    return retryAfterMs <= maxRetryAfterMs ? retryAfterMs : undefined;
+  }
+  if (response.status >= 500 || response.status == 408) {
+    return transientRetryDelayMs();
+  }
+  return undefined;
+}
+
+function isIdempotentMethod(method: string | undefined): boolean {
+  const m = (method ?? 'GET').toUpperCase();
+  return m == 'GET' || m == 'PUT' || m == 'HEAD' || m == 'OPTIONS';
+}
+
+/** Retry-After is either a number of seconds or an HTTP date. */
+function parseRetryAfterMs(value: string | null): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  if (/^\d+$/.test(trimmed)) {
+    return Number(trimmed) * 1000;
+  }
+  const date = Date.parse(trimmed);
+  return isNaN(date) ? undefined : Math.max(0, date - Date.now());
+}
+
+function transientRetryDelayMs(): number {
+  return minTransientRetryDelayMs + Math.random() * (maxTransientRetryDelayMs - minTransientRetryDelayMs);
+}
+
+function sleep(ms: number, signal?: AbortSignal | null): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(signal.reason);
+      return;
+    }
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(signal?.reason);
+    };
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    signal?.addEventListener('abort', onAbort, { once: true });
+  });
 }
 
 async function getNextLinkListing<T>(
