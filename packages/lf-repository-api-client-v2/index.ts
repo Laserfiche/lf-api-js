@@ -5439,10 +5439,11 @@ export interface IEntriesClient {
     /**
      * - Starts an asynchronous export operation to export an entry.
     - If successful, it returns a taskId which can be used to check the status of the export operation or download the export result, otherwise, it returns an error.
-    - When part=Text, a document whose pages carry no text stream is rejected with 400 rather
-      than started and failed later. Text is extracted asynchronously after an import, so a
-      document may briefly have pages but no text; poll hasText on ListPageInfos and retry once
-      it reports true. A document with no pages at all is not rejected here.
+    - When part=Text, a document whose pages carry no text stream, or that has no pages at all
+      (as with part=Image), is rejected before any export job starts. The request still returns
+      202; the task then fails with a 400 error rather than running and failing later. Text is
+      extracted asynchronously after an import, so a document may briefly have pages but no
+      text; poll hasText on ListPageInfos and retry once it reports true.
     - The download link the completed task carries in result.uri is **single-use**. The first
       GET returns the file; any later GET of the same link answers 404, and that 404 carries no
       problem details because it comes from the download service rather than from this API.
@@ -5548,7 +5549,8 @@ export interface IEntriesClient {
     - When part=Text, a document whose pages carry no text stream is rejected with 400 rather
       than started and failed later. Text is extracted asynchronously after an import, so a
       document may briefly have pages but no text; poll hasText on ListPageInfos and retry once
-      it reports true. A document with no pages at all is not rejected here.
+      it reports true. A document with no pages at all is also rejected with 400, as it is for
+      part=Image.
     - The returned download link is **single-use**. The first GET returns the file; any later
       GET of the same link answers 404, and that 404 carries no problem details because it
       comes from the download service rather than from this API. Save the content on the first
@@ -5791,6 +5793,8 @@ export interface IEntriesClient {
       returns at most 128 MiB (134217728 bytes); download a larger electronic document in ranges of at most that size
       (a larger range returns 400).
     - When the repository is busy, the request fails fast with 429 instead of waiting; retry after a short delay.
+    - When the server is temporarily short of memory for the requested range, the request returns 503 with a
+      Retry-After header; retry after that delay.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
@@ -6755,10 +6759,11 @@ export class EntriesClient implements IEntriesClient {
     /**
      * - Starts an asynchronous export operation to export an entry.
     - If successful, it returns a taskId which can be used to check the status of the export operation or download the export result, otherwise, it returns an error.
-    - When part=Text, a document whose pages carry no text stream is rejected with 400 rather
-      than started and failed later. Text is extracted asynchronously after an import, so a
-      document may briefly have pages but no text; poll hasText on ListPageInfos and retry once
-      it reports true. A document with no pages at all is not rejected here.
+    - When part=Text, a document whose pages carry no text stream, or that has no pages at all
+      (as with part=Image), is rejected before any export job starts. The request still returns
+      202; the task then fails with a 400 error rather than running and failing later. Text is
+      extracted asynchronously after an import, so a document may briefly have pages but no
+      text; poll hasText on ListPageInfos and retry once it reports true.
     - The download link the completed task carries in result.uri is **single-use**. The first
       GET returns the file; any later GET of the same link answers 404, and that 404 carries no
       problem details because it comes from the download service rather than from this API.
@@ -7448,7 +7453,8 @@ export class EntriesClient implements IEntriesClient {
     - When part=Text, a document whose pages carry no text stream is rejected with 400 rather
       than started and failed later. Text is extracted asynchronously after an import, so a
       document may briefly have pages but no text; poll hasText on ListPageInfos and retry once
-      it reports true. A document with no pages at all is not rejected here.
+      it reports true. A document with no pages at all is also rejected with 400, as it is for
+      part=Image.
     - The returned download link is **single-use**. The first GET returns the file; any later
       GET of the same link answers 404, and that 404 carries no problem details because it
       comes from the download service rather than from this API. Save the content on the first
@@ -9094,6 +9100,8 @@ export class EntriesClient implements IEntriesClient {
       returns at most 128 MiB (134217728 bytes); download a larger electronic document in ranges of at most that size
       (a larger range returns 400).
     - When the repository is busy, the request fails fast with 429 instead of waiting; retry after a short delay.
+    - When the server is temporarily short of memory for the requested range, the request returns 503 with a
+      Retry-After header; retry after that delay.
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The requested document ID.
@@ -9215,6 +9223,13 @@ export class EntriesClient implements IEntriesClient {
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("An unexpected server-side error occurred.", status, _responseText, _headers, result500);
+            });
+        } else if (status === 503) {
+            return response.text().then((_responseText) => {
+            let result503: any = null;
+            let resultData503 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result503 = ProblemDetails.fromJS(resultData503);
+            return throwException("The service is temporarily unavailable. Retry after the delay in the Retry-After header.", status, _responseText, _headers, result503);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
