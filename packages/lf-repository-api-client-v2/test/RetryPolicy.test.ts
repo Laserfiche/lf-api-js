@@ -106,6 +106,54 @@ describe('Retry policy', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  test('a GET that fails in transport is retried once', async () => {
+    fetchMock.mockRejectedValueOnce(new TypeError('fetch failed')).mockResolvedValueOnce(respond(200));
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    const { response } = await send('GET');
+
+    expect(response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  test.each(['POST', 'PATCH', 'DELETE'])('%s that fails in transport is not retried', async (method) => {
+    fetchMock.mockRejectedValueOnce(new TypeError('fetch failed'));
+    const handler = new RepositoryApiClientHttpHandler(requestHandler);
+
+    await expect(handler.httpHandler('https://api.example.com/repository/v2/x', { method })).rejects.toThrow('fetch failed');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  test('a stream body is not sent twice', async () => {
+    fetchMock.mockResolvedValueOnce(respond(503, '1'));
+    const body = new ReadableStream({ start: (c) => c.close() });
+    const handler = new RepositoryApiClientHttpHandler(requestHandler);
+
+    const response = await handler.httpHandler('https://api.example.com/repository/v2/x', { method: 'PUT', body, duplex: 'half' } as any);
+
+    expect(response.status).toBe(503);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  test('the discarded response body is released before the retry', async () => {
+    const first = new Response('{"title":"busy"}', { status: 503, headers: { 'Retry-After': '1' } });
+    const cancel = vi.spyOn(first.body!, 'cancel');
+    fetchMock.mockResolvedValueOnce(first).mockResolvedValueOnce(respond(200));
+
+    await send('GET');
+
+    expect(cancel).toHaveBeenCalledTimes(1);
+  });
+
+  test('a failure in the response callback is not mistaken for a transport failure', async () => {
+    fetchMock.mockResolvedValue(respond(200));
+    const failing: any = { ...requestHandler, afterFetchResponseAsync: async () => { throw new Error('refresh failed'); } };
+    const handler = new RepositoryApiClientHttpHandler(failing);
+
+    await expect(handler.httpHandler('https://api.example.com/repository/v2/x', { method: 'GET' })).rejects.toThrow('refresh failed');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   test('Retry-After as an HTTP date', () => {
     const in20s = new Date(Date.now() + 20_000).toUTCString();
 

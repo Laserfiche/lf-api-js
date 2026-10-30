@@ -31257,14 +31257,11 @@ export class RepositoryApiClientHttpHandler {
 
   public async httpHandler(url: string, init: RequestInit): Promise<Response> {
     const maxRetries = 1;
-    let retryCount = 0;
-    let shouldRetry = true;
 
     if (this.defaultRequestHeaders) {
       init.headers = Object.assign({}, this.defaultRequestHeaders, init.headers);
     }
-    let response: Response | undefined;
-    while (retryCount <= maxRetries && shouldRetry) {
+    for (let attempt = 0; ; attempt++) {
       const beforeSendResult = await this._httpRequestHandler.beforeFetchRequestAsync(url, init);
       let absoluteUrl: string;
       if (url.startsWith('http')) {
@@ -31274,34 +31271,32 @@ export class RepositoryApiClientHttpHandler {
         absoluteUrl = UrlUtils.combineURLs(apiBasedAddress, url);
       }
 
+      let response: Response;
       try {
         response = await fetch(absoluteUrl, init);
-        let retryDelayMs: number | undefined = 0;
-        if (!(await this._httpRequestHandler.afterFetchResponseAsync(absoluteUrl, response, init))) {
-          retryDelayMs = retryCount < maxRetries ? getRetryDelayMs(response, init) : undefined;
-        }
-        shouldRetry = retryDelayMs !== undefined;
-        if (!shouldRetry) {
-          return response;
-        }
-        if (retryDelayMs) {
-          await sleep(retryDelayMs, init.signal);
-        }
       } catch (err) {
-        if (retryCount >= maxRetries || init.signal?.aborted) {
+        // A transport failure is retried only for a request that is safe to send again: the server may have acted on
+        // a POST, PATCH or DELETE before the connection failed. An aborted request is not retried.
+        if (attempt >= maxRetries || init.signal?.aborted || !canResend(init)) {
           throw err;
         }
-        shouldRetry = true;
         console.warn(`Retrying fetch due to exception: ${err}`);
         await sleep(transientRetryDelayMs(), init.signal);
-      } finally {
-        retryCount++;
+        continue;
+      }
+
+      // An access token refreshed after a 401 is retried whatever the status says.
+      const tokenRefreshed = await this._httpRequestHandler.afterFetchResponseAsync(absoluteUrl, response, init);
+      const retryDelayMs = attempt >= maxRetries ? undefined : tokenRefreshed ? 0 : getRetryDelayMs(response, init);
+      if (retryDelayMs === undefined) {
+        return response;
+      }
+      // Release the discarded response's connection before waiting.
+      await response.body?.cancel().catch(() => undefined);
+      if (retryDelayMs > 0) {
+        await sleep(retryDelayMs, init.signal);
       }
     }
-    if (!response) {
-      throw new Error('Undefined response, there is a bug!');
-    }
-    return response;
   }
 }
 
@@ -31313,12 +31308,12 @@ const maxTransientRetryDelayMs = 1_000;
 
 /**
  * How long to wait before retrying `response`, or undefined if it should not be retried (TFS 725694). Only idempotent
- * methods are retried. A 429 or 503 with Retry-After is retried after that delay unless it is longer than 30 s; any other
+ * methods with a body that can be sent again are retried. A 429 or 503 with Retry-After is retried after that delay unless it is longer than 30 s; any other
  * 5xx, or 408, after a short random delay. A 429 without Retry-After is not retried.
  * @internal
  */
 export function getRetryDelayMs(response: Response, init: RequestInit): number | undefined {
-  if (!isIdempotentMethod(init.method)) {
+  if (!canResend(init)) {
     return undefined;
   }
   const asksToWait = response.status == 429 || response.status == 503;
@@ -31330,6 +31325,17 @@ export function getRetryDelayMs(response: Response, init: RequestInit): number |
     return transientRetryDelayMs();
   }
   return undefined;
+}
+
+/** Whether a request can be sent again: an idempotent method and a body that can be read twice (not a stream). */
+function canResend(init: RequestInit): boolean {
+  const body = init.body;
+  const replayable = body == null || typeof body === 'string' ||
+    (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) ||
+    (typeof FormData !== 'undefined' && body instanceof FormData) ||
+    (typeof Blob !== 'undefined' && body instanceof Blob) ||
+    body instanceof ArrayBuffer || ArrayBuffer.isView(body);
+  return replayable && isIdempotentMethod(init.method);
 }
 
 function isIdempotentMethod(method: string | undefined): boolean {
