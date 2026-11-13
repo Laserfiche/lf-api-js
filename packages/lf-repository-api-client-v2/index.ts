@@ -5450,11 +5450,13 @@ export interface IEntriesClient {
       Save the content on the first download, and start a new export if a download has to be
       retried.
     - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
-      with another format and an encoding, the export task fails with 400). When it is omitted, pages are written
-      uncompressed (black-and-white pages as G4 unless they carry an included colour annotation), which can be many
-      times the stored size. AsStored copies the stored pages
-      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
-      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
+      with another format and an encoding, the export task fails with 400). When it is omitted, AsStored is used: the
+      stored pages are copied without being decoded and the export is about the size of the stored document; stored
+      JPEG pages are then written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
+      For those readers use Lossless: CCITT G4 or LZW only (black-and-white pages are normally G4; pages that render
+      in grey or colour, including a black-and-white page with an included colour annotation, are LZW), with the same
+      pixels as Uncompressed. Uncompressed decodes every page and writes it uncompressed (the output when omitted
+      before AsStored became the default).
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -5556,11 +5558,13 @@ export interface IEntriesClient {
       comes from the download service rather than from this API. Save the content on the first
       download, and start a new export if a download has to be retried.
     - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
-      another format with an encoding is rejected with 400). When it is omitted, pages are written uncompressed
-      (black-and-white pages as G4 unless they carry an included colour annotation), which can be many times the
-      stored size. AsStored copies the stored pages
-      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
-      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
+      another format with an encoding is rejected with 400). When it is omitted, AsStored is used: the stored pages
+      are copied without being decoded and the export is about the size of the stored document; stored JPEG pages are
+      then written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open. For those
+      readers use Lossless: CCITT G4 or LZW only (black-and-white pages are normally G4; pages that render in grey or
+      colour, including a black-and-white page with an included colour annotation, are LZW), with the same pixels as
+      Uncompressed. Uncompressed decodes every page and writes it uncompressed (the output when omitted before
+      AsStored became the default).
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -6770,11 +6774,13 @@ export class EntriesClient implements IEntriesClient {
       Save the content on the first download, and start a new export if a download has to be
       retried.
     - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
-      with another format and an encoding, the export task fails with 400). When it is omitted, pages are written
-      uncompressed (black-and-white pages as G4 unless they carry an included colour annotation), which can be many
-      times the stored size. AsStored copies the stored pages
-      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
-      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
+      with another format and an encoding, the export task fails with 400). When it is omitted, AsStored is used: the
+      stored pages are copied without being decoded and the export is about the size of the stored document; stored
+      JPEG pages are then written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
+      For those readers use Lossless: CCITT G4 or LZW only (black-and-white pages are normally G4; pages that render
+      in grey or colour, including a black-and-white page with an included colour annotation, are LZW), with the same
+      pixels as Uncompressed. Uncompressed decodes every page and writes it uncompressed (the output when omitted
+      before AsStored became the default).
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -7460,11 +7466,13 @@ export class EntriesClient implements IEntriesClient {
       comes from the download service rather than from this API. Save the content on the first
       download, and start a new export if a download has to be retried.
     - imageOptions.encoding sets the compression of the pages in a TIFF export (MultiPageTIFF or SinglePageTIFF only;
-      another format with an encoding is rejected with 400). When it is omitted, pages are written uncompressed
-      (black-and-white pages as G4 unless they carry an included colour annotation), which can be many times the
-      stored size. AsStored copies the stored pages
-      without decoding them and keeps the export about the size of the stored document; stored JPEG pages are then
-      written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open.
+      another format with an encoding is rejected with 400). When it is omitted, AsStored is used: the stored pages
+      are copied without being decoded and the export is about the size of the stored document; stored JPEG pages are
+      then written as JPEG inside the TIFF (compression 7), which some older TIFF readers cannot open. For those
+      readers use Lossless: CCITT G4 or LZW only (black-and-white pages are normally G4; pages that render in grey or
+      colour, including a black-and-white page with an included colour annotation, are LZW), with the same pixels as
+      Uncompressed. Uncompressed decodes every page and writes it uncompressed (the output when omitted before
+      AsStored became the default).
     - Required OAuth scope: repository.Read
      * @param args.repositoryId The requested repository ID.
      * @param args.entryId The ID of entry to export.
@@ -23640,12 +23648,14 @@ export class ExportEntryRequestImageOptions implements IExportEntryRequestImageO
     includeRedactions?: boolean;
     /** The watermark element added to each image. No watermark will be added by default. */
     watermark?: ExportEntryRequestWatermark | undefined;
-    /** The compression of the pages in the exported TIFF. Options include: AsStored, Uncompressed, G4, LZW and JPEG. Only
-applicable when format is MultiPageTIFF or SinglePageTIFF; any other format with an encoding is rejected. When
-omitted, pages are written uncompressed (black-and-white pages as G4 unless they carry an included colour annotation), which can make the export many times larger
-than the stored document. AsStored copies the stored pages without decoding them and keeps the export about the size
-of the stored pages; JPEG pages are then written as JPEG inside the TIFF (compression 7), which some older TIFF
-readers do not support. */
+    /** The compression of the pages in the exported TIFF. Options include: AsStored, Uncompressed, G4, LZW, JPEG and
+Lossless. Only applicable when format is MultiPageTIFF or SinglePageTIFF; any other format with an encoding is
+rejected. When omitted, AsStored is used: the stored pages are copied without being decoded and the export is about
+the size of the stored pages; stored JPEG pages are then written as JPEG inside the TIFF (compression 7), which
+some older TIFF readers do not support. For those readers use Lossless: CCITT G4 or LZW only (black-and-white
+pages are normally G4; pages that render in grey or colour, including a black-and-white page with an included
+colour annotation, are LZW), with the same pixels as Uncompressed. Uncompressed decodes every page and writes it
+uncompressed (the output when omitted before AsStored became the default). */
     encoding?: ExportEntryRequestImageEncoding | undefined;
 
     
@@ -23717,12 +23727,14 @@ export interface IExportEntryRequestImageOptions {
     includeRedactions?: boolean;
     /** The watermark element added to each image. No watermark will be added by default. */
     watermark?: ExportEntryRequestWatermark | undefined;
-    /** The compression of the pages in the exported TIFF. Options include: AsStored, Uncompressed, G4, LZW and JPEG. Only
-applicable when format is MultiPageTIFF or SinglePageTIFF; any other format with an encoding is rejected. When
-omitted, pages are written uncompressed (black-and-white pages as G4 unless they carry an included colour annotation), which can make the export many times larger
-than the stored document. AsStored copies the stored pages without decoding them and keeps the export about the size
-of the stored pages; JPEG pages are then written as JPEG inside the TIFF (compression 7), which some older TIFF
-readers do not support. */
+    /** The compression of the pages in the exported TIFF. Options include: AsStored, Uncompressed, G4, LZW, JPEG and
+Lossless. Only applicable when format is MultiPageTIFF or SinglePageTIFF; any other format with an encoding is
+rejected. When omitted, AsStored is used: the stored pages are copied without being decoded and the export is about
+the size of the stored pages; stored JPEG pages are then written as JPEG inside the TIFF (compression 7), which
+some older TIFF readers do not support. For those readers use Lossless: CCITT G4 or LZW only (black-and-white
+pages are normally G4; pages that render in grey or colour, including a black-and-white page with an included
+colour annotation, are LZW), with the same pixels as Uncompressed. Uncompressed decodes every page and writes it
+uncompressed (the output when omitted before AsStored became the default). */
     encoding?: ExportEntryRequestImageEncoding | undefined;
 }
 
@@ -23821,6 +23833,7 @@ export enum ExportEntryRequestImageEncoding {
     G4 = "G4",
     LZW = "LZW",
     JPEG = "JPEG",
+    Lossless = "Lossless",
 }
 
 /** Represents the options when exporting the text part of an entry. */
