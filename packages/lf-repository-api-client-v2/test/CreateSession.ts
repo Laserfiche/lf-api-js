@@ -3,6 +3,8 @@
 import { repositoryId } from './TestHelper.js';
 import { IRepositoryApiClient } from '../index.js';
 import { createClient } from './BaseTest.js';
+import { installFetchTimeout } from './FetchTimeout.js';
+installFetchTimeout();
 let _RepositoryApiClient: IRepositoryApiClient;
 _RepositoryApiClient = createClient();
 export { repositoryId, _RepositoryApiClient };
